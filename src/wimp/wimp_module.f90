@@ -39,8 +39,8 @@
 	CALL calc_xheat()
 	
 	
-	!! start after 1 million years
-	IF ( Age_star .LT. 1.D8) THEN
+	!! start after 10,000 years
+	IF ( Age_star .LT. 1.D4) THEN
 		DO itr = 1,kmax
 			s% extra_heat(itr) = 0.D0
 		ENDDO
