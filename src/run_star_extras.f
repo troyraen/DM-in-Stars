@@ -1,6 +1,6 @@
 ! ***********************************************************************
 !
-!   Copyright (C) 2010  Bill Paxton
+!   Copyright (C) 2011  Bill Paxton
 !
 !   this file is part of mesa.
 !
@@ -20,19 +20,33 @@
 !
 ! ***********************************************************************
  
+ 
+!!-----------------------------
+!!	TJR
+!!	changes 6/7/17:
+!!	Force profile and history output at enter ms, leave ms, he flash, he exhaustion, 
+!!	Force profile and history output every 5000 models with higer priority
+!!	changes 6/8/17:
+!!	write wimp_temp to history
+!!----------------------------- 
+
+
+
       module run_star_extras
 
       use star_lib
       use star_def
       use const_def
+      use wimp_module   ! necessary to point towards the other_energy hook (see below) 
       
       implicit none
-
+      
       integer :: time0, time1, clock_rate
+      double precision, parameter :: expected_runtime = 16.5 ! minutes
+
       
       ! these routines are called by the standard run_star check_model
       contains
-      
       
       subroutine extras_controls(id, ierr)
          integer, intent(in) :: id
@@ -49,7 +63,10 @@
          s% how_many_extra_history_columns => how_many_extra_history_columns
          s% data_for_extra_history_columns => data_for_extra_history_columns
          s% how_many_extra_profile_columns => how_many_extra_profile_columns
-         s% data_for_extra_profile_columns => data_for_extra_profile_columns  
+         s% data_for_extra_profile_columns => data_for_extra_profile_columns 
+
+         s% other_energy => wimp_energy_transport ! subroutine where extra_heat is defined inside of module wimp_module
+
       end subroutine extras_controls
       
       
@@ -75,14 +92,23 @@
          integer, intent(in) :: id, id_extra
          integer, intent(out) :: ierr
          type (star_info), pointer :: s
-         real(dp) :: dt
+         double precision :: dt
+         character (len=strlen) :: test
          ierr = 0
          call star_ptr(id, s, ierr)
          if (ierr /= 0) return
          call system_clock(time1,clock_rate)
          dt = dble(time1 - time0) / clock_rate / 60
-         write(*,'(/,a50,f12.2,99i10/)') 'runtime (minutes), retries, backups, steps', &
-            dt, s% num_retries, s% num_backups, s% model_number
+         call GET_ENVIRONMENT_VARIABLE( &
+            "MESA_TEST_SUITE_CHECK_RUNTIME", test, status=ierr, trim_name=.true.)
+         if (ierr == 0 .and. trim(test) == 'true' .and. dt > 1.5*expected_runtime) then
+            write(*,'(/,a70,2f12.1,99i10/)') &
+               'failed: EXCESSIVE runtime, prev time, retries, backups, steps', &
+               dt, expected_runtime, s% num_retries, s% num_backups, s% model_number
+         else
+            write(*,'(/,a50,2f12.1,99i10/)') 'runtime, prev time, retries, backups, steps', &
+               dt, expected_runtime, s% num_retries, s% num_backups, s% model_number
+         end if
          ierr = 0
       end subroutine extras_after_evolve
       
@@ -95,7 +121,7 @@
          ierr = 0
          call star_ptr(id, s, ierr)
          if (ierr /= 0) return
-         extras_check_model = keep_going         
+         extras_check_model = keep_going 
       end function extras_check_model
 
 
@@ -106,11 +132,12 @@
          ierr = 0
          call star_ptr(id, s, ierr)
          if (ierr /= 0) return
-         how_many_extra_history_columns = 0
+         how_many_extra_history_columns = 1
       end function how_many_extra_history_columns
       
       
       subroutine data_for_extra_history_columns(id, id_extra, n, names, vals, ierr)
+         include 'wimp/wimp_vars.h'
          integer, intent(in) :: id, id_extra, n
          character (len=maxlen_history_column_name) :: names(n)
          real(dp) :: vals(n)
@@ -119,8 +146,15 @@
          ierr = 0
          call star_ptr(id, s, ierr)
          if (ierr /= 0) return
-      end subroutine data_for_extra_history_columns
 
+         !note: do NOT add the extras names to history_columns.list
+         ! the history_columns.list is only for the built-in log column options.
+         ! it must not include the new column names you are adding here.
+
+         names(1) = 'wimp_temp'
+         vals(1) = Tx
+
+      end subroutine data_for_extra_history_columns
       
       integer function how_many_extra_profile_columns(id, id_extra)
          use star_def, only: star_info
@@ -130,7 +164,7 @@
          ierr = 0
          call star_ptr(id, s, ierr)
          if (ierr /= 0) return
-         how_many_extra_profile_columns = 0
+         how_many_extra_profile_columns = 1
       end function how_many_extra_profile_columns
       
       
@@ -146,6 +180,13 @@
          ierr = 0
          call star_ptr(id, s, ierr)
          if (ierr /= 0) return
+
+         names(1) = 'extra_heat'
+
+         do k = 1, nz
+            vals(k,1) = s% extra_heat(k)   
+         end do
+
       end subroutine data_for_extra_profile_columns
       
 
@@ -154,13 +195,47 @@
          use chem_def
          integer, intent(in) :: id, id_extra
          integer :: ierr
+         LOGICAL :: flg1=.FALSE., flg2=.FALSE., flg3=.FALSE., flg4=.FALSE.
          type (star_info), pointer :: s
          ierr = 0
          call star_ptr(id, s, ierr)
          if (ierr /= 0) return
          extras_finish_step = keep_going
          call store_extra_info(s)
+         
+         IF ( (.NOT. flg1) .AND. (s% center_h1 .LT. 0.71D0) ) THEN 
+         	flg1 = .TRUE.
+         	s% need_to_update_history_now = .true.
+         	s% need_to_save_profiles_now = .true.
+         	s% save_profiles_model_priority = 99	!! ENTER MS
+         ENDIF
+         IF ( (.NOT. flg2) .AND. (s% center_h1 .LT. 1.D-6) ) THEN 
+         	flg2 = .TRUE.
+         	s% need_to_update_history_now = .true.
+         	s% need_to_save_profiles_now = .true.
+         	s% save_profiles_model_priority = 98	!! LEAVE MS
+         ENDIF
+         IF ( (.NOT. flg3) .AND. (s% helium_ignition) ) THEN 
+         	flg3 = .TRUE.
+         	s% need_to_update_history_now = .true.
+         	s% need_to_save_profiles_now = .true.
+         	s% save_profiles_model_priority = 97	!! He IGNITION
+         ENDIF
+         IF ( (.NOT. flg4) .AND. (s% center_he4 .LT. 1.D-6) ) THEN 
+         	flg4 = .TRUE.
+         	s% need_to_update_history_now = .true.
+         	s% need_to_save_profiles_now = .true.
+         	s% save_profiles_model_priority = 96	!! He EXHAUSTED
+         ENDIF  
+         
+         IF ( MOD(s% model_number, 5000) .EQ. 0) THEN
+         	s% need_to_update_history_now = .true.
+         	s% need_to_save_profiles_now = .true.
+         	s% save_profiles_model_priority = 10
+         ENDIF
+                  
       end function extras_finish_step
+      
       
       
       ! routines for saving and restoring extra data so can do restarts
