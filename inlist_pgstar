@@ -5,7 +5,7 @@
 
   Grid1_win_flag = .true.
 
-  Grid1_win_width = 18
+  Grid1_win_width = 15
   Grid1_win_aspect_ratio = 0.55 ! aspect_ratio = height/width
 
   Grid1_xleft = 0.12 ! fraction of full window width for margin on left
