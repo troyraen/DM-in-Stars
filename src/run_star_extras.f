@@ -132,7 +132,7 @@
          ierr = 0
          call star_ptr(id, s, ierr)
          if (ierr /= 0) return
-         how_many_extra_history_columns = 0 !1
+         how_many_extra_history_columns = 1
       end function how_many_extra_history_columns
       
       
