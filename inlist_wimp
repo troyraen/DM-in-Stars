@@ -24,10 +24,8 @@
 
 
 &controls
-log_directory = 'LOGS1'
 
-
-      use_other_energy = .false. ! Andrew's routines
+      use_other_energy = .false. ! WIMP routines
 
 
       initial_mass = 1.0
