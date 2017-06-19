@@ -37,7 +37,7 @@
       use star_lib
       use star_def
       use const_def
-      use wimp_module   ! necessary to point towards the other_energy hook (see below) 
+!      use wimp_module   ! necessary to point towards the other_energy hook (see below) 
       
       implicit none
       
@@ -65,7 +65,7 @@
          s% how_many_extra_profile_columns => how_many_extra_profile_columns
          s% data_for_extra_profile_columns => data_for_extra_profile_columns 
 
-         s% other_energy => wimp_energy_transport ! subroutine where extra_heat is defined inside of module wimp_module
+!         s% other_energy => wimp_energy_transport ! subroutine where extra_heat is defined inside of module wimp_module
 
       end subroutine extras_controls
       
@@ -132,12 +132,12 @@
          ierr = 0
          call star_ptr(id, s, ierr)
          if (ierr /= 0) return
-         how_many_extra_history_columns = 1
+         how_many_extra_history_columns = 0 !1
       end function how_many_extra_history_columns
       
       
       subroutine data_for_extra_history_columns(id, id_extra, n, names, vals, ierr)
-         include 'wimp/wimp_vars.h'
+!         include 'wimp/wimp_vars.h'
          integer, intent(in) :: id, id_extra, n
          character (len=maxlen_history_column_name) :: names(n)
          real(dp) :: vals(n)
@@ -151,8 +151,8 @@
          ! the history_columns.list is only for the built-in log column options.
          ! it must not include the new column names you are adding here.
 
-         names(1) = 'wimp_temp'
-         vals(1) = Tx
+!         names(1) = 'wimp_temp'
+!         vals(1) = Tx
 
       end subroutine data_for_extra_history_columns
       
