@@ -160,9 +160,9 @@
       
       
       subroutine data_for_extra_profile_columns(id, id_extra, n, nz, names, vals, ierr)
-         include 'wimp/wimp_vars.h'
          use star_def, only: star_info, maxlen_profile_column_name
          use const_def, only: dp
+         include 'wimp/wimp_vars.h'
          integer, intent(in) :: id, id_extra, n, nz
          character (len=maxlen_profile_column_name) :: names(n)
          real(dp) :: vals(nz,n)
