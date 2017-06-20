@@ -19,18 +19,6 @@
 !   foundation, inc., 59 temple place, suite 330, boston, ma 02111-1307 usa
 !
 ! ***********************************************************************
- 
- 
-!!-----------------------------
-!!	TJR
-!!	changes 6/7/17:
-!!	Force profile and history output at enter ms, leave ms, he flash, he exhaustion, 
-!!	Force profile and history output every 5000 models with higer priority
-!!	changes 6/8/17:
-!!	write wimp_temp to history
-!!----------------------------- 
-
-
 
       module run_star_extras
 
@@ -132,7 +120,7 @@
          ierr = 0
          call star_ptr(id, s, ierr)
          if (ierr /= 0) return
-         how_many_extra_history_columns = 1
+         how_many_extra_history_columns = 2
       end function how_many_extra_history_columns
       
       
@@ -154,6 +142,9 @@
          names(1) = 'wimp_temp'
          vals(1) = Tx
 
+         names(2) = 'Nx_total'
+         vals(2) = Nx
+
       end subroutine data_for_extra_history_columns
       
       integer function how_many_extra_profile_columns(id, id_extra)
@@ -164,11 +155,12 @@
          ierr = 0
          call star_ptr(id, s, ierr)
          if (ierr /= 0) return
-         how_many_extra_profile_columns = 1
+         how_many_extra_profile_columns = 2
       end function how_many_extra_profile_columns
       
       
       subroutine data_for_extra_profile_columns(id, id_extra, n, nz, names, vals, ierr)
+         include 'wimp/wimp_vars.h'
          use star_def, only: star_info, maxlen_profile_column_name
          use const_def, only: dp
          integer, intent(in) :: id, id_extra, n, nz
@@ -182,9 +174,11 @@
          if (ierr /= 0) return
 
          names(1) = 'extra_heat'
+         names(2) = 'nx'
 
          do k = 1, nz
-            vals(k,1) = s% extra_heat(k)   
+            vals(k,1) = s% extra_heat(k)
+            vals(k,2) = nxk(k)
          end do
 
       end subroutine data_for_extra_profile_columns
@@ -203,36 +197,46 @@
          extras_finish_step = keep_going
          call store_extra_info(s)
          
-         IF ( (.NOT. flg1) .AND. (s% center_h1 .LT. 0.71D0) ) THEN 
-         	flg1 = .TRUE.
+         IF ( s% star_age .GT. 1.82D9 ) THEN
          	s% need_to_update_history_now = .true.
          	s% need_to_save_profiles_now = .true.
-         	s% save_profiles_model_priority = 99	!! ENTER MS
-         ENDIF
-         IF ( (.NOT. flg2) .AND. (s% center_h1 .LT. 1.D-6) ) THEN 
-         	flg2 = .TRUE.
-         	s% need_to_update_history_now = .true.
-         	s% need_to_save_profiles_now = .true.
-         	s% save_profiles_model_priority = 98	!! LEAVE MS
-         ENDIF
-         IF ( (.NOT. flg3) .AND. (s% helium_ignition) ) THEN 
-         	flg3 = .TRUE.
-         	s% need_to_update_history_now = .true.
-         	s% need_to_save_profiles_now = .true.
-         	s% save_profiles_model_priority = 97	!! He IGNITION
-         ENDIF
-         IF ( (.NOT. flg4) .AND. (s% center_he4 .LT. 1.D-6) ) THEN 
-         	flg4 = .TRUE.
-         	s% need_to_update_history_now = .true.
-         	s% need_to_save_profiles_now = .true.
-         	s% save_profiles_model_priority = 96	!! He EXHAUSTED
-         ENDIF  
+         	s% save_profiles_model_priority = 50
+			
+			IF ( s% star_age .GT. 1.838D9 ) THEN
+				STOP
+			ENDIF
+		ENDIF
          
-         IF ( MOD(s% model_number, 5000) .EQ. 0) THEN
-         	s% need_to_update_history_now = .true.
-         	s% need_to_save_profiles_now = .true.
-         	s% save_profiles_model_priority = 10
-         ENDIF
+!         IF ( (.NOT. flg1) .AND. (s% center_h1 .LT. 0.71D0) ) THEN 
+!         	flg1 = .TRUE.
+!         	s% need_to_update_history_now = .true.
+!         	s% need_to_save_profiles_now = .true.
+!         	s% save_profiles_model_priority = 99	!! ENTER MS
+!         ENDIF
+!         IF ( (.NOT. flg2) .AND. (s% center_h1 .LT. 1.D-6) ) THEN 
+!         	flg2 = .TRUE.
+!         	s% need_to_update_history_now = .true.
+!         	s% need_to_save_profiles_now = .true.
+!         	s% save_profiles_model_priority = 98	!! LEAVE MS
+!         ENDIF
+!         IF ( (.NOT. flg3) .AND. (s% helium_ignition) ) THEN 
+!         	flg3 = .TRUE.
+!         	s% need_to_update_history_now = .true.
+!         	s% need_to_save_profiles_now = .true.
+!         	s% save_profiles_model_priority = 97	!! He IGNITION
+!         ENDIF
+!         IF ( (.NOT. flg4) .AND. (s% center_he4 .LT. 1.D-6) ) THEN 
+!         	flg4 = .TRUE.
+!         	s% need_to_update_history_now = .true.
+!         	s% need_to_save_profiles_now = .true.
+!         	s% save_profiles_model_priority = 96	!! He EXHAUSTED
+!         ENDIF  
+         
+!         IF ( MOD(s% model_number, 5000) .EQ. 0) THEN
+!         	s% need_to_update_history_now = .true.
+!         	s% need_to_save_profiles_now = .true.
+!         	s% save_profiles_model_priority = 10
+!         ENDIF
                   
       end function extras_finish_step
       
