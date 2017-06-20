@@ -69,11 +69,13 @@
       thermohaline_coeff = 2  
 
       photo_interval = 50
-      profile_interval = 200
-      history_interval = 10
+!      profile_interval = 200
+!      history_interval = 10
       terminal_interval = 10
       write_header_frequency = 10
       
+      max_num_profile_models = 200
+ 
       !max_age = 10d9
       max_years_for_timestep = 1d9
       
