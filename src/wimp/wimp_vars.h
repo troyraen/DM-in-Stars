@@ -4,7 +4,7 @@
 	
 	
 !// 	! wimp variables
-	DOUBLE PRECISION mx, mxGeV, sigmaxp, cboost, Tx, Nx
+	DOUBLE PRECISION mx, mxGeV, sigmaxp, cboost, Tx!, Nx is now keps in xtra1 to deal with retry and backup
 
 
 !//	! star variables
