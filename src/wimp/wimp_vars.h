@@ -22,6 +22,6 @@
 !//! face values averaged to define Vk at cell center:
 	DOUBLE PRECISION Vk(1:maxcells)
 
-	COMMON /WIMP_MOD_GLOBALS/ mx, mxGeV, sigmaxp, cboost, Tx, Nx, dttmp, maxT, vesc, M_star, R_star, Age_star
+	COMMON /WIMP_MOD_GLOBALS/ mx, mxGeV, sigmaxp, cboost, Tx, dttmp, maxT, vesc, M_star, R_star, Age_star!, Nx
 	COMMON /WIMP_MOD_GLOBALS/ Xk, Tk, rhok, npk, nxk, xheat, rk, gravk, Vk
 	COMMON /WIMP_MOD_GLOBALS/ kmax
