@@ -143,7 +143,7 @@
          vals(1) = Tx
 
          names(2) = 'Nx_total'
-         vals(2) = Nx
+         vals(2) = s% xtra1
 
       end subroutine data_for_extra_history_columns
       
