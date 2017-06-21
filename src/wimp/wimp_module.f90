@@ -149,7 +149,7 @@
 !	WRITE(*,*) 'dNx = ', dNx 	
 !	WRITE(*,*) 'Nx = ', Nx 
 !!-------- end testing whether Nx retains its running value, remove when satisfied
-	CALL calc_nxk()	
+	CALL calc_nxk(id,ierr)	
 	
 	END SUBROUTINE set_wimp_variables
 
@@ -194,20 +194,26 @@
 
 !!----------------------------
 !!	calculate wimp number density for each cell
-!!	assumes Nx has been calculated
+!!	assumes Nx has been calculated (Nx is stored in xtra1)
 !!----------------------------
-	SUBROUTINE calc_nxk()
+	SUBROUTINE calc_nxk(id,ierr)
 	USE const_def, only : pi, kerg ! Boltzmann's constant (erg K^-1)
 	IMPLICIT NONE
 	INCLUDE 'wimp_vars.h'
 	INTEGER :: itr
 	DOUBLE PRECISION :: norm_integral, norm
-		
+	INTEGER, INTENT(IN) :: id
+	INTEGER, INTENT(OUT) :: ierr
+	TYPE (star_info), pointer :: s ! pointer to star type
+	ierr=0
+	CALL GET_STAR_PTR(id, s, ierr)
+	IF ( ierr /= 0 ) RETURN	
+
 	norm_integral = 0.D0
 	DO itr=1,kmax!, 1, -1 ! integrate from r = 0 to Rstar
 		norm_integral = norm_integral+ rk(itr+1)*rk(itr+1)* EXP(-mx*Vk(itr)/ kerg/Tx)* (rk(itr)- rk(itr+1))
 	ENDDO
-	norm = Nx/ (4.D0*pi* norm_integral)
+	norm = (s% extra1)/ (4.D0*pi* norm_integral)
 
 	DO itr = 1,kmax
 		nxk(itr) = norm* EXP(-mx*Vk(itr)/ kerg/Tx)
