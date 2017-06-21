@@ -35,7 +35,7 @@
 	IF ( ierr /= 0 ) RETURN
 	
 	CALL get_star_variables(id,ierr)
-	CALL set_wimp_variables()
+	CALL set_wimp_variables(id,ierr)
 	CALL calc_xheat()
 	
 	
@@ -122,11 +122,19 @@
 !!----------------------------
 !!	set all WIMP properties
 !!----------------------------
-	SUBROUTINE set_wimp_variables()
+	SUBROUTINE set_wimp_variables(id,ierr)
 	IMPLICIT NONE
 	INCLUDE 'wimp_vars.h'
+	DOUBLE PRECISION :: dNx
 	
-	DOUBLE PRECISION :: dNx, Nxtmp=0.D0
+	INTEGER, INTENT(IN) :: id
+	INTEGER, INTENT(OUT) :: ierr
+	INTEGER :: itr
+	TYPE (star_info), pointer :: s ! pointer to star type
+	ierr=0
+	CALL GET_STAR_PTR(id, s, ierr)
+	IF ( ierr /= 0 ) RETURN	
+
 	mxGeV = 5.D0	! 5 GeV WIMP
 	mx = mxGeV* 1.7825D-24	! WIMP mass in grams
 	sigmaxp = 1.D-37	! wimp-proton cross section, cm^2
@@ -134,8 +142,9 @@
 	
 	Tx = calc_Tx()
 	dNx = calc_dNx()
-	Nxtmp = Nxtmp+ dNx
-	Nx = Nxtmp
+	s% xtra1 = (s% xtra1) + dNx
+!	Nxtmp = Nxtmp+ dNx
+!	Nx = Nxtmp
 !!--------testing whether Nx retains its running value
 !	WRITE(*,*) 'dNx = ', dNx 	
 !	WRITE(*,*) 'Nx = ', Nx 
