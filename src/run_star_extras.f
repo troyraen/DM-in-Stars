@@ -155,7 +155,7 @@
          ierr = 0
          call star_ptr(id, s, ierr)
          if (ierr /= 0) return
-         how_many_extra_profile_columns = 2
+         how_many_extra_profile_columns = 1
       end function how_many_extra_profile_columns
       
       
@@ -173,12 +173,10 @@
          call star_ptr(id, s, ierr)
          if (ierr /= 0) return
 
-         names(1) = 'extra_heat'
-         names(2) = 'nx'
+         names(1) = 'nx'
 
          do k = 1, nz
-            vals(k,1) = s% extra_heat(k)
-            vals(k,2) = nxk(k)
+            vals(k,1) = nxk(k)
          end do
 
       end subroutine data_for_extra_profile_columns
