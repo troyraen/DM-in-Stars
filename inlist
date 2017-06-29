@@ -111,7 +111,7 @@
 
 &pgstar
       
-    read_extra_pgstar_inlist1 = .true.
-    extra_pgstar_inlist1_name = 'inlist_pgstar'
+    read_extra_pgstar_inlist1 = .false.
+!    extra_pgstar_inlist1_name = 'inlist_pgstar'
 
 / ! end of pgstar namelist
