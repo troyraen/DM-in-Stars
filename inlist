@@ -31,10 +31,10 @@
 
 &controls
 
-      use_other_energy = .true. ! Andrew's routines
+      use_other_energy = .true. ! WIMP routines
 
 
-      initial_mass = 0.08
+      initial_mass = 0.1
       initial_z = 0.02d0
       
       use_Type2_opacities = .true.
@@ -111,7 +111,7 @@
 
 &pgstar
       
-    read_extra_pgstar_inlist1 = .false.
-!    extra_pgstar_inlist1_name = 'inlist_pgstar'
+    read_extra_pgstar_inlist1 = .true.
+    extra_pgstar_inlist1_name = 'inlist_pgstar'
 
 / ! end of pgstar namelist
