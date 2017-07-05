@@ -44,7 +44,6 @@
 		DO itr = 1,kmax
 			s% extra_heat(itr) = 0.D0
 		ENDDO
-		RETURN
 	ELSE
 		DO itr = 1,kmax
 			s% extra_heat(itr) = xheat(itr)
