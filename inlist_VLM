@@ -47,15 +47,15 @@
 
       varcontrol_target = 1d-4
       mesh_delta_coeff = 0.5
-      
+
       xa_mesh_delta_coeff(:) = 0.5
-      min_timestep_factor = 0.8d0		
-      
-      delta_lgT_cntr_limit = 0.01d0		
-      delta_lgT_cntr_hard_limit = 0.01d0		
-      mesh_delta_coeff_for_highT = 2.0
-!      logT_max_for_standard_mesh_delta_coeff = 5.0d0		
-!      logT_min_for_highT_mesh_delta_coeff = 5.5d0
+      min_timestep_factor = 0.8d0
+
+!      delta_lgT_cntr_limit = 0.01d0
+!      delta_lgT_cntr_hard_limit = 0.03d0
+      mesh_delta_coeff_for_highT = 0.5d0
+      logT_max_for_standard_mesh_delta_coeff = 5.0d0
+      logT_min_for_highT_mesh_delta_coeff = 5.5d0
 
 
       max_age = 1d10    ! STOPPING CONDITION
