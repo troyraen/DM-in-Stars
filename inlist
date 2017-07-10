@@ -5,7 +5,7 @@
       show_log_description_at_start = .false. 
 
       save_model_when_terminate = .true.
-      save_model_filename = 'wimp.mod'
+      save_model_filename = 'age1p5d8.mod'
 
       eos_file_prefix = 'mesa'
       kappa_file_prefix = 'gs98'
@@ -34,7 +34,7 @@
       use_other_energy = .true. ! WIMP routines
 
 
-      initial_mass = 0.1
+      initial_mass = 0.08
       initial_z = 0.02d0
       
       use_Type2_opacities = .true.
@@ -47,7 +47,7 @@
 
       mesh_delta_coeff = 1.5
 
-      max_age = 1d10 			          ! STOPPING CONDITION
+      max_age = 1.5D8			          ! STOPPING CONDITION
       xa_central_lower_limit_species(1) = 'h1' ! isotope name 
       xa_central_lower_limit(1) = 0.4    ! STOPPING CONDITION
       logQ_limit = 8.0
@@ -55,8 +55,8 @@
 
 
       photo_interval = 50
-      profile_interval = 200
-      history_interval = 10
+      profile_interval = 50
+      history_interval = 5
       terminal_interval = 10
       write_header_frequency = 10
 
