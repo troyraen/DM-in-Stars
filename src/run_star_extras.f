@@ -19,25 +19,13 @@
 !   foundation, inc., 59 temple place, suite 330, boston, ma 02111-1307 usa
 !
 ! ***********************************************************************
- 
- 
-!!-----------------------------
-!!	TJR
-!!	changes 6/7/17:
-!!	Force profile and history output at enter ms, leave ms, he flash, he exhaustion, 
-!!	Force profile and history output every 5000 models with higer priority
-!!	changes 6/8/17:
-!!	write wimp_temp to history
-!!----------------------------- 
-
-
 
       module run_star_extras
 
       use star_lib
       use star_def
       use const_def
-!      use wimp_module   ! necessary to point towards the other_energy hook (see below) 
+      use wimp_module   ! necessary to point towards the other_energy hook (see below) 
       
       implicit none
       
@@ -65,7 +53,7 @@
          s% how_many_extra_profile_columns => how_many_extra_profile_columns
          s% data_for_extra_profile_columns => data_for_extra_profile_columns 
 
-!         s% other_energy => wimp_energy_transport ! subroutine where extra_heat is defined inside of module wimp_module
+         s% other_energy => wimp_energy_transport ! subroutine where extra_heat is defined inside of module wimp_module
 
       end subroutine extras_controls
       
@@ -132,12 +120,12 @@
          ierr = 0
          call star_ptr(id, s, ierr)
          if (ierr /= 0) return
-         how_many_extra_history_columns = 0 !1
+         how_many_extra_history_columns = 2
       end function how_many_extra_history_columns
       
       
       subroutine data_for_extra_history_columns(id, id_extra, n, names, vals, ierr)
-!         include 'wimp/wimp_vars.h'
+         include 'wimp/wimp_vars.h'
          integer, intent(in) :: id, id_extra, n
          character (len=maxlen_history_column_name) :: names(n)
          real(dp) :: vals(n)
@@ -151,8 +139,11 @@
          ! the history_columns.list is only for the built-in log column options.
          ! it must not include the new column names you are adding here.
 
-!         names(1) = 'wimp_temp'
-!         vals(1) = Tx
+         names(1) = 'wimp_temp'
+         vals(1) = Tx
+
+         names(2) = 'Nx_total'
+         vals(2) = Nx
 
       end subroutine data_for_extra_history_columns
       
@@ -171,6 +162,7 @@
       subroutine data_for_extra_profile_columns(id, id_extra, n, nz, names, vals, ierr)
          use star_def, only: star_info, maxlen_profile_column_name
          use const_def, only: dp
+         include 'wimp/wimp_vars.h'
          integer, intent(in) :: id, id_extra, n, nz
          character (len=maxlen_profile_column_name) :: names(n)
          real(dp) :: vals(nz,n)
@@ -181,10 +173,10 @@
          call star_ptr(id, s, ierr)
          if (ierr /= 0) return
 
-         names(1) = 'extra_heat'
+         names(1) = 'nx'
 
          do k = 1, nz
-            vals(k,1) = s% extra_heat(k)   
+            vals(k,1) = nxk(k)
          end do
 
       end subroutine data_for_extra_profile_columns
@@ -202,6 +194,16 @@
          if (ierr /= 0) return
          extras_finish_step = keep_going
          call store_extra_info(s)
+         
+!         IF ( s% star_age .GT. 1.82D9 ) THEN
+!         	s% need_to_update_history_now = .true.
+!         	s% need_to_save_profiles_now = .true.
+!         	s% save_profiles_model_priority = 50
+			
+!			IF ( s% star_age .GT. 1.838D9 ) THEN
+!				STOP
+!			ENDIF
+!		ENDIF
          
          IF ( (.NOT. flg1) .AND. (s% center_h1 .LT. 0.71D0) ) THEN 
          	flg1 = .TRUE.
@@ -228,7 +230,7 @@
          	s% save_profiles_model_priority = 96	!! He EXHAUSTED
          ENDIF  
          
-         IF ( MOD(s% model_number, 5000) .EQ. 0) THEN
+         IF ( MOD(s% model_number, 1000) .EQ. 0) THEN
          	s% need_to_update_history_now = .true.
          	s% need_to_save_profiles_now = .true.
          	s% save_profiles_model_priority = 10

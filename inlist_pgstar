@@ -3,7 +3,7 @@
   pgstar_interval = 1   ! Default was 3, which was affecting all the _file_interval values!
   pause = .false.
 
-  Grid1_win_flag = .true.
+  Grid1_win_flag = .false.
 
   Grid1_win_width = 15
   Grid1_win_aspect_ratio = 0.55 ! aspect_ratio = height/width
@@ -112,7 +112,7 @@
 
 
   ! file output
-  Grid1_file_flag = .true.
+  Grid1_file_flag = .false.
   Grid1_file_dir = 'png'
   Grid1_file_prefix = 'grid'
   Grid1_file_interval = 1 ! output when mod(model_number,Grid1_file_interval)==0
