@@ -25,7 +25,7 @@
 
 &controls
 
-      use_other_energy = .true. ! WIMP routines
+      use_other_energy = .true.
 
       initial_mass = 1.0
       initial_z = 0.014d0
@@ -54,11 +54,11 @@
       !gradT_excess_limit = 1d-3
       !gradT_excess_factor = 0.01
 
-      varcontrol_target = 1d-4
-      mesh_delta_coeff = 0.5
-
       xa_mesh_delta_coeff(:) = 0.5
       min_timestep_factor = 0.8d0
+
+      varcontrol_target = 1d-4
+      mesh_delta_coeff = 0.75
 
 !      delta_lgT_cntr_limit = 0.01d0
 !      delta_lgT_cntr_hard_limit = 0.03d0
@@ -76,16 +76,6 @@
       alpha_semiconvection = 4d-2
       thermohaline_coeff = 2  
 
-      photo_interval = 50
-      profile_interval = 200
-      history_interval = 10
-      terminal_interval = 10
-      write_header_frequency = 10
-      max_num_profile_models = 200
-      
-      !max_age = 10d9
-      max_years_for_timestep = 1d9
-      
       cool_wind_full_on_T = 9d6
       cool_wind_full_off_T = 1d7 
       cool_wind_RGB_scheme = 'Reimers'
@@ -95,6 +85,15 @@
       Blocker_scaling_factor = 0.7d0  
 
 
+      photo_interval = 50
+      profile_interval = 200
+      history_interval = 10
+      terminal_interval = 10
+      write_header_frequency = 10
+      
+      !max_age = 10d9
+      max_years_for_timestep = 1d9
+      
 / ! end of controls namelist
 
 
