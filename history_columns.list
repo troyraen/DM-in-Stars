@@ -56,9 +56,9 @@
       !star_mass_grav_div_mass
 
       !delta_mass ! star_mass - initial_mass in Msun units
-      log_xmstar ! log10 mass exterior to M_center (grams)
+      !log_xmstar ! log10 mass exterior to M_center (grams)
       !star_mdot ! d(star_mass)/dt (in msolar per year)
-      log_abs_mdot ! log10(abs(star_mdot)) (in msolar per year)
+      !log_abs_mdot ! log10(abs(star_mdot)) (in msolar per year)
       num_zones ! number of zones in the model
       !species ! size of net
       !log_total_angular_momentum
@@ -291,10 +291,10 @@
       !neutron_rich_core_omega
       !neutron_rich_core_omega_div_omega_crit
 
-      envelope_mass ! = star_mass - he_core_mass
-      envelope_fraction_left ! = envelope_mass / (initial_mass - he_core_mass)
+      !envelope_mass ! = star_mass - he_core_mass
+      !envelope_fraction_left ! = envelope_mass / (initial_mass - he_core_mass)
 
-      h_rich_layer_mass ! = star_mass - he_core_mass
+      !h_rich_layer_mass ! = star_mass - he_core_mass
       !he_rich_layer_mass ! = he_core_mass - c_core_mass
       !c_rich_layer_mass ! = c_core_mass - o_core_mass
       !o_rich_layer_mass ! = o_core_mass - si_core_mass
@@ -323,7 +323,7 @@
    ! timescales
       
       !dynamic_timescale ! dynamic timescale (seconds) -- estimated by 2*pi*sqrt(r^3/(G*m))
-      !kh_timescale ! kelvin-helmholtz timescale (years)
+      kh_timescale ! kelvin-helmholtz timescale (years)
       !mdot_timescale ! star_mass/abs(star_mdot) (years)
       !kh_div_mdot_timescales ! kh_timescale/mdot_timescale
       nuc_timescale ! nuclear timescale (years) -- proportional to mass divided by luminosity
@@ -339,9 +339,9 @@
       !power_c_burn ! total thermal power from carbon burning, excluding neutrinos (in Lsun units)
       log_LH ! log10 power_h_burn
       log_LHe ! log10 power_he_burn
-      log_LC ! log10 power_c_burn
+      !log_LC ! log10 power_c_burn
       log_LZ ! log10 total burning power including LC, but excluding LH and LHe and photodisintegrations
-      log_Lnuc ! log(LH + LHe + LZ)
+      !log_Lnuc ! log(LH + LHe + LZ)
       !log_Lnuc_sub_log_L
       extra_L ! integral of extra_heat in Lsun units
       log_extra_L ! log10 extra_L
@@ -349,9 +349,9 @@
       log_Lneu_nuc ! log10 power emitted in neutrinos, nuclear sources only (in Lsun units)
       log_Lneu_nonnuc ! log10 power emitted in neutrinos, thermal sources only (in Lsun units)
       mass_loc_of_max_eps_nuc ! (in Msun units)
-      mass_ext_to_max_eps_nuc ! (in Msun units)
+      !mass_ext_to_max_eps_nuc ! (in Msun units)
       eps_grav_integral ! (in Lsun units)
-      log_abs_Lgrav ! log10 abs(eps_grav_integral) (in Lsun units)
+      !log_abs_Lgrav ! log10 abs(eps_grav_integral) (in Lsun units)
       
       
    ! conditions at the photosphere
@@ -427,7 +427,7 @@
       !center_P ! pressure
       
       center_degeneracy ! the electron chemical potential in units of k*T
-      center_gamma ! plasma interaction parameter
+      !center_gamma ! plasma interaction parameter
       center_mu
       center_ye
       center_abar
@@ -461,20 +461,20 @@
       center n14
       center o16
       center o18
-      center ne20
-      center ne22
-      center na23
-      center ne23
-      center mg24
-      center mg25
-      center si28
-      center s32
-      center ar36
-      center ca40
-      center fe54
-      center fe56
-      center ni56
-      center cr56
+      !center ne20
+      !center ne22
+      !center na23
+      !center ne23
+      !center mg24
+      !center mg25
+      !center si28
+      !center s32
+      !center ar36
+      !center ca40
+      !center fe54
+      !center fe56
+      !center ni56
+      !center cr56
       ! etc. -- do as many of these 'center' commands as desired
       
       
@@ -546,9 +546,9 @@
     add_center_abundances
     add_surface_abundances
     add_average_abundances
-    add_log_center_abundances
-    add_log_surface_abundances
-    add_log_average_abundances
+    !add_log_center_abundances
+    !add_log_surface_abundances
+    !add_log_average_abundances
 
 
    ! log10 total luminosity for reaction categories (Lsun units)
@@ -637,7 +637,7 @@
       max_eps_nuc_lgR ! log10 radius at location of max burn
       max_eps_nuc_opacity ! opacity at location of max burn
       max_eps_nuc_cp ! Cp at location of max burn
-      max_eps_nuc_t_heat ! Cp*T/eps_nuc at location of max burn
+      !max_eps_nuc_t_heat ! Cp*T/eps_nuc at location of max burn
       !max_eps_nuc_csound
       !max_eps_nuc_pi_r_div_cs
       !max_eps_nuc_H ! pressure scale height
