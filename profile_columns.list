@@ -74,7 +74,7 @@
    !log_L_div_Ledd ! log10(max(1d-12,L/Leddington))
    !log_Lrad_div_Ledd
    !log_Lrad_div_L
-   signed_log_power ! sign(L)*log10(max(1,abs(L))) 
+   !signed_log_power ! sign(L)*log10(max(1,abs(L))) 
    !velocity ! velocity at outer boundary of zone (cm/s) -- 0 if no velocity variable
    !vel_km_per_s ! velocity at outer boundary of zone (km/s) -- 0 if no velocity variable
    !entropy ! specific entropy divided by (avo*kerg)
@@ -83,24 +83,24 @@
    !csound_at_face ! sound speed
    !v_div_csound ! velocity divided by sound speed
    total_energy ! v^2/2 - G m / r + E (ergs/g).  negative if bound
-   total_energy_integral ! sum from surface inwards of dm*(v^2/2 - G m / r + E) (ergs)
+   !total_energy_integral ! sum from surface inwards of dm*(v^2/2 - G m / r + E) (ergs)
    !v_div_r ! velocity divided by radius
    !scale_height ! in Rsun units
    eta ! electron degeneracy parameter (eta >> 1 for significant degeneracy)
    mu ! mean molecular weight per gas particle (ions + free electrons)
-   logdq ! log10(dq)
-   dq_ratio ! dq(k-1)/dq(k)
+   !logdq ! log10(dq)
+   !dq_ratio ! dq(k-1)/dq(k)
    q ! fraction of star mass interior to outer boundary of this zone
    !log_q ! log10(q)
-   radius ! radius at outer boundary of zone (in Rsun units)
+   !radius ! radius at outer boundary of zone (in Rsun units)
    !radius_cm ! radius at outer boundary of zone (in centimeters)
    !logR_cm ! log10 radius at outer boundary of zone (in centimeters)
    rmid ! radius at center by mass of zone (in Rsun units)
    !r_div_R ! fraction of total radius
-   temperature ! temperature at center of zone
+   !temperature ! temperature at center of zone
    tau ! optical depth
    !logtau ! log10(optical depth) at center of zone
-   pressure ! total pressure at center of zone (pgas + prad)
+   !pressure ! total pressure at center of zone (pgas + prad)
    !pgas ! gas pressure at center of zone (electrons and ions)
    !pgas_div_ptotal ! pgas/pressure
    !pturb_div_pgas_plus_prad
@@ -130,9 +130,9 @@
    !chiT ! dlnP_dlnT at constant Rho
    !dlnRho_dlnT_const_Pgas
    !dlnRho_dlnPgas_const_T
-   x_mass_fraction_H
-   y_mass_fraction_He
-   z_mass_fraction_metals
+   !x_mass_fraction_H
+   !y_mass_fraction_He
+   !z_mass_fraction_metals
    abar ! average atomic weight (g/mole)
    !zbar ! average charge
    !z2bar ! average charge^2
@@ -158,7 +158,7 @@
    
    extra_heat
    extra_L ! extra_heat integrated from center (Lsun)
-   log_extra_L ! log10 integrated from center (Lsun)
+   !log_extra_L ! log10 integrated from center (Lsun)
    
    !log_irradiation_heat
    !log_tau_conv_yrs ! timescale for change of conv velocity
@@ -287,9 +287,9 @@
    !mass_correction_factor ! dm_gravitational/dm (dm is baryonic mass of cell)
    
    !xm ! mass exterior to point (Msun units)
-   !dq ! mass of zone as a fraction of total star mass
-   logxq ! log10(1-q)
-   logxm ! log10(xm)
+   dq ! mass of zone as a fraction of total star mass
+   !logxq ! log10(1-q)
+   !logxm ! log10(xm)
    
    dr ! cell width (cm)
    !log_dr ! log10 cell width (cm)
@@ -333,19 +333,19 @@
       n14
       o16
       o18
-      ne20
-      ne22
-      ne23
-      na23
-      mg24
-      mg25
-      si28
-      s32
-      ar36
-      ca40
-      cr48
-      ni56
-      fe56
+      !ne20
+      !ne22
+      !ne23
+      !na23
+      !mg24
+      !mg25
+      !si28
+      !s32
+      !ar36
+      !ca40
+      !cr48
+      !ni56
+      !fe56
 
    !add_log_abundances ! this adds log10 of all of the isos that are in the current net
    ! NOTE: you can list specific isotopes by giving their names (from chem_def)
@@ -390,7 +390,7 @@
 
    ! ergs/g/sec for reaction categories
    
-      add_reaction_categories ! this adds all the reaction categories
+      !add_reaction_categories ! this adds all the reaction categories
       ! NOTE: you can list specific categories by giving their names (from net_def)
       ! This will generate columns labeled burn_ELEMENT
       ! i.e. burn_ar, burn_c, burn_fe etc and also c12_c12, c12_o16 etc
@@ -403,8 +403,8 @@
       c12_c12
       c12_o16
       o16_o16
-      burn_ne
-      burn_mg
+      !burn_ne
+      !burn_mg
       
       
    ! rotation
