@@ -137,18 +137,12 @@
 	mxGeV = 5.D0	! 5 GeV WIMP
 	mx = mxGeV* 1.7825D-24	! WIMP mass in grams
 	sigmaxp = 1.D-37	! wimp-proton cross section, cm^2
-	cboost = s% x_ctrl(1)
-!	cboost = 1.D3 ! boost in capture rate of WIMPs compared to the local capture rate near the Sun, \propto density/sigma_v
-	WRITE(*,*) cboost
+	cboost = s% x_ctrl(1)  ! boost in capture rate of WIMPs compared to the local capture rate near the Sun, \propto density/sigma_v
 	
 	Tx = calc_Tx()
 	dNx = calc_dNx()
 	s% xtra1 = (s% xtra1) + dNx
 	Nx = s% xtra1
-!!--------testing whether Nx retains its running value
-!	WRITE(*,*) 'dNx = ', dNx 	
-!	WRITE(*,*) 'Nx = ', Nx 
-!!-------- end testing whether Nx retains its running value, remove when satisfied
 	CALL calc_nxk()	
 	
 	END SUBROUTINE set_wimp_variables
