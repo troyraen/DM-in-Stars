@@ -139,6 +139,7 @@
 	sigmaxp = 1.D-37	! wimp-proton cross section, cm^2
 	cboost = s% x_ctrl(1)
 !	cboost = 1.D3 ! boost in capture rate of WIMPs compared to the local capture rate near the Sun, \propto density/sigma_v
+	WRITE(*,*) cboost
 	
 	Tx = calc_Tx()
 	dNx = calc_dNx()
