@@ -137,7 +137,8 @@
 	mxGeV = 5.D0	! 5 GeV WIMP
 	mx = mxGeV* 1.7825D-24	! WIMP mass in grams
 	sigmaxp = 1.D-37	! wimp-proton cross section, cm^2
-	cboost = 1.D3 ! boost in capture rate of WIMPs compared to the local capture rate near the Sun, \propto density/sigma_v
+	cboost = s% x_ctrl(1)
+!	cboost = 1.D3 ! boost in capture rate of WIMPs compared to the local capture rate near the Sun, \propto density/sigma_v
 	
 	Tx = calc_Tx()
 	dNx = calc_dNx()
