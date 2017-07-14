@@ -32,7 +32,7 @@
 &controls
 
       use_other_energy = .true.
-
+      x_ctrl(1) = 1.D3  ! this sets cboost in wimp_module.f90
 
       initial_mass = 0.08
       initial_z = 0.02d0
