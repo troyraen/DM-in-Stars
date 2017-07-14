@@ -26,6 +26,7 @@
 &controls
 
       use_other_energy = .true.
+      x_ctrl(1) = 1.D3
 
       initial_mass = 1.0
       initial_z = 0.014d0
