@@ -10,17 +10,11 @@
       eos_file_prefix = 'mesa'
       kappa_file_prefix = 'gs98'
 
-      create_pre_main_sequence_model = .true.
-
       change_net = .true.      
-      new_net_name = 'pp_extras.net'
+      !new_net_name = 'pp_extras.net'
+      new_net_name = 'o18_and_ne22.net'
 
-      set_uniform_initial_composition = .true.
-      initial_h1 = 0.71
-      initial_h2 = 2.0d-5
-      initial_he3 = 2.0d-5
-      initial_he4 = 0.27
-      initial_zfracs = 3
+      create_pre_main_sequence_model = .true.
 
 
       pgstar_flag = .true.
@@ -33,31 +27,59 @@
 
       use_other_energy = .true.
 
-
-      initial_mass = 0.08
-      initial_z = 0.02d0
+      initial_mass = 1.0
+      initial_z = 0.014d0
       
       use_Type2_opacities = .true.
-      Zbase = 0.02d0
+      Zbase = 0.014d0
 
-      mixing_length_alpha = 1.89
-      MLT_option = 'Henyey'
+      dH_div_H_limit = 0.9d0
 
-      which_atm_option='tau_100_tables'
+      okay_to_reduce_gradT_excess = .true.
+         
+            ! these are for calculation of efficiency boosted gradT
+            gradT_excess_f1 = 1d-4
+            gradT_excess_f2 = 1d-2
+            gradT_excess_age_fraction = 0.9d0
+            
+            ! turn on full all the time
+            gradT_excess_lambda1 = 1.0
+            gradT_excess_beta1 = 0.5
+            gradT_excess_lambda2 = 1.0
+            gradT_excess_beta2 = 0.5
+            gradT_excess_dlambda = 1
+            gradT_excess_dbeta = 1
+
+      ! need to make convection in envelope more efficient for this
+      !gradT_excess_limit = 1d-3
+      !gradT_excess_factor = 0.01
 
       varcontrol_target = 1d-4
-      
-      mesh_delta_coeff = 0.75d0
+      mesh_delta_coeff = 0.75
+
+!      delta_lgT_cntr_limit = 0.01d0
+!      delta_lgT_cntr_hard_limit = 0.03d0
       mesh_delta_coeff_for_highT = 0.5d0
       logT_max_for_standard_mesh_delta_coeff = 5.0d0
       logT_min_for_highT_mesh_delta_coeff = 5.5d0
+      
 
+      !star_H_mass_min_limit = 0.05    ! STOPPING CONDITION
+      log_L_lower_limit = -1.0      ! STOPPING CONDITION
 
-      max_age = 1d10    ! STOPPING CONDITION
-      xa_central_lower_limit_species(1) = 'h1' ! isotope name 
-      xa_central_lower_limit(1) = 0.4    ! STOPPING CONDITION
-      logQ_limit = 8.0
+      mixing_length_alpha = 2
 
+      use_Ledoux_criterion = .true.
+      alpha_semiconvection = 4d-2
+      thermohaline_coeff = 2  
+
+      cool_wind_full_on_T = 9d6
+      cool_wind_full_off_T = 1d7 
+      cool_wind_RGB_scheme = 'Reimers'
+      cool_wind_AGB_scheme = 'Blocker'
+      RGB_to_AGB_wind_switch = 1d-4
+      Reimers_scaling_factor = 0.7d0  
+      Blocker_scaling_factor = 0.7d0  
 
 
       photo_interval = 50
@@ -65,8 +87,10 @@
       history_interval = 10
       terminal_interval = 10
       write_header_frequency = 10
-
-
+      
+      !max_age = 10d9
+      max_years_for_timestep = 1d9
+      
 / ! end of controls namelist
 
 
