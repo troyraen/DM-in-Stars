@@ -5,7 +5,7 @@
       show_log_description_at_start = .false. 
 
       save_model_when_terminate = .true.
-      save_model_filename = 'm08c2.mod'
+      save_model_filename = 'm08c1.mod'
 
       eos_file_prefix = 'mesa'
       kappa_file_prefix = 'gs98'
