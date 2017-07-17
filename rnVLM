@@ -42,4 +42,4 @@ do_one inlist_VLM_m08c1 m08c1.mod
 
 date "+DATE: %Y-%m-%d%nTIME: %H:%M:%S"
 
-echo 'finished to analize WIMP interaction'
+echo 'finished to analyze WIMP interaction'
