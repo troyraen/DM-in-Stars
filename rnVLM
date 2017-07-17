@@ -37,9 +37,13 @@ function do_one {
 }
 
 date "+DATE: %Y-%m-%d%nTIME: %H:%M:%S"
+echo date "+DATE: %Y-%m-%d%nTIME: %H:%M:%S" >> rnVLM.txt
+
 do_one inlist_VLM_m08c2 m08c2.mod
+echo date "+DATE: %Y-%m-%d%nTIME: %H:%M:%S" >> rnVLM.txt
 do_one inlist_VLM_m08c1 m08c1.mod
 
+echo date "+DATE: %Y-%m-%d%nTIME: %H:%M:%S" >> rnVLM.txt
 date "+DATE: %Y-%m-%d%nTIME: %H:%M:%S"
 
 echo 'finished to analyze WIMP interaction'
