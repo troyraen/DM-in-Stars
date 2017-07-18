@@ -24,6 +24,9 @@
 
 
 &controls
+      
+      log_directory = 'LOGSmSUNc3'
+      photo_directory = 'photosmSUNc3'
 
       use_other_energy = .true.
       x_ctrl(1) = 1.D3  ! this sets cboost in wimp_module.f90
