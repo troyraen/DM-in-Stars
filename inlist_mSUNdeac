@@ -1,0 +1,107 @@
+
+&star_job
+
+      
+      show_log_description_at_start = .false. 
+
+      save_model_when_terminate = .true.
+      save_model_filename = 'mSUNdeac.mod'
+
+      eos_file_prefix = 'mesa'
+      kappa_file_prefix = 'gs98'
+
+      change_net = .true.      
+      !new_net_name = 'pp_extras.net'
+      new_net_name = 'o18_and_ne22.net'
+
+      create_pre_main_sequence_model = .true.
+
+
+      pgstar_flag = .true.
+
+
+/ ! end of star_job namelist
+
+
+&controls
+      
+      log_directory = 'LOGSmSUNdeac'
+      photo_directory = 'photosmSUNdeac'
+      
+      use_other_energy = .false.
+!      x_ctrl(1) = 1.D1  ! this sets cboost in wimp_module.f90
+
+      initial_mass = 1.0
+      initial_z = 0.014d0
+      
+      use_Type2_opacities = .true.
+      Zbase = 0.014d0
+
+      dH_div_H_limit = 0.9d0
+
+      okay_to_reduce_gradT_excess = .true.
+         
+            ! these are for calculation of efficiency boosted gradT
+            gradT_excess_f1 = 1d-4
+            gradT_excess_f2 = 1d-2
+            gradT_excess_age_fraction = 0.9d0
+            
+            ! turn on full all the time
+            gradT_excess_lambda1 = 1.0
+            gradT_excess_beta1 = 0.5
+            gradT_excess_lambda2 = 1.0
+            gradT_excess_beta2 = 0.5
+            gradT_excess_dlambda = 1
+            gradT_excess_dbeta = 1
+
+      ! need to make convection in envelope more efficient for this
+      !gradT_excess_limit = 1d-3
+      !gradT_excess_factor = 0.01
+
+      varcontrol_target = 1d-4
+      mesh_delta_coeff = 0.75
+
+!      delta_lgT_cntr_limit = 0.01d0
+!      delta_lgT_cntr_hard_limit = 0.03d0
+      mesh_delta_coeff_for_highT = 0.5d0
+      logT_max_for_standard_mesh_delta_coeff = 5.0d0
+      logT_min_for_highT_mesh_delta_coeff = 5.5d0
+      
+
+      !star_H_mass_min_limit = 0.05    ! STOPPING CONDITION
+      log_L_lower_limit = -1.0      ! STOPPING CONDITION
+
+      mixing_length_alpha = 2
+
+      use_Ledoux_criterion = .true.
+      alpha_semiconvection = 4d-2
+      thermohaline_coeff = 2  
+
+      cool_wind_full_on_T = 9d6
+      cool_wind_full_off_T = 1d7 
+      cool_wind_RGB_scheme = 'Reimers'
+      cool_wind_AGB_scheme = 'Blocker'
+      RGB_to_AGB_wind_switch = 1d-4
+      Reimers_scaling_factor = 0.7d0  
+      Blocker_scaling_factor = 0.7d0  
+
+
+      photo_interval = 50
+      profile_interval = 50
+      history_interval = 5
+      terminal_interval = 10
+      write_header_frequency = 10
+      
+      !max_age = 10d9
+      max_years_for_timestep = 1d9
+      
+/ ! end of controls namelist
+
+
+
+&pgstar
+      
+    read_extra_pgstar_inlist1 = .true.
+    extra_pgstar_inlist1_name = 'inlist_pgstar'
+
+/ ! end of pgstar namelist
