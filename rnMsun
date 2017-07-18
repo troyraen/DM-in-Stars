@@ -28,11 +28,6 @@ function do_one {
   echo 'finished' $1 >> rnMsun.txt
   echo >> rnMsun.txt
 	echo '***' >> rnMsun.txt
-	echo '***' >> rnMsun.txt
-	echo '***' >> rnMsun.txt
-	echo '***' >> rnMsun.txt
-	echo '***' >> rnMsun.txt
-	echo '***' >> rnMsun.txt
 	echo >> rnMsun.txt
 }
 
