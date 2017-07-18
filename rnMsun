@@ -33,6 +33,10 @@ function do_one {
 
 NOW=$(date "+DATE: %Y-%m-%d%nTIME: %H:%M:%S")
 echo $NOW >> rnMsun.txt
+do_one inlist_mSUNdeac mSUNdeac.mod
+
+NOW=$(date "+DATE: %Y-%m-%d%nTIME: %H:%M:%S")
+echo $NOW >> rnMsun.txt
 do_one inlist_mSUNc1 mSUNc1.mod
 
 NOW=$(date "+DATE: %Y-%m-%d%nTIME: %H:%M:%S")
