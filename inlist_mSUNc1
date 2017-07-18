@@ -84,8 +84,8 @@
 
 
       photo_interval = 50
-      profile_interval = 200
-      history_interval = 10
+      profile_interval = 50
+      history_interval = 5
       terminal_interval = 10
       write_header_frequency = 10
       
