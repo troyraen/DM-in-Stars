@@ -28,22 +28,26 @@ function do_one {
   echo 'finished' $1 >> rnVLM.txt
   echo >> rnVLM.txt
 	echo '***' >> rnVLM.txt
-	echo '***' >> rnVLM.txt
-	echo '***' >> rnVLM.txt
-	echo '***' >> rnVLM.txt
-	echo '***' >> rnVLM.txt
-	echo '***' >> rnVLM.txt
 	echo >> rnVLM.txt
 }
 
-#date "+DATE: %Y-%m-%d%nTIME: %H:%M:%S"
-echo date "+DATE: %Y-%m-%d%nTIME: %H:%M:%S" >> rnVLM.txt
+NOW=$(date "+DATE: %Y-%m-%d%nTIME: %H:%M:%S")
+echo $NOW >> rnVLM.txt
+do_one inlist_VLM_m1deac m1deac.mod
 
-do_one inlist_VLM_m08c2 m08c2.mod
-echo date "+DATE: %Y-%m-%d%nTIME: %H:%M:%S" >> rnVLM.txt
-do_one inlist_VLM_m08c1 m08c1.mod
+NOW=$(date "+DATE: %Y-%m-%d%nTIME: %H:%M:%S")
+echo $NOW >> rnVLM.txt
+do_one inlist_VLM_m1c1 m1c1.mod
 
-echo date "+DATE: %Y-%m-%d%nTIME: %H:%M:%S" >> rnVLM.txt
-#date "+DATE: %Y-%m-%d%nTIME: %H:%M:%S"
+NOW=$(date "+DATE: %Y-%m-%d%nTIME: %H:%M:%S")
+echo $NOW >> rnVLM.txt
+do_one inlist_VLM_m1c2 m1c2.mod
+
+NOW=$(date "+DATE: %Y-%m-%d%nTIME: %H:%M:%S")
+echo $NOW >> rnVLM.txt
+do_one inlist_VLM_m1c3 m1c3.mod
+
+NOW=$(date "+DATE: %Y-%m-%d%nTIME: %H:%M:%S")
+echo $NOW >> rnVLM.txt
 
 echo 'finished to analyze WIMP interaction'
