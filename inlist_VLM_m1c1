@@ -36,7 +36,7 @@
       use_other_energy = .true.
       x_ctrl(1) = 1.D1  ! this sets cboost in wimp_module.f90
 
-      initial_mass = 0.08
+      initial_mass = 0.1d0
       initial_z = 0.02d0
       
       use_Type2_opacities = .true.
