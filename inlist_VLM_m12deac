@@ -5,7 +5,7 @@
       show_log_description_at_start = .false. 
 
       save_model_when_terminate = .true.
-      save_model_filename = 'm1deac.mod'
+      save_model_filename = 'm12deac.mod'
 
       eos_file_prefix = 'mesa'
       kappa_file_prefix = 'gs98'
@@ -30,8 +30,8 @@
 
 
 &controls
-      log_directory = 'LOGSm1deac'
-      photo_directory = 'photosm1deac'
+      log_directory = 'LOGSm12deac'
+      photo_directory = 'photosm12deac'
 
       use_other_energy = .false.
 !      x_ctrl(1) = 1.D1  ! this sets cboost in wimp_module.f90
