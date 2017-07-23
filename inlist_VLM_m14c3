@@ -5,7 +5,7 @@
       show_log_description_at_start = .false. 
 
       save_model_when_terminate = .true.
-      save_model_filename = 'm12c3.mod'
+      save_model_filename = 'm14c3.mod'
 
       eos_file_prefix = 'mesa'
       kappa_file_prefix = 'gs98'
@@ -30,13 +30,13 @@
 
 
 &controls
-      log_directory = 'LOGSm12c3'
-      photo_directory = 'photosm12c3'
+      log_directory = 'LOGSm14c3'
+      photo_directory = 'photosm14c3'
 
       use_other_energy = .true.
       x_ctrl(1) = 1.D3  ! this sets cboost in wimp_module.f90
 
-      initial_mass = 0.12d0
+      initial_mass = 0.14d0
       initial_z = 0.02d0
       
       use_Type2_opacities = .true.
