@@ -33,19 +33,19 @@ function do_one {
 
 NOW=$(date "+DATE: %Y-%m-%d%nTIME: %H:%M:%S")
 echo $NOW >> rnVLM.txt
-do_one inlist_VLM_m12deac m12deac.mod
+do_one inlist_VLM_m14deac m14deac.mod
 
 NOW=$(date "+DATE: %Y-%m-%d%nTIME: %H:%M:%S")
 echo $NOW >> rnVLM.txt
-do_one inlist_VLM_m12c1 m12c1.mod
+do_one inlist_VLM_m14c1 m14c1.mod
 
 NOW=$(date "+DATE: %Y-%m-%d%nTIME: %H:%M:%S")
 echo $NOW >> rnVLM.txt
-do_one inlist_VLM_m12c2 m12c2.mod
+do_one inlist_VLM_m14c2 m14c2.mod
 
 NOW=$(date "+DATE: %Y-%m-%d%nTIME: %H:%M:%S")
 echo $NOW >> rnVLM.txt
-do_one inlist_VLM_m12c3 m12c3.mod
+do_one inlist_VLM_m14c3 m14c3.mod
 
 NOW=$(date "+DATE: %Y-%m-%d%nTIME: %H:%M:%S")
 echo $NOW >> rnVLM.txt
