@@ -1,7 +1,7 @@
 #############################################
 #### Condor submit file rnMsun.submit ########
 
-executable = rnMsun
+executable = msun.sh
 universe   = vanilla
 output     = rnMsun.out
 error      = rnMsun.err
