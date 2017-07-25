@@ -25,8 +25,8 @@
 
 &controls
 
-      log_directory = 'LOGSmSUNdeac'
-      photo_directory = 'photosmSUNdeac'
+      log_directory = 'LOGSmSUNc0'
+      photo_directory = 'photosmSUNc0'
 
       use_other_energy = .false.
 !      x_ctrl(1) = 1.D1  ! this sets cboost in wimp_module.f90
@@ -83,7 +83,7 @@
       cool_wind_AGB_scheme = 'Blocker'
       RGB_to_AGB_wind_switch = 1d-4
       Reimers_scaling_factor = 0.7d0
-      Blocker_scaling_factor = 2.d0
+      Blocker_scaling_factor = 1.5d0
 
 
       photo_interval = 50

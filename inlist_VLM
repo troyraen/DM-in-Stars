@@ -1,8 +1,8 @@
 
 &star_job
 
-      
-      show_log_description_at_start = .false. 
+
+      show_log_description_at_start = .false.
 
       save_model_when_terminate = .true.
       save_model_filename = 'wimp.mod'
@@ -12,7 +12,7 @@
 
       create_pre_main_sequence_model = .true.
 
-      change_net = .true.      
+      change_net = .true.
       new_net_name = 'pp_extras.net'
 
       set_uniform_initial_composition = .true.
@@ -31,12 +31,15 @@
 
 &controls
 
+    log_directory = 'LOGSvlm'
+    photo_directory = 'photosvlm'
+
       use_other_energy = .true.
       x_ctrl(1) = 1.D3  ! this sets cboost in wimp_module.f90
 
       initial_mass = 0.08
       initial_z = 0.02d0
-      
+
       use_Type2_opacities = .true.
       Zbase = 0.02d0
 
@@ -46,7 +49,7 @@
       which_atm_option='tau_100_tables'
 
       varcontrol_target = 1d-4
-      
+
       mesh_delta_coeff = 0.75d0
       mesh_delta_coeff_for_highT = 0.5d0
       logT_max_for_standard_mesh_delta_coeff = 5.0d0
@@ -54,7 +57,7 @@
 
 
       max_age = 1d10    ! STOPPING CONDITION
-      xa_central_lower_limit_species(1) = 'h1' ! isotope name 
+      xa_central_lower_limit_species(1) = 'h1' ! isotope name
       xa_central_lower_limit(1) = 0.4    ! STOPPING CONDITION
       logQ_limit = 8.0
 
@@ -72,7 +75,7 @@
 
 
 &pgstar
-      
+
     read_extra_pgstar_inlist1 = .true.
     extra_pgstar_inlist1_name = 'inlist_pgstar'
 
