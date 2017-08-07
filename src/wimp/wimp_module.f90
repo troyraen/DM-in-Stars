@@ -202,7 +202,8 @@
 		norm_integral = norm_integral+ rk(itr+1)*rk(itr+1)* EXP(-mx*Vk(itr)/ kerg/Tx)* (rk(itr)- rk(itr+1))
 	ENDDO
 	norm = Nx/ (4.D0*pi* norm_integral)
-
+	
+	nxk(kmax+1) = norm  ! this is central nx value since Vk(center) = 0
 	DO itr = 1,kmax
 		nxk(itr) = norm* EXP(-mx*Vk(itr)/ kerg/Tx)
 	ENDDO
