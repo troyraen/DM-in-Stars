@@ -120,7 +120,7 @@
          ierr = 0
          call star_ptr(id, s, ierr)
          if (ierr /= 0) return
-         how_many_extra_history_columns = 2
+         how_many_extra_history_columns = 4
       end function how_many_extra_history_columns
       
       
@@ -145,6 +145,13 @@
          names(2) = 'Nx_total'
          vals(2) = Nx
 
+         names(3) = 'center_nx'
+         vals(3) = nxk((s% nz)+1)
+
+         names(4) = 'center_np'
+         vals(4) = npk((s% nz)+1)
+
+
       end subroutine data_for_extra_history_columns
       
       integer function how_many_extra_profile_columns(id, id_extra)
@@ -155,7 +162,7 @@
          ierr = 0
          call star_ptr(id, s, ierr)
          if (ierr /= 0) return
-         how_many_extra_profile_columns = 1
+         how_many_extra_profile_columns = 2
       end function how_many_extra_profile_columns
       
       
@@ -174,9 +181,13 @@
          if (ierr /= 0) return
 
          names(1) = 'nx'
-
          do k = 1, nz
             vals(k,1) = nxk(k)
+         end do
+
+         names(2) = 'np'
+         do k = 1, nz
+            vals(k,2) = npk(k)
          end do
 
       end subroutine data_for_extra_profile_columns
