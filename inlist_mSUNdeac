@@ -28,8 +28,8 @@
       log_directory = 'LOGSmSUNc0'
       photo_directory = 'photosmSUNc0'
 
-      use_other_energy = .false.
-!      x_ctrl(1) = 1.D1  ! this sets cboost in wimp_module.f90
+      use_other_energy = .true.
+      x_ctrl(1) = 0.D0  ! this sets cboost in wimp_module.f90
 
       initial_mass = 1.0
       initial_z = 0.014d0
