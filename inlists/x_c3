@@ -2,6 +2,9 @@
 
           save_model_filename = 'c3.mod'
 
+    / ! end of star_job namelist
+
+
 
     &controls
 
@@ -13,3 +16,5 @@
       photo_interval = 50
       profile_interval = 200
       history_interval = 15
+
+    / ! end of controls namelist

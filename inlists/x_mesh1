@@ -4,3 +4,6 @@
       mesh_delta_coeff = 1.5
 
       mesh_delta_coeff_for_highT = 1.d0
+
+
+/ ! end of controls namelist
