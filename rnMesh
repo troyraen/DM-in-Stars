@@ -1,0 +1,37 @@
+#!/bin/bash
+
+function check_okay {
+	if [ $? -ne 0 ]
+	then
+		exit 1
+	fi
+}
+
+
+chmod 744 rn*
+./clean
+./mk
+
+#----- MESH 1
+cp inlists/x_mesh1 inlistx_mesh
+check_okay
+echo 'STARTING x_mesh1' >> rnMsun.txt
+./rnMsun
+mkdir x_mesh1 # move files to mesh specific folder
+mv LOGS* photos* *.mod x_mesh1/.
+
+#----- MESH 2
+cp inlists/x_mesh2 inlistx_mesh
+check_okay
+echo 'STARTING x_mesh2' >> rnMsun.txt
+./rnMsun
+mkdir x_mesh2 # move files to mesh specific folder
+mv LOGS* photos* *.mod x_mesh2/.
+
+#----- MESH 3
+cp inlists/x_mesh3 inlistx_mesh
+check_okay
+echo 'STARTING x_mesh3' >> rnMsun.txt
+./rnMsun
+mkdir x_mesh3 # move files to mesh specific folder
+mv LOGS* photos* *.mod x_mesh3/.

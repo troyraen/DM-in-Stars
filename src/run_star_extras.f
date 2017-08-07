@@ -9,7 +9,7 @@
 !   by the free software foundation; either version 2 of the license, or
 !   (at your option) any later version.
 !
-!   mesa is distributed in the hope that it will be useful, 
+!   mesa is distributed in the hope that it will be useful,
 !   but without any warranty; without even the implied warranty of
 !   merchantability or fitness for a particular purpose.  see the
 !   gnu library general public license for more details.
@@ -25,17 +25,17 @@
       use star_lib
       use star_def
       use const_def
-      use wimp_module   ! necessary to point towards the other_energy hook (see below) 
-      
+      use wimp_module   ! necessary to point towards the other_energy hook (see below)
+
       implicit none
-      
+
       integer :: time0, time1, clock_rate
       double precision, parameter :: expected_runtime = 16.5 ! minutes
 
-      
+
       ! these routines are called by the standard run_star check_model
       contains
-      
+
       subroutine extras_controls(id, ierr)
          integer, intent(in) :: id
          integer, intent(out) :: ierr
@@ -43,7 +43,7 @@
          ierr = 0
          call star_ptr(id, s, ierr)
          if (ierr /= 0) return
-         
+
          s% extras_startup => extras_startup
          s% extras_check_model => extras_check_model
          s% extras_finish_step => extras_finish_step
@@ -51,13 +51,13 @@
          s% how_many_extra_history_columns => how_many_extra_history_columns
          s% data_for_extra_history_columns => data_for_extra_history_columns
          s% how_many_extra_profile_columns => how_many_extra_profile_columns
-         s% data_for_extra_profile_columns => data_for_extra_profile_columns 
+         s% data_for_extra_profile_columns => data_for_extra_profile_columns
 
          s% other_energy => wimp_energy_transport ! subroutine where extra_heat is defined inside of module wimp_module
 
       end subroutine extras_controls
-      
-      
+
+
       integer function extras_startup(id, restart, ierr)
          integer, intent(in) :: id
          logical, intent(in) :: restart
@@ -74,8 +74,8 @@
             call unpack_extra_info(s)
          end if
       end function extras_startup
-      
-      
+
+
       subroutine extras_after_evolve(id, id_extra, ierr)
          integer, intent(in) :: id, id_extra
          integer, intent(out) :: ierr
@@ -99,7 +99,7 @@
          end if
          ierr = 0
       end subroutine extras_after_evolve
-      
+
 
       ! returns either keep_going, retry, backup, or terminate.
       integer function extras_check_model(id, id_extra)
@@ -109,7 +109,7 @@
          ierr = 0
          call star_ptr(id, s, ierr)
          if (ierr /= 0) return
-         extras_check_model = keep_going 
+         extras_check_model = keep_going
       end function extras_check_model
 
 
@@ -122,8 +122,8 @@
          if (ierr /= 0) return
          how_many_extra_history_columns = 4
       end function how_many_extra_history_columns
-      
-      
+
+
       subroutine data_for_extra_history_columns(id, id_extra, n, names, vals, ierr)
          include 'wimp/wimp_vars.h'
          integer, intent(in) :: id, id_extra, n
@@ -153,7 +153,7 @@
 
 
       end subroutine data_for_extra_history_columns
-      
+
       integer function how_many_extra_profile_columns(id, id_extra)
          use star_def, only: star_info
          integer, intent(in) :: id, id_extra
@@ -164,8 +164,8 @@
          if (ierr /= 0) return
          how_many_extra_profile_columns = 2
       end function how_many_extra_profile_columns
-      
-      
+
+
       subroutine data_for_extra_profile_columns(id, id_extra, n, nz, names, vals, ierr)
          use star_def, only: star_info, maxlen_profile_column_name
          use const_def, only: dp
@@ -191,7 +191,7 @@
          end do
 
       end subroutine data_for_extra_profile_columns
-      
+
 
       ! returns either keep_going, retry, backup, or terminate.
       integer function extras_finish_step(id, id_extra)
@@ -205,102 +205,93 @@
          if (ierr /= 0) return
          extras_finish_step = keep_going
          call store_extra_info(s)
-         
-!         IF ( s% star_age .GT. 1.82D9 ) THEN
-!         	s% need_to_update_history_now = .true.
-!         	s% need_to_save_profiles_now = .true.
-!         	s% save_profiles_model_priority = 50
-			
-!			IF ( s% star_age .GT. 1.838D9 ) THEN
-!				STOP
-!			ENDIF
-!		ENDIF
-         
-         IF ( (.NOT. flg1) .AND. (s% center_h1 .LT. 0.71D0) ) THEN 
+
+
+         IF ( (.NOT. flg1) .AND. (s% center_h1 .LT. 0.71D0) ) THEN
          	flg1 = .TRUE.
          	s% need_to_update_history_now = .true.
          	s% need_to_save_profiles_now = .true.
          	s% save_profiles_model_priority = 99	!! ENTER MS
          ENDIF
-         IF ( (.NOT. flg2) .AND. (s% center_h1 .LT. 1.D-6) ) THEN 
+         IF ( (.NOT. flg2) .AND. (s% center_h1 .LT. 1.D-2) ) THEN
          	flg2 = .TRUE.
          	s% need_to_update_history_now = .true.
          	s% need_to_save_profiles_now = .true.
          	s% save_profiles_model_priority = 98	!! LEAVE MS
          ENDIF
-         IF ( (.NOT. flg3) .AND. (s% helium_ignition) ) THEN 
+         IF ( (.NOT. flg3) .AND. (s% power_he_burn .GT. 1.D6) ) THEN 
          	flg3 = .TRUE.
          	s% need_to_update_history_now = .true.
          	s% need_to_save_profiles_now = .true.
          	s% save_profiles_model_priority = 97	!! He IGNITION
          ENDIF
-         IF ( (.NOT. flg4) .AND. (s% center_he4 .LT. 1.D-6) ) THEN 
+         IF ( (.NOT. flg4) .AND. (s% center_he4 .LT. 1.D-2) ) THEN
          	flg4 = .TRUE.
          	s% need_to_update_history_now = .true.
          	s% need_to_save_profiles_now = .true.
          	s% save_profiles_model_priority = 96	!! He EXHAUSTED
-         ENDIF  
-         
+         ENDIF
+
          IF ( MOD(s% model_number, 1000) .EQ. 0) THEN
          	s% need_to_update_history_now = .true.
          	s% need_to_save_profiles_now = .true.
          	s% save_profiles_model_priority = 10
          ENDIF
-                  
+
       end function extras_finish_step
-      
-      
-      
+
+
+
       ! routines for saving and restoring extra data so can do restarts
-         
+
          ! put these defs at the top and delete from the following routines
          !integer, parameter :: extra_info_alloc = 1
          !integer, parameter :: extra_info_get = 2
          !integer, parameter :: extra_info_put = 3
-      
-      
+
+
       subroutine alloc_extra_info(s)
          integer, parameter :: extra_info_alloc = 1
          type (star_info), pointer :: s
          call move_extra_info(s,extra_info_alloc)
       end subroutine alloc_extra_info
-      
-      
+
+
       subroutine unpack_extra_info(s)
          integer, parameter :: extra_info_get = 2
          type (star_info), pointer :: s
          call move_extra_info(s,extra_info_get)
       end subroutine unpack_extra_info
-      
-      
+
+
       subroutine store_extra_info(s)
          integer, parameter :: extra_info_put = 3
          type (star_info), pointer :: s
          call move_extra_info(s,extra_info_put)
       end subroutine store_extra_info
-      
-      
+
+
       subroutine move_extra_info(s,op)
          integer, parameter :: extra_info_alloc = 1
          integer, parameter :: extra_info_get = 2
          integer, parameter :: extra_info_put = 3
          type (star_info), pointer :: s
          integer, intent(in) :: op
-         
+
          integer :: i, j, num_ints, num_dbls, ierr
-         
+
          i = 0
-         ! call move_int or move_flg    
+         ! call move_int or move_flg
          num_ints = i
-         
+
          i = 0
-         ! call move_dbl       
-         
+         ! call move_dbl
+
          num_dbls = i
-         
+
          if (op /= extra_info_alloc) return
          if (num_ints == 0 .and. num_dbls == 0) return
-         
+
          ierr = 0
          call star_alloc_extras(s% id, num_ints, num_dbls, ierr)
          if (ierr /= 0) then
@@ -309,9 +300,9 @@
             write(*,*) 'alloc_extras num_dbls', num_dbls
             stop 1
          end if
-         
+
          contains
-         
+
          subroutine move_dbl(dbl)
             double precision :: dbl
             i = i+1
@@ -322,7 +313,7 @@
                s% extra_work(i) = dbl
             end select
          end subroutine move_dbl
-         
+
          subroutine move_int(int)
             integer :: int
             i = i+1
@@ -333,7 +324,7 @@
                s% extra_iwork(i) = int
             end select
          end subroutine move_int
-         
+
          subroutine move_flg(flg)
             logical :: flg
             i = i+1
@@ -348,8 +339,7 @@
                end if
             end select
          end subroutine move_flg
-      
+
       end subroutine move_extra_info
 
       end module run_star_extras
-      

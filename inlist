@@ -5,7 +5,7 @@
       show_log_description_at_start = .false.
 
       save_model_when_terminate = .true.
-      save_model_filename = 'mSUNc4.mod'
+      save_model_filename = 'mSUN.mod'
 
       eos_file_prefix = 'mesa'
       kappa_file_prefix = 'gs98'
@@ -19,17 +19,21 @@
 
       pgstar_flag = .true.
 
+      read_extra_star_job_inlist1 = .true.
+      extra_star_job_inlist1 = 'inlistx_cb'  ! inlist controlling cboost
 
 / ! end of star_job namelist
 
 
 &controls
 
-      log_directory = 'LOGSmSUNc4'
-      photo_directory = 'photosmSUNc4'
+      log_directory = 'LOGSmSUN'
+      photo_directory = 'photosmSUN'
+
+      write_controls_info_with_profile = .true.
 
       use_other_energy = .true.
-      x_ctrl(1) = 1.D4  ! this sets cboost in wimp_module.f90
+      x_ctrl(1) = 0.D0  ! this sets cboost in wimp_module.f90
 
       initial_mass = 1.0
       initial_z = 0.014d0
@@ -87,13 +91,19 @@
 
 
       photo_interval = 50
-      profile_interval = 200
-      history_interval = 50
+      profile_interval = 100
+      history_interval = 10
       terminal_interval = 10
       write_header_frequency = 10
 
       !max_age = 10d9
       max_years_for_timestep = 1d9
+
+      read_extra_controls_inlist1 = .true.
+      extra_controls_inlist1_name = 'inlistx_cb'  ! inlist controlling cboost
+
+      read_extra_controls_inlist2 = .true.
+      extra_controls_inlist2_name = 'inlistx_mesh'  ! inlist controlling mesh
 
 / ! end of controls namelist
 

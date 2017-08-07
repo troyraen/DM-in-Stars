@@ -1,0 +1,15 @@
+    &star_job
+
+          save_model_filename = 'c0.mod'
+
+
+    &controls
+
+      log_directory = 'LOGSc0'
+      photo_directory = 'photosc0'
+
+      x_ctrl(1) = 0.D0  ! this sets cboost in wimp_module.f90
+
+      photo_interval = 50
+      profile_interval = 50
+      history_interval = 5
