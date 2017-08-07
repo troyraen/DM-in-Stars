@@ -20,7 +20,7 @@
       pgstar_flag = .true.
 
       read_extra_star_job_inlist1 = .true.
-      extra_star_job_inlist1 = 'inlistx_cb'  ! inlist controlling cboost
+      extra_star_job_inlist1_name = 'inlistx_cb'  ! inlist controlling cboost
 
 / ! end of star_job namelist
 
