@@ -1,0 +1,49 @@
+#!/bin/bash
+
+function check_okay {
+	if [ $? -ne 0 ]
+	then
+		exit 1
+	fi
+}
+
+
+
+#----- mass 0.7
+cp inlists/x_mass7 inlistx_mass
+check_okay
+echo '!--' >> README.md
+echo '!------------- STARTING x_mass7 -------------!' >> README.md
+echo '!--' >> README.md
+./rnCB
+rm LOGS*/controls{2..100}.data -f
+mkdir x_mass7 # move files to mass specific folder
+mv LOGS* photos* *.mod x_mass7/.
+
+#----- mass 2
+cp inlists/x_mass2 inlistx_mass
+check_okay
+echo '!--' >> README.md
+echo '!------------- STARTING x_mass2 -------------!' >> README.md
+echo '!--' >> README.md
+./rnCB
+rm LOGS*/controls{2..100}.data -f
+mkdir x_mass2 # move files to mass specific folder
+mv LOGS* photos* *.mod x_mass2/.
+
+#----- mass 5
+cp inlists/x_mass5 inlistx_mass
+check_okay
+echo '!--' >> README.md
+echo '!------------- STARTING x_mass5 -------------!' >> README.md
+echo '!--' >> README.md
+./rnCB
+rm LOGS*/controls{2..100}.data -f
+mkdir x_mass5 # move files to mass specific folder
+mv LOGS* photos* *.mod x_mass5/.
+
+#----- ZIP FOR DOWNLOAD
+zip -r x_mass.zip x_mass*/LOGS* -x x_mass*/LOGS*/pgstar.dat
+echo '!--' >> README.md
+echo '!------------- ZIPPED x_mass.zip -------------!' >> README.md
+echo '!--' >> README.md

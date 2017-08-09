@@ -14,7 +14,7 @@
       x_ctrl(1) = 1.D1  ! this sets cboost in wimp_module.f90
 
       photo_interval = 50
-      profile_interval = 50
+      profile_interval = 100
       history_interval = 5
 
     / ! end of controls namelist
