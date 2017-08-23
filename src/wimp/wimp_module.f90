@@ -8,14 +8,12 @@
 !!! controls:
 !!! Nx = s% xtra1
 !!!	cboost = s% x_ctrl(1)
-!!!	spindep = s% x_logical_ctrl(1)  ! .true. = spin dependent; .false. = spin independent
 
 
 	MODULE wimp_module
 
 	use star_def
 	use const_def
-	use chem_def
 	use wimp_num
 
 	IMPLICIT NONE
@@ -64,12 +62,9 @@
 !!----------------------------
 	SUBROUTINE get_star_variables(id,ierr)
 	use const_def, only : mp, Rsun, standard_cgrav ! proton mass (g), solar radius (cm), Grav const (g^-1 cm^3 s^-2)
-	use chem_def
 	IMPLICIT NONE
 	INCLUDE 'wimp_vars.h'
 
-	LOGICAL :: ISOPEN
-	INTEGER :: chemj, j
 	INTEGER, INTENT(IN) :: id
 	INTEGER, INTENT(OUT) :: ierr
 	INTEGER :: itr
@@ -85,12 +80,8 @@
 	M_star = s% mstar !! in grams
 	R_star = (s% photosphere_r)* Rsun !! convert to cm
 	vesc = SQRT(2.D0* standard_cgrav* M_star/ R_star)
-	numspecies = s% species
-	IF (numspecies .GT. maxspecies) THEN
-		WRITE(*,*) '**** numspecies > maxspecies = ',maxspecies
-		WRITE(*,*) '**** STOPPING RUN AT star_age = ',Age_star,' years'
-		STOP
-	ENDIF
+
+	! copy cell variables
 	kmax = s% nz
 	IF ((kmax+1) .GT. maxcells) THEN
 		WRITE(*,*) '**** kmax+1 > maxcells = ',maxcells
@@ -98,7 +89,6 @@
 		STOP
 	ENDIF
 
-	! copy cell variables
 	DO itr = 1,kmax
 		Xk(itr) = s% X(itr) !! mass fraction hydrogen
 		Tk(itr) = s% T(itr) !! in K
@@ -109,34 +99,7 @@
 !?????? I'm guessing, star_data.inc does not specify
 		gravk(itr) = s% grav(itr) !! in cm/s^2
 !?????? I'm guessing, star_data.inc does not specify
-		DO j = 1, numspecies
-			xajk(j,itr) = s% xa(j,itr)	!! mass frac of species j in cell k
-			nNk(j,itr) = xajk(j,itr)*rhok(itr)
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! /MASS !! cm^-3
-		ENDDO
-
 	ENDDO
-
-!! checking chem_isos information:
-	INQUIRE(FILE='CHEM_ISOS.txt', OPENED=ISOPEN)
-	IF (.NOT. ISOPEN) THEN
-		OPEN(FILE='CHEM_ISOS.txt', UNIT=10)
-		WRITE(10,*) 'FILE OPENED SUCCESSFULLY'
-	ENDIF
-
-!	IF (MOD(s% model_number, 50) .EQ. 0) THEN
-	DO j = 1,numspecies
-		chemj = s% chem_id(j)
-		WRITE(10,*) chemj
-!		WRITE(10,"(I3, F1.4)") chemj, s% xa(j,kmax)
-!			, A, I3, I3, I3, I3, I3)") &
-!				chemj, s% xa(j,kmax), chem_isos% name(chemj), chem_isos% chem_id(chemj), &
-!				chem_isos% nuclide(chemj), chem_isos% Z(chemj), chem_isos% N(chemj), &
-!				chem_isos% Z_plus_N(chemj)
-	ENDDO
-!	ENDIF
-!! END checking chem_isos information
-
 
 	! set central values
 	Xk(kmax+1) = s% center_h1
@@ -176,13 +139,8 @@
 
 	mxGeV = 5.D0	! 5 GeV WIMP
 	mx = mxGeV* 1.7825D-24	! WIMP mass in grams
+	sigmaxp = 1.D-37	! wimp-proton cross section, cm^2
 	cboost = s% x_ctrl(1)  ! boost in capture rate of WIMPs compared to the local capture rate near the Sun, \propto density/sigma_v
-	spindep = s% x_logical_ctrl(1)
-	IF (spindep) THEN
-		sigmaxp = 1.D-37	! wimp-proton cross section, cm^2
-	ELSE
-		sigmaxp = 1.D-40
-	ENDIF
 
 	Tx = calc_Tx()
 	dNx = calc_dNx()
