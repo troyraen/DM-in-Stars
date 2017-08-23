@@ -101,11 +101,6 @@
 	! copy cell variables
 	DO itr = 1,kmax
 		Xk(itr) = s% X(itr) !! mass fraction hydrogen
-		DO j = 1, numspecies
-			xajk(j,itr) = s% xa(j,itr)	!! mass frac of species j in cell k
-			nNk(j,itr) = xajk(j,itr)*rhok(itr)
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! /MASS !! cm^-3
-		ENDDO
 		Tk(itr) = s% T(itr) !! in K
 		rhok(itr) = s% rho(itr) !! in g/cm^3
 !?????? I'm guessing, star_data.inc does not specify
@@ -114,16 +109,21 @@
 !?????? I'm guessing, star_data.inc does not specify
 		gravk(itr) = s% grav(itr) !! in cm/s^2
 !?????? I'm guessing, star_data.inc does not specify
+		DO j = 1, numspecies
+			xajk(j,itr) = s% xa(j,itr)	!! mass frac of species j in cell k
+			nNk(j,itr) = xajk(j,itr)*rhok(itr)
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! /MASS !! cm^-3
+		ENDDO
 
 	ENDDO
 
+!! checking chem_isos information:
 	INQUIRE(FILE='CHEM_ISOS.txt', OPENED=ISOPEN)
 	IF (.NOT. ISOPEN) THEN
 	OPEN(FILE='CHEM_ISOS.txt', UNIT=10)
 	WRITE(10,*) 'FILE OPENED SUCCESSFULLY'
 	ENDIF
 
-!! checking chem_isos information:
 	IF (MOD(s% model_number, 50) .EQ. 0) THEN
 		DO j = 1,numspecies
 			chemj = s% chem_id(j)
