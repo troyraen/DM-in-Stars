@@ -64,6 +64,7 @@
 !!----------------------------
 	SUBROUTINE get_star_variables(id,ierr)
 	use const_def, only : mp, Rsun, standard_cgrav ! proton mass (g), solar radius (cm), Grav const (g^-1 cm^3 s^-2)
+	use chem_def
 	IMPLICIT NONE
 	INCLUDE 'wimp_vars.h'
 
@@ -116,9 +117,9 @@
 
 	ENDDO
 
-	INQUIRE(FILE='chem_isos.txt', OPENED=ISOPEN)
+	INQUIRE(FILE='CHEM_ISOS.txt', OPENED=ISOPEN)
 	IF (.NOT. ISOPEN) THEN
-	OPEN(FILE='chem_isos.txt', UNIT=10)
+	OPEN(FILE='CHEM_ISOS.txt', UNIT=10)
 	WRITE(10,*) 'FILE OPENED SUCCESSFULLY'
 	ENDIF
 

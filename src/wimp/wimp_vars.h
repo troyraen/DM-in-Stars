@@ -29,4 +29,4 @@
 
 	COMMON /WIMP_MOD_GLOBALS/ mx, mxGeV, sigmaxp, cboost, Tx, Nx, dttmp, maxT, vesc, M_star, R_star, Age_star
 	COMMON /WIMP_MOD_GLOBALS/ Xk, Tk, rhok, npk, nxk, xheat, rk, gravk, Vk
-	COMMON /WIMP_MOD_GLOBALS/ kmax, spindep
+	COMMON /WIMP_MOD_GLOBALS/ kmax, spindep, maxspecies, numspecies, xajk, nNk
