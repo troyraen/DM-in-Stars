@@ -68,7 +68,7 @@
 	INCLUDE 'wimp_vars.h'
 
 	LOGICAL :: ISOPEN
-	INTEGER :: chemj
+	INTEGER :: chemj, j
 	INTEGER, INTENT(IN) :: id
 	INTEGER, INTENT(OUT) :: ierr
 	INTEGER :: itr
@@ -116,18 +116,21 @@
 
 	ENDDO
 
+	INQUIRE(FILE='chem_isos.txt', OPENED=ISOPEN)
+	IF (.NOT. ISOPEN) THEN
+	OPEN(FILE='chem_isos.txt', UNIT=10)
+	WRITE(10,*) 'FILE OPENED SUCCESSFULLY'
+	ENDIF
+
 !! checking chem_isos information:
 	IF (MOD(s% model_number, 50) .EQ. 0) THEN
-		INQUIRE(FILE='chem_isos.txt', OPENED=ISOPEN)
-		IF (.NOT. ISOPEN) THEN
-		OPEN(FILE='chem_isos.txt', UNIT=10)
-		ENDIF
 		DO j = 1,numspecies
-			chemj = chem_id(j)
-			WRITE(10,"(I3, F1.4, A, I3, I3, I3, I3, I3)") &
-				chemj, xa(j,kmax), chem_isos% name(chemj), chem_isos% chem_id(chemj), &
-				chem_isos% nuclide(chemj), chem_isos% Z(chemj), chem_isos% N(chemj), &
-				chem_isos% Z_plus_N(chemj)
+			chemj = s% chem_id(j)
+			WRITE(10,"(I3, F1.4)") chemj, s% xa(j,kmax)
+!			, A, I3, I3, I3, I3, I3)") &
+!				chemj, s% xa(j,kmax), chem_isos% name(chemj), chem_isos% chem_id(chemj), &
+!				chem_isos% nuclide(chemj), chem_isos% Z(chemj), chem_isos% N(chemj), &
+!				chem_isos% Z_plus_N(chemj)
 		ENDDO
 	ENDIF
 !! END checking chem_isos information
