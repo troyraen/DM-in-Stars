@@ -120,20 +120,21 @@
 !! checking chem_isos information:
 	INQUIRE(FILE='CHEM_ISOS.txt', OPENED=ISOPEN)
 	IF (.NOT. ISOPEN) THEN
-	OPEN(FILE='CHEM_ISOS.txt', UNIT=10)
-	WRITE(10,*) 'FILE OPENED SUCCESSFULLY'
+		OPEN(FILE='CHEM_ISOS.txt', UNIT=10)
+		WRITE(10,*) 'FILE OPENED SUCCESSFULLY'
 	ENDIF
 
-	IF (MOD(s% model_number, 50) .EQ. 0) THEN
-		DO j = 1,numspecies
-			chemj = s% chem_id(j)
-			WRITE(10,"(I3, F1.4)") chemj, s% xa(j,kmax)
+!	IF (MOD(s% model_number, 50) .EQ. 0) THEN
+	DO j = 1,numspecies
+		chemj = s% chem_id(j)
+		WRITE(10,*) chemj
+!		WRITE(10,"(I3, F1.4)") chemj, s% xa(j,kmax)
 !			, A, I3, I3, I3, I3, I3)") &
 !				chemj, s% xa(j,kmax), chem_isos% name(chemj), chem_isos% chem_id(chemj), &
 !				chem_isos% nuclide(chemj), chem_isos% Z(chemj), chem_isos% N(chemj), &
 !				chem_isos% Z_plus_N(chemj)
-		ENDDO
-	ENDIF
+	ENDDO
+!	ENDIF
 !! END checking chem_isos information
 
 
