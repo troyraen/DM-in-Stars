@@ -1,1 +1,6 @@
-&controls
+  &controls
+
+      initial_mass = 1.0d0
+
+
+  / ! end of controls namelist
