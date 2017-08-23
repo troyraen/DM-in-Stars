@@ -35,6 +35,9 @@
 
       use_other_energy = .true.
       x_ctrl(1) = 0.D0  ! this sets cboost in wimp_module.f90
+      x_logical_ctrl(1) = .true.    ! sets spin dependence (spindep) in wimp_module.f90
+                                    ! .true. = spin dependent
+                                    ! .false. = spin independent
 
       initial_mass = 1.0
       initial_z = 0.014d0
