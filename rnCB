@@ -47,9 +47,9 @@ NOW=$(date "+DATE: %Y-%m-%d%nTIME: %H:%M:%S")
 echo $NOW >> README.md
 do_one inlists/x_c3 c3.mod
 
-#NOW=$(date "+DATE: %Y-%m-%d%nTIME: %H:%M:%S")
-#echo $NOW >> README.md
-#do_one inlists/x_c4 c4.mod
+NOW=$(date "+DATE: %Y-%m-%d%nTIME: %H:%M:%S")
+echo $NOW >> README.md
+do_one inlists/x_c4 c4.mod
 
 NOW=$(date "+DATE: %Y-%m-%d%nTIME: %H:%M:%S")
 echo $NOW >> README.md
