@@ -17,8 +17,8 @@
 	use const_def
 	use chem_def
 	use wimp_num
-
 	IMPLICIT NONE
+	INCLUDE 'wimp_vars.h'
 
 	CONTAINS
 
@@ -28,7 +28,7 @@
 !!----------------------------
 	SUBROUTINE wimp_energy_transport(id,ierr)
 	IMPLICIT NONE
-	INCLUDE 'wimp_vars.h'
+	!INCLUDE 'wimp_vars.h'
 
 	INTEGER, INTENT(IN) :: id
 	INTEGER, INTENT(OUT) :: ierr
@@ -67,7 +67,7 @@
 	use const_def, only : mp, Rsun, standard_cgrav, amu
 	! proton mass (g), solar radius (cm), Grav const (g^-1 cm^3 s^-2), amu (g)
 	IMPLICIT NONE
-	INCLUDE 'wimp_vars.h'
+	!INCLUDE 'wimp_vars.h'
 
 	INTEGER, INTENT(IN) :: id
 	INTEGER, INTENT(OUT) :: ierr
@@ -86,6 +86,7 @@
 	vesc = SQRT(2.D0* standard_cgrav* M_star/ R_star)
 
 	numspecies = s% species
+	WRITE(*,*) 'numspecies=',numspecies, 'maxspecies=',maxspecies
 	IF (numspecies .GT. maxspecies) THEN
 		WRITE(*,*) '*** numspecies > maxspecies = ',maxspecies
 		WRITE(*,*) '**** STOPPING RUN AT star_age = ',Age_star,' years'
@@ -147,7 +148,7 @@
 !!----------------------------
 	SUBROUTINE set_wimp_variables(id,ierr)
 	IMPLICIT NONE
-	INCLUDE 'wimp_vars.h'
+	!INCLUDE 'wimp_vars.h'
 	DOUBLE PRECISION :: dNx
 
 	INTEGER, INTENT(IN) :: id
@@ -190,7 +191,6 @@
 	SUBROUTINE calc_xheat()
 	USE const_def, only : pi, mp, kerg ! Boltzmann's constant (erg K^-1)
 	IMPLICIT NONE
-	INCLUDE 'wimp_vars.h'
 	INTEGER :: itr, j
 	DOUBLE PRECISION :: mfact, dfact, Tfact
 
@@ -240,7 +240,7 @@
 	SUBROUTINE calc_nxk()
 	USE const_def, only : pi, kerg ! Boltzmann's constant (erg K^-1)
 	IMPLICIT NONE
-	INCLUDE 'wimp_vars.h'
+	!INCLUDE 'wimp_vars.h'
 	INTEGER :: itr
 	DOUBLE PRECISION :: norm_integral, norm
 
@@ -266,7 +266,7 @@
 	FUNCTION calc_dNx()
 	USE const_def, only : Msun ! solar mass (g)
 	IMPLICIT NONE
-	INCLUDE 'wimp_vars.h'
+	!INCLUDE 'wimp_vars.h'
 
 	DOUBLE PRECISION :: calc_dNx, crate, Cfact
 
@@ -290,7 +290,7 @@
 !!----------------------------
 	FUNCTION calc_Tx()
 	IMPLICIT NONE
-	INCLUDE 'wimp_vars.h'
+	!INCLUDE 'wimp_vars.h'
 
 	DOUBLE PRECISION :: Txhigh, Txlow, tol
 	DOUBLE PRECISION :: Ttmp, calc_Tx
@@ -315,7 +315,7 @@
 	FUNCTION emoment(Txtest)
 	USE const_def, only : kerg ! Boltzmann's constant (erg K^-1)
 	IMPLICIT NONE
-	INCLUDE 'wimp_vars.h'
+	!INCLUDE 'wimp_vars.h'
 
 	INTEGER :: itr, j
 	DOUBLE PRECISION, INTENT(IN) :: Txtest
@@ -323,6 +323,7 @@
 	PARAMETER ( mpGeV=0.938272D0 ) ! Proton mass in GeV
 
 	sum = 0.D0
+	WRITE(*,*) 'emoment fnc, kmax =',kmax
 	DO itr = kmax,1,-1 ! integrate from r=0 to r_star
 		efact = EXP(-mx*Vk(itr)/ kerg/Txtest)
 		rfact = rk(itr+1)*rk(itr+1)* (rk(itr)- rk(itr+1))
