@@ -1,0 +1,9 @@
+#!/bin/bash
+
+./rnCB
+rm LOGS*/controls{2..100}.data -f
+#----- ZIP FOR DOWNLOAD
+zip -r spinInd.zip LOGS* -x LOGS*/pgstar.dat
+echo '!--' >> README.md
+echo '!------------- ZIPPED spinInd.zip -------------!' >> README.md
+echo '!--' >> README.md

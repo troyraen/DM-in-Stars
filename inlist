@@ -27,15 +27,12 @@
 
 &controls
 
-!      log_directory = 'LOGSmSUN'
-!      photo_directory = 'photosmSUN'
-
       write_controls_info_with_profile = .true.
       max_num_profile_models = 10
 
       use_other_energy = .true.
       x_ctrl(1) = 0.D0  ! this sets cboost in wimp_module.f90
-      x_logical_ctrl(1) = .false.    ! sets spin dependence (spindep) in wimp_module.f90
+      x_logical_ctrl(1) = .false.    ! sets spindep in wimp_module.f90
                                     ! .true. = spin dependent
                                     ! .false. = spin independent
 

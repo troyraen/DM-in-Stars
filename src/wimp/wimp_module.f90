@@ -28,12 +28,9 @@
 !!----------------------------
 	SUBROUTINE wimp_energy_transport(id,ierr)
 	IMPLICIT NONE
-	!INCLUDE 'wimp_vars.h'
-
 	INTEGER, INTENT(IN) :: id
 	INTEGER, INTENT(OUT) :: ierr
 	INTEGER :: itr
-
 	TYPE (star_info), pointer :: s ! pointer to star type
 	ierr=0
 	CALL GET_STAR_PTR(id, s, ierr)
@@ -44,17 +41,19 @@
 	CALL set_wimp_variables(id,ierr)
 	CALL calc_xheat()
 
-
+	DO itr = 1,kmax
+		s% extra_heat(itr) = xheat(itr)
+	ENDDO
 	!! start after 10,000 years
-	IF ( Age_star .LT. 1.D4) THEN
-		DO itr = 1,kmax
-			s% extra_heat(itr) = 0.D0
-		ENDDO
-	ELSE
-		DO itr = 1,kmax
-			s% extra_heat(itr) = xheat(itr)
-		ENDDO
-	ENDIF
+!	IF ( Age_star .LT. 1.D4) THEN
+!		DO itr = 1,kmax
+!			s% extra_heat(itr) = 0.D0
+!		ENDDO
+!	ELSE
+!		DO itr = 1,kmax
+!			s% extra_heat(itr) = xheat(itr)
+!		ENDDO
+!	ENDIF
 
 	END SUBROUTINE wimp_energy_transport
 
@@ -67,8 +66,6 @@
 	use const_def, only : mp, Rsun, standard_cgrav, amu
 	! proton mass (g), solar radius (cm), Grav const (g^-1 cm^3 s^-2), amu (g)
 	IMPLICIT NONE
-	!INCLUDE 'wimp_vars.h'
-
 	INTEGER, INTENT(IN) :: id
 	INTEGER, INTENT(OUT) :: ierr
 	INTEGER :: itr, j
@@ -86,7 +83,6 @@
 	vesc = SQRT(2.D0* standard_cgrav* M_star/ R_star)
 
 	numspecies = s% species
-	WRITE(*,*) 'numspecies=',numspecies, 'maxspecies=',maxspecies
 	IF (numspecies .GT. maxspecies) THEN
 		WRITE(*,*) '*** numspecies > maxspecies = ',maxspecies
 		WRITE(*,*) '**** STOPPING RUN AT star_age = ',Age_star,' years'
@@ -116,7 +112,7 @@
 					mj(j) = chem_isos% W(chemj) * amu ! mass of element j (g)
 					mGeVj(j) = mj(j)/gperGeV ! mass in GeV
 					Aj(j) = chem_isos% Z_plus_N(chemj) ! mass number of element j
-					WRITE(*,*) chem_isos% name(chemj), mGeVj(j), Aj(j)
+!					WRITE(*,*) chem_isos% name(chemj), mGeVj(j), Aj(j)
 				ENDIF
 				xajk(j,itr) = s% xa(j,itr) ! mass fraction of element j in cell k
 				njk(j,itr) = xajk(j,itr)*rhok(itr)/mj(j) ! number fraction of element j in cell k
@@ -148,9 +144,7 @@
 !!----------------------------
 	SUBROUTINE set_wimp_variables(id,ierr)
 	IMPLICIT NONE
-	!INCLUDE 'wimp_vars.h'
 	DOUBLE PRECISION :: dNx
-
 	INTEGER, INTENT(IN) :: id
 	INTEGER, INTENT(OUT) :: ierr
 	INTEGER :: itr, j
@@ -210,7 +204,6 @@
 			xheat(itr) = mfact* dfact* Tfact
 	!		WRITE(10,*) itr, xheat(itr)
 		ENDDO
-
 	!	DO itr = 1,kmax
 	!		WRITE(10,"(F10.5)",advance="no") xheat(itr)
 	!	ENDDO
@@ -223,12 +216,9 @@
 				dfact = nxk(itr)*njk(j,itr)/rhok(itr)
 				Tfact = SQRT((mj(j)*kerg*Tx+ mx*kerg*Tk(itr))/(mx*mj(j))) * kerg*(Tx- Tk(itr))	! Tx-Tk gives correct sign
 				xheat(itr) = xheat(itr)+ mfact* dfact* Tfact
-		!		WRITE(10,*) itr, xheat(itr)
 			ENDDO
 		ENDDO
 	ENDIF
-
-
 
 	END SUBROUTINE calc_xheat
 
@@ -240,7 +230,6 @@
 	SUBROUTINE calc_nxk()
 	USE const_def, only : pi, kerg ! Boltzmann's constant (erg K^-1)
 	IMPLICIT NONE
-	!INCLUDE 'wimp_vars.h'
 	INTEGER :: itr
 	DOUBLE PRECISION :: norm_integral, norm
 
@@ -266,8 +255,6 @@
 	FUNCTION calc_dNx()
 	USE const_def, only : Msun ! solar mass (g)
 	IMPLICIT NONE
-	!INCLUDE 'wimp_vars.h'
-
 	DOUBLE PRECISION :: calc_dNx, crate, Cfact
 
 	IF (spindep) THEN
@@ -290,8 +277,6 @@
 !!----------------------------
 	FUNCTION calc_Tx()
 	IMPLICIT NONE
-	!INCLUDE 'wimp_vars.h'
-
 	DOUBLE PRECISION :: Txhigh, Txlow, tol
 	DOUBLE PRECISION :: Ttmp, calc_Tx
 	PARAMETER ( tol = 1.D-4 )
@@ -315,15 +300,12 @@
 	FUNCTION emoment(Txtest)
 	USE const_def, only : kerg ! Boltzmann's constant (erg K^-1)
 	IMPLICIT NONE
-	!INCLUDE 'wimp_vars.h'
-
 	INTEGER :: itr, j
 	DOUBLE PRECISION, INTENT(IN) :: Txtest
 	DOUBLE PRECISION :: mpGeV, Tfact, efact, rfact, sum, emoment
 	PARAMETER ( mpGeV=0.938272D0 ) ! Proton mass in GeV
 
 	sum = 0.D0
-	WRITE(*,*) 'emoment fnc, kmax =',kmax
 	DO itr = kmax,1,-1 ! integrate from r=0 to r_star
 		efact = EXP(-mx*Vk(itr)/ kerg/Txtest)
 		rfact = rk(itr+1)*rk(itr+1)* (rk(itr)- rk(itr+1))
@@ -341,16 +323,6 @@
 	emoment = sum
 	END FUNCTION emoment
 
-
-!!----------------------------
-!!
-!!----------------------------
-
-
-
-!!----------------------------
-!!
-!!----------------------------
 
 
 	END MODULE wimp_module
