@@ -25,7 +25,8 @@
       use star_lib
       use star_def
       use const_def
-      use wimp_module   ! necessary to point towards the other_energy hook (see below)
+      use chem_def
+      use wimp_module   ! necessary to point towards the other_energy hook
 
       implicit none
 
@@ -120,7 +121,7 @@
          ierr = 0
          call star_ptr(id, s, ierr)
          if (ierr /= 0) return
-         how_many_extra_history_columns = 4
+         how_many_extra_history_columns = 14
       end function how_many_extra_history_columns
 
 
@@ -129,7 +130,7 @@
          integer, intent(in) :: id, id_extra, n
          character (len=maxlen_history_column_name) :: names(n)
          real(dp) :: vals(n)
-         integer, intent(out) :: ierr
+         integer, intent(out) :: ierr, idx, chemj, j
          type (star_info), pointer :: s
          ierr = 0
          call star_ptr(id, s, ierr)
@@ -151,6 +152,12 @@
          names(4) = 'center_np'
          vals(4) = npk((s% nz)+1)
 
+         DO j = 1,10
+             idx = 4+j
+             chemj = s% chem_id(j)
+             names(idx) = chem_isos% name(chemj)
+             vals(idx) = njk(j,s% nz)
+
 
       end subroutine data_for_extra_history_columns
 
@@ -162,7 +169,7 @@
          ierr = 0
          call star_ptr(id, s, ierr)
          if (ierr /= 0) return
-         how_many_extra_profile_columns = 2
+         how_many_extra_profile_columns = 12
       end function how_many_extra_profile_columns
 
 
@@ -173,7 +180,7 @@
          integer, intent(in) :: id, id_extra, n, nz
          character (len=maxlen_profile_column_name) :: names(n)
          real(dp) :: vals(nz,n)
-         integer, intent(out) :: ierr
+         integer, intent(out) :: ierr, j
          type (star_info), pointer :: s
          integer :: k
          ierr = 0
@@ -189,6 +196,15 @@
          do k = 1, nz
             vals(k,2) = npk(k)
          end do
+
+         DO j=1,10
+             idx = 4+j
+             chemj = s% chem_id(j)
+             names(idx) = chem_isos% name(chemj)
+             DO k=1,nz
+                 vals(k,idx) = njk(j,k)
+            END DO
+
 
       end subroutine data_for_extra_profile_columns
 
@@ -219,7 +235,7 @@
          	s% need_to_save_profiles_now = .true.
          	s% save_profiles_model_priority = 98	!! LEAVE MS
          ENDIF
-         IF ( (.NOT. flg3) .AND. (s% power_he_burn .GT. 1.D6) ) THEN 
+         IF ( (.NOT. flg3) .AND. (s% power_he_burn .GT. 1.D6) ) THEN
          	flg3 = .TRUE.
          	s% need_to_update_history_now = .true.
          	s% need_to_save_profiles_now = .true.
