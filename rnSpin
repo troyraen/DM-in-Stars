@@ -1,5 +1,9 @@
 #!/bin/bash
 
+echo '!-------------------------!' >> README.md
+echo '!--- running ./rnSpin' >> README.md
+echo '!-------------------------!' >> README.md
+
 ./rnCB
 rm LOGS*/controls{2..100}.data -f
 #----- ZIP FOR DOWNLOAD
