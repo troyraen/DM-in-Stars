@@ -130,7 +130,8 @@
          integer, intent(in) :: id, id_extra, n
          character (len=maxlen_history_column_name) :: names(n)
          real(dp) :: vals(n)
-         integer, intent(out) :: ierr, idx, chemj, j
+         integer, intent(out) :: ierr
+         integer :: j, idx
          type (star_info), pointer :: s
          ierr = 0
          call star_ptr(id, s, ierr)
@@ -157,7 +158,7 @@
              chemj = s% chem_id(j)
              names(idx) = chem_isos% name(chemj)
              vals(idx) = njk(j,s% nz)
-
+        ENDDO
 
       end subroutine data_for_extra_history_columns
 
@@ -178,9 +179,10 @@
          use const_def, only: dp
          include 'wimp/wimp_vars.h'
          integer, intent(in) :: id, id_extra, n, nz
+         integer :: j, idx
          character (len=maxlen_profile_column_name) :: names(n)
          real(dp) :: vals(nz,n)
-         integer, intent(out) :: ierr, j
+         integer, intent(out) :: ierr
          type (star_info), pointer :: s
          integer :: k
          ierr = 0
@@ -198,13 +200,13 @@
          end do
 
          DO j=1,10
-             idx = 4+j
+             idx = 2+j
              chemj = s% chem_id(j)
              names(idx) = chem_isos% name(chemj)
              DO k=1,nz
                  vals(k,idx) = njk(j,k)
-            END DO
-
+             END DO
+        ENDDO
 
       end subroutine data_for_extra_profile_columns
 

@@ -108,14 +108,14 @@
 		IF (.NOT. spindep) THEN
 			DO j = 1,numspecies
 				chemj = s% chem_id(j) !! gives index of element j in chem_isos
-				IF (itr .EQ. 1) THEN
+				xajk(j,itr) = s% xa(j,itr) ! mass fraction of element j in cell k
+				njk(j,itr) = xajk(j,itr)*rhok(itr)/mj(j) ! number fraction of element j in cell k
+				IF (itr .EQ. kmax) THEN
 					mj(j) = chem_isos% W(chemj) * amu ! mass of element j (g)
 					mGeVj(j) = mj(j)/gperGeV ! mass in GeV
 					Aj(j) = chem_isos% Z_plus_N(chemj) ! mass number of element j
-!					WRITE(*,*) chem_isos% name(chemj), mGeVj(j), Aj(j)
+					WRITE(*,*) chem_isos% name(chemj), mGeVj(j), Aj(j), xajk(j,itr), njk(j,itr)
 				ENDIF
-				xajk(j,itr) = s% xa(j,itr) ! mass fraction of element j in cell k
-				njk(j,itr) = xajk(j,itr)*rhok(itr)/mj(j) ! number fraction of element j in cell k
 			ENDDO
 		ENDIF
 	ENDDO
@@ -160,10 +160,8 @@
 		sigmaxp = 1.D-37	! wimp-proton cross section, cm^2
 	ELSE
 		sigmaxp = 1.D-40
-		sigmaX = 0.D0
 		DO j = 1,numspecies
 			sigmaxj(j) = sigmaxp* (Aj(j)*mj(j)/mp)**2 * ((mx+mp)/(mx+mj(j)))**2
-			sigmaX = sigmaX+ sigmaxj(j)
 		ENDDO
 	ENDIF
 
@@ -235,8 +233,8 @@
 
 	norm_integral = 0.D0
 	DO itr=1,kmax!, 1, -1 ! integrate from r = 0 to Rstar
-		norm_integral = norm_integral+ rk(itr+1)*rk(itr+1)* EXP(-mx*Vk(itr)/ kerg/Tx)* &
-		(rk(itr)- rk(itr+1))
+		norm_integral = norm_integral+ rk(itr+1)*rk(itr+1)* &
+		EXP(-mx*Vk(itr)/ kerg/Tx)* (rk(itr)- rk(itr+1))
 	ENDDO
 	norm = Nx/ (4.D0*pi* norm_integral)
 
@@ -262,7 +260,7 @@
 		crate = Cfact* cboost* sigmaxp/1.D-43* (vesc/6.18D7)**2* M_star/Msun
 	ELSE
 		Cfact = 7.D22 ! s^-1
-		crate = Cfact* cboost* sigmaX/1.D-43* (vesc/6.18D7)**2* M_star/Msun
+		crate = Cfact* cboost* sigmaxp/1.D-43* (vesc/6.18D7)**2* M_star/Msun
 	ENDIF
 
 	calc_dNx = crate* dttmp
@@ -302,7 +300,7 @@
 	IMPLICIT NONE
 	INTEGER :: itr, j
 	DOUBLE PRECISION, INTENT(IN) :: Txtest
-	DOUBLE PRECISION :: mpGeV, Tfact, efact, rfact, sum, emoment
+	DOUBLE PRECISION :: mpGeV, Tfact, efact, rfact, mjfact, sum, emoment
 	PARAMETER ( mpGeV=0.938272D0 ) ! Proton mass in GeV
 
 	sum = 0.D0
@@ -315,7 +313,9 @@
 		ELSE
 			DO j = 1,numspecies
 				Tfact = SQRT((mGeVj(j)*Txtest+ mxGeV*Tk(itr))/(mxGeV*mGeVj(j)))* (Tk(itr)-Txtest)
-				sum = sum+ njk(j,itr)*Tfact*efact*rfact
+				mjfact = Aj(j)*Aj(j)* (mGeVj(j)/mpGeV)**3 *(mxGeV+mpGeV)**2 &
+				*mxGeV*mpGeV/ (mxGeV+mGeVj(j))**4
+				sum = sum+ njk(j,itr)*Tfact*efact*rfact*mjfact
 			ENDDO
 		ENDIF
 	ENDDO
