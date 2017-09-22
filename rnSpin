@@ -11,3 +11,10 @@ zip -r spinInd.zip LOGS* -x LOGS*/pgstar.dat
 echo '!--' >> README.md
 echo '!------------- ZIPPED spinInd.zip -------------!' >> README.md
 echo '!--' >> README.md
+
+
+echo '!-------------------------!' >> README.md
+echo '!--- finished running ./rnSpin' >> README.md
+echo '!-------------------------!' >> README.md
+
+
