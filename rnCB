@@ -1,5 +1,11 @@
 #!/bin/bash
 
+echo '!-------------------------!' >> README.md
+echo '!--- running ./rnCB' >> README.md
+echo '!-------------------------!' >> README.md
+
+
+
 function check_okay {
 	if [ $? -ne 0 ]
 	then
@@ -53,5 +59,11 @@ do_one inlists/x_c3 c3.mod
 
 NOW=$(date "+DATE: %Y-%m-%d%nTIME: %H:%M:%S")
 echo $NOW >> README.md
+
+echo '!-------------------------!' >> README.md
+echo '!--- finished running ./rnCB' >> README.md
+echo '!-------------------------!' >> README.md
+
+
 
 echo 'finished to analyze WIMP interaction'
