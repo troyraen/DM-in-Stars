@@ -116,7 +116,7 @@
 				xajk(j,itr) = s% xa(j,itr) ! mass fraction of element j in cell k
 				njk(j,itr) = xajk(j,itr)*rhok(itr)/mj(j) ! number fraction of element j in cell k
 				IF (itr .EQ. kmax) THEN
-					WRITE(*,*) chem_isos% name(chemj), mGeVj(j), Aj(j), xajk(j,itr), njk(j,itr)
+					WRITE(*,*) 'mod:  ',chem_isos% name(chemj), mGeVj(j), Aj(j), xajk(j,itr), njk(j,itr)
 				ENDIF
 			ENDDO
 		ENDIF
@@ -168,10 +168,10 @@
 	ENDIF
 
 	Tx = calc_Tx()
-	WRITE(*,*) 'Tx = ',Tx
 	dNx = calc_dNx()
 	s% xtra1 = (s% xtra1) + dNx
 	Nx = s% xtra1
+	WRITE(*,*) 'mod:  Tx =',Tx, '  dNx =',dNx, '  Nx =',Nx
 	CALL calc_nxk()
 
 	END SUBROUTINE set_wimp_variables
