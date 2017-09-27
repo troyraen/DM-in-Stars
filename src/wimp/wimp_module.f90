@@ -97,7 +97,7 @@
 		STOP
 	ENDIF
 
-	DO itr = 1,kmax
+	DO itr = kmax,1, -1
 		Xk(itr) = s% X(itr) !! mass fraction hydrogen
 		Tk(itr) = s% T(itr) !! in K
 		rhok(itr) = s% rho(itr) !! in g/cm^3
@@ -108,12 +108,14 @@
 		IF (.NOT. spindep) THEN
 			DO j = 1,numspecies
 				chemj = s% chem_id(j) !! gives index of element j in chem_isos
-				xajk(j,itr) = s% xa(j,itr) ! mass fraction of element j in cell k
-				njk(j,itr) = xajk(j,itr)*rhok(itr)/mj(j) ! number fraction of element j in cell k
 				IF (itr .EQ. kmax) THEN
 					mj(j) = chem_isos% W(chemj) * amu ! mass of element j (g)
 					mGeVj(j) = mj(j)/gperGeV ! mass in GeV
 					Aj(j) = chem_isos% Z_plus_N(chemj) ! mass number of element j
+				ENDIF
+				xajk(j,itr) = s% xa(j,itr) ! mass fraction of element j in cell k
+				njk(j,itr) = xajk(j,itr)*rhok(itr)/mj(j) ! number fraction of element j in cell k
+				IF (itr .EQ. kmax) THEN
 					WRITE(*,*) chem_isos% name(chemj), mGeVj(j), Aj(j), xajk(j,itr), njk(j,itr)
 				ENDIF
 			ENDDO
@@ -166,6 +168,7 @@
 	ENDIF
 
 	Tx = calc_Tx()
+	WRITE(*,*) 'Tx = ',Tx
 	dNx = calc_dNx()
 	s% xtra1 = (s% xtra1) + dNx
 	Nx = s% xtra1

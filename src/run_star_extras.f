@@ -213,6 +213,7 @@
 
       ! returns either keep_going, retry, backup, or terminate.
       integer function extras_finish_step(id, id_extra)
+         include 'wimp/wimp_vars.h'
          use chem_def
          integer, intent(in) :: id, id_extra
          integer :: ierr
@@ -220,6 +221,7 @@
          type (star_info), pointer :: s
          ierr = 0
          call star_ptr(id, s, ierr)
+!         write('A2' ,'1es16.3') 'Nx',Nx
          if (ierr /= 0) return
          extras_finish_step = keep_going
          call store_extra_info(s)
