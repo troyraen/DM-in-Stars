@@ -9,6 +9,7 @@
 !!! Nx = s% xtra1
 !!!	cboost = s% x_ctrl(1)
 !!!	spindep = s% x_logical_ctrl(1)  ! .true. = spin dependent; .false. = spin independent
+!!!	extra history columns values = s% x_ctrl(2:15)
 
 
 	MODULE wimp_module
@@ -44,16 +45,9 @@
 	DO itr = 1,kmax
 		s% extra_heat(itr) = xheat(itr)
 	ENDDO
-	!! start after 10,000 years
-!	IF ( Age_star .LT. 1.D4) THEN
-!		DO itr = 1,kmax
-!			s% extra_heat(itr) = 0.D0
-!		ENDDO
-!	ELSE
-!		DO itr = 1,kmax
-!			s% extra_heat(itr) = xheat(itr)
-!		ENDDO
-!	ENDIF
+
+	CALL store_hist(id,ierr)
+
 
 	END SUBROUTINE wimp_energy_transport
 
@@ -326,6 +320,35 @@
 	emoment = sum
 	END FUNCTION emoment
 
+!!----------------------------
+!!	store data so it can be written to history.data
+!!	THIS INFO MUST MATCH subroutine data_for_extra_history_columns
+!!	IN run_star_extras !!!
+!!----------------------------
+	SUBROUTINE store_hist(id,ierr)
+		IMPLICIT NONE
+		INTEGER, INTENT(IN) :: id
+		INTEGER, INTENT(OUT) :: ierr
+		TYPE (star_info), pointer :: s ! pointer to star type
+		ierr=0
+		CALL GET_STAR_PTR(id, s, ierr)
+		IF ( ierr /= 0 ) RETURN
+
+		! store info to write to extra_history_columns
+		! indicies offset by one since cboost = s% x_ctrl(1)
+
+		s% x_ctrl(2) = Tx ! names(1) = 'wimp_temp'
+		s% x_ctrl(3) = Nx ! names(2) = 'Nx_total'
+		s% x_ctrl(4) = nxk((s% nz)+1) ! names(3) = 'center_nx'
+		s% x_ctrl(5) = npk((s% nz)+1) ! names(4) = 'center_np'
+		DO j = 1,10
+			idx = 5+j
+			s% x_ctrl(idx) = njk(j,s% nz) ! names(idx) = chem_isos% name(chemj)
+		ENDDO
+
+
+
+	END SUBROUTINE store_hist
 
 
 	END MODULE wimp_module

@@ -126,7 +126,6 @@
 
 
       subroutine data_for_extra_history_columns(id, id_extra, n, names, vals, ierr)
-         include 'wimp/wimp_vars.h'
          integer, intent(in) :: id, id_extra, n
          character (len=maxlen_history_column_name) :: names(n)
          real(dp) :: vals(n)
@@ -142,23 +141,18 @@
          ! it must not include the new column names you are adding here.
 
          names(1) = 'wimp_temp'
-         vals(1) = Tx
-
          names(2) = 'Nx_total'
-         vals(2) = Nx
-
          names(3) = 'center_nx'
-         vals(3) = nxk((s% nz)+1)
-
          names(4) = 'center_np'
-         vals(4) = npk((s% nz)+1)
-
          DO j = 1,10
-             idx = 4+j
-             chemj = s% chem_id(j)
-             names(idx) = chem_isos% name(chemj)
-             vals(idx) = njk(j,s% nz)
-        ENDDO
+            idx = 4+j
+            chemj = s% chem_id(j)
+            names(idx) = chem_isos% name(chemj)
+         ENDDO
+
+         DO idx = 2,15
+             vals(idx-1) = s% x_ctrl(idx)
+         ENDDO
 
       end subroutine data_for_extra_history_columns
 
@@ -213,8 +207,8 @@
 
       ! returns either keep_going, retry, backup, or terminate.
       integer function extras_finish_step(id, id_extra)
-         include 'wimp/wimp_vars.h'
          use chem_def
+         include 'wimp/wimp_vars.h'
          integer, intent(in) :: id, id_extra
          integer :: ierr
          LOGICAL :: flg1=.FALSE., flg2=.FALSE., flg3=.FALSE., flg4=.FALSE.
