@@ -111,6 +111,16 @@
          call star_ptr(id, s, ierr)
          if (ierr /= 0) return
          extras_check_model = keep_going
+
+
+          IF ((s% dt)/3.15D7 .LT. 10.D0) THEN   ! STOPPING CONDITION
+              extras_check_model = terminate
+              s% termination_code = t_xtra1
+              termination_code_str(t_xtra1) = 'dt less than 10 yrs'
+              return
+          ENDIF
+
+
       end function extras_check_model
 
 

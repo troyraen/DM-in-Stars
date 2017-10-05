@@ -103,8 +103,8 @@
       read_extra_controls_inlist1 = .true.
       extra_controls_inlist1_name = 'inlistx_cb'  ! inlist controlling cboost
 
-!      read_extra_controls_inlist2 = .true.
-!      extra_controls_inlist2_name = 'inlistx_mass'  ! inlist controlling mass
+      read_extra_controls_inlist2 = .true.
+      extra_controls_inlist2_name = 'inlistx_mass'  ! inlist controlling mass
 
 / ! end of controls namelist
 

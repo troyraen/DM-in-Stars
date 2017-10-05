@@ -4,10 +4,15 @@ echo '!-------------------------!' >> README.md
 echo '!--- running ./rnSpin' >> README.md
 echo '!-------------------------!' >> README.md
 
-./rnCB
-rm LOGS*/controls{2..100}.data -f
+#./rnCB
+./rnMass
+
+#rm LOGS*/controls{2..100}.data -f
+rm x_mass*/LOGS*/controls{2..100}.data -f
+
 #----- ZIP FOR DOWNLOAD
-zip -r spinInd.zip LOGS* -x LOGS*/pgstar.dat
+#zip -r spinInd.zip LOGS* -x LOGS*/pgstar.dat
+zip -r spinInd.zip x_mass*/LOGS* -x x_mass*/LOGS*/pgstar.dat
 echo '!--' >> README.md
 echo '!------------- ZIPPED spinInd.zip -------------!' >> README.md
 echo '!--' >> README.md
@@ -16,5 +21,3 @@ echo '!--' >> README.md
 echo '!-------------------------!' >> README.md
 echo '!--- finished running ./rnSpin' >> README.md
 echo '!-------------------------!' >> README.md
-
-
