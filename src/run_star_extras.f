@@ -208,7 +208,7 @@
       ! returns either keep_going, retry, backup, or terminate.
       integer function extras_finish_step(id, id_extra)
          use chem_def
-         include 'wimp/wimp_vars.h'
+!         include 'wimp/wimp_vars.h'
          integer, intent(in) :: id, id_extra
          integer :: ierr
          LOGICAL :: flg1=.FALSE., flg2=.FALSE., flg3=.FALSE., flg4=.FALSE.
@@ -220,7 +220,7 @@
          extras_finish_step = keep_going
          call store_extra_info(s)
 
-         WRITE(*,*) 'run_star_extras:  Tx =',Tx, '  Nx =',Nx
+!         WRITE(*,*) 'run_star_extras:  Tx =',Tx, '  Nx =',Nx
 
          IF ( (.NOT. flg1) .AND. (s% center_h1 .LT. 0.71D0) ) THEN
          	flg1 = .TRUE.
