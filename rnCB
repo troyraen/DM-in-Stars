@@ -34,22 +34,32 @@ function do_one {
 NOW=$(date "+DATE: %Y-%m-%d%nTIME: %H:%M:%S")
 echo $NOW >> README.md
 do_one inlists/x_deac c0.mod
+mv png pngc0
+mkdir png
 
 NOW=$(date "+DATE: %Y-%m-%d%nTIME: %H:%M:%S")
 echo $NOW >> README.md
 do_one inlists/x_c1 c1.mod
+mv png pngc1
+mkdir png
 
 NOW=$(date "+DATE: %Y-%m-%d%nTIME: %H:%M:%S")
 echo $NOW >> README.md
 do_one inlists/x_c2 c2.mod
+mv png pngc2
+mkdir png
 
 NOW=$(date "+DATE: %Y-%m-%d%nTIME: %H:%M:%S")
 echo $NOW >> README.md
 do_one inlists/x_c3 c3.mod
+mv png pngc3
+mkdir png
 
 #NOW=$(date "+DATE: %Y-%m-%d%nTIME: %H:%M:%S")
 #echo $NOW >> README.md
 #do_one inlists/x_c4 c4.mod
+#mv png pngc4
+#mkdir png
 
 NOW=$(date "+DATE: %Y-%m-%d%nTIME: %H:%M:%S")
 echo $NOW >> README.md
