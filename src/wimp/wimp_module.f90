@@ -329,7 +329,7 @@
 		IMPLICIT NONE
 		INTEGER, INTENT(IN) :: id
 		INTEGER, INTENT(OUT) :: ierr
-		INTEGER, idx, j
+		INTEGER :: idx, j
 		TYPE (star_info), pointer :: s ! pointer to star type
 		ierr=0
 		CALL GET_STAR_PTR(id, s, ierr)
