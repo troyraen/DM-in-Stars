@@ -37,6 +37,8 @@ function do_one {
 	echo >> README.md
 }
 
+mkdir png
+
 NOW=$(date "+DATE: %Y-%m-%d%nTIME: %H:%M:%S")
 echo $NOW >> README.md
 do_one inlists/x_deac c0.mod
