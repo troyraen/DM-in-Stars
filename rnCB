@@ -63,11 +63,11 @@ do_one inlists/x_c3 c3.mod
 mv png pngc3
 mkdir png
 
-!NOW=$(date "+DATE: %Y-%m-%d%nTIME: %H:%M:%S")
-!echo $NOW >> README.md
-!do_one inlists/x_c4 c4.mod
-!mv png pngc4
-!mkdir png
+#NOW=$(date "+DATE: %Y-%m-%d%nTIME: %H:%M:%S")
+#echo $NOW >> README.md
+#do_one inlists/x_c4 c4.mod
+#mv png pngc4
+#mkdir png
 
 NOW=$(date "+DATE: %Y-%m-%d%nTIME: %H:%M:%S")
 echo $NOW >> README.md
