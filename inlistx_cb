@@ -1,7 +1,8 @@
     &star_job
 
           save_model_filename = 'deac.mod'
-
+    
+    / ! end of star_job namelist
 
     &controls
 
@@ -13,3 +14,5 @@
       photo_interval = 50
       profile_interval = 50
       history_interval = 5
+
+    / ! end of controls namelist

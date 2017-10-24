@@ -25,7 +25,8 @@
       use star_lib
       use star_def
       use const_def
-      use wimp_module   ! necessary to point towards the other_energy hook (see below)
+      use chem_def
+      use wimp_module   ! necessary to point towards the other_energy hook
 
       implicit none
 
@@ -110,6 +111,16 @@
          call star_ptr(id, s, ierr)
          if (ierr /= 0) return
          extras_check_model = keep_going
+
+
+          IF ((s% star_age .GT. 1.D7) .AND. (s% time_step .LT. 10.D0)) THEN   ! STOPPING CONDITION
+              extras_check_model = terminate
+              s% termination_code = t_xtra1
+              termination_code_str(t_xtra1) = 'dt less than 10 yrs'
+              return
+          ENDIF
+
+
       end function extras_check_model
 
 
@@ -120,16 +131,16 @@
          ierr = 0
          call star_ptr(id, s, ierr)
          if (ierr /= 0) return
-         how_many_extra_history_columns = 4
+         how_many_extra_history_columns = 14
       end function how_many_extra_history_columns
 
 
       subroutine data_for_extra_history_columns(id, id_extra, n, names, vals, ierr)
-         include 'wimp/wimp_vars.h'
          integer, intent(in) :: id, id_extra, n
          character (len=maxlen_history_column_name) :: names(n)
          real(dp) :: vals(n)
          integer, intent(out) :: ierr
+         integer :: j, idx
          type (star_info), pointer :: s
          ierr = 0
          call star_ptr(id, s, ierr)
@@ -140,17 +151,18 @@
          ! it must not include the new column names you are adding here.
 
          names(1) = 'wimp_temp'
-         vals(1) = Tx
-
          names(2) = 'Nx_total'
-         vals(2) = Nx
-
          names(3) = 'center_nx'
-         vals(3) = nxk((s% nz)+1)
-
          names(4) = 'center_np'
-         vals(4) = npk((s% nz)+1)
+         DO j = 1,10
+            idx = 4+j
+            chemj = s% chem_id(j)
+            names(idx) = chem_isos% name(chemj)
+         ENDDO
 
+         DO idx = 2,15
+             vals(idx-1) = s% x_ctrl(idx)
+         ENDDO
 
       end subroutine data_for_extra_history_columns
 
@@ -162,7 +174,7 @@
          ierr = 0
          call star_ptr(id, s, ierr)
          if (ierr /= 0) return
-         how_many_extra_profile_columns = 2
+         how_many_extra_profile_columns = 12
       end function how_many_extra_profile_columns
 
 
@@ -171,6 +183,7 @@
          use const_def, only: dp
          include 'wimp/wimp_vars.h'
          integer, intent(in) :: id, id_extra, n, nz
+         integer :: j, idx
          character (len=maxlen_profile_column_name) :: names(n)
          real(dp) :: vals(nz,n)
          integer, intent(out) :: ierr
@@ -190,22 +203,34 @@
             vals(k,2) = npk(k)
          end do
 
+         DO j=1,10
+             idx = 2+j
+             chemj = s% chem_id(j)
+             names(idx) = chem_isos% name(chemj)
+             DO k=1,nz
+                 vals(k,idx) = njk(j,k)
+             END DO
+        ENDDO
+
       end subroutine data_for_extra_profile_columns
 
 
       ! returns either keep_going, retry, backup, or terminate.
       integer function extras_finish_step(id, id_extra)
          use chem_def
+!         include 'wimp/wimp_vars.h'
          integer, intent(in) :: id, id_extra
          integer :: ierr
          LOGICAL :: flg1=.FALSE., flg2=.FALSE., flg3=.FALSE., flg4=.FALSE.
          type (star_info), pointer :: s
          ierr = 0
          call star_ptr(id, s, ierr)
+!         write('A2' ,'1es16.3') 'Nx',Nx
          if (ierr /= 0) return
          extras_finish_step = keep_going
          call store_extra_info(s)
 
+!         WRITE(*,*) 'run_star_extras:  Tx =',Tx, '  Nx =',Nx
 
          IF ( (.NOT. flg1) .AND. (s% center_h1 .LT. 0.71D0) ) THEN
          	flg1 = .TRUE.
@@ -219,7 +244,7 @@
          	s% need_to_save_profiles_now = .true.
          	s% save_profiles_model_priority = 98	!! LEAVE MS
          ENDIF
-         IF ( (.NOT. flg3) .AND. (s% power_he_burn .GT. 1.D6) ) THEN 
+         IF ( (.NOT. flg3) .AND. (s% power_he_burn .GT. 1.D6) ) THEN
          	flg3 = .TRUE.
          	s% need_to_update_history_now = .true.
          	s% need_to_save_profiles_now = .true.

@@ -1,8 +1,11 @@
 
-	INTEGER maxcells, kmax  !// zones go from k= 1 to kmax. kmax+1 is star center
-	PARAMETER ( maxcells=10000 )
-	
-	
+	INTEGER, PARAMETER :: maxspecies=11
+	INTEGER, PARAMETER :: maxcells=5000
+	DOUBLE PRECISION, PARAMETER ::  gperGeV= 1.78266D-24 ! grams to GeV/c^2 conversion
+
+	LOGICAL :: spindep
+	INTEGER :: chemj, numspecies, kmax  !// zones go from k= 1 to kmax. kmax+1 is star center
+
 !// 	! wimp variables
 	DOUBLE PRECISION mx, mxGeV, sigmaxp, cboost, Tx, Nx
 
@@ -22,6 +25,6 @@
 !//! face values averaged to define Vk at cell center:
 	DOUBLE PRECISION Vk(1:maxcells)
 
-	COMMON /WIMP_MOD_GLOBALS/ mx, mxGeV, sigmaxp, cboost, Tx, Nx, dttmp, maxT, vesc, M_star, R_star, Age_star
-	COMMON /WIMP_MOD_GLOBALS/ Xk, Tk, rhok, npk, nxk, xheat, rk, gravk, Vk
-	COMMON /WIMP_MOD_GLOBALS/ kmax
+	REAL(DP), DIMENSION(1:maxspecies,1:maxcells) :: xajk, njk
+	REAL(DP), DIMENSION(1:maxspecies) :: mj, mGeVj, sigmaxj
+	INTEGER, DIMENSION(1:maxspecies) :: Aj

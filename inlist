@@ -27,14 +27,14 @@
 
 &controls
 
-!      log_directory = 'LOGSmSUN'
-!      photo_directory = 'photosmSUN'
-
       write_controls_info_with_profile = .true.
       max_num_profile_models = 10
 
       use_other_energy = .true.
       x_ctrl(1) = 0.D0  ! this sets cboost in wimp_module.f90
+      x_logical_ctrl(1) = .false.    ! sets spindep in wimp_module.f90
+                                    ! .true. = spin dependent
+                                    ! .false. = spin independent
 
       initial_mass = 1.0
       initial_z = 0.014d0
@@ -105,7 +105,6 @@
 
       read_extra_controls_inlist2 = .true.
       extra_controls_inlist2_name = 'inlistx_mass'  ! inlist controlling mass
-!      extra_controls_inlist2_name = 'inlistx_mesh'  ! inlist controlling mesh
 
 / ! end of controls namelist
 

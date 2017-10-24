@@ -1,5 +1,11 @@
 #!/bin/bash
 
+echo '!-------------------------!' >> README.md
+echo '!--- running ./rnCB' >> README.md
+echo '!-------------------------!' >> README.md
+
+
+
 function check_okay {
 	if [ $? -ne 0 ]
 	then
@@ -30,6 +36,8 @@ function do_one {
 	echo '***' >> README.md
 	echo >> README.md
 }
+
+mkdir png
 
 NOW=$(date "+DATE: %Y-%m-%d%nTIME: %H:%M:%S")
 echo $NOW >> README.md
@@ -63,5 +71,11 @@ mkdir png
 
 NOW=$(date "+DATE: %Y-%m-%d%nTIME: %H:%M:%S")
 echo $NOW >> README.md
+
+echo '!-------------------------!' >> README.md
+echo '!--- finished running ./rnCB' >> README.md
+echo '!-------------------------!' >> README.md
+
+
 
 echo 'finished to analyze WIMP interaction'

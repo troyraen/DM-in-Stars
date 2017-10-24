@@ -8,6 +8,10 @@ function check_okay {
 }
 
 
+echo '!-------------------------!' >> README.md
+echo '!--- running ./rnMass' >> README.md
+echo '!-------------------------!' >> README.md
+
 
 #----- mass 0.7
 cp inlists/x_mass7 inlistx_mass
@@ -43,7 +47,12 @@ mkdir x_mass5 # move files to mass specific folder
 mv LOGS* photos* png* *.mod x_mass5/.
 
 #----- ZIP FOR DOWNLOAD
-zip -r x_mass.zip x_mass*/LOGS* -x x_mass*/LOGS*/pgstar.dat
-echo '!--' >> README.md
-echo '!------------- ZIPPED x_mass.zip -------------!' >> README.md
-echo '!--' >> README.md
+#zip -r x_mass.zip x_mass*/LOGS* -x x_mass*/LOGS*/pgstar.dat
+#echo '!--' >> README.md
+#echo '!------------- ZIPPED x_mass.zip -------------!' >> README.md
+#echo '!--' >> README.md
+
+
+echo '!-------------------------!' >> README.md
+echo '!--- finished running ./rnMass' >> README.md
+echo '!-------------------------!' >> README.md
