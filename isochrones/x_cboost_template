@@ -1,0 +1,26 @@
+&star_job
+
+      save_model_filename = 'c_m_s_.mod'
+
+/ ! end of star_job namelist
+
+
+
+&controls
+
+  log_directory = 'LOGSc_m_s_'
+  photo_directory = 'photosc_m_s_'
+
+  initial_mass = imass_
+
+  x_ctrl(1) = cboost_  ! this sets cboost in wimp_module.f90
+
+  x_logical_ctrl(1) = SD_    ! sets spindep in wimp_module.f90
+                                ! .true. = spin dependent
+                                ! .false. = spin independent
+
+  photo_interval = 50
+  profile_interval = 50
+  history_interval = 5
+
+/ ! end of controls namelist

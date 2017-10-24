@@ -1,0 +1,25 @@
+#!/usr/local/bin/bash
+#!/bin/bash
+
+
+declare -A cbvals=( [c0]=0.D0 [c1]=1.D1 [c2]=1.D2 )
+declare -A mvals=( [m0p5]=0.5D0 [m1p0]=1.D0 [m1p5]=1.5D0 )
+declare -A svals=( [SD]=.TRUE. [SI]=.FALSE.)
+
+
+
+for cdir in ${!cbvals[@]}; do
+    mkdir ${cdir}
+    for mass in ${!mvals[@]}; do
+        mkdir ${cdir}/${mass}
+        for spin in ${!svals[@]}; do
+            mkdir ${cdir}/${mass}/${spin}
+            cp x_cboost_template ./${cdir}/${mass}/${spin}/inlist_cluster
+            cd ${cdir}/${mass}/${spin}
+            sed -i 's/c_m_s_/'${cdir}${mass}${spin}'/g; s/cboost_/'${cbvals[${cdir}]}'/g; s/imass_/'${mvals[${mass}]}'/g; s/SD_/'${svals[${spin}]}'/g' inlist_cluster
+            cd ..
+            cd ..
+            cd ..
+        done
+    done
+done
