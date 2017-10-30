@@ -7,50 +7,39 @@ function check_okay {
 	fi
 }
 
+# first arg = mass inlist
+function run_mass {
+
+	cp inlists/$1 inlistx_mass
+	check_okay
+	echo '!--' >> README.md
+	echo '!------------- STARTING $1 -------------!' >> README.md
+	echo '!--' >> README.md
+	./rnCB
+	rm LOGS*/controls{2..100}.data -f
+	mkdir $1 # move files to mass specific folder
+	mv LOGS* photos* png* *.mod $1/.
+}
 
 echo '!-------------------------!' >> README.md
 echo '!--- running ./rnMass' >> README.md
 echo '!-------------------------!' >> README.md
 
 
-#----- mass 0.7
-cp inlists/x_mass7 inlistx_mass
-check_okay
-echo '!--' >> README.md
-echo '!------------- STARTING x_mass7 -------------!' >> README.md
-echo '!--' >> README.md
-./rnCB
-rm LOGS*/controls{2..100}.data -f
-mkdir x_mass7 # move files to mass specific folder
-mv LOGS* photos* png* *.mod x_mass7/.
 
-#----- mass 2
-cp inlists/x_mass2 inlistx_mass
-check_okay
-echo '!--' >> README.md
-echo '!------------- STARTING x_mass2 -------------!' >> README.md
-echo '!--' >> README.md
-./rnCB
-rm LOGS*/controls{2..100}.data -f
-mkdir x_mass2 # move files to mass specific folder
-mv LOGS* photos* png* *.mod x_mass2/.
 
-#----- mass 5
-cp inlists/x_mass5 inlistx_mass
-check_okay
-echo '!--' >> README.md
-echo '!------------- STARTING x_mass5 -------------!' >> README.md
-echo '!--' >> README.md
-./rnCB
-rm LOGS*/controls{2..100}.data -f
-mkdir x_mass5 # move files to mass specific folder
-mv LOGS* photos* png* *.mod x_mass5/.
+run_mass x_mass3
+run_mass x_mass4
 
-#----- ZIP FOR DOWNLOAD
-#zip -r x_mass.zip x_mass*/LOGS* -x x_mass*/LOGS*/pgstar.dat
-#echo '!--' >> README.md
-#echo '!------------- ZIPPED x_mass.zip -------------!' >> README.md
-#echo '!--' >> README.md
+
+
+
+
+----- ZIP FOR DOWNLOAD
+zip -r x_mass.zip x_mass*/LOGS* -x x_mass*/LOGS*/pgstar.dat
+echo '!--' >> README.md
+echo '!------------- ZIPPED x_mass.zip -------------!' >> README.md
+echo '!--' >> README.md
 
 
 echo '!-------------------------!' >> README.md
