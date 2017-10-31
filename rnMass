@@ -13,7 +13,7 @@ function run_mass {
 	cp inlists/$1 inlistx_mass
 	check_okay
 	echo '!--' >> README.md
-	echo '!------------- STARTING ' $1 ' -------------!' >> README.md
+	echo '!------------- STARTING [${1}] -------------!' >> README.md
 	echo '!--' >> README.md
 	./rnCB
 	rm LOGS*/controls{2..100}.data -f
