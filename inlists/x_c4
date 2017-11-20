@@ -14,6 +14,6 @@
 
       photo_interval = 50
       profile_interval = 500
-      history_interval = 25
+      history_interval = 5
 
     / ! end of controls namelist
