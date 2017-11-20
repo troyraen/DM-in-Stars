@@ -161,7 +161,10 @@
 		ENDDO
 	ENDIF
 
-	Tx = calc_Tx()
+	IF (cboost == 0.D0) THEN
+		Tx = 0.D0
+	ELSE
+		Tx = calc_Tx()
 	dNx = calc_dNx()
 	s% xtra1 = (s% xtra1) + dNx
 	Nx = s% xtra1
