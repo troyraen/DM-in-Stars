@@ -255,7 +255,7 @@
          ENDIF
          
          
-         
+         ! STOPPING CONDITION:
           IF ((s% star_age .GT. 1.D7) .AND. (s% time_step .LT. 300.D0)) THEN   ! STOPPING CONDITION
             num_dt_low = num_dt_low+1
           ELSE
@@ -266,6 +266,8 @@
               extras_finish_step = terminate
               s% termination_code = t_xtra1
               termination_code_str(t_xtra1) = 'dt less than 300 yrs for more than 100 steps'
+              OPEN(UNIT=10, FILE='README.md')
+              WRITE(10,*) 's% termination_code: ', s% termination_code, ' term code str: ', termination_code_str(s% termination_code)
               return
           ENDIF
 
