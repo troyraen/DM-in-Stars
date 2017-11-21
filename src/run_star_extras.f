@@ -256,7 +256,7 @@
          
          
          ! STOPPING CONDITION:
-          IF ((s% star_age .GT. 1.D7) .AND. (s% time_step .LT. 300.D0)) THEN   ! STOPPING CONDITION
+          IF ((s% star_age .GT. 1.D8) .AND. (s% time_step .LT. 300.D0)) THEN   ! STOPPING CONDITION
             num_dt_low = num_dt_low+1
           ELSE
             num_dt_low = 0
