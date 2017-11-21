@@ -165,6 +165,8 @@
 		Tx = 0.D0
 	ELSE
 		Tx = calc_Tx()
+	ENDIF
+	
 	dNx = calc_dNx()
 	s% xtra1 = (s% xtra1) + dNx
 	Nx = s% xtra1
