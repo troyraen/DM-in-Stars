@@ -1,11 +1,5 @@
 #!/bin/bash
 
-echo '!-------------------------!' >> README.md
-echo '!--- running ./rnCB' >> README.md
-echo '!-------------------------!' >> README.md
-
-
-
 function check_okay {
 	if [ $? -ne 0 ]
 	then
@@ -13,14 +7,21 @@ function check_okay {
 	fi
 }
 
-
+# 1st arg = cb inlist
+# 2nd arg = mod file
+# 3rd arg = png folder
 function do_one {
 	cp $1 inlistx_cb
 	check_okay
 	rm -rf $2
+	mkdir png
+	NOW=$(date "+DATE: %Y-%m-%d%nTIME: %H:%M:%S")
+	echo $NOW >> README.md
 	echo 'run' $1 >> README.md
 	./rn1
 	check_okay
+	mv png $3
+
   if [ ! -r $2 ]
   then
   	echo >> README.md
@@ -37,37 +38,21 @@ function do_one {
 	echo >> README.md
 }
 
-mkdir png
 
-NOW=$(date "+DATE: %Y-%m-%d%nTIME: %H:%M:%S")
-echo $NOW >> README.md
-do_one inlists/x_deac c0.mod
-mv png pngc0
-mkdir png
+echo '!-------------------------!' >> README.md
+echo '!--- running ./rnCB' >> README.md
+echo '!-------------------------!' >> README.md
 
-NOW=$(date "+DATE: %Y-%m-%d%nTIME: %H:%M:%S")
-echo $NOW >> README.md
-do_one inlists/x_c1 c1.mod
-mv png pngc1
-mkdir png
 
-NOW=$(date "+DATE: %Y-%m-%d%nTIME: %H:%M:%S")
-echo $NOW >> README.md
-do_one inlists/x_c2 c2.mod
-mv png pngc2
-mkdir png
+do_one inlists/x_deac c0.mod pngc0
+do_one inlists/x_c1 c1.mod pngc1
+do_one inlists/x_c2 c2.mod pngc2
+do_one inlists/x_c3 c3.mod pngc3
+#do_one inlists/x_c4 c4.mod pngc4
+#do_one inlists/x_c5 c5.mod pngc5
+#do_one inlists/x_c6 c6.mod pngc6
+#do_one inlists/x_c7 c7.mod pngc7
 
-NOW=$(date "+DATE: %Y-%m-%d%nTIME: %H:%M:%S")
-echo $NOW >> README.md
-do_one inlists/x_c3 c3.mod
-mv png pngc3
-mkdir png
-
-#NOW=$(date "+DATE: %Y-%m-%d%nTIME: %H:%M:%S")
-#echo $NOW >> README.md
-#do_one inlists/x_c4 c4.mod
-#mv png pngc4
-#mkdir png
 
 NOW=$(date "+DATE: %Y-%m-%d%nTIME: %H:%M:%S")
 echo $NOW >> README.md
