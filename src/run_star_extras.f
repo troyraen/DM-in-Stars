@@ -262,10 +262,10 @@
             num_dt_low = 0
           ENDIF
           
-          IF (num_dt_low .GT. 100) THEN
+          IF (num_dt_low .GT. 5000) THEN
               extras_finish_step = terminate
               s% termination_code = t_xtra1
-              termination_code_str(t_xtra1) = 'dt less than 300 yrs for more than 100 steps'
+              termination_code_str(t_xtra1) = 'dt less than 300 yrs for more than 5000 steps'
               OPEN(UNIT=10, FILE='README.md', status='old', action='write', position='append')
               WRITE(10,*) 's% termination_code: ', s% termination_code, &
                         ' term code str: ', termination_code_str(s% termination_code)
