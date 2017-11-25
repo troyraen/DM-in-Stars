@@ -1,0 +1,15 @@
+#############################################
+#### Condor submit file isoc.submit ########
+
+executable = run_isochrones.sh
+universe   = vanilla
+output     = isoc.out
+error      = isoc.err
+log        = isoc.log
+# maybe arguments?
+## arguments = <arguments your script would typically take >
+
+Queue
+
+#############################################
+
