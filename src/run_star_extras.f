@@ -112,15 +112,6 @@
          if (ierr /= 0) return
          extras_check_model = keep_going
 
-
-          IF ((s% star_age .GT. 1.D7) .AND. (s% time_step .LT. 10.D0)) THEN   ! STOPPING CONDITION
-              extras_check_model = terminate
-              s% termination_code = t_xtra1
-              termination_code_str(t_xtra1) = 'dt less than 10 yrs'
-              return
-          ENDIF
-
-
       end function extras_check_model
 
 
@@ -220,7 +211,7 @@
          use chem_def
 !         include 'wimp/wimp_vars.h'
          integer, intent(in) :: id, id_extra
-         integer :: ierr
+         integer :: ierr, num_dt_low = 0
          LOGICAL :: flg1=.FALSE., flg2=.FALSE., flg3=.FALSE., flg4=.FALSE.
          type (star_info), pointer :: s
          ierr = 0
@@ -262,6 +253,27 @@
          	s% need_to_save_profiles_now = .true.
          	s% save_profiles_model_priority = 10
          ENDIF
+
+
+         ! STOPPING CONDITION:
+          IF ((s% star_age .GT. 1.D8) .AND. (s% time_step .LT. 300.D0)) THEN   ! STOPPING CONDITION
+            num_dt_low = num_dt_low+1
+          ELSE
+            num_dt_low = 0
+          ENDIF
+
+          IF (num_dt_low .GT. 5000) THEN
+              extras_finish_step = terminate
+              s% termination_code = t_xtra1
+              termination_code_str(t_xtra1) = 'dt less than 300 yrs for more than 5000 steps'
+              OPEN(UNIT=10, FILE='README.md', status='old', action='write', position='append')
+              WRITE(10,*) 's% termination_code: ', s% termination_code, &
+                        ' term code str: ', termination_code_str(s% termination_code)
+              CLOSE(UNIT=10)
+              return
+          ENDIF
+
+
 
       end function extras_finish_step
 

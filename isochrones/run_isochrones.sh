@@ -2,7 +2,7 @@
 
 
 export MESA_DIR=/home/tjr63/mesa-r9793
-export OMP_NUM_THREADS=1
+export OMP_NUM_THREADS=12
 export MESA_BASE=/home/tjr63/mesa_wimps
 export MESA_INLIST=$MESA_BASE/inlist
 export MESA_RUN=/home/tjr63/mesarun
