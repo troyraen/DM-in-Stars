@@ -24,7 +24,7 @@ for spin in ${!svals[@]}; do
             mkdir $MESA_RUN/${spin}/${cdir}/${mass}
                 cp $MESA_RUN/xinlist_template $MESA_RUN/${spin}/${cdir}/${mass}/inlist_cluster
                 cd $MESA_RUN/${spin}/${cdir}/${mass}
-                sed -i 's/s_c_m_/'${spin}${cdir}${mass}'/g; s/cboost_/'${cbvals[${cdir}]}'/g; s/imass_/'${mvals[${mass}]}'/g; s/S$
+                sed -i 's/s_c_m_/'${spin}${cdir}${mass}'/g; s/cboost_/'${cbvals[${cdir}]}'/g; s/imass_/'${mvals[${mass}]}'/g; s/SD_/'${svals[${spin}]}
 
 #               $MESA_BASE/star
 
