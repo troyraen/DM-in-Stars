@@ -1,11 +1,11 @@
 #############################################
-#### Condor submit file isoc.submit ########
+#### Condor submit file isoc6.submit ########
 
-executable = runfile.sh
+executable = rnIsoMasses/rnIsoMass6.sh
 universe   = vanilla
-output     = isoc.out
-error      = isoc.err
-log        = isoc.log
+output     = isoc6.out
+error      = isoc6.err
+log        = isoc6.log
 # maybe arguments?
 ## arguments = <arguments your script would typically take >
 

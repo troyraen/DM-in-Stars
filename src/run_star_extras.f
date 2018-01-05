@@ -256,16 +256,16 @@
 
 
          ! STOPPING CONDITION:
-          IF ((s% star_age .GT. 1.D8) .AND. (s% time_step .LT. 300.D0)) THEN   ! STOPPING CONDITION
+          IF ((s% star_age .GT. 1.D8) .AND. (s% time_step .LT. 10.D0)) THEN   ! STOPPING CONDITION
             num_dt_low = num_dt_low+1
           ELSE
             num_dt_low = 0
           ENDIF
 
-          IF (num_dt_low .GT. 5000) THEN
+          IF (num_dt_low .GT. 1.0D5) THEN
               extras_finish_step = terminate
               s% termination_code = t_xtra1
-              termination_code_str(t_xtra1) = 'dt less than 300 yrs for more than 5000 steps'
+              termination_code_str(t_xtra1) = 'dt less than 10 yrs for more than 1.0D5 steps'
               OPEN(UNIT=10, FILE='README.md', status='old', action='write', position='append')
               WRITE(10,*) 's% termination_code: ', s% termination_code, &
                         ' term code str: ', termination_code_str(s% termination_code)

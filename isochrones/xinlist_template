@@ -1,6 +1,6 @@
 &star_job
 
-      save_model_filename = 's_c_m_.mod'
+!      save_model_filename = 's_c_m_.mod'
 
 / ! end of star_job namelist
 
@@ -8,8 +8,8 @@
 
 &controls
 
-  log_directory = 'LOGSs_c_m_'
-  photo_directory = 'photoss_c_m_'
+!  log_directory = 'LOGSs_c_m_'
+!  photo_directory = 'photoss_c_m_'
 
   initial_mass = imass_
 
