@@ -13,8 +13,8 @@ export MESA_DIR=/home/tjr63/mesa-r9793
 export OMP_NUM_THREADS=1
 export MESA_BASE=/home/tjr63/mesa_wimps_4isoc
 export MESA_INLIST=$MESA_BASE/inlist
-#export MESA_RUN=/home/tjr63/isoc
-export MESA_RUN=/home/tjr63/sand
+export MESA_RUN=/home/tjr63/isoc
+#export MESA_RUN=/home/tjr63/sand
 
 declare -A svals=( [SD]=.TRUE. [SI]=.FALSE. )
 declare -a sord=( SD SI )
