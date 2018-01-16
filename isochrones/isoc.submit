@@ -5,9 +5,9 @@ Executable = condor_wrapper.sh
 arguments   = $(Process)
 Universe   = vanilla
 request_memory = 64
-output     = isoc$(Process).out
-error      = isoc$(Process).err
-log        = isoc$(Process).log
+output     = logs/isoc$(Process).out
+error      = logs/isoc$(Process).err
+log        = logs/isoc$(Process).log
 
 ## arguments = <arguments your script would typically take >
 
