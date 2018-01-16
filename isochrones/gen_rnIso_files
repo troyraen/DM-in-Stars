@@ -10,7 +10,7 @@ mkdir -p $imdir
 for n in {1..9}; do
     fname="$imdir/rnIsoMass$n.sh"
     cp rnIsoMass_template.sh $fname
-    if [ "9" != "$n"]; then
+    if [ "9" != "$n" ]; then
         sed -ie 's/p9/p'$n'/g; s/4.9/4.'$n'/g; s/3.9/3.'$n'/g; s/2.9/2.'$n'/g; s/1.9/1.'$n'/g' $fname
     fi
 done
