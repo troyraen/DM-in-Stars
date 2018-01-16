@@ -1,3 +1,16 @@
+##
+#   Before using this file, make sure the following files
+#   have the appropriate options commented and uncommented:
+#       rnIsoMass_template
+#       gen_rnIso_files
+#       condor_wrapper
+##
+#   First, use the previous 3 files to make the directories and
+#       copy & sed the inlist_cluster files
+#   Then use use those 3 files plus this one to run $MESA_BASE/star
+##
+
+
 #############################################
 #### Condor submit file isoc.submit ########
 
