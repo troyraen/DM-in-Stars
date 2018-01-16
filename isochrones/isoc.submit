@@ -1,9 +1,10 @@
 #############################################
 #### Condor submit file isoc.submit ########
 
-Executable = rnIsoMasses/rnIsoMass$(Process).sh
+Executable = condor_wrapper.sh
+arguments   = $(Process)
 Universe   = vanilla
-Requirements  = Memory >= 64
+request_memory = 64
 output     = isoc$(Process).out
 error      = isoc$(Process).err
 log        = isoc$(Process).log
