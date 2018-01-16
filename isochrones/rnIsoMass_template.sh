@@ -12,6 +12,7 @@ function check_okay {
 export MESA_DIR=/home/tjr63/mesa-r9793
 export OMP_NUM_THREADS=1
 export MESA_BASE=/home/tjr63/mesa_wimps_4isoc
+# !!! If you change MESA_BASE you must change the file paths in inlist !!!
 export MESA_INLIST=$MESA_BASE/inlist
 export MESA_RUN=/home/tjr63/isoc
 #export MESA_RUN=/home/tjr63/sand
