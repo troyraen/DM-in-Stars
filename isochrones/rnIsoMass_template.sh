@@ -29,7 +29,7 @@ for spin in "${sord[@]}"; do
     for cdir in "${cord[@]}"; do
         for mass in "${mord[@]}"; do
 			# TESTING:
-			echo $spin $cdir $mass >> p9.out
+			echo $spin $cdir $mass
 #            mkdir -pm 755 $MESA_RUN/$spin/$cdir/$mass
 #                cp $MESA_BASE/isochrones/xinlist_template $MESA_RUN/$spin/$cdir/$mass/inlist_cluster
 #                check_okay
