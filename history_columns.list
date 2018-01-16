@@ -169,22 +169,22 @@
 
 
    ! conditions at base of largest convection zone (by mass)
-      cz_bot_mass ! mass coordinate of base (Msun)
+      !cz_bot_mass ! mass coordinate of base (Msun)
       !cz_mass ! mass coordinate of base (Msun) -- same as cz_bot_mass
       !cz_log_xmass ! mass exterior to base (g)
       !cz_log_xmsun ! mass exterior to base (Msun)
-      cz_xm ! mass exterior to base (Msun)
-      cz_logT
-      cz_logRho
-      cz_logP
-      cz_bot_radius ! Rsun
+      !cz_xm ! mass exterior to base (Msun)
+      !cz_logT
+      !cz_logRho
+      !cz_logP
+      !cz_bot_radius ! Rsun
       !cz_log_column_depth
       !cz_log_radial_depth
       !cz_luminosity ! Lsun
       !cz_opacity
       !cz_log_tau
       !cz_eta
-      cz_log_eps_nuc ! log10(ergs/g/s)
+      !cz_log_eps_nuc ! log10(ergs/g/s)
       !cz_t_heat ! Cp*T/eps_nuc (seconds)
 
       !cz_csound
@@ -204,21 +204,21 @@
 
 
    ! conditions at top of largest convection zone (by mass)
-      cz_top_mass ! mass coordinate of top (Msun)
+      !cz_top_mass ! mass coordinate of top (Msun)
       !cz_top_log_xmass ! mass exterior to top (g)
       !cz_top_log_xmsun ! mass exterior to top (Msun)
       !cz_top_xm ! mass exterior to top (Msun)
-      cz_top_logT
-      cz_top_logRho
-      cz_top_logP
-      cz_top_radius ! Rsun
+      !cz_top_logT
+      !cz_top_logRho
+      !cz_top_logP
+      !cz_top_radius ! Rsun
       !cz_top_log_column_depth
       !cz_top_log_radial_depth
       !cz_top_luminosity ! Lsun
       !cz_top_opacity
       !cz_top_log_tau
       !cz_top_eta
-      cz_top_log_eps_nuc ! log10(ergs/g/s)
+      !cz_top_log_eps_nuc ! log10(ergs/g/s)
       !cz_top_t_heat ! Cp*T/eps_nuc (seconds)
 
       !cz_top_csound
@@ -345,9 +345,9 @@
       !log_Lnuc_sub_log_L
       extra_L ! integral of extra_heat in Lsun units
       log_extra_L ! log10 extra_L
-      log_Lneu ! log10 power emitted in neutrinos, nuclear and thermal (in Lsun units)
-      log_Lneu_nuc ! log10 power emitted in neutrinos, nuclear sources only (in Lsun units)
-      log_Lneu_nonnuc ! log10 power emitted in neutrinos, thermal sources only (in Lsun units)
+      !log_Lneu ! log10 power emitted in neutrinos, nuclear and thermal (in Lsun units)
+      !log_Lneu_nuc ! log10 power emitted in neutrinos, nuclear sources only (in Lsun units)
+      !log_Lneu_nonnuc ! log10 power emitted in neutrinos, thermal sources only (in Lsun units)
       mass_loc_of_max_eps_nuc ! (in Msun units)
       !mass_ext_to_max_eps_nuc ! (in Msun units)
       eps_grav_integral ! (in Lsun units)
@@ -433,7 +433,7 @@
       center_abar
 
       center_eps_grav
-      center_non_nuc_neu
+      !center_non_nuc_neu
       !center_dL_dm
       center_eps_nuc
       !d_center_eps_nuc_dlnT
@@ -543,9 +543,9 @@
 
    ! the following add all of the isos that are in the current net
 
-    add_center_abundances
-    add_surface_abundances
-    add_average_abundances
+    !add_center_abundances
+    !add_surface_abundances
+    !add_average_abundances
     !add_log_center_abundances
     !add_log_surface_abundances
     !add_log_average_abundances
@@ -554,9 +554,9 @@
    ! log10 total luminosity for reaction categories (Lsun units)
 
       pp
-      cno
-      tri_alfa
-      burn_c
+      !cno
+      !tri_alfa
+      !burn_c
 !      burn_n
 !      burn_o
 !      burn_ne
@@ -634,9 +634,9 @@
       max_eps_nuc_m ! mass coordinate at location of max burn (Msun units)
       !max_eps_nuc_xm ! mass exterior to location of max burn (Msun units)
       max_eps_nuc_lgP ! log10 pressure at location of max burn
-      max_eps_nuc_lgR ! log10 radius at location of max burn
+      !max_eps_nuc_lgR ! log10 radius at location of max burn
       max_eps_nuc_opacity ! opacity at location of max burn
-      max_eps_nuc_cp ! Cp at location of max burn
+      !max_eps_nuc_cp ! Cp at location of max burn
       !max_eps_nuc_t_heat ! Cp*T/eps_nuc at location of max burn
       !max_eps_nuc_csound
       !max_eps_nuc_pi_r_div_cs
@@ -814,7 +814,7 @@
          !cumulative_acoustic_L_center
          total_nuclear_heating
          total_non_nuc_neu_cooling
-         total_irradiation_heating
+         !total_irradiation_heating
          total_extra_heating
          total_energy_sources_and_sinks
          !cumulative_sources_and_sinks

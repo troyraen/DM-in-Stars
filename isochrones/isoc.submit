@@ -1,14 +1,15 @@
 #############################################
 #### Condor submit file isoc.submit ########
 
-executable = runfile.sh
-universe   = vanilla
-output     = isoc.out
-error      = isoc.err
-log        = isoc.log
-# maybe arguments?
+Executable = rnIsoMasses/rnIsoMass$(Process).sh
+Universe   = vanilla
+Requirements  = Memory >= 64
+output     = isoc$(Process).out
+error      = isoc$(Process).err
+log        = isoc$(Process).log
+
 ## arguments = <arguments your script would typically take >
 
-Queue
+Queue 10
 
 #############################################
