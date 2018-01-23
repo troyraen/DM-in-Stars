@@ -32,16 +32,16 @@ for spin in "${sord[@]}"; do
 #			# TESTING:
 #			echo $spin $cdir $mass
             mkdir -pm 777 $MESA_RUN/$spin/$cdir/$mass
-#                cp $MESA_BASE/isochrones/xinlist_template $MESA_RUN/$spin/$cdir/$mass/inlist_cluster
-#                check_okay
-#                cd $MESA_RUN/$spin/$cdir/$mass
-#                sed -i 's/s_c_m_/'$spin$cdir$mass'/g; s/cboost_/'${cbvals[$cdir]}'/g; s/imass_/'${mvals[$mass]}'/g; s/SD_/'${svals[$spin]}'/g' inlist_cluster
-#                check_okay
+                cp $MESA_BASE/isochrones/xinlist_template $MESA_RUN/$spin/$cdir/$mass/inlist_cluster
+                check_okay
+                cd $MESA_RUN/$spin/$cdir/$mass
+                sed -i 's/s_c_m_/'$spin$cdir$mass'/g; s/cboost_/'${cbvals[$cdir]}'/g; s/imass_/'${mvals[$mass]}'/g; s/SD_/'${svals[$spin]}'/g' inlist_cluster
+                check_okay
 
 #                $MESA_BASE/star
 #                check_okay
 
-#                cd $MESA_RUN
+                cd $MESA_RUN
         done
     done
 done

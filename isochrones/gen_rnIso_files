@@ -1,6 +1,21 @@
 ##!/usr/local/bin/bash
 #!/bin/bash
 
+##
+#   This file should be used in two steps:
+#
+#   1.  generate run files that make directories and cp, sed inlist_cluster files into them
+#       A.  comment out '$MESA_BASE/star' line in rnIsoMass_template.sh file
+#       B.  run this file (gen_rnIso_files)
+#       C.  run condor_wrapper.sh to run each rnIsoMass$n.sh file
+#
+#   2.  generate run files that actually run MESA
+#       A.  comment out 'mkdir', 'cp', and 'sed' lines in rnIsoMass_template.sh file
+#       B.  uncomment '$MESA_BASE/star' line in rnIsoMass_template.sh file
+#       C.  run this file (gen_rnIso_files)
+#       D.  do condor_submit isoc.submit
+#
+##
 
 imdir="rnIsoMasses"
 mkdir -p $imdir
