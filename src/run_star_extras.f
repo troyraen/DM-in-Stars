@@ -54,7 +54,7 @@
          s% how_many_extra_profile_columns => how_many_extra_profile_columns
          s% data_for_extra_profile_columns => data_for_extra_profile_columns
 
-         s% other_energy => wimp_energy_transport ! subroutine where extra_heat is defined inside of module wimp_module
+         s% other_energy_implicit => wimp_energy_transport ! subroutine where extra_heat is defined inside of module wimp_module
 
       end subroutine extras_controls
 
@@ -253,15 +253,15 @@
          	s% need_to_save_profiles_now = .true.
          	s% save_profiles_model_priority = 10
          ENDIF
-         
-         
+
+
          ! STOPPING CONDITION:
           IF ((s% star_age .GT. 1.D8) .AND. (s% time_step .LT. 300.D0)) THEN   ! STOPPING CONDITION
             num_dt_low = num_dt_low+1
           ELSE
             num_dt_low = 0
           ENDIF
-          
+
           IF (num_dt_low .GT. 5000) THEN
               extras_finish_step = terminate
               s% termination_code = t_xtra1

@@ -44,6 +44,14 @@
 
 	DO itr = 1,kmax
 		s% extra_heat(itr) = xheat(itr)
+		s% d_extra_heat_dlndm1(itr) = 0.D0
+        s% d_extra_heat_dlnd00(itr) = d_xheat_dlnd00(itr)
+        s% d_extra_heat_dlndp1(itr) = 0.D0
+        s% d_extra_heat_dlnTm1(itr) = 0.D0
+        s% d_extra_heat_dlnT00(itr) = d_xheat_dlnT00(itr)
+        s% d_extra_heat_dlnTp1(itr) = 0.D0
+        s% d_extra_heat_dlnR00(itr) = 0.D0
+        s% d_extra_heat_dlnRp1(itr) = 0.D0
 	ENDDO
 
 	CALL store_hist(id,ierr)
@@ -166,7 +174,7 @@
 	ELSE
 		Tx = calc_Tx()
 	ENDIF
-	
+
 	dNx = calc_dNx()
 	s% xtra1 = (s% xtra1) + dNx
 	Nx = s% xtra1
@@ -202,6 +210,11 @@
 			dfact = nxk(itr)*npk(itr)/rhok(itr)
 			Tfact = SQRT((mp*kerg*Tx+ mx*kerg*Tk(itr))/(mx*mp)) * kerg*(Tx- Tk(itr))	! Tx-Tk gives correct sign
 			xheat(itr) = mfact* dfact* Tfact
+
+			! partial drvs for other_energy_implicit. all those not calculated here are zero.
+			d_xheat_dlnd00(itr) = -xheat(itr)
+			Tfact = (mx*kerg/2.D0/(mp*kerg*Tx+mx*kerg*Tk(itr)) - 1.D0/(Tx-Tk(itr)))
+			d_xheat_dlnT00(itr) = xheat(itr)*Tk(itr)*Tfact
 	!		WRITE(10,*) itr, xheat(itr)
 		ENDDO
 	!	DO itr = 1,kmax
