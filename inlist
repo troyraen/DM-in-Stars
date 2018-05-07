@@ -33,11 +33,14 @@
       max_num_profile_models = 10
 
       use_other_energy = .true.
+      
+!     set the following two options in the file inlist_cluster
 !      x_ctrl(1) = 0.D0  ! this sets cboost in wimp_module.f90
 !      x_logical_ctrl(1) = .false.    ! sets spindep in wimp_module.f90
                                     ! .true. = spin dependent
                                     ! .false. = spin independent
 
+!     set in the file inlist_cluster
 !      initial_mass = 1.0
       initial_z = 0.014d0
 
