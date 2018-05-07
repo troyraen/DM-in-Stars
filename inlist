@@ -1,11 +1,13 @@
 
 &star_job
 
+	history_columns_file ='/home/tjr63/mesa_wimps_4isoc/history_columns.list'
+	profile_columns_file ='/home/tjr63/mesa_wimps_4isoc/profile_columns.list'
 
       show_log_description_at_start = .false.
 
       save_model_when_terminate = .true.
-      save_model_filename = 'mSUN.mod'
+!      save_model_filename = 'mSUN.mod'
 
       eos_file_prefix = 'mesa'
       kappa_file_prefix = 'gs98'
@@ -20,7 +22,7 @@
       pgstar_flag = .true.
 
       read_extra_star_job_inlist1 = .true.
-      extra_star_job_inlist1_name = 'inlistx_cb'  ! inlist controlling cboost
+      extra_star_job_inlist1_name = 'inlist_cluster'  ! inlist controlling varying params
 
 / ! end of star_job namelist
 
@@ -31,12 +33,15 @@
       max_num_profile_models = 10
 
       use_other_energy = .true.
-      x_ctrl(1) = 0.D0  ! this sets cboost in wimp_module.f90
-      x_logical_ctrl(1) = .true.    ! sets spindep in wimp_module.f90
+      
+!     set the following two options in the file inlist_cluster
+!      x_ctrl(1) = 0.D0  ! this sets cboost in wimp_module.f90
+!      x_logical_ctrl(1) = .false.    ! sets spindep in wimp_module.f90
                                     ! .true. = spin dependent
                                     ! .false. = spin independent
 
-      initial_mass = 1.0
+!     set in the file inlist_cluster
+!      initial_mass = 1.0
       initial_z = 0.014d0
 
       use_Type2_opacities = .true.
@@ -92,19 +97,17 @@
 
 
       photo_interval = 50
-      profile_interval = 100
+      profile_interval = 50
       history_interval = 5
-      terminal_interval = 10
+      terminal_interval = 10000
       write_header_frequency = 10
 
-      !max_age = 10d9
+      max_age = 13d9
       max_years_for_timestep = 1d9
 
       read_extra_controls_inlist1 = .true.
-      extra_controls_inlist1_name = 'inlistx_cb'  ! inlist controlling cboost
+      extra_controls_inlist1_name = 'inlist_cluster'  ! inlist controlling varying params
 
-      read_extra_controls_inlist2 = .true.
-      extra_controls_inlist2_name = 'inlistx_mass'  ! inlist controlling mass
 
 / ! end of controls namelist
 
@@ -113,6 +116,6 @@
 &pgstar
 
     read_extra_pgstar_inlist1 = .true.
-    extra_pgstar_inlist1_name = 'inlist_pgstar'
+    extra_pgstar_inlist1_name = '/home/tjr63/mesa_wimps_4isoc/inlist_pgstar'
 
 / ! end of pgstar namelist
