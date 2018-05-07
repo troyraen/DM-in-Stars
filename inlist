@@ -32,8 +32,8 @@
       write_controls_info_with_profile = .true.
       max_num_profile_models = 10
 
-      use_other_energy = .true.
-      
+      use_other_energy_implicit = .true.
+
 !     set the following two options in the file inlist_cluster
 !      x_ctrl(1) = 0.D0  ! this sets cboost in wimp_module.f90
 !      x_logical_ctrl(1) = .false.    ! sets spindep in wimp_module.f90
