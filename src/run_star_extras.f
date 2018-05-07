@@ -212,7 +212,7 @@
 !         include 'wimp/wimp_vars.h'
          integer, intent(in) :: id, id_extra
          integer :: ierr, num_dt_low = 0
-         LOGICAL :: exist, lg1=.FALSE., flg2=.FALSE., flg3=.FALSE., flg4=.FALSE.
+         LOGICAL :: exist, flg1=.FALSE., flg2=.FALSE., flg3=.FALSE., flg4=.FALSE.
          type (star_info), pointer :: s
          ierr = 0
          call star_ptr(id, s, ierr)
@@ -264,10 +264,11 @@
 
           IF (num_dt_low .GT. 1.0D5) THEN
               inquire(file="README.md", exist=exist)
-              if (exist) then
+              IF (exist) then
                   OPEN(UNIT=10, FILE='README.md', status='old', action='write', position='append')
-              else
+              ELSE
                   OPEN(UNIT=10, FILE='README.md', status='new', action='write')
+              ENDIF
               extras_finish_step = terminate
               s% termination_code = t_xtra1
               termination_code_str(t_xtra1) = 'dt less than 10 yrs for more than 1.0D5 steps'

@@ -14,7 +14,8 @@
 #       B.  uncomment '$MESA_BASE/star' line in rnIsoMass_template.sh file
 #       C.  comment out last lines of this file
 #       D.  run this file (gen_rnIso_files)
-#       E.  submit jobs to Condor using: condor_submit isoc.submit
+#       E.  make sure you have done ./clean and ./mk for MESA
+#       F.  submit jobs to Condor using: condor_submit isoc.submit
 #
 ##
 
