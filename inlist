@@ -97,7 +97,7 @@
       photo_interval = 50
       profile_interval = 50
       history_interval = 5
-      terminal_interval = 10000
+      terminal_interval = 100
       write_header_frequency = 10
 
       max_age = 10d9
@@ -114,6 +114,6 @@
 &pgstar
 
     read_extra_pgstar_inlist1 = .true.
-    extra_pgstar_inlist1_name = '/home/tjr63/mesa_wimps_4isoc/inlist_pgstar'
+    extra_pgstar_inlist1_name = '/home/tjr63/implicit_test/impFALSE/inlist_pgstar'
 
 / ! end of pgstar namelist

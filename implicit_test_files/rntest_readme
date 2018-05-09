@@ -1,17 +1,18 @@
-condor_submit isoc.submit
-	runs condor_wrapper.sh with arg $(Process)
-		condor_wrapper.sh runs /home/tjr63/mesa_wimps_4isoc/isochrones/rnIsoMasses/rnIsoMass$1.sh
+from isochrones run on Condor:
+    condor_submit isoc.submit
+    	runs condor_wrapper.sh with arg $(Process)
+    		condor_wrapper.sh runs /home/tjr63/mesa_wimps_4isoc/isochrones/rnIsoMasses/rnIsoMass$1.sh
 
-			rnIsoMass$1.sh previously generated from rnIsoMass_template.sh
-				this file:
-					exports global variables
-					makes directories
-					copies inlists into directories
-					runs MESA in each directory
+    			rnIsoMass$1.sh previously generated from rnIsoMass_template.sh
+    				this file:
+    					exports global variables
+    					makes directories
+    					copies inlists into directories
+    					runs MESA in each directory
 
 
 
-
+________________
 for implicit_test:
 
 
@@ -69,4 +70,5 @@ run condor_submit condor.submit
     this runs condor_wrapper which runs each rnMESA$1.sh file
 
 
-CHANGE INLIST AND run_star_extras IN EACH DIRECTORY BEFORE RUNNING!!
+CHANGE INLIST AND run_star_extras IN EACH DIRECTORY TO USE
+other_energy OR other_energy_implicit BEFORE RUNNING!!
