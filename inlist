@@ -21,8 +21,8 @@
 
       pgstar_flag = .true.
 
-      read_extra_star_job_inlist1 = .true.
-      extra_star_job_inlist1_name = 'inlist_cluster'  ! inlist controlling varying params
+!      read_extra_star_job_inlist1 = .true.
+!      extra_star_job_inlist1_name = 'inlist_cluster'  ! inlist controlling varying params
 
 / ! end of star_job namelist
 
@@ -100,11 +100,11 @@
       terminal_interval = 10000
       write_header_frequency = 10
 
-      max_age = 13d9
+      max_age = 10d9
       max_years_for_timestep = 1d9
 
-!      read_extra_controls_inlist1 = .true.
-!      extra_controls_inlist1_name = 'inlist_cluster'  ! inlist controlling varying params
+      read_extra_controls_inlist1 = .true.
+      extra_controls_inlist1_name = 'inlist_cluster'  ! inlist controlling varying params
 
 
 / ! end of controls namelist

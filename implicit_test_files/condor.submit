@@ -1,0 +1,29 @@
+##
+#   Before using this file, make sure the following files
+#   have the appropriate options commented and uncommented:
+#       rnIsoMass_template
+#       gen_rnIso_files
+#       condor_wrapper
+##
+#   First, use the previous 3 files (start with gen_rnIso_files)
+#       to make the directories and copy & sed the inlist_cluster files
+#   Then use use those 3 files plus this one to run $MESA_BASE/star
+##
+
+
+#############################################
+#### Condor submit file condor.submit ########
+
+Executable = condor_wrapper.sh
+arguments   = $(Process)
+Universe   = vanilla
+request_memory = 64
+output     = logs/imp$(Process).out
+error      = logs/imp$(Process).err
+log        = logs/imp$(Process).log
+
+## arguments = <arguments your script would typically take >
+
+Queue 3
+
+#############################################
