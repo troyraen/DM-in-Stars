@@ -69,4 +69,4 @@ run condor_submit condor.submit
     this runs condor_wrapper which runs each rnMESA$1.sh file
 
 
-CHANGE INLIST IN EACH DIRECTORY BEFORE RUNNING!!
+CHANGE INLIST AND run_star_extras IN EACH DIRECTORY BEFORE RUNNING!!

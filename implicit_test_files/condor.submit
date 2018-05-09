@@ -1,13 +1,12 @@
 ##
 #   Before using this file, make sure the following files
-#   have the appropriate options commented and uncommented:
-#       rnIsoMass_template
-#       gen_rnIso_files
+#   have the appropriate options :
+#       rnMESA$1.sh
 #       condor_wrapper
 ##
-#   First, use the previous 3 files (start with gen_rnIso_files)
-#       to make the directories and copy & sed the inlist_cluster files
-#   Then use use those 3 files plus this one to run $MESA_BASE/star
+#   CHANGE INLIST AND run_star_extras IN EACH DIRECTORY BEFORE RUNNING!!
+#   make sure you have done ./clean and ./mk for MESA in each MESA_BASE directory
+#   submit jobs to Condor using: condor_submit condor.submit
 ##
 
 

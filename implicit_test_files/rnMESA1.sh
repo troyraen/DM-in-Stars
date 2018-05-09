@@ -11,7 +11,7 @@ function check_okay {
 
 export MESA_DIR=/home/tjr63/mesa-r9793
 export OMP_NUM_THREADS=1
-export MESA_BASE=/home/tjr63/implicit_test/impFALSE
+export MESA_BASE=/home/tjr63/implicit_test/impTRUE
 # !!! If you change MESA_BASE you must change the file paths in inlist !!!
 export MESA_INLIST=$MESA_BASE/inlist
 export MESA_RUN=$MESA_BASE/RUNS

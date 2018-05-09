@@ -11,7 +11,7 @@ function check_okay {
 
 export MESA_DIR=/home/tjr63/mesa-r9793
 export OMP_NUM_THREADS=1
-export MESA_BASE=/home/tjr63/implicit_test/impFALSE
+export MESA_BASE=/home/tjr63/implicit_test/impNOxheat
 # !!! If you change MESA_BASE you must change the file paths in inlist !!!
 export MESA_INLIST=$MESA_BASE/inlist
 export MESA_RUN=$MESA_BASE/RUNS
@@ -20,7 +20,7 @@ export MESA_RUN=$MESA_BASE/RUNS
 declare -A svals=( [SD]=.TRUE. [SI]=.FALSE. )
 declare -a sord=( SD )
 declare -A cbvals=( [c0]=0.D0 [c1]=1.D1 [c2]=1.D2 [c3]=1.D3 [c4]=1.D4 [c5]=1.D5 [c6]=1.D6 )
-declare -a cord=( c0 c3 )
+declare -a cord=( c0 )
 # run the rest of cbvals later
 declare -A mvals=( [m1p0]=1.0D0 )
 declare -a mord=( m1p0 )

@@ -3,7 +3,7 @@
   pgstar_interval = 1   ! Default was 3, which was affecting all the _file_interval values!
   pause = .false.
 
-  Grid1_win_flag = .true.
+  Grid1_win_flag = .FALSE.
 
   Grid1_win_width = 15
   Grid1_win_aspect_ratio = 0.55 ! aspect_ratio = height/width
