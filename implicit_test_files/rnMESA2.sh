@@ -22,8 +22,8 @@ declare -a sord=( SD )
 declare -A cbvals=( [c0]=0.D0 [c1]=1.D1 [c2]=1.D2 [c3]=1.D3 [c4]=1.D4 [c5]=1.D5 [c6]=1.D6 )
 declare -a cord=( c0 )
 # run the rest of cbvals later
-declare -A mvals=( [m1p0]=1.0D0 )
-declare -a mord=( m1p0 )
+declare -A mvals=( [m1p0]=1.0D0 [m1p1]=1.1D0 )
+declare -a mord=( m1p1 )
 
 
 for spin in "${sord[@]}"; do

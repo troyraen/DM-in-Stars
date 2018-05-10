@@ -295,7 +295,7 @@
 	PARAMETER ( tol = 1.D-4 )
 
 	Txhigh = maxT*3.0
-	Txlow = Txhigh/1.D2
+	Txlow = Txhigh/5.D2
 	Ttmp = zbrent(emoment, Txhigh, Txlow, tol)
 
 	calc_Tx = Ttmp
