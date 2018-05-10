@@ -7,9 +7,9 @@
 !!!-------------------------------------------!!!
 !!! controls:
 !!! Nx = s% xtra1
-!!!	cboost = s% x_ctrl(1)
-!!!	spindep = s% x_logical_ctrl(1)  ! .true. = spin dependent; .false. = spin independent
-!!!	extra history columns values = s% x_ctrl(2:15)
+!!!	cboost = s% X_CTRL(1)
+!!!	spindep = s% X_LOGICAL_CTRL(1)  ! .true. = spin dependent; .false. = spin independent
+!!!	extra history columns values = s% X_CTRL(2:15)
 
 
 	MODULE wimp_module
@@ -37,22 +37,40 @@
 	CALL GET_STAR_PTR(id, s, ierr)
 	IF ( ierr /= 0 ) RETURN
 
-	spindep = s% x_logical_ctrl(1)
-	CALL get_star_variables(id,ierr)
-	CALL set_wimp_variables(id,ierr)
-	CALL calc_xheat()
+	cboost = s% X_CTRL(1)  ! boost in capture rate of WIMPs compared to the local capture rate near the Sun, \propto density/sigma_v
 
-	DO itr = 1,kmax
-		s% extra_heat(itr) = xheat(itr)
-		s% d_extra_heat_dlndm1(itr) = 0.D0
-        s% d_extra_heat_dlnd00(itr) = d_xheat_dlnd00(itr)
-        s% d_extra_heat_dlndp1(itr) = 0.D0
-        s% d_extra_heat_dlnTm1(itr) = 0.D0
-        s% d_extra_heat_dlnT00(itr) = d_xheat_dlnT00(itr)
-        s% d_extra_heat_dlnTp1(itr) = 0.D0
-        s% d_extra_heat_dlnR00(itr) = 0.D0
-        s% d_extra_heat_dlnRp1(itr) = 0.D0
-	ENDDO
+	IF (cboost == 0.D0) THEN
+		DO itr = 1,kmax
+			s% extra_heat(itr) = 0.D0
+			s% d_extra_heat_dlndm1(itr) = 0.D0
+	        s% d_extra_heat_dlnd00(itr) = 0.D0
+	        s% d_extra_heat_dlndp1(itr) = 0.D0
+	        s% d_extra_heat_dlnTm1(itr) = 0.D0
+	        s% d_extra_heat_dlnT00(itr) = 0.D0
+	        s% d_extra_heat_dlnTp1(itr) = 0.D0
+	        s% d_extra_heat_dlnR00(itr) = 0.D0
+	        s% d_extra_heat_dlnRp1(itr) = 0.D0
+		ENDDO
+
+	ELSE
+		spindep = s% X_LOGICAL_CTRL(1)
+		CALL get_star_variables(id,ierr)
+		CALL set_wimp_variables(id,ierr)
+		CALL calc_xheat()
+
+		DO itr = 1,kmax
+			s% extra_heat(itr) = xheat(itr)
+			s% d_extra_heat_dlndm1(itr) = 0.D0
+	        s% d_extra_heat_dlnd00(itr) = d_xheat_dlnd00(itr)
+	        s% d_extra_heat_dlndp1(itr) = 0.D0
+	        s% d_extra_heat_dlnTm1(itr) = 0.D0
+	        s% d_extra_heat_dlnT00(itr) = d_xheat_dlnT00(itr)
+	        s% d_extra_heat_dlnTp1(itr) = 0.D0
+	        s% d_extra_heat_dlnR00(itr) = 0.D0
+	        s% d_extra_heat_dlnRp1(itr) = 0.D0
+		ENDDO
+
+	ENDIF
 
 	CALL store_hist(id,ierr)
 
@@ -159,7 +177,8 @@
 
 	mxGeV = 5.D0	! 5 GeV WIMP
 	mx = mxGeV* gperGeV	! WIMP mass in grams
-	cboost = s% x_ctrl(1)  ! boost in capture rate of WIMPs compared to the local capture rate near the Sun, \propto density/sigma_v
+!	cboost = s% X_CTRL(1)  ! boost in capture rate of WIMPs compared to the local capture rate near the Sun, \propto density/sigma_v
+!	already set in main module
 	IF (spindep) THEN
 		sigmaxp = 1.D-37	! wimp-proton cross section, cm^2
 	ELSE
@@ -354,15 +373,15 @@
 		IF ( ierr /= 0 ) RETURN
 
 		! store info to write to extra_history_columns
-		! indicies offset by one since cboost = s% x_ctrl(1)
+		! indicies offset by one since cboost = s% X_CTRL(1)
 
-		s% x_ctrl(2) = Tx ! names(1) = 'wimp_temp'
-		s% x_ctrl(3) = Nx ! names(2) = 'Nx_total'
-		s% x_ctrl(4) = nxk((s% nz)+1) ! names(3) = 'center_nx'
-		s% x_ctrl(5) = npk((s% nz)+1) ! names(4) = 'center_np'
+		s% X_CTRL(2) = Tx ! names(1) = 'wimp_temp'
+		s% X_CTRL(3) = Nx ! names(2) = 'Nx_total'
+		s% X_CTRL(4) = nxk((s% nz)+1) ! names(3) = 'center_nx'
+		s% X_CTRL(5) = npk((s% nz)+1) ! names(4) = 'center_np'
 		DO j = 1,10
 			idx = 5+j
-			s% x_ctrl(idx) = njk(j,s% nz) ! names(idx) = chem_isos% name(chemj)
+			s% X_CTRL(idx) = njk(j,s% nz) ! names(idx) = chem_isos% name(chemj)
 		ENDDO
 
 

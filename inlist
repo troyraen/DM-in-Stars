@@ -34,8 +34,8 @@
 
       use_other_energy_implicit = .true.
 
-!      x_ctrl(1) = 1.D1  ! this sets cboost in wimp_module.f90
-!      x_logical_ctrl(1) = .TRUE.    ! sets spindep in wimp_module.f90
+!      X_CTRL(1) = 1.D1  ! this sets cboost in wimp_module.f90
+!      X_LOGICAL_CTRL(1) = .TRUE.    ! sets spindep in wimp_module.f90
                                     ! .true. = spin dependent
                                     ! .false. = spin independent
 
