@@ -112,7 +112,7 @@
 
 
   ! file output
-  Grid1_file_flag = .true.
+  Grid1_file_flag = .false.
   Grid1_file_dir = 'png'
   Grid1_file_prefix = 'grid'
   Grid1_file_interval = 1 ! output when mod(model_number,Grid1_file_interval)==0

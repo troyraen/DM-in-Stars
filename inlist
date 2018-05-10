@@ -100,7 +100,7 @@
       terminal_interval = 100
       write_header_frequency = 10
 
-      max_age = 10d9
+      max_age = 13d9
       max_years_for_timestep = 1d9
 
       read_extra_controls_inlist1 = .true.

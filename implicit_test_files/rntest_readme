@@ -64,17 +64,21 @@ shfile rnMESA2.sh
 
 
 ________________
-copy directory implicit_test_files to directory containing impFALSE, impTRUE, and impNOxheat
-cd to this directory
-mkdir logs (for condor logs)
-chmod 777 *
-
-in all imp directories
+for all imp directories
+git clone https://github.com/troyraen/mesa_wimps impNOxheat
+cd impNOxheat
+git pull origin other_energy_implicit
 mkdir RUNS
 chmod 777 *
 CHANGE INLIST AND run_star_extras TO USE other_energy OR other_energy_implicit
 ./clean
 ./mk
+
+copy directory implicit_test_files to directory containing impFALSE, impTRUE, and impNOxheat
+cd to this directory
+mkdir logs (for condor logs)
+chmod 777 *
+
 
 run condor_submit condor.submit
     this runs condor_wrapper which runs each rnMESA$1.sh file
