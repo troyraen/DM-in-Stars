@@ -65,10 +65,16 @@ shfile rnMESA2.sh
 
 ________________
 copy directory implicit_test_files to directory containing impFALSE, impTRUE, and impNOxheat
+cd to this directory
+mkdir logs (for condor logs)
+chmod 777 *
+
+in all imp directories
+mkdir RUNS
+chmod 777 *
+CHANGE INLIST AND run_star_extras TO USE other_energy OR other_energy_implicit
+./clean
+./mk
 
 run condor_submit condor.submit
     this runs condor_wrapper which runs each rnMESA$1.sh file
-
-
-CHANGE INLIST AND run_star_extras IN EACH DIRECTORY TO USE
-other_energy OR other_energy_implicit BEFORE RUNNING!!
