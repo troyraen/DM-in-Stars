@@ -17,12 +17,12 @@ Executable = condor_wrapper.sh
 arguments   = $(Process)
 Universe   = vanilla
 request_memory = 64
-output     = logs/imp1_$(Process).out
-error      = logs/imp1_$(Process).err
-log        = logs/imp1_$(Process).log
+output     = logs/imp$(Process).out
+error      = logs/imp$(Process).err
+log        = logs/imp$(Process).log
 
 ## arguments = <arguments your script would typically take >
 
-Queue 2
+Queue 3
 
 #############################################
