@@ -213,7 +213,7 @@
 	USE const_def, only : pi, mp, kerg ! Boltzmann's constant (erg K^-1)
 	IMPLICIT NONE
 	INTEGER :: itr, j
-	DOUBLE PRECISION :: mfact, dfact, Tfact
+	DOUBLE PRECISION :: mfact, dfact, Tfact, xheat_j
 
 !	LOGICAL :: ISOPEN
 
@@ -232,7 +232,7 @@
 
 			! partial drvs for other_energy_implicit. all those not calculated here are zero.
 			d_xheat_dlnd00(itr) = -xheat(itr)
-			Tfact = (mx*kerg/2.D0/(mp*kerg*Tx+mx*kerg*Tk(itr)) - 1.D0/(Tx-Tk(itr)))
+			Tfact = mx*kerg/2.D0/(mp*kerg*Tx+ mx*kerg*Tk(itr)) - 1.D0/(Tx-Tk(itr))
 			d_xheat_dlnT00(itr) = xheat(itr)*Tk(itr)*Tfact
 	!		WRITE(10,*) itr, xheat(itr)
 		ENDDO
@@ -243,11 +243,18 @@
 	ELSE
 		DO itr = 1,kmax
 			xheat(itr) = 0.D0
+			d_xheat_dlnd00(itr) = 0.D0
+			d_xheat_dlnT00(itr) = 0.D0
 			DO j = 1,numspecies
 				mfact = 8.D0*SQRT(2.D0/pi)* sigmaxj(j)* mx*mj(j)/((mx+mj(j))**2)
 				dfact = nxk(itr)*njk(j,itr)/rhok(itr)
 				Tfact = SQRT((mj(j)*kerg*Tx+ mx*kerg*Tk(itr))/(mx*mj(j))) * kerg*(Tx- Tk(itr))	! Tx-Tk gives correct sign
-				xheat(itr) = xheat(itr)+ mfact* dfact* Tfact
+				xheat_j = mfact* dfact* Tfact
+				xheat(itr) = xheat(itr)+ xheat_j
+				! partial drvs for other_energy_implicit. all those not calculated here are zero.
+				d_xheat_dlnd00(itr) = d_xheat_dlnd00(itr) - xheat_j
+				Tfact = mx*kerg/2.D0/(mj(j)*kerg*Tx+ mx*kerg*Tk(itr)) - 1.D0/(Tx-Tk(itr))
+				d_xheat_dlnT00(itr) = d_xheat_dlnT00(itr) + xheat_j*Tk(itr)*Tfact
 			ENDDO
 		ENDDO
 	ENDIF
