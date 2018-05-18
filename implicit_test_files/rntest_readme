@@ -67,7 +67,9 @@ ________________
 for all imp directories
 git clone https://github.com/troyraen/mesa_wimps impNOxheat
 cd impNOxheat
+*optional: git stash
 git pull origin other_energy_implicit
+*optional: git stash pop
 mkdir RUNS
 chmod 777 *
 CHANGE INLIST AND run_star_extras TO USE other_energy OR other_energy_implicit

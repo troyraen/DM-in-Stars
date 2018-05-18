@@ -18,7 +18,7 @@ export MESA_RUN=$MESA_BASE/RUNS
 #export MESA_RUN=/home/tjr63/sand
 
 declare -A svals=( [SD]=.TRUE. [SI]=.FALSE. )
-declare -a sord=( SI )
+declare -a sord=( SD )
 declare -A cbvals=( [c0]=0.D0 [c1]=1.D1 [c2]=1.D2 [c3]=1.D3 [c4]=1.D4 [c5]=1.D5 [c6]=1.D6 )
 declare -a cord=( c3 )
 # run the rest of cbvals later
