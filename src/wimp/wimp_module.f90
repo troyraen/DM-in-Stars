@@ -320,8 +320,8 @@
 	DOUBLE PRECISION :: Ttmp, calc_Tx
 	PARAMETER ( tol = 1.D-4 )
 
-	Txhigh = maxT*3.0
-	Txlow = Txhigh/5.D2
+	Txhigh = maxT*5.0
+	Txlow = maxT/25.0
 	Ttmp = zbrent(emoment, Txhigh, Txlow, tol)
 
 	calc_Tx = Ttmp
