@@ -34,7 +34,6 @@
 
       use_other_energy_implicit = .true.
 
-	  num_x_ctrls = 6000 ! use these to store nx for profile output
 !      X_CTRL(1) = 1.D1  ! this sets cboost in wimp_module.f90
 !      X_LOGICAL_CTRL(1) = .TRUE.    ! sets spindep in wimp_module.f90
                                     ! .true. = spin dependent
