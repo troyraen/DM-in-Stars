@@ -194,6 +194,7 @@
 		Tx = calc_Tx()
 	ENDIF
 
+	Nx = s% xtra1_old
 	dNx = calc_dNx()
 	s% xtra1 = (s% xtra1) + dNx
 	Nx = s% xtra1
@@ -389,6 +390,11 @@
 		DO j = 1,10
 			idx = 5+j
 			s% X_CTRL(idx) = njk(j,s% nz) ! names(idx) = chem_isos% name(chemj)
+		ENDDO
+
+		DO k = 1,kmax
+			xtra1_array(k) = npk(k)
+			xtra2_array(k) = Vk(k)
 		ENDDO
 
 
