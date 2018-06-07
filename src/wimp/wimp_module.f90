@@ -198,8 +198,7 @@
 !! so wimps are not collected when step is not accepted
 	dNx = calc_dNx()
 	Nx = (s% xtra1) + dNx
-! TESTING, NEED HIGHER Nx TO COMPARE, change run_star_extras also	s% xtra2 = Nx
-	s% xtra1 = Nx
+	s% xtra2 = Nx
 !	WRITE(*,*) 'mod:  Tx =',Tx, '  dNx =',dNx, '  Nx =',Nx
 	CALL calc_nxk()
 
@@ -423,8 +422,9 @@
 		ENDDO
 
 		DO k = 1,kmax
-			s% xtra1_array(k) = npk(k)
-			s% xtra2_array(k) = Vk(k)
+			s% xtra1_array(k) = nxk(k)
+			s% xtra2_array(k) = npk(k)
+			s% xtra3_array(k) = Vk(k)
 		ENDDO
 
 

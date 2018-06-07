@@ -165,7 +165,7 @@
          ierr = 0
          call star_ptr(id, s, ierr)
          if (ierr /= 0) return
-         how_many_extra_profile_columns = 12
+         how_many_extra_profile_columns = 3
       end function how_many_extra_profile_columns
 
 
@@ -185,23 +185,13 @@
          if (ierr /= 0) return
 
          names(1) = 'nx'
-         do k = 1, nz
-            vals(k,1) = nxk(k)
-         end do
-
          names(2) = 'np'
+         names(3) = 'Vk'
          do k = 1, nz
-            vals(k,2) = npk(k)
+            vals(k,1) = s% xtra1_array(k)
+            vals(k,2) = s% xtra2_array(k)
+            vals(k,3) = s% xtra3_array(k)
          end do
-
-         DO j=1,10
-             idx = 2+j
-             chemj = s% chem_id(j)
-             names(idx) = chem_isos% name(chemj)
-             DO k=1,nz
-                 vals(k,idx) = njk(j,k)
-             END DO
-        ENDDO
 
       end subroutine data_for_extra_profile_columns
 
@@ -221,7 +211,7 @@
          extras_finish_step = keep_going
          call store_extra_info(s)
 
-! TESTING, NEED HIGHER Nx TO COMPARE         s% xtra1 = s% xtra2  !! = Nx (so wimps are not collected when step is not accepted)
+         s% xtra1 = s% xtra2  !! = Nx (so wimps are not collected when step is not accepted)
          s% xtra3 = s% xtra4  !! = Tx (tracking Tx[last step] to avoid numerical Tx oscillations)
 
 !         WRITE(*,*) 'run_star_extras:  Tx =',Tx, '  Nx =',Nx
