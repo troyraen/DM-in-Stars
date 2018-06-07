@@ -194,10 +194,11 @@
 		Tx = calc_Tx()
 	ENDIF
 
-	Nx = s% xtra1_old
+!! in extras_finish_step (run_star_extras) s% xtra1 = s% xtra2
+!! so wimps are not collected when step is not accepted
 	dNx = calc_dNx()
-	s% xtra1 = (s% xtra1) + dNx
-	Nx = s% xtra1
+	Nx = (s% xtra1) + dNx
+	s% xtra2 = Nx
 !	WRITE(*,*) 'mod:  Tx =',Tx, '  dNx =',dNx, '  Nx =',Nx
 	CALL calc_nxk()
 
@@ -374,7 +375,7 @@
 		IMPLICIT NONE
 		INTEGER, INTENT(IN) :: id
 		INTEGER, INTENT(OUT) :: ierr
-		INTEGER :: j, idx
+		INTEGER :: j, k, idx
 		TYPE (star_info), pointer :: s ! pointer to star type
 		ierr=0
 		CALL GET_STAR_PTR(id, s, ierr)
@@ -393,8 +394,8 @@
 		ENDDO
 
 		DO k = 1,kmax
-			xtra1_array(k) = npk(k)
-			xtra2_array(k) = Vk(k)
+			s% xtra1_array(k) = npk(k)
+			s% xtra2_array(k) = Vk(k)
 		ENDDO
 
 

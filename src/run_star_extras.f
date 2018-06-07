@@ -221,6 +221,8 @@
          extras_finish_step = keep_going
          call store_extra_info(s)
 
+         s% xtra1 = s% xtra2  !! = Nx (so wimps are not collected when step is not accepted)
+
 !         WRITE(*,*) 'run_star_extras:  Tx =',Tx, '  Nx =',Nx
 
          IF ( (.NOT. flg1) .AND. (s% center_h1 .LT. 0.71D0) ) THEN
