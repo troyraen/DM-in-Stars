@@ -319,13 +319,20 @@
 	FUNCTION calc_Tx()
 	IMPLICIT NONE
 	DOUBLE PRECISION :: Txhigh, Txlow, tol
-	DOUBLE PRECISION :: Ttmp, calc_Tx
+	DOUBLE PRECISION :: Ttmp, calc_Tx, Txold
 	PARAMETER ( tol = 1.D-4 )
 
-	Txhigh = maxT*5.0
+	Txold = s% xtra3
+	Txhigh = maxT*2.0
 	Txlow = maxT/25.0
 	Ttmp = zbrent(emoment, Txhigh, Txlow, tol)
 
+	WHILE ABS((Ttmp-Txold)/Ttmp) .GT. 1.D0 DO
+		Txlow = Txlow*2.D0
+		Ttmp = zbrent(emoment, Txhigh, Txlow, tol)
+	ENDDO
+
+	s% xtra4 = Ttmp
 	calc_Tx = Ttmp
 	END FUNCTION calc_Tx
 
