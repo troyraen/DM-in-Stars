@@ -191,7 +191,7 @@
 	IF (cboost == 0.D0) THEN
 		Tx = 0.D0
 	ELSE
-		Tx = calc_Tx()
+		Tx = calc_Tx(id,ierr)
 	ENDIF
 
 !! in extras_finish_step (run_star_extras) s% xtra1 = s% xtra2
