@@ -316,7 +316,7 @@
 !!	calculate wimp temp using SP85 one-zone model.
 !!	this is the root of SP85 equ 4.10
 !!----------------------------
-	FUNCTION calc_Tx()
+	FUNCTION calc_Tx(id,ierr)
 	IMPLICIT NONE
 	INTEGER, INTENT(IN) :: id
 	INTEGER, INTENT(OUT) :: ierr
