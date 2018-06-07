@@ -318,16 +318,22 @@
 !!----------------------------
 	FUNCTION calc_Tx()
 	IMPLICIT NONE
+	INTEGER, INTENT(IN) :: id
+	INTEGER, INTENT(OUT) :: ierr
 	DOUBLE PRECISION :: Txhigh, Txlow, tol
 	DOUBLE PRECISION :: Ttmp, calc_Tx, Txold
 	PARAMETER ( tol = 1.D-4 )
+	TYPE (star_info), pointer :: s ! pointer to star type
+	ierr=0
+	CALL GET_STAR_PTR(id, s, ierr)
+	IF ( ierr /= 0 ) RETURN
 
 	Txold = s% xtra3
 	Txhigh = maxT*2.0
 	Txlow = maxT/25.0
 	Ttmp = zbrent(emoment, Txhigh, Txlow, tol)
 
-	WHILE ABS((Ttmp-Txold)/Ttmp) .GT. 1.D0 DO
+	DO WHILE (ABS((Ttmp-Txold)/Ttmp) .GT. 1.D0)
 		Txlow = Txlow*2.D0
 		Ttmp = zbrent(emoment, Txhigh, Txlow, tol)
 	ENDDO
