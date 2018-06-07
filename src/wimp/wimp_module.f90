@@ -198,7 +198,8 @@
 !! so wimps are not collected when step is not accepted
 	dNx = calc_dNx()
 	Nx = (s% xtra1) + dNx
-	s% xtra2 = Nx
+! TESTING, NEED HIGHER Nx TO COMPARE, change run_star_extras also	s% xtra2 = Nx
+	s% xtra1 = Nx
 !	WRITE(*,*) 'mod:  Tx =',Tx, '  dNx =',dNx, '  Nx =',Nx
 	CALL calc_nxk()
 
@@ -317,23 +318,38 @@
 !!	this is the root of SP85 equ 4.10
 !!----------------------------
 	FUNCTION calc_Tx(id,ierr)
+	USE nrutil, ONLY : nrerror
 	IMPLICIT NONE
 	INTEGER, INTENT(IN) :: id
 	INTEGER, INTENT(OUT) :: ierr
 	DOUBLE PRECISION :: Txhigh, Txlow, tol
 	DOUBLE PRECISION :: Ttmp, calc_Tx, Txold
+	INTEGER :: tries=0
 	PARAMETER ( tol = 1.D-4 )
 	TYPE (star_info), pointer :: s ! pointer to star type
 	ierr=0
 	CALL GET_STAR_PTR(id, s, ierr)
 	IF ( ierr /= 0 ) RETURN
 
-	Txold = s% xtra3
 	Txhigh = maxT*2.0
-	Txlow = maxT/25.0
+	Txlow = maxT/20.0
 	Ttmp = zbrent(emoment, Txhigh, Txlow, tol)
 
-	DO WHILE (ABS((Ttmp-Txold)/Ttmp) .GT. 1.D0)
+	! if Tx changes by more than 100%, the wrong (lower) root has been found
+	! if Tx = -1, zbrent returned 'root must be bracketed' error
+	! in either case, increase Txlow and try again
+	Txold = s% xtra3
+	DO WHILE ((ABS((Ttmp-Txold)/Ttmp) .GT. 1.D0) .OR. Ttmp .EQ. -1)
+		! if no solution is found after 4 tries, exit with error
+		tries = tries+1
+		IF (tries .GT. 4) THEN
+			IF (Ttmp .EQ. -1) THEN
+				call nrerror('root must be bracketed for zbrent')
+			ELSE
+				call nrerror('wrong (lower) root found repeatedly')
+			ENDIF
+		ENDIF
+
 		Txlow = Txlow*2.D0
 		Ttmp = zbrent(emoment, Txhigh, Txlow, tol)
 	ENDDO

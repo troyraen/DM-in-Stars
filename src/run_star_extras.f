@@ -221,7 +221,7 @@
          extras_finish_step = keep_going
          call store_extra_info(s)
 
-         s% xtra1 = s% xtra2  !! = Nx (so wimps are not collected when step is not accepted)
+! TESTING, NEED HIGHER Nx TO COMPARE         s% xtra1 = s% xtra2  !! = Nx (so wimps are not collected when step is not accepted)
          s% xtra3 = s% xtra4  !! = Tx (tracking Tx[last step] to avoid numerical Tx oscillations)
 
 !         WRITE(*,*) 'run_star_extras:  Tx =',Tx, '  Nx =',Nx

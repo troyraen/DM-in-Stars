@@ -3,7 +3,7 @@
 !!	taken from Numerical Recipes
 !!----------------------------
 	MODULE wimp_num
-	
+
 	contains
 
 
@@ -29,7 +29,10 @@
 	fa=func(a)
 	fb=func(b)
 	if ((fa > 0.0 .and. fb > 0.0) .or. (fa < 0.0 .and. fb < 0.0)) &
-		call nrerror('root must be bracketed for zbrent')
+!		instead of exiting run, increase lower limit and try again
+!		call nrerror('root must be bracketed for zbrent')
+		zbrent = -1
+		RETURN
 	c=b
 	fc=fb
 	do iter=1,ITMAX
