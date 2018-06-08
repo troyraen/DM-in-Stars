@@ -334,7 +334,7 @@
 
 	Txhigh = maxT*2.0
 	Txold = s% xtra3
-	Txlow = Txold/2.0 ! avoid finding wrong (lower) root
+	Txlow = DMAX1(Txold/2.5, maxT/2.5) ! avoid finding wrong (lower) root. include maxT to avoid 0 in first step
 	Ttmp = zbrent(emoment, Txhigh, Txlow, tol)
 
 	! if Tx changes by more than 100%, the wrong (lower) root has been found
