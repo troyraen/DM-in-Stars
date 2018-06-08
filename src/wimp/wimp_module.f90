@@ -196,8 +196,10 @@
 
 !! in extras_finish_step (run_star_extras) s% xtra1 = s% xtra2
 !! so wimps are not collected when step is not accepted
+!	WRITE(*,*) 's% xtra1 = ', s% xtra1
 	dNx = calc_dNx()
 	Nx = (s% xtra1) + dNx
+!	WRITE(*,*) 's% xtra1 = ', s% xtra1, 'dNx = ', dNx, 'Nx = ', Nx
 	s% xtra2 = Nx
 !	WRITE(*,*) 'mod:  Tx =',Tx, '  dNx =',dNx, '  Nx =',Nx
 	CALL calc_nxk()
@@ -337,8 +339,9 @@
 	! if Tx changes by more than 100%, the wrong (lower) root has been found
 	! if Tx = -1, zbrent returned 'root must be bracketed' error
 	! in either case, increase Txlow and try again
+!	WRITE(*,*) 'tries = ', tries, 's% xtra3 = ', s% xtra3, 'Ttmp = ', Ttmp, 'Txhigh/low = ', Txhigh, Txlow
 	Txold = s% xtra3
-	DO WHILE ((ABS((Ttmp-Txold)/Ttmp) .GT. 1.D0) .OR. Ttmp .EQ. -1)
+	DO WHILE ((ABS((Ttmp-Txold)/Ttmp) .GT. 1.D0) .OR. Ttmp .EQ. -1.0)
 		! if no solution is found after 4 tries, exit with error
 		tries = tries+1
 		IF (tries .GT. 4) THEN
@@ -349,12 +352,15 @@
 			ENDIF
 		ENDIF
 
+		! else reduce Txlow and try again
 		Txlow = Txlow*2.D0
 		Ttmp = zbrent(emoment, Txhigh, Txlow, tol)
+!		WRITE(*,*) 'tries = ', tries, 's% xtra3 = ', s% xtra3, 'Ttmp = ', Ttmp
 	ENDDO
 
 	s% xtra4 = Ttmp
 	calc_Tx = Ttmp
+!	WRITE(*,*) 'calc_Tx = ', calc_Tx, 's% xtra4', s% xtra4
 	END FUNCTION calc_Tx
 
 
