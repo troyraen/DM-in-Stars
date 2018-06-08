@@ -333,30 +333,31 @@
 	IF ( ierr /= 0 ) RETURN
 
 	Txhigh = maxT*2.0
-	Txlow = maxT/20.0
+	Txold = s% xtra3
+	Txlow = Txold/2.0 ! avoid finding wrong (lower) root
 	Ttmp = zbrent(emoment, Txhigh, Txlow, tol)
 
 	! if Tx changes by more than 100%, the wrong (lower) root has been found
 	! if Tx = -1, zbrent returned 'root must be bracketed' error
 	! in either case, increase Txlow and try again
 !	WRITE(*,*) 'tries = ', tries, 's% xtra3 = ', s% xtra3, 'Ttmp = ', Ttmp, 'Txhigh/low = ', Txhigh, Txlow
-	Txold = s% xtra3
-	DO WHILE ((ABS((Ttmp-Txold)/Ttmp) .GT. 1.D0) .OR. Ttmp .EQ. -1.0)
-		! if no solution is found after 4 tries, exit with error
-		tries = tries+1
-		IF (tries .GT. 4) THEN
-			IF (Ttmp .EQ. -1) THEN
-				call nrerror('root must be bracketed for zbrent')
-			ELSE
-				call nrerror('wrong (lower) root found repeatedly')
-			ENDIF
-		ENDIF
+	! Txold = s% xtra3
+	! DO WHILE ((ABS((Ttmp-Txold)/Ttmp) .GT. 1.D0) .OR. Ttmp .EQ. -1.0)
+	! 	! if no solution is found after 4 tries, exit with error
+	! 	tries = tries+1
+	! 	IF (tries .GT. 4) THEN
+	! 		IF (Ttmp .EQ. -1) THEN
+	! 			call nrerror('root must be bracketed for zbrent')
+	! 		ELSE
+	! 			call nrerror('wrong (lower) root found repeatedly')
+	! 		ENDIF
+	! 	ENDIF
 
 		! else reduce Txlow and try again
-		Txlow = Txlow*2.D0
-		Ttmp = zbrent(emoment, Txhigh, Txlow, tol)
+		! Txlow = Txlow*2.D0
+		! Ttmp = zbrent(emoment, Txhigh, Txlow, tol)
 !		WRITE(*,*) 'tries = ', tries, 's% xtra3 = ', s% xtra3, 'Ttmp = ', Ttmp
-	ENDDO
+	! ENDDO
 
 	s% xtra4 = Ttmp
 	calc_Tx = Ttmp
