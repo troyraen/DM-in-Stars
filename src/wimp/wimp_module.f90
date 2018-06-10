@@ -324,47 +324,102 @@
 	INTEGER, INTENT(IN) :: id
 	INTEGER, INTENT(OUT) :: ierr
 	DOUBLE PRECISION :: Txhigh, Txlow, tol
-	DOUBLE PRECISION :: Ttmp, calc_Tx, Txold
-	INTEGER :: tries=0
+	DOUBLE PRECISION :: Ttmp, Tcheck, calc_Tx, Txold
+	INTEGER :: tries, model_err=0
+	LOGICAL :: Tflag
 	PARAMETER ( tol = 1.D-4 )
 	TYPE (star_info), pointer :: s ! pointer to star type
 	ierr=0
 	CALL GET_STAR_PTR(id, s, ierr)
 	IF ( ierr /= 0 ) RETURN
 
-	Txhigh = maxT*2.0
-	Txold = s% xtra3
-	Txlow = DMAX1(Txold/2.5, maxT/2.5) ! avoid finding wrong (lower) root. include maxT to avoid 0 in first step
-	Ttmp = zbrent(emoment, Txhigh, Txlow, tol)
+	IF (model_err.EQ. s% model_number) call nrerror('Txlow > Txhigh or root must be bracketed')
+	Txhigh = maxT*1.1
+	Txlow = maxT/25.0
+	Ttmp = 10.0D0
 
-	! if Tx changes by more than 100%, the wrong (lower) root has been found
-	! if Tx = -1, zbrent returned 'root must be bracketed' error
-	! in either case, increase Txlow and try again
-!	WRITE(*,*) 'tries = ', tries, 's% xtra3 = ', s% xtra3, 'Ttmp = ', Ttmp, 'Txhigh/low = ', Txhigh, Txlow
-	! Txold = s% xtra3
-	! DO WHILE ((ABS((Ttmp-Txold)/Ttmp) .GT. 1.D0) .OR. Ttmp .EQ. -1.0)
-	! 	! if no solution is found after 4 tries, exit with error
-	! 	tries = tries+1
-	! 	IF (tries .GT. 4) THEN
-	! 		IF (Ttmp .EQ. -1) THEN
-	! 			call nrerror('root must be bracketed for zbrent')
-	! 		ELSE
-	! 			call nrerror('wrong (lower) root found repeatedly')
-	! 		ENDIF
-	! 	ENDIF
+	tries=0
+	Tflag=.FALSE.
+	DO WHILE ( .NOT. Tflag )
+		tries = tries+1
 
-		! else reduce Txlow and try again
-		! Txlow = Txlow*2.D0
-		! Ttmp = zbrent(emoment, Txhigh, Txlow, tol)
-!		WRITE(*,*) 'tries = ', tries, 's% xtra3 = ', s% xtra3, 'Ttmp = ', Ttmp
-	! ENDDO
+		IF (Txlow.GT.maxT) THEN !call nrerror('Txlow > Txhigh')
+			Ttmp=maxT
+			model_err= s% model_number +1
+			WRITE(*,*) 'problem model is', s% model_number
+			WRITE(*,*) 'tries=', tries, 'Txhigh=', Txhigh, 'Txlow=', Txlow
+			EXIT
+		ENDIF
 
-	s% xtra4 = Ttmp
+		Ttmp = zbrent(emoment, Txhigh, Txlow, tol) ! returns -1 if gets root must be bracketed error
+		IF (Ttmp.GT.0.0) THEN
+			Tflag = is_slope_steep(Ttmp)
+			Txlow = 1.05*Txlow
+!			WRITE(*,*) 'tries=', tries, 'Txhigh=', Txhigh, 'Txlow=', Txlow, 'Ttmp=', Ttmp
+		ELSE ! go back a step, find root, make sure slope is negative
+			WRITE(*,*) 'root must be bracketed. Txhigh=', Txhigh, 'Txlow=', Txlow, 'tries=', tries
+			Txlow = Txlow/1.05
+			Ttmp = zbrent(emoment, Txhigh, Txlow, tol)
+			Tflag = is_slope_negative(Ttmp)
+			IF (.NOT.Tflag) THEN
+				Ttmp=maxT
+				model_err= s% model_number +1
+			ENDIF
+
+		ENDIF
+
+	ENDDO
+
 	calc_Tx = Ttmp
 !	WRITE(*,*) 'calc_Tx = ', calc_Tx, 's% xtra4', s% xtra4
 	END FUNCTION calc_Tx
 
 
+!!----------------------------
+!!	To avoid finding wrong (lower) root and inducing Tx oscillations
+!!	calculate slope of Ttmp
+!!	lower root has slope ~0, correct slope is usually very steep
+!!	if abs(slope) < 10, return .FALSE.
+	FUNCTION is_slope_steep(Tx)
+		IMPLICIT NONE
+		DOUBLE PRECISION, INTENT(IN) :: Tx
+		DOUBLE PRECISION :: Tl, Tx_int, Tl_int, slope
+		LOGICAL :: is_slope_steep
+
+		Tx_int = emoment(Tx)
+		Tl = 0.99*Tx
+		Tl_int = emoment(Tl)
+		slope = ABS((Tx_int-Tl_int)/(Tx-Tl))
+		WRITE(*,*) 'slope=',slope
+
+		IF (slope.GT.10.0) THEN
+			is_slope_steep=.TRUE.
+		ELSE
+			is_slope_steep=.FALSE.
+		ENDIF
+
+	END FUNCTION is_slope_steep
+!!	if slope < 0, return .TRUE.
+!!----------------------------
+	FUNCTION is_slope_negative(Tx)
+		IMPLICIT NONE
+		DOUBLE PRECISION, INTENT(IN) :: Tx
+		DOUBLE PRECISION :: Tl, Tx_int, Tl_int, slope
+		LOGICAL :: is_slope_negative
+
+		Tx_int = emoment(Tx)
+		Tl = 0.999*Tx ! use narrower range to avoid function maximum
+		Tl_int = emoment(Tl)
+		slope = (Tx_int-Tl_int)/(Tx-Tl)
+		WRITE(*,*) 'slope=',slope
+
+		IF (slope.LT.0.0) THEN
+			is_slope_negative=.TRUE.
+		ELSE
+			is_slope_negative=.FALSE.
+		ENDIF
+
+	END FUNCTION is_slope_negative
 
 
 

@@ -29,10 +29,10 @@
 	fa=func(a)
 	fb=func(b)
 	if ((fa > 0.0 .and. fb > 0.0) .or. (fa < 0.0 .and. fb < 0.0)) THEN
-		call nrerror('root must be bracketed for zbrent')
+!		call nrerror('root must be bracketed for zbrent')
 !		instead of exiting run, increase lower limit and try again
-!		zbrent = -1.0
-!		RETURN
+		zbrent = -1.0
+		RETURN
 	ENDIF
 	c=b
 	fc=fb
