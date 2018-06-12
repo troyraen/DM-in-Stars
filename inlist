@@ -29,9 +29,6 @@
 
 &controls
 
-      write_controls_info_with_profile = .true.
-      max_num_profile_models = 25
-
       use_other_energy_implicit = .true.
 
 !      X_CTRL(1) = 1.D1  ! this sets cboost in wimp_module.f90
@@ -99,6 +96,8 @@
 
       photo_interval = 50
       profile_interval = 1
+	  max_num_profile_models = 25
+	  write_controls_info_with_profile = .true.
       history_interval = 1
       terminal_interval = 100
       write_header_frequency = 10

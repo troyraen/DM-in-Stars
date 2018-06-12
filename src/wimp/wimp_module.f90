@@ -333,10 +333,10 @@
 	CALL GET_STAR_PTR(id, s, ierr)
 	IF ( ierr /= 0 ) RETURN
 
-	IF (model_err.EQ. s% model_number) call nrerror('Txlow > Txhigh or root must be bracketed')
+	IF ((model_err.EQ. s% model_number) .AND. (.NOT.Tflag)) call nrerror('Txlow > Txhigh or root must be bracketed')
 	Txhigh = maxT*1.1
 	Txlow = maxT/25.0
-	Ttmp = 10.0D0
+!	Ttmp = 10.0D0
 
 	tries=0
 	Tflag=.FALSE.
@@ -362,8 +362,10 @@
 			Ttmp = zbrent(emoment, Txhigh, Txlow, tol)
 			Tflag = is_slope_negative(Ttmp)
 			IF (.NOT.Tflag) THEN
-				Ttmp=maxT
+				Ttmp= 10.**(s% log_center_temperature)
+				WRITE(*,*) '**** Tx set to center_T ****', Ttmp
 				model_err= s% model_number +1
+				EXIT ! terminate the DO WHILE loop
 			ENDIF
 
 		ENDIF
