@@ -1,8 +1,8 @@
 
 &star_job
 
-	history_columns_file ='/home/tjr63/mesa_wimps_4isoc/history_columns.list'
-	profile_columns_file ='/home/tjr63/mesa_wimps_4isoc/profile_columns.list'
+!	history_columns_file ='/home/tjr63/mesa_wimps_4isoc/history_columns.list'
+!	profile_columns_file ='/home/tjr63/mesa_wimps_4isoc/profile_columns.list'
 
       show_log_description_at_start = .false.
 
@@ -30,7 +30,7 @@
 &controls
 
       write_controls_info_with_profile = .true.
-      max_num_profile_models = 10
+      max_num_profile_models = 25
 
       use_other_energy_implicit = .true.
 
@@ -98,8 +98,8 @@
 
 
       photo_interval = 50
-      profile_interval = 50
-      history_interval = 5
+      profile_interval = 1
+      history_interval = 1
       terminal_interval = 100
       write_header_frequency = 10
 
@@ -115,7 +115,7 @@
 
 &pgstar
 
-    read_extra_pgstar_inlist1 = .true.
+    read_extra_pgstar_inlist1 = .false.
     extra_pgstar_inlist1_name = '/home/tjr63/implicit_test/impFALSE/inlist_pgstar'
 
 / ! end of pgstar namelist

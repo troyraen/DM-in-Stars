@@ -390,12 +390,13 @@
 		Tl = 0.99*Tx
 		Tl_int = emoment(Tl)
 		slope = ABS((Tx_int-Tl_int)/(Tx-Tl))
-		WRITE(*,*) 'slope=',slope
+!		WRITE(*,*) 'slope=',slope
 
 		IF (slope.GT.10.0) THEN
 			is_slope_steep=.TRUE.
 		ELSE
 			is_slope_steep=.FALSE.
+			WRITE(*,*) 'is_slope_steep returns false. slope=',slope
 		ENDIF
 
 	END FUNCTION is_slope_steep
@@ -411,7 +412,7 @@
 		Tl = 0.999*Tx ! use narrower range to avoid function maximum
 		Tl_int = emoment(Tl)
 		slope = (Tx_int-Tl_int)/(Tx-Tl)
-		WRITE(*,*) 'slope=',slope
+		WRITE(*,*) 'is_slope_negative called. slope=',slope
 
 		IF (slope.LT.0.0) THEN
 			is_slope_negative=.TRUE.
