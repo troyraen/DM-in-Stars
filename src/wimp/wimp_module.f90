@@ -325,8 +325,8 @@
 	INTEGER, INTENT(OUT) :: ierr
 	DOUBLE PRECISION :: Txhigh, Txlow, tol
 	DOUBLE PRECISION :: Ttmp, Tcheck, calc_Tx, Txold
-	INTEGER :: tries, model_err=0
-	LOGICAL :: Tflag
+	INTEGER :: tries, model_err=-1
+	LOGICAL :: Tflag=.FALSE.
 	PARAMETER ( tol = 1.D-4 )
 	TYPE (star_info), pointer :: s ! pointer to star type
 	ierr=0
@@ -356,6 +356,10 @@
 			Tflag = is_slope_steep(Ttmp)
 			Txlow = 1.05*Txlow
 !			WRITE(*,*) 'tries=', tries, 'Txhigh=', Txhigh, 'Txlow=', Txlow, 'Ttmp=', Ttmp
+		ELSE IF (tries.EQ.1) THEN ! expand the range and try again
+			WRITE(*,*) 'root must be bracketed. Txhigh=', Txhigh, 'Txlow=', Txlow, 'tries=', tries
+			Txlow = Txlow/2.0
+			Txhigh = Txhigh*1.25
 		ELSE ! go back a step, find root, make sure slope is negative
 			WRITE(*,*) 'root must be bracketed. Txhigh=', Txhigh, 'Txlow=', Txlow, 'tries=', tries
 			Txlow = Txlow/1.05
