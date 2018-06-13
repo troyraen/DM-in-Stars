@@ -344,9 +344,9 @@
 		tries = tries+1
 
 		IF (Txlow.GT.maxT) THEN !call nrerror('Txlow > Txhigh')
-			Ttmp=maxT
+			Ttmp=10.**(s% log_center_temperature)
 			model_err= s% model_number +1
-			WRITE(*,*) 'problem model is', s% model_number
+			WRITE(*,*) 'Txlow>maxT. problem model ', s% model_number
 			WRITE(*,*) 'tries=', tries, 'Txhigh=', Txhigh, 'Txlow=', Txlow
 			EXIT
 		ENDIF
@@ -367,7 +367,7 @@
 			Tflag = is_slope_negative(Ttmp)
 			IF (.NOT.Tflag) THEN
 				Ttmp= 10.**(s% log_center_temperature)
-				WRITE(*,*) '**** Tx set to center_T ****', Ttmp
+				WRITE(*,*) '**** Tx set to center_T ****', Ttmp, 'problem model ', s% model_number
 				model_err= s% model_number +1
 				EXIT ! terminate the DO WHILE loop
 			ENDIF
