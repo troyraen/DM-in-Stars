@@ -1,6 +1,6 @@
 ##
 #   Before using this file, see rntest_readme
-#   
+#
 #   make sure you have done ./clean and ./mk for MESA in each MESA_BASE directory
 #   submit jobs to Condor using: condor_submit condor.submit
 ##
@@ -22,6 +22,6 @@ should_transfer_files = YES
 when_to_transfer_output = ON_EXIT_OR_EVICT
 
 
-Queue 10
+Queue 11
 
 #############################################
