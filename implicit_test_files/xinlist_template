@@ -1,23 +1,19 @@
 &star_job
 
-!      save_model_filename = 's_c_m_.mod'
-
 / ! end of star_job namelist
 
 
 
 &controls
 
-!  log_directory = 'LOGSs_c_m_'
-!  photo_directory = 'photoss_c_m_'
-
   initial_mass = imass_
+  max_age = maxage_
 
+  use_other_energy_implicit = oenergy_
   X_CTRL(1) = cboost_  ! this sets cboost in wimp_module.f90
 
   X_LOGICAL_CTRL(1) = SD_    ! sets spindep in wimp_module.f90
                                 ! .true. = spin dependent
                                 ! .false. = spin independent
-
 
 / ! end of controls namelist

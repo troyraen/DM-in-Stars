@@ -1,0 +1,39 @@
+##!/usr/local/bin/bash
+#!/bin/bash
+
+##
+#   This file should be used in two steps:
+#
+#   1.  generate run files that make directories and cp, sed inlist_cluster files into them
+#       A.  comment out '$MESA_BASE/star' line in rnMESA_template.sh file
+#       B.  uncomment last lines of this file (to make directories)
+#       C.  run this file (gen_rnIso_files)
+#
+#   2.  generate run files that actually run MESA
+#       A.  comment out 'mkdir', 'cp', and 'sed' lines in rnMESA_template.sh file
+#       B.  uncomment '$MESA_BASE/star' line in rnMESA_template.sh file
+#       C.  comment out last lines of this file
+#       D.  run this file (gen_rnIso_files)
+#       E.  make sure you have done ./clean and ./mk for MESA
+#       F.  submit jobs to Condor using: condor_submit isoc.submit
+#
+##
+
+# Generate rn files from rnMESA_template with subset of mass values (mvals)
+#
+for n in {1..9}; do
+    fname="rnMESA$n.sh"
+    cp rnMESA_template.sh $fname
+    sed -ie 's/p9/p'$n'/g; s/4.9/4.'$n'/g; s/3.9/3.'$n'/g; s/2.9/2.'$n'/g; s/1.9/1.'$n'/g' $fname
+done
+
+# extra mass range
+fname="rnMESA0.sh"
+cp rnMESA_template.sh $fname
+sed -ie 's/mvals=.*/mvals=( [m0p9]=0.9 [m0p8]=0.8 )/g; s/mord=.*/mord=( m0p9 m0p8 )/g' $fname
+
+
+# Uncomment these lines to make directories before running on Condor:
+# for i in {0..9}; do
+#         /home/tjr63/mesa_wimps_4isoc/isochrones/rnMESAes/rnMESA$i.sh
+# done

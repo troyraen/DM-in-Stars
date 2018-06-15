@@ -20,36 +20,13 @@ export MESA_RUN=$MESA_BASE/RUNS
 declare -A svals=( [SD]=.TRUE. [SI]=.FALSE. )
 declare -a sord=( SD )
 declare -A cbvals=( [c0]=0.D0 [c1]=1.D1 [c2]=1.D2 [c3]=1.D3 [c4]=1.D4 [c5]=1.D5 [c6]=1.D6 )
-declare -a cord=( c4 )
+declare -a cord=( c3 c4 )
 # run the rest of cbvals later
 declare -A mvals=( [m0p8]=0.8D0 [m0p9]=0.9D0 [m1p0]=1.0D0 [m1p3]=1.3D0 [m2p3]=2.3D0 [m3p3]=3.3D0 [m4p3]=4.3D0 )
 #declare -a mord=( m4p5 m3p5 m2p5 m1p5 m1p2 m1p0 m0p8 )
-declare -a mord=( m4p3 m3p3 m2p3 m1p3 m1p0 )
-
-
-for spin in "${sord[@]}"; do
-    for cdir in "${cord[@]}"; do
-        for mass in "${mord[@]}"; do
-#			# TESTING:
-#			echo $spin $cdir $mass
-            mkdir -pm 777 $MESA_RUN/$spin/$cdir/$mass
-                cp $MESA_BASE/implicit_test_files/xinlist_template $MESA_RUN/$spin/$cdir/$mass/inlist_cluster
-                check_okay
-                cd $MESA_RUN/$spin/$cdir/$mass
-                sed -i 's/s_c_m_/'$spin$cdir$mass'/g; s/cboost_/'${cbvals[$cdir]}'/g; s/imass_/'${mvals[$mass]}'/g; s/SD_/'${svals[$spin]}'/g' inlist_cluster
-                check_okay
-
-                $MESA_BASE/star
-                check_okay
-
-                cd $MESA_RUN
-        done
-    done
-done
-
-
-declare -a cord=( c3 )
 declare -a mord=( m4p3 m3p3 m2p3 m1p3 m0p9 m0p8 )
+declare -A agevals=( [m0p8]=19.d9 [m0p9]=14.d9 [m1p0]=13.d9 [m1p3]=13.d9 [m2p3]=13.d9 [m3p3]=13.d9 [m4p3]=13.d9 )
+
 
 for spin in "${sord[@]}"; do
     for cdir in "${cord[@]}"; do
@@ -60,7 +37,8 @@ for spin in "${sord[@]}"; do
                 cp $MESA_BASE/implicit_test_files/xinlist_template $MESA_RUN/$spin/$cdir/$mass/inlist_cluster
                 check_okay
                 cd $MESA_RUN/$spin/$cdir/$mass
-                sed -i 's/s_c_m_/'$spin$cdir$mass'/g; s/cboost_/'${cbvals[$cdir]}'/g; s/imass_/'${mvals[$mass]}'/g; s/SD_/'${svals[$spin]}'/g' inlist_cluster
+
+                sed -i 's/s_c_m_/'$spin$cdir$mass'/g; s/cboost_/'${cbvals[$cdir]}'/g; s/imass_/'${mvals[$mass]}'/g; s/SD_/'${svals[$spin]}'/g; s/maxage_/'${agevals[$mass]}'/g' inlist_cluster
                 check_okay
 
                 $MESA_BASE/star

@@ -1,13 +1,16 @@
 
 &star_job
 
-!	history_columns_file ='/home/tjr63/mesa_wimps_4isoc/history_columns.list'
-!	profile_columns_file ='/home/tjr63/mesa_wimps_4isoc/profile_columns.list'
+!	history_columns_file ='/home/tjr63/implicit_test/all/history_columns.list'
+!	profile_columns_file ='/home/tjr63/implicit_test/all/profile_columns.list'
 
       show_log_description_at_start = .false.
 
       save_model_when_terminate = .true.
-!      save_model_filename = 'mSUN.mod'
+      save_model_filename = 'final.mod'
+      save_photo_when_terminate = .true.
+      write_profile_when_terminate = .true.
+      filename_for_profile_when_terminate = 'profile101.data'
 
       eos_file_prefix = 'mesa'
       kappa_file_prefix = 'gs98'
@@ -115,6 +118,6 @@
 &pgstar
 
     read_extra_pgstar_inlist1 = .true.
-    extra_pgstar_inlist1_name = '/home/tjr63/implicit_test/impFALSE/inlist_pgstar'
+    extra_pgstar_inlist1_name = '/home/tjr63/implicit_test/all/inlist_pgstar'
 
 / ! end of pgstar namelist
