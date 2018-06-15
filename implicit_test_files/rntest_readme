@@ -15,9 +15,9 @@ chmod 777 *
 
 
 cd implicit_test_files
-./gen_rnMESA_files # generates rnMESA$1.sh files
 mkdir logs # for condor logs
 chmod 777 *
+./gen_rnMESA_files # generates rnMESA$1.sh files
 
 
 condor_submit condor.submit # this runs condor_wrapper which runs each rnMESA$1.sh file
