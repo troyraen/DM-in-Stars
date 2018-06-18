@@ -324,7 +324,7 @@
 	INTEGER, INTENT(IN) :: id
 	INTEGER, INTENT(OUT) :: ierr
 	DOUBLE PRECISION :: Txhigh, Txlow, tol
-	DOUBLE PRECISION :: Ttmp, Tcheck, calc_Tx, Txold
+	DOUBLE PRECISION :: Ttmp, calc_Tx
 	INTEGER :: tries, model_err=-1
 	LOGICAL :: Tflag=.FALSE.
 	PARAMETER ( tol = 1.D-4 )
@@ -343,15 +343,20 @@
 	DO WHILE ( .NOT. Tflag )
 		tries = tries+1
 
-		IF (Txlow.GT.maxT) THEN !call nrerror('Txlow > Txhigh')
-			Ttmp=10.**(s% log_center_temperature)
-			model_err= s% model_number +1
-			WRITE(*,*) 'Txlow>maxT. problem model ', s% model_number
-			WRITE(*,*) 'tries=', tries, 'Txhigh=', Txhigh, 'Txlow=', Txlow
-			EXIT
-		ENDIF
+		! IF (Txlow.GT.maxT) THEN !call nrerror('Txlow > Txhigh')
+		! 	Ttmp=10.**(s% log_center_temperature)
+		! 	model_err= s% model_number +1
+		! 	WRITE(*,*) 'Txlow>maxT. problem model ', s% model_number
+		! 	WRITE(*,*) 'tries=', tries, 'Txhigh=', Txhigh, 'Txlow=', Txlow
+		! 	EXIT
+		! ENDIF
 
 		Ttmp = zbrent(emoment, Txhigh, Txlow, tol) ! returns -1 if gets root must be bracketed error
+		IF (Txlow.GT.maxT) THEN ! treat as root must be bracketed error. Tx close to Tmax and slope is shallow (most likely)
+			WRITE(*,*) 'Txlow > maxT. Treating as root must be bracketed error'
+			Ttmp = -1.0
+		ENDIF
+
 		IF (Ttmp.GT.0.0) THEN
 			Tflag = is_slope_steep(Ttmp)
 			Txlow = 1.05*Txlow
@@ -402,7 +407,7 @@
 			is_slope_steep=.TRUE.
 		ELSE
 			is_slope_steep=.FALSE.
-			WRITE(*,*) 'is_slope_steep returns false. slope=',slope
+			! WRITE(*,*) 'is_slope_steep returns false. slope=',slope
 		ENDIF
 
 	END FUNCTION is_slope_steep
