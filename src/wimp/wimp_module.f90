@@ -353,7 +353,7 @@
 
 		Ttmp = zbrent(emoment, Txhigh, Txlow, tol) ! returns -1 if gets root must be bracketed error
 		IF (Txlow.GT.maxT) THEN ! treat as root must be bracketed error. Tx close to Tmax and slope is shallow (most likely)
-			WRITE(*,*) 'Txlow > maxT. Treating as root must be bracketed error'
+			WRITE(*,*) 'Txlow > maxT. Treating as root must be bracketed error. Model =', s% model_number
 			Ttmp = -1.0
 		ENDIF
 
@@ -362,11 +362,11 @@
 			Txlow = 1.05*Txlow
 !			WRITE(*,*) 'tries=', tries, 'Txhigh=', Txhigh, 'Txlow=', Txlow, 'Ttmp=', Ttmp
 		ELSE IF (tries.EQ.1) THEN ! expand the range and try again
-			WRITE(*,*) 'root must be bracketed. Txhigh=', Txhigh, 'Txlow=', Txlow, 'tries=', tries
+			WRITE(*,*) 'root must be bracketed. Txhigh=', Txhigh, 'Txlow=', Txlow, 'tries=', tries, 'Model =', s% model_number
 			Txlow = Txlow/2.0
 			Txhigh = Txhigh*1.25
 		ELSE ! go back a step, find root, make sure slope is negative
-			WRITE(*,*) 'root must be bracketed. Txhigh=', Txhigh, 'Txlow=', Txlow, 'tries=', tries
+			WRITE(*,*) 'root must be bracketed. Txhigh=', Txhigh, 'Txlow=', Txlow, 'tries=', tries, 'Model =', s% model_number
 			Txlow = Txlow/1.05
 			Ttmp = zbrent(emoment, Txhigh, Txlow, tol)
 			Tflag = is_slope_negative(Ttmp)
