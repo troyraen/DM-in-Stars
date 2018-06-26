@@ -29,7 +29,7 @@ for spin in "${sord[@]}"; do
 		oe=$([ $cdir = c0 ] && echo ".false." || echo ".true.") # use_other_energy_implicit=.false. if c0 else .true.
         for mass in "${mord[@]}"; do
 			if [ $mass = m0p8 ]; then # set max_age depending on mass
-				ma=20.D9
+				ma=21.D9
 			elif [ $mass = m0p9 ]; then
 				ma=15.D9
 			else
