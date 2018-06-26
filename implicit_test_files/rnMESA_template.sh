@@ -11,7 +11,7 @@ function check_okay {
 
 export MESA_DIR=/home/tjr63/mesa-r9793
 export OMP_NUM_THREADS=1
-export MESA_BASE=/home/tjr63/implicit_test/all
+export MESA_BASE=/home/tjr63/isoc_inlist
 # !!! If you change MESA_BASE you must change the file paths in inlist !!!
 export MESA_INLIST=$MESA_BASE/inlist
 export MESA_RUN=$MESA_BASE/RUNS
@@ -20,16 +20,16 @@ export MESA_RUN=$MESA_BASE/RUNS
 declare -A svals=( [SD]=.TRUE. [SI]=.FALSE. )
 declare -a sord=( SD )
 declare -A cbvals=( [c0]=0.D0 [c1]=1.D1 [c2]=1.D2 [c3]=1.D3 [c4]=1.D4 [c5]=1.D5 [c6]=1.D6 )
-declare -a cord=( c1 c3 c5 )
+declare -a cord=( c0 c1 c2 c3 c4 c5 c6 )
 declare -A mvals=( [m7p9]=7.9D0 [m6p9]=6.9D0 [m5p9]=5.9D0 [m4p9]=4.9D0 [m3p9]=3.9D0 [m2p9]=2.9D0 [m1p9]=1.9D0 )
-declare -a mord=( m7p9 m6p9 m5p9 m4p9 m3p9 m2p9 m1p9 )
+declare -a mord=( m4p9 m3p9 m2p9 m1p9 )
 
 for spin in "${sord[@]}"; do
     for cdir in "${cord[@]}"; do
 		oe=$([ $cdir = c0 ] && echo ".false." || echo ".true.") # use_other_energy_implicit=.false. if c0 else .true.
         for mass in "${mord[@]}"; do
 			if [ $mass = m0p8 ]; then # set max_age depending on mass
-				ma=21.D9
+				ma=22.D9
 			elif [ $mass = m0p9 ]; then
 				ma=15.D9
 			else

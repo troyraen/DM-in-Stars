@@ -1,7 +1,7 @@
 ________________
 for implicit_test:
 
-git clone https://github.com/troyraen/mesa_wimps all
+git clone https://github.com/troyraen/mesa_wimps isoc_inlist
 cd all
 *optional: git stash
 git pull origin other_energy_implicit
