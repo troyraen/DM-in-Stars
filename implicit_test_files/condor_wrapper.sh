@@ -1,3 +1,3 @@
 #!/bin/bash
 
-/home/tjr63/isoc_inlist/implicit_test_files/rnMESA$1.sh
+/home/tjr63/implicit_test2/implicit_test_files/rnMESA$1.sh
