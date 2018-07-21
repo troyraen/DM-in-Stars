@@ -1,8 +1,8 @@
 ________________
 for implicit_test:
 
-git clone https://github.com/troyraen/mesa_wimps implicit_test2
-cd implicit_test2
+git clone https://github.com/troyraen/mesa_wimps implicit_test2i
+cd implicit_test2i
 *optional: git stash
 git pull origin other_energy_implicit
 *optional: git stash pop
@@ -17,7 +17,7 @@ chmod 777 *
 cd implicit_test_files
 mkdir logs # for condor logs
 chmod 777 *
-./gen_rnMESA_files # generates rnMESA$1.sh files
+## ./gen_rnMESA_files # generates rnMESA$1.sh files # already set
 
 
 condor_submit condor.submit # this runs condor_wrapper which runs each rnMESA$1.sh file

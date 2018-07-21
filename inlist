@@ -10,7 +10,7 @@
       save_model_filename = 'final.mod'
       save_photo_when_terminate = .true.
       write_profile_when_terminate = .true.
-      filename_for_profile_when_terminate = 'LOGS/profile1001.data'
+      filename_for_profile_when_terminate = 'LOGS/profile0.data'
 
       eos_file_prefix = 'mesa'
       kappa_file_prefix = 'gs98'
