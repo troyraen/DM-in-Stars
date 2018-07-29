@@ -1,6 +1,5 @@
 &star_job
 
-!      save_model_filename = 'SDc3m4p5.mod'
 
 / ! end of star_job namelist
 
@@ -8,14 +7,12 @@
 
 &controls
 
-!  log_directory = 'LOGSSDc3m4p5'
-!  photo_directory = 'photosSDc3m4p5'
 
-  initial_mass = 1.2D0
-  max_age = 13d9
+  initial_mass = 0.8D0
+  max_age = 23.d9
 
-  use_other_energy_implicit = .true.
-  X_CTRL(1) = 1.D4  ! this sets cboost in wimp_module.f90
+  use_other_energy_implicit = .false.
+  X_CTRL(1) = 1.D6  ! this sets cboost in wimp_module.f90
 
   X_LOGICAL_CTRL(1) = .TRUE.    ! sets spindep in wimp_module.f90
                                 ! .true. = spin dependent

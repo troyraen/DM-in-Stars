@@ -1,8 +1,8 @@
 
 &star_job
 
-!	history_columns_file = $MESA_BASE/history_columns.list
-!	profile_columns_file = $MESA_BASE/profile_columns.list
+    history_columns_file = '/home/tjr63/implicit_test2i/history_columns.list'
+    profile_columns_file = '/home/tjr63/implicit_test2i/profile_columns.list'
 
       show_log_description_at_start = .false.
 
@@ -121,7 +121,7 @@
 
 &pgstar
 
-!    read_extra_pgstar_inlist1 = .true.
-!    extra_pgstar_inlist1_name = '/home/tjr63/implicit_test/all/inlist_pgstar'
+    read_extra_pgstar_inlist1 = .true.
+    extra_pgstar_inlist1_name = '/home/tjr63/implicit_test2i/inlist_pgstar_my'
 
 / ! end of pgstar namelist
