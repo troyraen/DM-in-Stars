@@ -1,8 +1,8 @@
 
 &star_job
 
-    history_columns_file = '/home/tjr63/implicit_test2i/history_columns.list'
-    profile_columns_file = '/home/tjr63/implicit_test2i/profile_columns.list'
+!    history_columns_file = '/home/tjr63/implicit_test2i/history_columns.list'
+!    profile_columns_file = '/home/tjr63/implicit_test2i/profile_columns.list'
 
       show_log_description_at_start = .false.
 
@@ -45,7 +45,7 @@
 !      initial_mass = 1.0
       initial_z = 0.014d0
 
-      logQ_min_limit = -20d0  ! trying to get 7.6 and 7.4Msun through the runs
+!      logQ_min_limit = -20d0  ! trying to get 7.6 and 7.4Msun through the runs
 
       use_Type2_opacities = .true.
       Zbase = 0.014d0
@@ -122,6 +122,6 @@
 &pgstar
 
     read_extra_pgstar_inlist1 = .true.
-    extra_pgstar_inlist1_name = '/home/tjr63/implicit_test2i/inlist_pgstar_my'
+    extra_pgstar_inlist1_name = '/home/tjr63/implicit_test2i/inlist_pgstar'
 
 / ! end of pgstar namelist
