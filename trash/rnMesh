@@ -1,0 +1,40 @@
+#!/bin/bash
+
+function check_okay {
+	if [ $? -ne 0 ]
+	then
+		exit 1
+	fi
+}
+
+
+
+#----- MESH 1
+cp inlists/x_mesh1 inlistx_mesh
+check_okay
+echo '!--'
+echo '!------------- STARTING x_mesh1 -------------!' >> README.md
+echo '!--'
+./rnMsun
+mkdir x_mesh1 # move files to mesh specific folder
+mv LOGS* photos* *.mod x_mesh1/.
+
+#----- MESH 2
+cp inlists/x_mesh2 inlistx_mesh
+check_okay
+echo '!--'
+echo '!------------- STARTING x_mesh2 -------------!' >> README.md
+echo '!--'
+./rnMsun
+mkdir x_mesh2 # move files to mesh specific folder
+mv LOGS* photos* *.mod x_mesh2/.
+
+#----- MESH 3
+cp inlists/x_mesh3 inlistx_mesh
+check_okay
+echo '!--'
+echo '!------------- STARTING x_mesh3 -------------!' >> README.md
+echo '!--'
+./rnMsun
+mkdir x_mesh3 # move files to mesh specific folder
+mv LOGS* photos* *.mod x_mesh3/.

@@ -1,0 +1,53 @@
+#!/bin/bash
+
+function check_okay {
+	if [ $? -ne 0 ]
+	then
+		exit 1
+	fi
+}
+
+
+function do_one {
+	cp $1 inlist
+	check_okay
+	rm -rf $2
+	echo 'run' $1 >> rnVLM.txt
+	./rn1
+	check_okay
+  if [ ! -r $2 ]
+  then
+  	echo >> rnVLM.txt
+  	echo "******************************************************************" >> rnVLM.txt
+  	echo 'failed to create' $2 'when running' $1 >> rnVLM.txt
+  	echo "******************************************************************" >> rnVLM.txt
+  	echo >> rnVLM.txt
+  	exit 1
+  fi
+  echo >> rnVLM.txt
+  echo 'finished' $1 >> rnVLM.txt
+  echo >> rnVLM.txt
+	echo '***' >> rnVLM.txt
+	echo >> rnVLM.txt
+}
+
+NOW=$(date "+DATE: %Y-%m-%d%nTIME: %H:%M:%S")
+echo $NOW >> rnVLM.txt
+do_one inlist_VLM_m14deac m14deac.mod
+
+NOW=$(date "+DATE: %Y-%m-%d%nTIME: %H:%M:%S")
+echo $NOW >> rnVLM.txt
+do_one inlist_VLM_m14c1 m14c1.mod
+
+NOW=$(date "+DATE: %Y-%m-%d%nTIME: %H:%M:%S")
+echo $NOW >> rnVLM.txt
+do_one inlist_VLM_m14c2 m14c2.mod
+
+NOW=$(date "+DATE: %Y-%m-%d%nTIME: %H:%M:%S")
+echo $NOW >> rnVLM.txt
+do_one inlist_VLM_m14c3 m14c3.mod
+
+NOW=$(date "+DATE: %Y-%m-%d%nTIME: %H:%M:%S")
+echo $NOW >> rnVLM.txt
+
+echo 'finished to analyze WIMP interaction'
