@@ -1,0 +1,88 @@
+#!/bin/bash
+
+function check_okay {
+        if [ $? -ne 0 ]
+        then
+                exit 1
+        fi
+}
+
+# first arg = mass inlist
+# 2nd = cb inlist
+# 3rd = new dir
+# 4th = mod file cb.mod
+function run_mass {
+
+        cp inlists/$1 inlistx_mass
+        check_okay
+        cp inlists/$2 inlistx_cb
+        check_okay
+        rm -rf $4
+        echo '!--' >> README.md
+        echo !------------- STARTING $1 $2 -------------! >> README.md
+        ./rn
+
+        check_okay
+      if [ ! -r $4 ]
+      then
+      	echo >> README.md
+      	echo "******************************************************************" >> README.md
+      	echo 'failed to create' $4 'when running' $1 $2 >> README.md
+      	echo "******************************************************************" >> README.md
+      	echo >> README.md
+      	exit 1
+      fi
+
+        rm LOGS*/controls{2..100}.data -f
+        mkdir $3 # move files to mass specific folder
+        mv LOGS* photos* png* *.mod $3/.
+        echo !------------- FINISHED $1 $2 -------------! >> README.md
+        echo '!--' >> README.md
+}
+
+echo '!-------------------------!' >> README.md
+echo '!--- running ./rnMassCB' >> README.md
+echo '!-------------------------!' >> README.md
+
+
+run_mass x_mass2 x_c2 x_m2c2 c2.mod
+run_mass x_mass2 x_c3 x_m2c3 c3.mod
+run_mass x_mass3 x_c4 x_m3c4 c4.mod
+run_mass x_mass3 x_c5 x_m3c5 c5.mod
+
+
+## --------------RESTART FROM A PHOTO
+#cp inlists/x_mass2 inlistx_mass
+#check_okay
+#mkdir LOGSc7 photosc7 png
+#cp inlists/x_c7 inlistx_cb
+#check_okay
+#mv x_mass2iii/photosc7 photos
+
+#echo '!--' >> README.md
+#echo !------------- RESTARTING M2, c7 -------------! >> README.md
+#echo '!--' >> README.md
+
+#./re x750
+
+#rm LOGS*/controls{2..100}.data -f
+#mv png pngc7
+#mkdir x_mass2iv
+#mv LOGS* photos* png* *.mod x_mass2iv/.
+
+#echo !------------- DONE WITH M2, c7 -------------! >> README.md
+#echo '!--' >> README.md
+## --------------END RESTART FROM A PHOTO
+
+
+
+#----- ZIP FOR DOWNLOAD
+#zip -r x_mass.zip x_mass*/LOGS* -x x_mass*/LOGS*/pgstar.dat
+#echo '!--' >> README.md
+#echo '!------------- ZIPPED x_mass.zip -------------!' >> README.md
+#echo '!--' >> README.md
+
+
+echo '!-------------------------!' >> README.md
+echo '!--- finished running ./rnMassCB' >> README.md
+echo '!-------------------------!' >> README.md

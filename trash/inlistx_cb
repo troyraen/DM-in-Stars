@@ -1,0 +1,18 @@
+    &star_job
+
+          save_model_filename = 'deac.mod'
+    
+    / ! end of star_job namelist
+
+    &controls
+
+      log_directory = 'LOGSdeac'
+      photo_directory = 'photosdeac'
+
+      x_ctrl(1) = 0.D0  ! this sets cboost in wimp_module.f90
+
+      photo_interval = 50
+      profile_interval = 50
+      history_interval = 5
+
+    / ! end of controls namelist
