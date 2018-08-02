@@ -93,7 +93,8 @@
       thermohaline_coeff = 2
 
       cool_wind_full_on_T = 9d6
-      cool_wind_full_off_T = 1d7
+      hot_wind_full_on_T = 1d7
+!      cool_wind_full_off_T = 1d7
       cool_wind_RGB_scheme = 'Reimers'
       cool_wind_AGB_scheme = 'Blocker'
       RGB_to_AGB_wind_switch = 1d-4

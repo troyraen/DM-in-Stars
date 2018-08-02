@@ -1,8 +1,8 @@
 ________________
 for implicit_test:
 
-git clone https://github.com/troyraen/mesa_wimps implicit_test2i
-cd implicit_test2i
+git clone https://github.com/troyraen/mesa_wimps implicit_test2ii
+cd implicit_test2ii
 *optional: git stash
 git pull origin other_energy_implicit
 *optional: git stash pop

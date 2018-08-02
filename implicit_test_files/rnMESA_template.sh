@@ -9,7 +9,7 @@ function check_okay {
 }
 
 
-export MESA_DIR=/home/tjr63/mesa-r9793
+export MESA_DIR=/home/tjr63/mesa-r10398
 export OMP_NUM_THREADS=1
 export MESA_BASE=/home/tjr63/implicit_test2
 # !!! If you change MESA_BASE you must change the file paths in inlist and condor_wrapper !!!
