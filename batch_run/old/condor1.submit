@@ -1,0 +1,30 @@
+##
+#   Before using this file, make sure the following files
+#   have the appropriate options :
+#       rnMESA$1.sh
+#       condor_wrapper
+##
+#   CHANGE INLIST AND run_star_extras IN EACH DIRECTORY BEFORE RUNNING!!
+#   make sure you have done ./clean and ./mk for MESA in each MESA_BASE directory
+#   submit jobs to Condor using: condor_submit condor.submit
+##
+
+
+#############################################
+#### Condor submit file condor.submit ########
+
+Executable = condor_wrapper1.sh
+#arguments   = $(Process)
+Universe   = vanilla
+request_memory = 64
+output     = logs/imp1.out
+error      = logs/imp1.err
+log        = logs/imp1.log
+should_transfer_files = YES
+when_to_transfer_output = ON_EXIT_OR_EVICT
+
+## arguments = <arguments your script would typically take >
+
+Queue 1
+
+#############################################
