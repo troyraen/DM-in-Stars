@@ -1,4 +1,4 @@
-#### MESA_WIMPS adds modules to the base Modules for Experiments in Stellar Astrophysics (MESA) code. These modules calculate the capture of WIMPs and the resulting energy transport. The mechanism for both is the scattering of WIMPs in the stellar environment with stellar nuclei.
+#### MESA_WIMPS adds modules to the base code Modules for Experiments in Stellar Astrophysics (MESA). These modules calculate the capture of WIMPs and the resulting energy transport. The mechanism for both is the scattering of WIMPs in the stellar environment with stellar nuclei.
 
 # Physics ####
 ####   Since WIMPs have a very small cross section they have a large mean free path which means they can transport energy across large distances. At high enough densities the WIMPs can transport enough energy to affect the evolution of the star in an observable way, via stellar cluster isochrones on HR diagrams. In our models
@@ -17,4 +17,4 @@
 ####       The amount of energy transported as a result of WIMP-nucleon scattering events as a function of distance from the center
 
 ## Output ##
-#### The amount of energy transported by WIMPs is passed to MESA via the built-in 'extra_heat' hook.
+#### The amount of energy transported by WIMPs (as a function of 'zone') is passed to MESA via the built-in 'extra_heat' hook.
