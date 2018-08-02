@@ -1,6 +1,6 @@
 
 	INTEGER, PARAMETER :: maxspecies=11
-	INTEGER, PARAMETER :: maxcells=5000
+	INTEGER, PARAMETER :: maxcells=5000	
 	DOUBLE PRECISION, PARAMETER ::  gperGeV= 1.78266D-24 ! grams to GeV/c^2 conversion
 
 	LOGICAL :: spindep
@@ -19,6 +19,8 @@
 	DOUBLE PRECISION npk(1:maxcells)
 	DOUBLE PRECISION nxk(1:maxcells)
 	DOUBLE PRECISION xheat(1:maxcells)
+	DOUBLE PRECISION d_xheat_dlnd00(1:maxcells)
+	DOUBLE PRECISION d_xheat_dlnT00(1:maxcells)
 !//! defined at cell outer face:
 	DOUBLE PRECISION rk(1:maxcells)
 	DOUBLE PRECISION gravk(1:maxcells)

@@ -1,0 +1,11 @@
+#!/usr/local/bin/bash
+#!/bin/bash
+#
+#   This file is not currently called by anything
+#   It is for reference purposes
+
+export MESA_DIR=/home/tjr63/mesa-r10398
+export OMP_NUM_THREADS=1
+export MESA_BASE=/home/tjr63/... # DIR
+export MESA_INLIST=$MESA_BASE/inlist
+export MESA_RUN=/home/tjr63/$MESA_BASE/RUNS

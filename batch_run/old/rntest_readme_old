@@ -1,0 +1,86 @@
+from isochrones run on Condor:
+    condor_submit isoc.submit
+    	runs condor_wrapper.sh with arg $(Process)
+    		condor_wrapper.sh runs /home/tjr63/mesa_wimps_4isoc/isochrones/rnIsoMasses/rnIsoMass$1.sh
+
+    			rnIsoMass$1.sh previously generated from rnIsoMass_template.sh
+    				this file:
+    					exports global variables
+    					makes directories
+    					copies inlists into directories
+    					runs MESA in each directory
+
+
+
+________________
+for implicit_test:
+
+
+create 3 directories to run mesa: impTRUE and impFALSE and impNOxheat
+these will be associated with 3 rnMESA$1.sh files
+
+
+______
+dir impFALSE:
+	run_star_extras.f
+		s% other_energy => wimp_energy_transport
+	inlist
+		use_other_energy = .true.
+
+shfile rnMESA0.sh:
+	export MESA_BASE=/home/tjr63/implicit_test/impFALSE
+	export MESA_RUN=$MESA_BASE/RUNS
+	inlist settings
+		SD, mass 1.0, cboost 0 and 1000
+
+______
+dir impTRUE:
+	run_star_extras.f
+		s% other_energy_implicit => wimp_energy_transport
+	inlist
+		use_other_energy_implicit = .true.
+
+shfile rnMESA1.sh
+	export MESA_BASE=/home/tjr63/implicit_test/impTRUE
+	export MESA_RUN=$MESA_BASE/RUNS
+	inlist settings
+		SD, mass 1.0, cboost 0 and 1000
+
+
+______
+dir impNOxheat:
+	run_star_extras.f
+		s% other_energy => wimp_energy_transport
+	inlist
+		use_other_energy = .false.
+
+shfile rnMESA2.sh
+	export MESA_BASE=/home/tjr63/implicit_test/impNOxheat
+	export MESA_RUN=$MESA_BASE/RUNS
+	inlist settings
+		SD, mass 1.0, cboost 0
+
+
+
+
+________________
+for all imp directories
+git clone https://github.com/troyraen/mesa_wimps impNOxheat
+cd impNOxheat
+*optional: git stash
+git pull origin other_energy_implicit
+*optional: git stash pop
+mkdir RUNS
+chmod 777 *
+CHANGE INLIST AND run_star_extras TO USE other_energy OR other_energy_implicit
+./clean
+./mk
+
+copy directory implicit_test_files to directory containing impFALSE, impTRUE, and impNOxheat
+cd to this directory
+mkdir logs (for condor logs)
+chmod 777 *
+
+
+run condor_submit condor.submit
+    this runs condor_wrapper which runs each rnMESA$1.sh file

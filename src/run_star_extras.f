@@ -54,7 +54,7 @@
          s% how_many_extra_profile_columns => how_many_extra_profile_columns
          s% data_for_extra_profile_columns => data_for_extra_profile_columns
 
-         s% other_energy => wimp_energy_transport ! subroutine where extra_heat is defined inside of module wimp_module
+         s% other_energy_implicit => wimp_energy_transport ! subroutine where extra_heat is defined inside of module wimp_module
 
       end subroutine extras_controls
 
@@ -165,7 +165,7 @@
          ierr = 0
          call star_ptr(id, s, ierr)
          if (ierr /= 0) return
-         how_many_extra_profile_columns = 12
+         how_many_extra_profile_columns = 3
       end function how_many_extra_profile_columns
 
 
@@ -185,23 +185,13 @@
          if (ierr /= 0) return
 
          names(1) = 'nx'
-         do k = 1, nz
-            vals(k,1) = nxk(k)
-         end do
-
          names(2) = 'np'
+         names(3) = 'Vk'
          do k = 1, nz
-            vals(k,2) = npk(k)
+            vals(k,1) = s% xtra1_array(k)
+            vals(k,2) = s% xtra2_array(k)
+            vals(k,3) = s% xtra3_array(k)
          end do
-
-         DO j=1,10
-             idx = 2+j
-             chemj = s% chem_id(j)
-             names(idx) = chem_isos% name(chemj)
-             DO k=1,nz
-                 vals(k,idx) = njk(j,k)
-             END DO
-        ENDDO
 
       end subroutine data_for_extra_profile_columns
 
@@ -221,7 +211,9 @@
          extras_finish_step = keep_going
          call store_extra_info(s)
 
-!         WRITE(*,*) 'run_star_extras:  Tx =',Tx, '  Nx =',Nx
+         s% xtra1 = s% xtra2  !! = Nx (so wimps are not collected when step is not accepted)
+
+!         WRITE(*,*) 'run_star_extras:  Nx s% xtra1 =',s% xtra1, '  Tx s% xtra3 =',s% xtra3
 
          IF ( (.NOT. flg1) .AND. (s% center_h1 .LT. 0.71D0) ) THEN
          	flg1 = .TRUE.
@@ -253,51 +245,51 @@
          	s% need_to_save_profiles_now = .true.
          	s% save_profiles_model_priority = 10
          ENDIF
-         
-         
-         ! STOPPING CONDITION:
-          IF ((s% star_age .GT. 1.D8) .AND. (s% time_step .LT. 300.D0)) THEN   ! STOPPING CONDITION
-            num_dt_low = num_dt_low+1
-          ELSE
-            num_dt_low = 0
-          ENDIF
-          
-          IF (num_dt_low .GT. 5000) THEN
-              extras_finish_step = terminate
-              s% termination_code = t_xtra1
-              termination_code_str(t_xtra1) = 'dt less than 300 yrs for more than 5000 steps'
-              OPEN(UNIT=10, FILE='README.md', status='old', action='write', position='append')
-              WRITE(10,*) 's% termination_code: ', s% termination_code, &
-                        ' term code str: ', termination_code_str(s% termination_code)
-              CLOSE(UNIT=10)
-              return
-          ENDIF
-
-
 
 
          ! STOPPING CONDITION:
-          IF ((s% star_age .GT. 1.D8) .AND. (s% time_step .LT. 10.D0)) THEN   ! STOPPING CONDITION
-            num_dt_low = num_dt_low+1
-          ELSE
-            num_dt_low = 0
-          ENDIF
+!          IF ((s% star_age .GT. 1.D8) .AND. (s% time_step .LT. 300.D0)) THEN   ! STOPPING CONDITION
+!            num_dt_low = num_dt_low+1
+!          ELSE
+!            num_dt_low = 0
+!          ENDIF
 
-          IF (num_dt_low .GT. 1.0D5) THEN
-              inquire(file="README.md", exist=exist)
-              IF (exist) then
-                  OPEN(UNIT=10, FILE='README.md', status='old', action='write', position='append')
-              ELSE
-                  OPEN(UNIT=10, FILE='README.md', status='new', action='write')
-              ENDIF
-              extras_finish_step = terminate
-              s% termination_code = t_xtra1
-              termination_code_str(t_xtra1) = 'dt less than 10 yrs for more than 1.0D5 steps'
-              WRITE(10,*) 's% termination_code: ', s% termination_code, &
-                        ' term code str: ', termination_code_str(s% termination_code)
-              CLOSE(UNIT=10)
-              return
-          ENDIF
+!          IF (num_dt_low .GT. 5000) THEN
+!              extras_finish_step = terminate
+!              s% termination_code = t_xtra1
+!              termination_code_str(t_xtra1) = 'dt less than 300 yrs for more than 5000 steps'
+!              OPEN(UNIT=10, FILE='README.md', status='old', action='write', position='append')
+!              WRITE(10,*) 's% termination_code: ', s% termination_code, &
+!                        ' term code str: ', termination_code_str(s% termination_code)
+!              CLOSE(UNIT=10)
+!              return
+!          ENDIF
+
+
+
+
+         ! STOPPING CONDITION:
+!          IF ((s% star_age .GT. 1.D8) .AND. (s% time_step .LT. 10.D0)) THEN   ! STOPPING CONDITION
+!            num_dt_low = num_dt_low+1
+!          ELSE
+!            num_dt_low = 0
+!          ENDIF
+
+!          IF (num_dt_low .GT. 1.0D5) THEN
+!              inquire(file="README.md", exist=exist)
+!              IF (exist) then
+!                  OPEN(UNIT=10, FILE='README.md', status='old', action='write', position='append')
+!              ELSE
+!                  OPEN(UNIT=10, FILE='README.md', status='new', action='write')
+!              ENDIF
+!              extras_finish_step = terminate
+!              s% termination_code = t_xtra1
+!              termination_code_str(t_xtra1) = 'dt less than 10 yrs for more than 1.0D5 steps'
+!              WRITE(10,*) 's% termination_code: ', s% termination_code, &
+!                        ' term code str: ', termination_code_str(s% termination_code)
+!              CLOSE(UNIT=10)
+!              return
+!          ENDIF
 
 
 
