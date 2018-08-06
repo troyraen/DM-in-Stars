@@ -11,18 +11,22 @@ function check_okay {
 
 export MESA_DIR=/home/tjr63/mesa-r10398
 export OMP_NUM_THREADS=1
-export MESA_BASE=/home/tjr63/implicit_test2
+export MESA_BASE=/home/tjr63/mesaruns
 # !!! If you change MESA_BASE you must change the file paths in inlist and condor_wrapper !!!
 export MESA_INLIST=$MESA_BASE/inlist
 export MESA_RUN=$MESA_BASE/RUNS
 #export MESA_RUN=/home/tjr63/sand
+logfile=$MESA_BASE/batch_run/logs/rnMESAscriptnum.out
 
 declare -A svals=( [SD]=.TRUE. [SI]=.FALSE. )
 declare -a sord=( SD )
 declare -A cbvals=( [c0]=0.D0 [c1]=1.D1 [c2]=1.D2 [c3]=1.D3 [c4]=1.D4 [c5]=1.D5 [c6]=1.D6 )
-declare -a cord=( c0 c1 c2 c3 c4 c5 c6 )
-declare -A mvals=( [m7p9]=7.9D0 [m6p9]=6.9D0 [m5p9]=5.9D0 [m4p9]=4.9D0 [m3p9]=3.9D0 [m2p9]=2.9D0 [m1p9]=1.9D0 )
-declare -a mord=( m4p9 m3p9 m2p9 m1p9 )
+#declare -a cord=( c0 c1 c2 c3 c4 c5 c6 )
+declare -a cord=( c0 )
+#declare -A mvals=( [m7p9]=7.9D0 [m6p9]=6.9D0 [m5p9]=5.9D0 [m4p9]=4.9D0 [m3p9]=3.9D0 [m2p9]=2.9D0 [m1p9]=1.9D0 )
+#declare -a mord=( m4p9 m3p9 m2p9 m1p9 )
+declare -A mvals=( [m1p0]=1.0D0 [m1p1]=1.1D0 [m1p2]=1.2D0 [m1p3]=1.3D0 [m1p4]=1.4D0 [m1p5]=1.5D0 [m1p6]=1.6D0 [m1p7]=1.7D0 [m1p8]=1.8D0 [m1p9]=1.9D0 )
+declare -a mord=( m1p0 m1p1 m1p2 m1p3 m1p4 m1p5 m1p6 m1p7 m1p8 m1p9 )
 
 for spin in "${sord[@]}"; do
     for cdir in "${cord[@]}"; do
@@ -44,8 +48,10 @@ for spin in "${sord[@]}"; do
                 sed -i 's/imass_/'${mvals[$mass]}'/g; s/maxage_/'$ma'/g; s/oenergy_/'$oe'/g; s/cboost_/'${cbvals[$cdir]}'/g; s/SD_/'${svals[$spin]}'/g' inlist_cluster
                 check_okay
 
-                $MESA_BASE/star
+                $MESA_BASE/star &> $logfile
                 check_okay
+				$MESA_BASE/bash_scripts/del_dup_mods.sh $(pwd) &>> $logfile # delete duplicate models
+				check_okay
 
                 cd $MESA_RUN
         done

@@ -3,7 +3,7 @@
 
 ######
 # This script takes a directory as input
-# Copies dir/history.data to dir/historyOG.data
+# Copies dir/LOGS/history.data to dir/LOGS/history_pre_del_dup_mods.data
 # Generates a new history.data file stripped of duplicate models
 # written because of MESA backups or restarts
 # (keeping only last line for any duplicated model numbers)
@@ -11,17 +11,18 @@
 
 if [ $# -eq 0 ]
   then
-    echo "*********** Must supply script with dir of the history.data file to be cleaned ***********"
+    echo "*********** Must supply script with dir for dir/LOGS/history.data file to be cleaned ***********"
     exit 1
 fi
 
 
-dir=$1
-hdat='$dir/history.data'
-cp $hdat $dir/historyOG.data
-hhead='$dir/hheader.txt'
-hdata='$dir/hdata.txt'
-smods='$dir/single_mods.txt'
+dir=$1/LOGS
+hdat=$dir/history.data
+hdatpdd=$dir/history_pre_del_dup_mods.data
+cp -n $hdat $hdatpdd # will not overwrite existing and so current $hdat will be lost
+hhead=$dir/hheader.txt
+hdata=$dir/hdata.txt
+smods=$dir/single_mods.txt
 
 
 lnct=$(( $(sed -n '$=' $hdat) -6 )) # get hdat line count -6 header rows
@@ -35,7 +36,7 @@ END {
 }' < $hdata > $smods
 # Check that model numbers and ages are strictly monotonic
 # if they are, merge header with data
-read -p "Press enter to continue"
+# read -p "Press enter to continue"
 sort -C -u -n -k1 $smods # sort by model number, check whether this changes the file
 if [ $? -eq 0 ]
 then
@@ -45,11 +46,16 @@ then
         cp $hhead $hdat
         cat $smods >> $hdat # write new history.data
         rm $hhead $hdata $smods # clean up
+        echo '*** $hdat cleaned of duplicate models due to backups and restarts ***'
+        wc -l $hdat
+        wc -l $hdatpdd
     else
-      echo "*********** ERROR: $dir/$smods model_number (column 1) not strictly monotonic"
-      exit 1
+      echo "*********** ERROR: $smods star_age (column 2) not strictly monotonic. History Data Not Cleaned."
+      mv $hdatpdd $hdat
+      rm $hhead $hdata $smods # clean up
     fi
 else
-  echo "*********** ERROR: $dir/$smods star_age (column 2) not strictly monotonic"
-  exit 1
+  echo "*********** ERROR: $smods model_number (column 1) not strictly monotonic. History Data Not Cleaned."
+  mv $hdatpdd $hdat
+  rm $hhead $hdata $smods # clean up
 fi

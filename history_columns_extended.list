@@ -87,14 +87,14 @@
       !  mx1_top and mx1_bot are the extent of all kinds of mixing, convective and other.
 
       ! values are m/Mstar
-!      conv_mx1_top
-!      conv_mx1_bot
-!      conv_mx2_top
-!      conv_mx2_bot
-!      mx1_top
-!      mx1_bot
-!      mx2_top
-!      mx2_bot
+      conv_mx1_top
+      conv_mx1_bot
+      conv_mx2_top
+      conv_mx2_bot
+      mx1_top
+      mx1_bot
+      mx2_top
+      mx2_bot
 
       ! radius -- values are radii in Rsun units
       !conv_mx1_top_r
@@ -140,15 +140,15 @@
       ! end1 is mass of outer edge where first zone ends (i.e. eps_nuc < burn_min1)
       ! similar for the second zone
 
-!      epsnuc_M_1 ! start1 for 1st zone
-!      epsnuc_M_2 ! start2
-!      epsnuc_M_3 ! end2
-!      epsnuc_M_4 ! end1
+      epsnuc_M_1 ! start1 for 1st zone
+      epsnuc_M_2 ! start2
+      epsnuc_M_3 ! end2
+      epsnuc_M_4 ! end1
 
-!      epsnuc_M_5 ! start1 for 2nd zone
-!      epsnuc_M_6 ! start2
-!      epsnuc_M_7 ! end2
-!      epsnuc_M_8 ! end1
+      epsnuc_M_5 ! start1 for 2nd zone
+      epsnuc_M_6 ! start2
+      epsnuc_M_7 ! end2
+      epsnuc_M_8 ! end1
 
 
       ! you might want to get a more complete list of burning regions by using the following
@@ -328,10 +328,10 @@
    ! timescales
 
       !dynamic_timescale ! dynamic timescale (seconds) -- estimated by 2*pi*sqrt(r^3/(G*m))
-!      kh_timescale ! kelvin-helmholtz timescale (years)
+      kh_timescale ! kelvin-helmholtz timescale (years)
       !mdot_timescale ! star_mass/abs(star_mdot) (years)
       !kh_div_mdot_timescales ! kh_timescale/mdot_timescale
-!      nuc_timescale ! nuclear timescale (years) -- proportional to mass divided by luminosity
+      nuc_timescale ! nuclear timescale (years) -- proportional to mass divided by luminosity
       !log_chem_timescale ! burn+mix timescale (years)
          ! approximately min over all cells k and species i of x(i,k)/abs(dxdt_mix + dxdt_burn)
       !log_chem_timescale_div_time_step
@@ -353,9 +353,9 @@
       !log_Lneu ! log10 power emitted in neutrinos, nuclear and thermal (in Lsun units)
       !log_Lneu_nuc ! log10 power emitted in neutrinos, nuclear sources only (in Lsun units)
       !log_Lneu_nonnuc ! log10 power emitted in neutrinos, thermal sources only (in Lsun units)
-!      mass_loc_of_max_eps_nuc ! (in Msun units)
+      mass_loc_of_max_eps_nuc ! (in Msun units)
       !mass_ext_to_max_eps_nuc ! (in Msun units)
-!      eps_grav_integral ! (in Lsun units)
+      eps_grav_integral ! (in Lsun units)
       !log_abs_Lgrav ! log10 abs(eps_grav_integral) (in Lsun units)
 
 
@@ -437,10 +437,10 @@
       center_ye
       center_abar
 
-!      center_eps_grav
+      center_eps_grav
       !center_non_nuc_neu
       !center_dL_dm
-!      center_eps_nuc
+      center_eps_nuc
       !d_center_eps_nuc_dlnT
       !d_center_eps_nuc_dlnd
       !log_center_eps_nuc
@@ -559,9 +559,9 @@
    ! log10 total luminosity for reaction categories (Lsun units)
 
       pp
-      cno
-      tri_alfa
-      burn_c
+      !cno
+      !tri_alfa
+      !burn_c
 !      burn_n
 !      burn_o
 !      burn_ne
@@ -633,14 +633,14 @@
       !max_eps_z_opacity ! opacity at location of max burn
 
       ! info about location where have max rate of burning of all types
-!      max_eps_nuc ! erg/g/s
-!      max_eps_nuc_lgT ! log10 temperature at location of max burn
-!      max_eps_nuc_lgRho ! log10 density at location of max burn
-!      max_eps_nuc_m ! mass coordinate at location of max burn (Msun units)
+      max_eps_nuc ! erg/g/s
+      max_eps_nuc_lgT ! log10 temperature at location of max burn
+      max_eps_nuc_lgRho ! log10 density at location of max burn
+      max_eps_nuc_m ! mass coordinate at location of max burn (Msun units)
       !max_eps_nuc_xm ! mass exterior to location of max burn (Msun units)
-!      max_eps_nuc_lgP ! log10 pressure at location of max burn
+      max_eps_nuc_lgP ! log10 pressure at location of max burn
       !max_eps_nuc_lgR ! log10 radius at location of max burn
-!      max_eps_nuc_opacity ! opacity at location of max burn
+      max_eps_nuc_opacity ! opacity at location of max burn
       !max_eps_nuc_cp ! Cp at location of max burn
       !max_eps_nuc_t_heat ! Cp*T/eps_nuc at location of max burn
       !max_eps_nuc_csound
@@ -817,8 +817,8 @@
          !cumulative_acoustic_L
          !acoustic_L_center
          !cumulative_acoustic_L_center
-!         total_nuclear_heating
-!         total_non_nuc_neu_cooling
+         total_nuclear_heating
+         total_non_nuc_neu_cooling
          !total_irradiation_heating
          total_extra_heating
          total_energy_sources_and_sinks
@@ -918,5 +918,5 @@
       !surface_extra_Pgas
 
 
-      log_max_T ! temperature
-      !max_T
+      !log_max_T ! temperature
+      max_T

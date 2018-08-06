@@ -1,8 +1,8 @@
 
 &star_job
 
-!    history_columns_file = '/home/tjr63/implicit_test2i/history_columns.list'
-!    profile_columns_file = '/home/tjr63/implicit_test2i/profile_columns.list'
+    history_columns_file = '/home/tjr63/mesaruns/history_columns.list'
+    profile_columns_file = '/home/tjr63/mesaruns/profile_columns.list'
 
       show_log_description_at_start = .false.
 
@@ -83,7 +83,7 @@
 
 !	STOPPING CONDITIONS
       log_L_lower_limit = -1.0
-	  stop_at_TP = .TRUE.
+!	  stop_at_TP = .TRUE.
 !	  max_age = 13d9
 
       mixing_length_alpha = 2
@@ -106,7 +106,7 @@
       profile_interval = 250
 	  max_num_profile_models = 5
 	  write_controls_info_with_profile = .true.
-      history_interval = 5
+      history_interval = 1
       terminal_interval = 100
       write_header_frequency = 10
 

@@ -490,10 +490,10 @@
 		s% X_CTRL(3) = Nx ! names(2) = 'Nx_total'
 		s% X_CTRL(4) = nxk((s% nz)+1) ! names(3) = 'center_nx'
 		s% X_CTRL(5) = npk((s% nz)+1) ! names(4) = 'center_np'
-		DO j = 1,10
-			idx = 5+j
-			s% X_CTRL(idx) = njk(j,s% nz) ! names(idx) = chem_isos% name(chemj)
-		ENDDO
+		! DO j = 1,10
+		! 	idx = 5+j
+		! 	s% X_CTRL(idx) = njk(j,s% nz) ! names(idx) = chem_isos% name(chemj)
+		! ENDDO
 
 		DO k = 1,kmax
 			s% xtra1_array(k) = nxk(k)

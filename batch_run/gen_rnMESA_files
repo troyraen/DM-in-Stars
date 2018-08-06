@@ -1,18 +1,26 @@
-##!/usr/local/bin/bash
-#!/bin/bash
+#!/usr/local/bin/bash
+##!/bin/bash
 
 
 # Generate rn files from rnMESA_template with subset of mass values (mvals)
 #
-for n in {0..9}; do
+# for n in {0..9}; do
+#     fname="rnMESA$n.sh"
+#     cp rnMESA_template.sh $fname
+#     if [ "9" != "$n" ]; then
+#         sed -i 's/p9/p'$n'/g; s/7.9/7.'$n'/g; s/6.9/6.'$n'/g; s/5.9/5.'$n'/g; s/4.9/4.'$n'/g; s/3.9/3.'$n'/g; s/2.9/2.'$n'/g; s/1.9/1.'$n'/g' $fname
+#     fi
+# done
+for n in {1..4}; do
     fname="rnMESA$n.sh"
     cp rnMESA_template.sh $fname
-    if [ "9" != "$n" ]; then
-        sed -i 's/p9/p'$n'/g; s/7.9/7.'$n'/g; s/6.9/6.'$n'/g; s/5.9/5.'$n'/g; s/4.9/4.'$n'/g; s/3.9/3.'$n'/g; s/2.9/2.'$n'/g; s/1.9/1.'$n'/g' $fname
+    if [ "1" != "$n" ]; then
+        sed -i 's/1./'$n'./g; s/m1p/m'$n'p/g; s/scriptnum/'$n'/g' $fname
     fi
 done
 
 # extra mass range
-fname="rnMESA10.sh"
+n=0
+fname="rnMESA$n.sh"
 cp rnMESA_template.sh $fname
-sed -i 's/mvals=.*/mvals=( [m5p0]=5.0 [m0p9]=0.9 [m0p8]=0.8 )/g; s/mord=.*/mord=( m5p0 m0p9 m0p8 )/g' $fname
+sed -i 's/mvals=.*/mvals=( [m5p0]=5.0 [m0p9]=0.9 [m0p8]=0.8 )/g; s/mord=.*/mord=( m5p0 m0p9 m0p8 )/g; s/scriptnum/'$n'/g' $fname
