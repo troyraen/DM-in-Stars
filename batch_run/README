@@ -16,7 +16,7 @@ mkdir RUNS
 
 cd batch_run
 mkdir logs # for condor logs
-chmod 777 *
+# chmod 777 *
 ./gen_rnMESA_files # generates rnMESA$1.sh files # already set
 
 
