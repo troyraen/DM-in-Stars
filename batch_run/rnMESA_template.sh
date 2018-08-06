@@ -41,7 +41,7 @@ for spin in "${sord[@]}"; do
 			fi
 
             mkdir -pm 777 $MESA_RUN/$spin/$cdir/$mass
-                cp $MESA_BASE/implicit_test_files/xinlist_template $MESA_RUN/$spin/$cdir/$mass/inlist_cluster
+                cp $MESA_BASE/batch_run/xinlist_template $MESA_RUN/$spin/$cdir/$mass/inlist_cluster
                 check_okay
                 cd $MESA_RUN/$spin/$cdir/$mass
 
