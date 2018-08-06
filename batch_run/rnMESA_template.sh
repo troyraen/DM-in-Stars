@@ -48,7 +48,7 @@ for spin in "${sord[@]}"; do
                 sed -i 's/imass_/'${mvals[$mass]}'/g; s/maxage_/'$ma'/g; s/oenergy_/'$oe'/g; s/cboost_/'${cbvals[$cdir]}'/g; s/SD_/'${svals[$spin]}'/g' inlist_cluster
                 check_okay
 
-                $MESA_BASE/star &> $logfile
+                $MESA_BASE/star &>> $logfile
                 check_okay
 				$MESA_BASE/bash_scripts/del_dup_mods.sh $(pwd) &>> $logfile # delete duplicate models
 				check_okay
