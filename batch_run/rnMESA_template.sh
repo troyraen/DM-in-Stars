@@ -16,7 +16,7 @@ export MESA_BASE=/home/tjr63/mesaruns
 export MESA_INLIST=$MESA_BASE/inlist
 export MESA_RUN=$MESA_BASE/RUNS
 #export MESA_RUN=/home/tjr63/sand
-logfile=$MESA_BASE/batch_run/logs/rnMESAscriptnum.out
+logfile=$MESA_BASE/batch_run/logs/rnMESA1.out
 
 declare -A svals=( [SD]=.TRUE. [SI]=.FALSE. )
 declare -a sord=( SD )

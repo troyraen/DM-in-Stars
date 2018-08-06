@@ -14,13 +14,13 @@
 for n in {1..4}; do
     fname="rnMESA$n.sh"
     cp rnMESA_template.sh $fname
-#    if [ "1" != "$n" ]; then
-    sed -i 's/1./'$n'./g; s/m1p/m'$n'p/g; s/scriptnum/'$n'/g' $fname
-#    fi
+    if [ "1" != "$n" ]; then
+        sed -i 's/m1p/m'$n'p/g; s/1./'$n'./g; s/rnMESA1/rnMESA'$n'/g' $fname
+    fi
 done
 
 # extra mass range
 n=0
 fname="rnMESA$n.sh"
 cp rnMESA_template.sh $fname
-sed -i 's/mvals=.*/mvals=( [m5p0]=5.0 [m0p9]=0.9 [m0p8]=0.8 )/g; s/mord=.*/mord=( m5p0 m0p9 m0p8 )/g; s/scriptnum/'$n'/g' $fname
+sed -i 's/mvals=.*/mvals=( [m5p0]=5.0 [m0p9]=0.9 [m0p8]=0.8 )/g; s/mord=.*/mord=( m5p0 m0p9 m0p8 )/g; s/rnMESA1/rnMESA'$n'/g' $fname
