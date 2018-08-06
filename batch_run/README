@@ -9,7 +9,7 @@ cd mesaruns
 
 
 mkdir RUNS
-chmod 777 *
+# chmod 777 *
 ./clean
 ./mk
 

@@ -1,5 +1,5 @@
-#!/usr/local/bin/bash
-##!/bin/bash
+##!/usr/local/bin/bash
+#!/bin/bash
 
 
 # Generate rn files from rnMESA_template with subset of mass values (mvals)
@@ -14,9 +14,9 @@
 for n in {1..4}; do
     fname="rnMESA$n.sh"
     cp rnMESA_template.sh $fname
-    if [ "1" != "$n" ]; then
-        sed -i 's/1./'$n'./g; s/m1p/m'$n'p/g; s/scriptnum/'$n'/g' $fname
-    fi
+#    if [ "1" != "$n" ]; then
+    sed -i 's/1./'$n'./g; s/m1p/m'$n'p/g; s/scriptnum/'$n'/g' $fname
+#    fi
 done
 
 # extra mass range
