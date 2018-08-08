@@ -45,21 +45,22 @@ function data_reduc {
             lnpostMS = lnct - NR
             nth = int(lnpostMS / nk)
         }
-        if (NR % nth == 0) { print $0 }
+        if (nth < 3) { if ($1 % 5 == 0) { print $0 } }
+        else if (NR % nth == 0) { print $0 }
     }
     }' < $hdata >> $hreduc
 
     rm $hdata
+    echo '*** Data reduction complete ***'
+    wc -l $hdat
+    wc -l $hreduc
+    echo
 }
 ############
 
 
-maindir=mesaruns
-for cb in {0..6}; do
-    for mr in {0..5}; do
-        for mp in {0..9}; do
-            dir="~/${maindir}/RUNS/SD/c${cb}/m${mr}p${mp}/LOGS"
-            data_reduc $dir
-        done
-    done
+drs=($(find -name 'LOGS' -type d))
+for dir in "${drs[@]}"; do
+#       echo $dir
+        data_reduc $dir
 done
