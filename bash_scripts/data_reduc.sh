@@ -17,7 +17,7 @@
 function data_reduc {
     if [ $# -eq 0 ]
       then
-        echo "*********** This function requires a directory as input ***********"
+        echo "*********** This function (data_reduc) requires a directory as input ***********"
         exit 1
     fi
 

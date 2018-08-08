@@ -39,7 +39,7 @@
 
 	cboost = s% X_CTRL(1)  ! boost in capture rate of WIMPs compared to the local capture rate near the Sun, \propto density/sigma_v
 
-	! IF (cboost == 0.D0) THEN
+	IF (cboost == 0.D0) THEN
 	! 	DO itr = 1,kmax
 	! 		s% extra_heat(itr) = 0.D0
 	! 		s% d_extra_heat_dlndm1(itr) = 0.D0
