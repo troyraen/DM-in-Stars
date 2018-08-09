@@ -8,15 +8,17 @@ cd mesaruns
 # optional: git stash pop
 
 
-mkdir RUNS
-chmod 777 RUNS
+mkdir RUNS0
+mkdir RUNS1
+mkdir RUNS2
+chmod 777 RUNS*
 ./clean
 ./mk
 
 
 cd batch_run
 mkdir logs # for condor logs
-chmod 755 *
+chmod 755 condor.submit condor_wrapper.sh rnMESA* xinlist_template
 chmod 777 logs
 ###### **** CHECK THAT condor_wrapper HAS CORRECT DIRECTORY **** ######
 ./gen_rnMESA_files # generates rnMESA$1.sh files

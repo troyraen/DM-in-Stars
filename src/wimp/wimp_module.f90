@@ -38,42 +38,25 @@
 	IF ( ierr /= 0 ) RETURN
 
 	cboost = s% X_CTRL(1)  ! boost in capture rate of WIMPs compared to the local capture rate near the Sun, \propto density/sigma_v
+	spindep = s% X_LOGICAL_CTRL(1)
+	CALL get_star_variables(id,ierr)
+	CALL set_wimp_variables(id,ierr)
+	CALL calc_xheat()
 
-	IF (cboost == 0.D0) THEN
-	! 	DO itr = 1,kmax
-	! 		s% extra_heat(itr) = 0.D0
-	! 		s% d_extra_heat_dlndm1(itr) = 0.D0
-	!         s% d_extra_heat_dlnd00(itr) = 0.D0
-	!         s% d_extra_heat_dlndp1(itr) = 0.D0
-	!         s% d_extra_heat_dlnTm1(itr) = 0.D0
-	!         s% d_extra_heat_dlnT00(itr) = 0.D0
-	!         s% d_extra_heat_dlnTp1(itr) = 0.D0
-	!         s% d_extra_heat_dlnR00(itr) = 0.D0
-	!         s% d_extra_heat_dlnRp1(itr) = 0.D0
-	! 	ENDDO
-
-	ELSE
-		! spindep = s% X_LOGICAL_CTRL(1)
-		! CALL get_star_variables(id,ierr)
-		! CALL set_wimp_variables(id,ierr)
-		! CALL calc_xheat()
-
-		DO itr = 1,kmax
+	DO itr = 1,kmax
 !			s% extra_heat(itr) = xheat(itr)
-			s% extra_heat(itr) = 1.0
-			s% d_extra_heat_dlndm1(itr) = 0.D0
-	        ! s% d_extra_heat_dlnd00(itr) = d_xheat_dlnd00(itr)
-			s% d_extra_heat_dlnd00(itr) = 0.D0
-	        s% d_extra_heat_dlndp1(itr) = 0.D0
-	        s% d_extra_heat_dlnTm1(itr) = 0.D0
-	        ! s% d_extra_heat_dlnT00(itr) = d_xheat_dlnT00(itr)
-			s% d_extra_heat_dlnT00(itr) = 0.D0
-	        s% d_extra_heat_dlnTp1(itr) = 0.D0
-	        s% d_extra_heat_dlnR00(itr) = 0.D0
-	        s% d_extra_heat_dlnRp1(itr) = 0.D0
-		ENDDO
-
-	ENDIF
+		s% extra_heat(itr) = 1.0
+		s% d_extra_heat_dlndm1(itr) = 0.D0
+        ! s% d_extra_heat_dlnd00(itr) = d_xheat_dlnd00(itr)
+		s% d_extra_heat_dlnd00(itr) = 0.D0
+        s% d_extra_heat_dlndp1(itr) = 0.D0
+        s% d_extra_heat_dlnTm1(itr) = 0.D0
+        ! s% d_extra_heat_dlnT00(itr) = d_xheat_dlnT00(itr)
+		s% d_extra_heat_dlnT00(itr) = 0.D0
+        s% d_extra_heat_dlnTp1(itr) = 0.D0
+        s% d_extra_heat_dlnR00(itr) = 0.D0
+        s% d_extra_heat_dlnRp1(itr) = 0.D0
+	ENDDO
 
 	CALL store_hist(id,ierr)
 
