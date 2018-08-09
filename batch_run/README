@@ -16,11 +16,12 @@ chmod 777 RUNS*
 
 cd batch_run
 chmod 755 condor.submit condor_wrapper.sh rnMESA* xinlist_template
-rm logs/*
-#mkdir logs # for condor logs
-#chmod 777 logs
+#rm logs/*
+mkdir logs # for condor logs
+chmod 777 logs
 ###### **** CHECK THAT condor_wrapper HAS CORRECT DIRECTORY **** ######
 ./gen_rnMESA_files # generates rnMESA$1.sh files
 
-
+condor_q
 condor_submit condor.submit # this runs condor_wrapper which runs each rnMESA$1.sh file
+condor_q
