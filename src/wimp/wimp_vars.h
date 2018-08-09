@@ -18,7 +18,7 @@
 	DOUBLE PRECISION rhok(1:maxcells)
 	DOUBLE PRECISION npk(1:maxcells)
 	DOUBLE PRECISION nxk(1:maxcells)
-	SINGLE PRECISION xheat(1:maxcells)
+	REAL*16 xheat(1:maxcells)
 	DOUBLE PRECISION d_xheat_dlnd00(1:maxcells)
 	DOUBLE PRECISION d_xheat_dlnT00(1:maxcells)
 !//! defined at cell outer face:

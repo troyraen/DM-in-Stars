@@ -8,9 +8,7 @@ cd mesaruns
 # optional: git stash pop
 
 
-mkdir RUNS0
-mkdir RUNS1
-mkdir RUNS2
+mkdir RUNS{0..6}
 chmod 777 RUNS*
 ./clean
 ./mk
