@@ -46,7 +46,7 @@ then
         cp $hhead $hdat
         cat $smods >> $hdat # write new history.data
         rm $hhead $hdata $smods # clean up
-        echo '*** $hdat cleaned of duplicate models due to backups and restarts ***'
+        echo "*** $hdat cleaned of duplicate models due to backups and restarts ***"
         wc -l $hdat
         wc -l $hdatpdd
     else

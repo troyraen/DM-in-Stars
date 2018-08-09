@@ -14,9 +14,7 @@
 for n in {1..4}; do
     fname="rnMESA$n.sh"
     cp -p rnMESA_template.sh $fname
-#    if [ "1" != "$n" ]; then
     sed -i 's/m4p/m'$n'p/g; s/4\./'$n'./g' $fname
-#    fi
 done
 
 # extra mass range

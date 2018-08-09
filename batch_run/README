@@ -1,23 +1,24 @@
 ________________
-for implicit_test:
+for mesaruns:
 
 git clone https://github.com/troyraen/mesa_wimps mesaruns
 cd mesaruns
-*optional: git stash
+# optional: git stash
 # git pull origin other_energy_implicit
-*optional: git stash pop
+# optional: git stash pop
 
 
 mkdir RUNS
-# chmod 777 *
+chmod 777 RUNS
 ./clean
 ./mk
 
 
 cd batch_run
 mkdir logs # for condor logs
-# chmod 777 *
-./gen_rnMESA_files # generates rnMESA$1.sh files # already set
+chmod 777 logs
+###### **** CHECK THAT condor_wrapper HAS CORRECT DIRECTORY **** ######
+./gen_rnMESA_files # generates rnMESA$1.sh files
 
 
 condor_submit condor.submit # this runs condor_wrapper which runs each rnMESA$1.sh file

@@ -14,21 +14,19 @@ export OMP_NUM_THREADS=1
 export MESA_BASE=/home/tjr63/mesaruns
 # !!! If you change MESA_BASE you must change the file paths in inlist and condor_wrapper !!!
 export MESA_INLIST=$MESA_BASE/inlist
-export MESA_RUN=$MESA_BASE/RUNS
+export MESA_RUN=$MESA_BASE/RUNS1
 #export MESA_RUN=/home/tjr63/sand
-rnmesa=rnMESA4.
-logfile=$MESA_BASE/batch_run/logs/${rnmesa}out
-cp $MESA_BASE/batch_run/${rnmesa}sh $MESA_BASE/batch_run/logs/.
+rnmesa=rnMESA1
+logfile=$MESA_BASE/batch_run/logs/$rnmesa.out
+cp $MESA_BASE/batch_run/$rnmesa.sh $MESA_BASE/batch_run/logs/.
 
 declare -A svals=( [SD]=.TRUE. [SI]=.FALSE. )
 declare -a sord=( SD )
 declare -A cbvals=( [c0]=0.D0 [c1]=1.D1 [c2]=1.D2 [c3]=1.D3 [c4]=1.D4 [c5]=1.D5 [c6]=1.D6 )
 #declare -a cord=( c0 c1 c2 c3 c4 c5 c6 )
-declare -a cord=( c0 )
-#declare -A mvals=( [m7p9]=7.9D0 [m6p9]=6.9D0 [m5p9]=5.9D0 [m4p9]=4.9D0 [m3p9]=3.9D0 [m2p9]=2.9D0 [m1p9]=1.9D0 )
-#declare -a mord=( m4p9 m3p9 m2p9 m1p9 )
-declare -A mvals=( [m4p0]=4.0D0 [m4p1]=4.1D0 [m4p2]=4.2D0 [m4p3]=4.3D0 [m4p4]=4.4D0 [m4p5]=4.5D0 [m4p6]=4.6D0 [m4p7]=4.7D0 [m4p8]=4.8D0 [m4p9]=4.9D0 )
-declare -a mord=( m4p0 m4p1 m4p2 m4p3 m4p4 m4p5 m4p6 m4p7 m4p8 m4p9 )
+declare -a cord=( c3 )
+declare -A mvals=( [m0p8]=0.8D0 [m4p1]=4.1D0 [m4p2]=4.2D0 [m4p3]=4.3D0 [m4p4]=4.4D0 [m4p5]=4.5D0 [m4p6]=4.6D0 [m4p7]=4.7D0 [m4p8]=4.8D0 [m4p9]=4.9D0 )
+declare -a mord=( m0p8 )
 
 for spin in "${sord[@]}"; do
     for cdir in "${cord[@]}"; do
@@ -50,9 +48,9 @@ for spin in "${sord[@]}"; do
                 sed -i 's/imass_/'${mvals[$mass]}'/g; s/maxage_/'$ma'/g; s/oenergy_/'$oe'/g; s/cboost_/'${cbvals[$cdir]}'/g; s/SD_/'${svals[$spin]}'/g' inlist_cluster
                 check_okay
 
-                $MESA_BASE/star &>> $logfile
+                $MESA_BASE/star # &>> $logfile
                 check_okay
-				$MESA_BASE/bash_scripts/del_dup_mods.sh $(pwd) &>> $logfile # delete duplicate models
+				$MESA_BASE/bash_scripts/del_dup_mods.sh $(pwd) # &>> $logfile # delete duplicate models
 				check_okay
 
                 cd $MESA_RUN

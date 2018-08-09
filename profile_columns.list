@@ -31,6 +31,7 @@
    logT ! log10(temperature) at center of zone
    logRho ! log10(density) at center of zone
    logP ! log10(pressure) at center of zone
+   logL ! log10(max(1d-2,L/Lsun))
    logR ! log10(radius/Rsun) at outer boundary of zone
    !log_column_depth ! log10 column depth, exterior mass / area (g cm^-2)
    !log_radial_depth ! log10 radial distance to surface (cm)
@@ -69,7 +70,6 @@
       ! The value plotted is net_energy = sign(val)*log10(max(1,abs(val)))
       ! where val = net nuclear energy plus eps_grav minus all neutrino losses.
 !   eps_nuc_plus_nuc_neu
-   logL ! log10(max(1d-2,L/Lsun))
    !log_Ledd ! log10(Leddington/Lsun) -- local Ledd, 4 pi clight G m / kap
    !log_L_div_Ledd ! log10(max(1d-12,L/Leddington))
    !log_Lrad_div_Ledd
@@ -98,8 +98,8 @@
    rmid ! radius at center by mass of zone (in Rsun units)
    !r_div_R ! fraction of total radius
    !temperature ! temperature at center of zone
-!   tau ! optical depth
-   !logtau ! log10(optical depth) at center of zone
+   !tau ! optical depth
+   logtau ! log10(optical depth) at center of zone
    !pressure ! total pressure at center of zone (pgas + prad)
    !pgas ! gas pressure at center of zone (electrons and ions)
    !pgas_div_ptotal ! pgas/pressure
@@ -108,14 +108,14 @@
    !fourPrad_div_PchiT ! = phi, where 1/phi = 1 + (dPgas/dPrad)|rho
       ! if phi < Lrad/Ledd, then will get density inversion
       ! see Joss, Salpeter, Ostriker, "Critical Luminosity", ApJ 181: 429-438, 1973.
-!   logPgas ! log10(pgas)
+   !logPgas ! log10(pgas)
    !prad ! radiation pressure at center of zone
    !energy ! internal energy (ergs/g)
    logE ! log10(specific internal energy) at center of zone
-!   grada ! dlnT_dlnP at constant S
+   !grada ! dlnT_dlnP at constant S
    !dE_dRho ! at constant T
-!   cv ! specific heat at constant volume
-!   cp ! specific heat at constant total pressure
+   !cv ! specific heat at constant volume
+   !cp ! specific heat at constant total pressure
    !log_CpT
    !log_CpTabsMdot_div_L
    !logS ! log10(specific entropy)
@@ -137,7 +137,7 @@
    !zbar ! average charge
    !z2bar ! average charge^2
    ye ! average charge per baryon = proton fraction
-!   opacity ! opacity measured at center of zone
+   !opacity ! opacity measured at center of zone
    !dkap_dlnrho_at_face ! partial derivative of opacity wrt. ln rho (at T=const) at outer edge of cell
    !dkap_dlnt_at_face ! partial derivative of opacity wrt. ln T (at rho=const) at outer edge of cell
    !log_opacity ! log10(opacity)
@@ -149,8 +149,8 @@
    !d_lnepsnuc_dlnT
    !d_epsnuc_dlnT
    !deps_dlnT_at_face
-!   eps_nuc_neu_total ! erg/gm/sec as neutrinos from nuclear reactions
-!   non_nuc_neu ! non-nuclear-reaction neutrino losses
+   !eps_nuc_neu_total ! erg/gm/sec as neutrinos from nuclear reactions
+   !non_nuc_neu ! non-nuclear-reaction neutrino losses
    !nonnucneu_plas ! plasmon neutrinos (for collective reactions like gamma_plasmon => nu_e + nubar_e)
    !nonnucneu_brem ! bremsstrahlung (for reactions like e- + (z,a) => e- + (z,a) + nu + nubar)
    !nonnucneu_phot ! photon neutrinos (for reactions like e- + gamma => e- + nu_e + nubar_e)
@@ -241,7 +241,7 @@
    !gradT_sub_actual_gradT
    !grada_at_face_sub_actual_gradT
 
-!   gradr ! dlnT/dlnP required for purely radiative transport
+   !gradr ! dlnT/dlnP required for purely radiative transport
    !grad_temperature ! smoothed dlnT/dlnP at cell boundary
    !grad_density ! smoothed dlnRho/dlnP at cell boundary
 
@@ -329,10 +329,10 @@
       he4
       c12
       c13
-      n13
-      n14
-      o16
-      o18
+      !n13
+      !n14
+      !o16
+      !o18
       !ne20
       !ne22
       !ne23
@@ -398,11 +398,11 @@
       pp
       cno
       tri_alfa
-      burn_c
-!      burn_o
-      c12_c12
-      c12_o16
-      o16_o16
+      !burn_c
+      !burn_o
+      !c12_c12
+      !c12_o16
+      !o16_o16
       !burn_ne
       !burn_mg
 

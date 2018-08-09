@@ -260,7 +260,7 @@
       !c_core_omega
       !c_core_omega_div_omega_crit
 
-      o_core_mass
+      !o_core_mass
       !o_core_radius
       !o_core_lgT
       !o_core_lgRho
@@ -269,7 +269,7 @@
       !o_core_omega
       !o_core_omega_div_omega_crit
 
-      si_core_mass
+      !si_core_mass
       !si_core_radius
       !si_core_lgT
       !si_core_lgRho
@@ -278,7 +278,7 @@
       !si_core_omega
       !si_core_omega_div_omega_crit
 
-      fe_core_mass
+      !fe_core_mass
       !fe_core_radius
       !fe_core_lgT
       !fe_core_lgRho
@@ -287,7 +287,7 @@
       !fe_core_omega
       !fe_core_omega_div_omega_crit
 
-      neutron_rich_core_mass
+      !neutron_rich_core_mass
       !neutron_rich_core_radius
       !neutron_rich_core_lgT
       !neutron_rich_core_lgRho
@@ -328,10 +328,10 @@
    ! timescales
 
       !dynamic_timescale ! dynamic timescale (seconds) -- estimated by 2*pi*sqrt(r^3/(G*m))
-!      kh_timescale ! kelvin-helmholtz timescale (years)
+      !kh_timescale ! kelvin-helmholtz timescale (years)
       !mdot_timescale ! star_mass/abs(star_mdot) (years)
       !kh_div_mdot_timescales ! kh_timescale/mdot_timescale
-!      nuc_timescale ! nuclear timescale (years) -- proportional to mass divided by luminosity
+      !nuc_timescale ! nuclear timescale (years) -- proportional to mass divided by luminosity
       !log_chem_timescale ! burn+mix timescale (years)
          ! approximately min over all cells k and species i of x(i,k)/abs(dxdt_mix + dxdt_burn)
       !log_chem_timescale_div_time_step
@@ -353,9 +353,9 @@
       !log_Lneu ! log10 power emitted in neutrinos, nuclear and thermal (in Lsun units)
       !log_Lneu_nuc ! log10 power emitted in neutrinos, nuclear sources only (in Lsun units)
       !log_Lneu_nonnuc ! log10 power emitted in neutrinos, thermal sources only (in Lsun units)
-!      mass_loc_of_max_eps_nuc ! (in Msun units)
+      !mass_loc_of_max_eps_nuc ! (in Msun units)
       !mass_ext_to_max_eps_nuc ! (in Msun units)
-!      eps_grav_integral ! (in Lsun units)
+      !eps_grav_integral ! (in Lsun units)
       !log_abs_Lgrav ! log10 abs(eps_grav_integral) (in Lsun units)
 
 
@@ -437,10 +437,10 @@
       center_ye
       center_abar
 
-!      center_eps_grav
+      !center_eps_grav
       !center_non_nuc_neu
       !center_dL_dm
-!      center_eps_nuc
+      !center_eps_nuc
       !d_center_eps_nuc_dlnT
       !d_center_eps_nuc_dlnd
       !log_center_eps_nuc
@@ -462,10 +462,10 @@
       center he4
       center c12
       center c13
-      center n13
-      center n14
-      center o16
-      center o18
+      !center n13
+      !center n14
+      !center o16
+      !center o18
       !center ne20
       !center ne22
       !center na23
@@ -530,8 +530,8 @@
 
       total_mass h1
       total_mass he4
-      total_mass c12
-      total_mass o16
+      !total_mass c12
+      !total_mass o16
       ! etc.
 
    ! log10 mass totals for entire star (in Msun units)
@@ -561,7 +561,7 @@
       pp
       cno
       tri_alfa
-      burn_c
+!      burn_c
 !      burn_n
 !      burn_o
 !      burn_ne
@@ -574,9 +574,9 @@
 !      burn_ti
 !      burn_cr
 !      burn_fe
-      c12_c12
-      c12_o16
-      o16_o16
+!      c12_c12
+!      c12_o16
+!      o16_o16
 !      photo
 !      pnhe4
 !      other
@@ -674,6 +674,9 @@
 
 
    ! info at location of max temperature
+
+      log_max_T ! temperature
+      !max_T
       !max_T_lgT
       !max_T_mass ! (Msun)
       !max_T_radius ! (Rsun)
@@ -770,9 +773,9 @@
 
 
    ! asteroseismology
-      !delta_nu ! large frequency separation for p-modes (microHz)
+      delta_nu ! large frequency separation for p-modes (microHz)
          ! 1e6/(seconds for sound to cross diameter of star)
-      !delta_Pg ! g-mode period spacing for l=1 (seconds)
+      delta_Pg ! g-mode period spacing for l=1 (seconds)
          ! sqrt(2) pi^2/(integral of brunt_N/r dr)
       !log_delta_Pg
       !nu_max ! estimate from scaling relation (microHz)
@@ -780,7 +783,7 @@
          ! with nu_max_sun = 3100 microHz, Teff_sun = 5777
       !nu_max_3_4th_div_delta_nu ! nu_max^0.75/delta_nu
       !acoustic_cutoff ! 0.5*g*sqrt(gamma1*rho/P) at surface
-      !acoustic_radius ! integral of dr/csound (seconds)
+      acoustic_radius ! integral of dr/csound (seconds)
       !ng_for_nu_max ! = 1 / (nu_max*delta_Pg)
          ! period for g-mode with frequency nu_max = nu_max_ng*delta_Pg
       !gs_per_delta_nu ! delta_nu / (nu_max**2*delta_Pg)
@@ -799,16 +802,16 @@
       ! energy information
 
          total_internal_energy_start
-         total_gravitational_energy_start
+         !total_gravitational_energy_start
          !total_linear_kinetic_energy_start
          !total_rotational_kinetic_energy_start
          total_energy_start
          total_internal_energy
-         total_gravitational_energy
+         !total_gravitational_energy
          !total_linear_kinetic_energy
          !total_rotational_kinetic_energy
          total_energy
-         total_eps_grav
+         !total_eps_grav
          !total_visc_heat_added
          !cumulative_visc_heat_added
          !total_KE_removed_by_visc
@@ -916,7 +919,3 @@
       !logxq_CpTMdot_lt_L
 
       !surface_extra_Pgas
-
-
-      log_max_T ! temperature
-      !max_T

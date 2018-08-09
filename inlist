@@ -1,10 +1,10 @@
 
 &star_job
 
-    history_columns_file = '/home/tjr63/mesaruns/history_columns.list'
-    profile_columns_file = '/home/tjr63/mesaruns/profile_columns.list'
+    history_columns_file = 'history_columns.list'
+    profile_columns_file = 'profile_columns.list'
 
-      show_log_description_at_start = .false.
+      show_log_description_at_start = .true.
 
       save_model_when_terminate = .true.
       save_model_filename = 'final.mod'
@@ -123,6 +123,6 @@
 &pgstar
 
     read_extra_pgstar_inlist1 = .true.
-    extra_pgstar_inlist1_name = '/home/tjr63/implicit_test2i/inlist_pgstar'
+    extra_pgstar_inlist1_name = 'inlist_pgstar'
 
 / ! end of pgstar namelist
