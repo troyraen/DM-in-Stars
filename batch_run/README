@@ -16,6 +16,7 @@ chmod 777 RUNS
 
 cd batch_run
 mkdir logs # for condor logs
+chmod 755 *
 chmod 777 logs
 ###### **** CHECK THAT condor_wrapper HAS CORRECT DIRECTORY **** ######
 ./gen_rnMESA_files # generates rnMESA$1.sh files
