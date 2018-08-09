@@ -1,8 +1,8 @@
 
 &star_job
 
-    history_columns_file = 'history_columns.list'
-    profile_columns_file = 'profile_columns.list'
+    history_columns_file = '/home/tjr63/mesaruns/history_columns.list'
+    profile_columns_file = '/home/tjr63/mesaruns/profile_columns.list'
 
       show_log_description_at_start = .false.
 

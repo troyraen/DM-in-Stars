@@ -24,7 +24,7 @@ declare -A svals=( [SD]=.TRUE. [SI]=.FALSE. )
 declare -a sord=( SD )
 declare -A cbvals=( [c0]=0.D0 [c1]=1.D1 [c2]=1.D2 [c3]=1.D3 [c4]=1.D4 [c5]=1.D5 [c6]=1.D6 )
 #declare -a cord=( c0 c1 c2 c3 c4 c5 c6 )
-declare -a cord=( c3 )
+declare -a cord=( c1 )
 declare -A mvals=( [m0p8]=0.8D0 [m4p1]=4.1D0 [m4p2]=4.2D0 [m4p3]=4.3D0 [m4p4]=4.4D0 [m4p5]=4.5D0 [m4p6]=4.6D0 [m4p7]=4.7D0 [m4p8]=4.8D0 [m4p9]=4.9D0 )
 declare -a mord=( m0p8 )
 

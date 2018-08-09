@@ -44,15 +44,15 @@
 	CALL calc_xheat()
 
 	DO itr = 1,kmax
-!			s% extra_heat(itr) = xheat(itr)
-		s% extra_heat(itr) = 1.0
+		s% extra_heat(itr) = xheat(itr)
+		! s% extra_heat(itr) = 1.0
 		s% d_extra_heat_dlndm1(itr) = 0.D0
-        ! s% d_extra_heat_dlnd00(itr) = d_xheat_dlnd00(itr)
-		s% d_extra_heat_dlnd00(itr) = 0.D0
+        s% d_extra_heat_dlnd00(itr) = d_xheat_dlnd00(itr)
+		! s% d_extra_heat_dlnd00(itr) = 0.D0
         s% d_extra_heat_dlndp1(itr) = 0.D0
         s% d_extra_heat_dlnTm1(itr) = 0.D0
-        ! s% d_extra_heat_dlnT00(itr) = d_xheat_dlnT00(itr)
-		s% d_extra_heat_dlnT00(itr) = 0.D0
+        s% d_extra_heat_dlnT00(itr) = d_xheat_dlnT00(itr)
+		! s% d_extra_heat_dlnT00(itr) = 0.D0
         s% d_extra_heat_dlnTp1(itr) = 0.D0
         s% d_extra_heat_dlnR00(itr) = 0.D0
         s% d_extra_heat_dlnRp1(itr) = 0.D0
@@ -174,11 +174,11 @@
 		ENDDO
 	ENDIF
 
-	IF (cboost == 0.D0) THEN
-		Tx = 0.D0
-	ELSE
-		Tx = calc_Tx(id,ierr)
-	ENDIF
+	! IF (cboost == 0.D0) THEN
+	! 	Tx = 0.D0
+	! ELSE
+	Tx = calc_Tx(id,ierr)
+	! ENDIF
 
 !! in extras_finish_step (run_star_extras) s% xtra1 = s% xtra2
 !! so wimps are not collected when step is not accepted
