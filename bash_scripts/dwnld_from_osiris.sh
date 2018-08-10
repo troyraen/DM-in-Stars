@@ -5,11 +5,13 @@ server="tjr63@osiris-inode01.phyast.pitt.edu"
 maindir="mesaruns"
 # maindir="histdat"
 spin=SD
-for cb in {0..6}; do
+
+for i in {0..6}; do
+for cb in {1..6}; do
 	for mr in {0..5}; do
 		for mp in {0..9}; do
 
-	dirO="/home/tjr63/${maindir}/RUNS/${spin}/c${cb}/m${mr}p${mp}/LOGS/"
+	dirO="/home/tjr63/${maindir}/RUNS${i}/${spin}/c${cb}/m${mr}p${mp}/LOGS/"
 	histO="${dirO}history.data"
 	# histO="${dirO}history_reduc.data"
 	dirR="/Users/troyraen/Google_Drive/MESA/code/DATA/${maindir}/mass${mr}p${mp}/LOGSc${cb}/"
@@ -27,4 +29,5 @@ for cb in {0..6}; do
 
 		done
 	done
+done
 done

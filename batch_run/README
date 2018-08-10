@@ -7,9 +7,14 @@ cd mesaruns
 # git pull origin other_energy_implicit
 # optional: git stash pop
 
-
+mkdir RUNS_xheat_real16
+mv RUNS{0..6}/SD RUNS_xheat_real16/.
+### check RUNS folder
 mkdir RUNS{0..6}
 chmod 777 RUNS*
+mv batch_run/logs RUNS_xheat_real16/.
+
+git pull
 ./clean
 ./mk
 
@@ -20,7 +25,7 @@ chmod 755 condor.submit condor_wrapper.sh rnMESA* xinlist_template
 mkdir logs # for condor logs
 chmod 777 logs
 ###### **** CHECK THAT condor_wrapper HAS CORRECT DIRECTORY **** ######
-./gen_rnMESA_files # generates rnMESA$1.sh files
+# ./gen_rnMESA_files # generates rnMESA$1.sh files
 
 condor_q
 condor_submit condor.submit # this runs condor_wrapper which runs each rnMESA$1.sh file
