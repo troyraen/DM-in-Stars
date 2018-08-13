@@ -79,11 +79,11 @@ function data_reduc {
 # done
 
 
-maindir=/home/tjr63/histdat/RUNS/SD
+maindir=/home/tjr63/histdat/RUNS_real4/SD
 drs=($(find /home/tjr63/mesaruns/RUNS -name 'c[0-6]'))
 for dir in "${drs[@]}"; do
     # echo $dir
-    cp $dir ${maindir}/.
+    cp -r $dir ${maindir}/.
 done
 drs=($(find ${maindir} -name 'LOGS'))
 for dir in "${drs[@]}"; do
