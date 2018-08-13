@@ -3,6 +3,7 @@
 
 ######
 # This script takes a directory as input
+######### CHECK WHETHER dir SHOULD INCLUDE "LOGS" ########
 # Copies dir/LOGS/history.data to dir/LOGS/history_pre_del_dup_mods.data
 # Generates a new history.data file stripped of duplicate models
 # written because of MESA backups or restarts
@@ -15,8 +16,8 @@ if [ $# -eq 0 ]
     exit 1
 fi
 
-
-dir=$1/LOGS
+dir=$1
+# dir=$1/LOGS
 hdat=$dir/history.data
 hdatpdd=$dir/history_pre_del_dup_mods.data
 cp -n $hdat $hdatpdd # will not overwrite existing and so current $hdat will be lost

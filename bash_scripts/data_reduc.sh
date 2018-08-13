@@ -1,5 +1,5 @@
-##!/usr/local/bin/bash
-#!/bin/bash
+#!/usr/local/bin/bash
+##!/bin/bash
 
 
 
@@ -11,6 +11,8 @@
 #       model has profile saved
 #       model_number % 5 == 0 from MS
 #       num_keep total models from post-MS
+#
+#   for loop at bottom runs function on list of LOGS dirs
 #
 #   ASSUMES center_h1 IS COLUMN 30 AND model_number IS COLUMN 1 OF HISTORY FILE
 ######
@@ -32,20 +34,28 @@ function data_reduc {
     (head -6 > $hreduc; tail -$lnct > $hdata) < $hdat # split history.data -> hheader.txt, hdata.txt
     lnct=$(sed -n '$=' $hdata) # get hdata line count for awk
     pmodarr=($(awk '{ if (NR > 1) { print $1 } }' $pdat)) # get model numbers from profiles.index
+    # find model_number and center_h1 column numbers
+    read mcol h1col <<< $(awk '{ if (NR == 6) {
+                for(l=1;l<=NF;l++) {
+                    if($l=="model_number") { m = l }
+                    else if($l=="center_h1") { h1 = l }
+                }}}
+                END{ print m " " h1 }' < $hdat)
+
     # keep all models in profiles.index,
     # model_number%5==0 for those in MS,
-    # 150 models from post MS
-    awk -v nk=$num_keep -v lnct=$lnct -v pmod="${pmodarr[*]}" '
+    # num_keep models from post MS
+    awk -v nk=$num_keep -v mcol=$mcol -v h1col=$h1col -v lnct=$lnct -v pmod="${pmodarr[*]}" '
     BEGIN { nth=0; split(pmod,pm," "); for (i in pm) mod[pm[i]]=pm[i] }
-    { if ($1 == 1) { print $0 }
-    else if ($1 in mod) { print $0 }
-    else if ($30 > 0.01) { if ($1 % 5 == 0) { print $0; } }
+    { if ($mcol == 1) { print $0 }
+    else if ($mcol in mod) { print $0 }
+    else if ($h1col > 0.01) { if ($mcol % 5 == 0) { print $0; } }
     else {
         if (nth == 0) {
             lnpostMS = lnct - NR
             nth = int(lnpostMS / nk)
         }
-        if (nth < 3) { if ($1 % 5 == 0) { print $0 } }
+        if (nth < 3) { if ($mcol % 5 == 0) { print $0 } }
         else if (NR % nth == 0) { print $0 }
     }
     }' < $hdata >> $hreduc
@@ -58,9 +68,12 @@ function data_reduc {
 }
 ############
 
-
-drs=($(find -name 'LOGS' -type d))
+# drs=($(find /Users/troyraen/Google_Drive/MESA/code/DATA/mesaruns/mass0p8 -name 'LOGS*' -type d))
+drs=($(find /home/tjr63/mesaruns/RUNS -name 'LOGS'))
 for dir in "${drs[@]}"; do
-#       echo $dir
-        data_reduc $dir
+    # echo $dir
+    ./del_dup_mods.sh $dir
+    data_reduc $dir
+    # mv ${dir}/history_reduc.data ${dir}/history.data
+    # rm ${dir}/history_reduc.data
 done
