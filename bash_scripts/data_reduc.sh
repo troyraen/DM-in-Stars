@@ -1,5 +1,5 @@
-#!/usr/local/bin/bash
-##!/bin/bash
+##!/usr/local/bin/bash
+#!/bin/bash
 
 
 
@@ -68,12 +68,28 @@ function data_reduc {
 }
 ############
 
-# drs=($(find /Users/troyraen/Google_Drive/MESA/code/DATA/mesaruns/mass0p8 -name 'LOGS*' -type d))
-drs=($(find /home/tjr63/mesaruns/RUNS -name 'LOGS'))
+# # drs=($(find /Users/troyraen/Google_Drive/MESA/code/DATA/mesaruns/mass0p8 -name 'LOGS*' -type d))
+# drs=($(find /home/tjr63/mesaruns/RUNS -name 'LOGS'))
+# for dir in "${drs[@]}"; do
+#     # echo $dir
+#     ./del_dup_mods.sh $dir
+#     data_reduc $dir
+#     # mv ${dir}/history_reduc.data ${dir}/history.data
+#     # rm ${dir}/history_reduc.data
+# done
+
+
+maindir=/home/tjr63/histdat/RUNS/SD
+drs=($(find /home/tjr63/mesaruns/RUNS -name 'c[0-6]'))
 for dir in "${drs[@]}"; do
     # echo $dir
-    ./del_dup_mods.sh $dir
-    data_reduc $dir
-    # mv ${dir}/history_reduc.data ${dir}/history.data
+    cp $dir ${maindir}/.
+done
+drs=($(find ${maindir} -name 'LOGS'))
+for dir in "${drs[@]}"; do
+    ./del_dup_mods.sh ${dir}
+    rm ${dir}/history_pre_del_dup_mods.data
+    data_reduc ${dir}
+    mv ${dir}/history_reduc.data ${dir}/history.data
     # rm ${dir}/history_reduc.data
 done
