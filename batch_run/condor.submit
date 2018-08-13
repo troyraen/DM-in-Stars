@@ -22,6 +22,6 @@ log        = logs/imp$(Process).log
 # when_to_transfer_output = ON_EXIT_OR_EVICT
 
 
-Queue 7
+Queue 2
 
 #############################################

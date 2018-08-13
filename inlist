@@ -106,7 +106,7 @@
       profile_interval = 250
 	  max_num_profile_models = 5
 	  write_controls_info_with_profile = .true.
-      history_interval = 1
+      history_interval = 5
       terminal_interval = 100
       write_header_frequency = 10
 

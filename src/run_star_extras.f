@@ -106,11 +106,21 @@
       integer function extras_check_model(id, id_extra)
          integer, intent(in) :: id, id_extra
          integer :: ierr
+         real(dp) :: xlum
          type (star_info), pointer :: s
          ierr = 0
          call star_ptr(id, s, ierr)
          if (ierr /= 0) return
          extras_check_model = keep_going
+
+         xlum = 0.0D0 ! check that extra_heat integrates to 0
+         do k = 1, s% nz
+             xlum = xlum + (s% extra_heat(k))*(s% dq)
+         end do
+         IF (xlum.GT.0.2) THEN
+             write(*,*) '**** Retry because xlum > 0.2. xlum = ', xlum
+             extras_check_model = retry
+         ENDIF
 
       end function extras_check_model
 

@@ -16,7 +16,7 @@ export MESA_BASE=/home/tjr63/mesaruns
 export MESA_INLIST=$MESA_BASE/inlist
 export MESA_RUN=$MESA_BASE/RUNS
 #export MESA_RUN=/home/tjr63/sand
-rnmesa=rnMESAd45
+rnmesa=rnMESA0
 logfile=$MESA_BASE/batch_run/logs/$rnmesa.out
 cp $MESA_BASE/batch_run/$rnmesa.sh $MESA_BASE/batch_run/logs/.
 
