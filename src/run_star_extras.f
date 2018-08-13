@@ -105,7 +105,7 @@
       ! returns either keep_going, retry, backup, or terminate.
       integer function extras_check_model(id, id_extra)
          integer, intent(in) :: id, id_extra
-         integer :: ierr
+         integer :: ierr, k
          real(dp) :: xlum
          type (star_info), pointer :: s
          ierr = 0
