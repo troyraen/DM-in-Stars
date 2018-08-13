@@ -115,7 +115,7 @@
 
          xlum = 0.0D0 ! check that extra_heat integrates to 0
          do k = 1, s% nz
-             xlum = xlum + (s% extra_heat(k))*(s% dq)
+             xlum = xlum + (s% extra_heat(k))*(s% dq(k))
          end do
          IF (xlum.GT.0.2) THEN
              write(*,*) '**** Retry because xlum > 0.2. xlum = ', xlum
