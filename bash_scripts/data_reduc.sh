@@ -79,7 +79,7 @@ function data_reduc {
 # done
 
 
-maindir=/home/tjr63/histdat/RUNS_real4/SD
+maindir=/home/tjr63/histdat/RUNS_xL_lt_0p2/SD
 drs=($(find /home/tjr63/mesaruns/RUNS -name 'c[0-6]'))
 for dir in "${drs[@]}"; do
     # echo $dir

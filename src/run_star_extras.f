@@ -113,14 +113,14 @@
          if (ierr /= 0) return
          extras_check_model = keep_going
 
-         xlum = 0.0D0 ! check that extra_heat integrates to 0
-         do k = 1, s% nz
-             xlum = xlum + (s% extra_heat(k))*(s% dq(k))
-         end do
-         IF (xlum.GT.0.2) THEN
-             write(*,*) '**** Retry because xlum > 0.2. xlum = ', xlum
-             extras_check_model = retry
-         ENDIF
+         ! xlum = 0.0D0 ! check that extra_heat integrates to 0
+         ! do k = 1, s% nz
+         !     xlum = xlum + (s% extra_heat(k))*(s% dq(k))
+         ! end do
+         ! IF (xlum.GT.0.2) THEN
+         !     write(*,*) '**** Retry because xlum > 0.2. xlum = ', xlum
+         !     extras_check_model = retry
+         ! ENDIF
 
       end function extras_check_model
 
