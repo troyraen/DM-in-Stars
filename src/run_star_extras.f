@@ -132,7 +132,7 @@
          ierr = 0
          call star_ptr(id, s, ierr)
          if (ierr /= 0) return
-         how_many_extra_history_columns = 4
+         how_many_extra_history_columns = 5
       end function how_many_extra_history_columns
 
 
@@ -159,6 +159,8 @@
          vals(3) = s% X_CTRL(4)
          names(4) = 'center_np'
          vals(4) = s% X_CTRL(5)
+         names(5) = 'Tx_emoment'
+         vals(5) = s% X_CTRL(6)
 !         DO j = 1,10
 !            idx = 4+j
 !            chemj = s% chem_id(j)
