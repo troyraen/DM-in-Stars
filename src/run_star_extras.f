@@ -142,7 +142,7 @@
          character (len=maxlen_history_column_name) :: names(n)
          real(dp) :: vals(n), xe
          integer, intent(out) :: ierr
-         integer :: k, idx
+         integer :: k
          type (star_info), pointer :: s
          ierr = 0
          call star_ptr(id, s, ierr)
@@ -164,6 +164,7 @@
          xe = 0.d0
          DO k = 1, s% nz
              xe = xe + s% extra_heat(k)* s% dm(k)* s% dt
+         ENDDO
          vals(5) = xe
 !         DO j = 1,10
 !            idx = 4+j
