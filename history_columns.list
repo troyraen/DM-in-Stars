@@ -831,12 +831,12 @@
          !total_energy_and_integrated_fluxes ! total_energy + cumulative_sources_and_sinks
          !cumulative_energy_error ! should be same as total_energy_and_integrated_fluxes
 
-         !energy_convervation_error !  = total_energy_and_integrated_fluxes - total_energy_initial
-         !rel_energy_convervation_error !  = energy_convervation_error/cumulative_sources_and_sinks
-         !log_rel_energy_convervation_error !  = log abs(energy_convervation_error/cumulative_sources_and_sinks)
+         energy_convervation_error !  = total_energy_and_integrated_fluxes - total_energy_initial
+         rel_energy_convervation_error !  = energy_convervation_error/cumulative_sources_and_sinks
+         log_rel_energy_convervation_error !  = log abs(energy_convervation_error/cumulative_sources_and_sinks)
 
          !log_max_continuity_residual
-         !log_max_energy_balance_residual
+         log_max_energy_balance_residual
 
    ! misc
 
