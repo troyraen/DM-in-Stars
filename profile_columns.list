@@ -157,7 +157,7 @@
    !nonnucneu_pair ! pair production (for reactions like e+ + e- => nu_e + nubar_e)
 
    extra_heat
-   !extra_L ! extra_heat integrated from center (Lsun)
+   extra_L ! extra_heat integrated from center (Lsun)
    log_extra_L ! log10 integrated from center (Lsun)
 
    !log_irradiation_heat
