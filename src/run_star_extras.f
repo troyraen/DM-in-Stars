@@ -106,12 +106,13 @@
       integer function extras_check_model(id, id_extra)
          integer, intent(in) :: id, id_extra
          integer :: ierr, k
-         real(dp) :: xlum
+         real(dp) :: xengy
          type (star_info), pointer :: s
          ierr = 0
          call star_ptr(id, s, ierr)
          if (ierr /= 0) return
          extras_check_model = keep_going
+
 
          ! xlum = 0.0D0 ! check that extra_heat integrates to 0
          ! do k = 1, s% nz
@@ -139,9 +140,9 @@
       subroutine data_for_extra_history_columns(id, id_extra, n, names, vals, ierr)
          integer, intent(in) :: id, id_extra, n
          character (len=maxlen_history_column_name) :: names(n)
-         real(dp) :: vals(n)
+         real(dp) :: vals(n), xe
          integer, intent(out) :: ierr
-         integer :: j, idx
+         integer :: k, idx
          type (star_info), pointer :: s
          ierr = 0
          call star_ptr(id, s, ierr)
@@ -159,8 +160,11 @@
          vals(3) = s% X_CTRL(4)
          names(4) = 'center_np'
          vals(4) = s% X_CTRL(5)
-         names(5) = 'Tx_emoment'
-         vals(5) = s% X_CTRL(6)
+         names(5) = 'extra_energy'
+         xe = 0.d0
+         DO k = 1, s% nz
+             xe = xe + s% extra_heat(k)* s% dm(k)* s% dt
+         vals(5) = xe
 !         DO j = 1,10
 !            idx = 4+j
 !            chemj = s% chem_id(j)
