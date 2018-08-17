@@ -473,15 +473,15 @@
       !continuity_residual
       !log_continuity_residual
 
-      energy_balance_residual
-      log_energy_balance_residual
+      !energy_balance_residual
+      !log_energy_balance_residual
 
       !gradr_sub_grada ! gradr - grada; > 0 => Schwarzschild unstable for convection
 
       !dlnP_dm_expected ! for pressure equation
       !dlnT_dm_expected ! for temperature equation
-      dL_dm_expected ! for energy equation
-      dL_dm_actual
+      !dL_dm_expected ! for energy equation
+      !dL_dm_actual
 
       !equP ! residual for pressure equation
       !log_equP ! log10(abs(equP))
