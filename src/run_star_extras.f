@@ -22,6 +22,10 @@
 
       module run_star_extras
 
+
+      use crlibm_lib ! MIST
+      use rates_def ! MIST
+      use net_def ! MIST
       use star_lib
       use star_def
       use const_def
