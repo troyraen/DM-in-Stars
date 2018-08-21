@@ -85,9 +85,12 @@
 
     plain_reimers = 4d-13*(Lsurf*Rsurf/Msurf)/(Lsun*Rsun/Msun)
 
-    reimers_w = plain_reimers * s% Reimers_wind_eta
-    blocker_w = plain_reimers * s% Blocker_wind_eta * &
-           4.83d-9 * pow_cr(Msurf/Msun,-2.1d0) * pow_cr(Lsurf/Lsun,2.7d0)
+    ! reimers_w = plain_reimers * s% Reimers_wind_eta
+    ! blocker_w = plain_reimers * s% Blocker_wind_eta * &
+    !        4.83d-9 * pow_cr(Msurf/Msun,-2.1d0) * pow_cr(Lsurf/Lsun,2.7d0)
+   reimers_w = plain_reimers * s% Reimers_scaling_factor
+   blocker_w = plain_reimers * s% Blocker_scaling_factor * &
+          4.83d-9 * pow_cr(Msurf/Msun,-2.1d0) * pow_cr(Lsurf/Lsun,2.7d0)
 
       h1 = s% net_iso(ih1)
       he4 = s% net_iso(ihe4)
