@@ -85,12 +85,9 @@
 
     plain_reimers = 4d-13*(Lsurf*Rsurf/Msurf)/(Lsun*Rsun/Msun)
 
-    ! reimers_w = plain_reimers * s% Reimers_wind_eta
-    ! blocker_w = plain_reimers * s% Blocker_wind_eta * &
-    !        4.83d-9 * pow_cr(Msurf/Msun,-2.1d0) * pow_cr(Lsurf/Lsun,2.7d0)
-   reimers_w = plain_reimers * s% Reimers_scaling_factor
-   blocker_w = plain_reimers * s% Blocker_scaling_factor * &
-          4.83d-9 * pow_cr(Msurf/Msun,-2.1d0) * pow_cr(Lsurf/Lsun,2.7d0)
+    reimers_w = plain_reimers * s% Reimers_scaling_factor
+    blocker_w = plain_reimers * s% Blocker_scaling_factor * &
+           4.83d-9 * pow_cr(Msurf/Msun,-2.1d0) * pow_cr(Lsurf/Lsun,2.7d0)
 
       h1 = s% net_iso(ih1)
       he4 = s% net_iso(ihe4)
@@ -189,12 +186,12 @@
            critmass = feh*1.09595794 + 7.0660861
         end if
         if ((s% initial_mass > critmass) .and. (s% have_done_TP)) then
-           if (s% Blocker_wind_eta < 1.0) then
+           if (s% Blocker_scaling_factor < 1.0) then
               write(*,*) '+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++'
               write(*,*) 'turning up Blocker'
               write(*,*) '+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++'
            end if
-           s% Blocker_wind_eta = 3.0
+           s% Blocker_scaling_factor = 3.0
         end if
 
         if ((s% have_done_TP) .and. (s% varcontrol_target < new_varcontrol_target)) then !only print the first time
