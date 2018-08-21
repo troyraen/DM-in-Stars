@@ -8,8 +8,8 @@
 &controls
 
 
-  initial_mass = 0.8D0
-  max_age = 23.d9
+  initial_mass = 1.0D0 ! 0.8D0
+  max_age = 13d9 ! 23.d9
 
   use_other_energy_implicit = .false.
   X_CTRL(1) = 0.D5  ! this sets cboost in wimp_module.f90

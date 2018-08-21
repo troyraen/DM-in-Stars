@@ -7,7 +7,8 @@
 !OPACITY, NETWORK, RATE, etc.
       !network
       change_net = .true.
-      new_net_name = 'mesa_49.net' ! try and see if it makes a difference
+!      new_net_name = 'mesa_49.net' ! try and see if it makes a difference
+      new_net_name = 'o18_and_ne22.net'
 
       !opacities with AGSS09 abundances
       kappa_file_prefix = 'a09'

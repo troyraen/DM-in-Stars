@@ -5,7 +5,6 @@
       kappa_file_prefix = 'gs98'
 
       change_net = .true.
-      !new_net_name = 'pp_extras.net'
       new_net_name = 'o18_and_ne22.net'
 
       create_pre_main_sequence_model = .true.

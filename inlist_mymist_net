@@ -84,10 +84,10 @@
     max_wind = 1d-3
 
 ! try this and see if it makes a difference
-    do_element_diffusion = .true.
-    diffusion_dt_limit = 3.15e13
-    diffusion_min_T_at_surface = 1d3
-    radiation_turbulence_coeff = 1.0
+!    do_element_diffusion = .true.
+!    diffusion_dt_limit = 3.15e13
+!    diffusion_min_T_at_surface = 1d3
+!    radiation_turbulence_coeff = 1.0
 !!! tried diffusion and net
 
     !to help with breathing pulses
