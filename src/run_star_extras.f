@@ -32,6 +32,8 @@
 
       integer :: time0, time1, clock_rate
       double precision, parameter :: expected_runtime = 16.5 ! minutes
+      real(dp) :: original_diffusion_dt_limit ! MIST
+      real(dp) :: burn_check = 0.0 ! MIST
 
 
       ! these routines are called by the standard run_star check_model
@@ -56,7 +58,51 @@
 
          s% other_energy_implicit => wimp_energy_transport ! subroutine where extra_heat is defined inside of module wimp_module
 
+         original_diffusion_dt_limit = s% diffusion_dt_limit ! MIST
+         s% other_wind => Reimers_then_Blocker ! MIST
+
       end subroutine extras_controls
+
+!!! MIST
+    subroutine Reimers_then_Blocker(id, Lsurf, Msurf, Rsurf, Tsurf, w, ierr)
+    use star_def
+    use chem_def, only: ih1, ihe4
+    integer, intent(in) :: id
+    real(dp), intent(in) :: Lsurf, Msurf, Rsurf, Tsurf ! surface values (cgs)
+    !     NOTE: surface is outermost cell. not necessarily at photosphere.
+    !     NOTE: don't assume that vars are set at this point.
+    !     so if you want values other than those given as args,
+    !     you should use values from s% xh(:,:) and s% xa(:,:) only.
+    !     rather than things like s% Teff or s% lnT(:) which have not been set yet.
+    real(dp), intent(out) :: w ! wind in units of Msun/year (value is >= 0)
+    integer, intent(out) :: ierr
+    integer :: h1, he4
+    real(dp) :: plain_reimers, reimers_w, blocker_w, center_h1, center_he4
+    type (star_info), pointer :: s
+    ierr = 0
+    call star_ptr(id, s, ierr)
+    if (ierr /= 0) return
+
+    plain_reimers = 4d-13*(Lsurf*Rsurf/Msurf)/(Lsun*Rsun/Msun)
+
+    reimers_w = plain_reimers * s% Reimers_wind_eta
+    blocker_w = plain_reimers * s% Blocker_wind_eta * &
+           4.83d-9 * pow_cr(Msurf/Msun,-2.1d0) * pow_cr(Lsurf/Lsun,2.7d0)
+
+      h1 = s% net_iso(ih1)
+      he4 = s% net_iso(ihe4)
+      center_h1 = s% xa(h1,s% nz)
+      center_he4 = s% xa(he4,s% nz)
+
+      !prevent the low mass RGBs from using Blocker
+      if (center_h1 < 0.01d0 .and. center_he4 > 0.1d0) then
+         w = reimers_w
+      else
+         w = max(reimers_w, blocker_w)
+      end if
+
+    end subroutine Reimers_then_Blocker
+!!! MIST
 
 
       integer function extras_startup(id, restart, ierr)
@@ -105,24 +151,102 @@
       ! returns either keep_going, retry, backup, or terminate.
       integer function extras_check_model(id, id_extra)
          integer, intent(in) :: id, id_extra
-         integer :: ierr, k
-         real(dp) :: xengy
+         integer :: ierr, r, burn_category ! MIST
+         real(dp) :: envelope_mass_fraction, L_He, L_tot, orig_eta, target_eta, min_center_h1_for_diff, critmass, feh ! MIST
+         real(dp) :: category_factors(num_categories) ! MIST
+         real(dp), parameter :: huge_dt_limit = 3.15d16 ! ~1 Gyr ! MIST
+         real(dp), parameter :: new_varcontrol_target = 1d-3 ! MIST
+         real(dp), parameter :: Zsol = 0.0142 ! MIST
+         type (Net_General_Info), pointer :: g ! MIST
+         character (len=strlen) :: photoname ! MIST
          type (star_info), pointer :: s
+
          ierr = 0
          call star_ptr(id, s, ierr)
          if (ierr /= 0) return
          extras_check_model = keep_going
 
+         ierr = 0 ! MIST
+         call get_net_ptr(s% net_handle, g, ierr) ! MIST
+         if (ierr /= 0) stop 'bad handle' ! MIST
 
-         ! xlum = 0.0D0 ! check that extra_heat integrates to 0
-         ! do k = 1, s% nz
-         !     xlum = xlum + (s% extra_heat(k))*(s% dq(k))
-         ! end do
-         ! IF (xlum.GT.0.2) THEN
-         !     write(*,*) '**** Retry because xlum > 0.2. xlum = ', xlum
-         !     extras_check_model = retry
-         ! ENDIF
+!!!! MIST
+!     increase VARCONTROL and MDOT: increase varcontrol and Mdot when the model hits the TPAGB phase
+     if ((s% initial_mass < 10) .and. (s% center_h1 < 1d-4) .and. (s% center_he4 < 1d-4)) then
+        !try turning up Mdot
+        feh = log10_cr((1.0 - (s% job% initial_h1 + s% job% initial_h2 + s% job% initial_he3 + s% job% initial_he4))/Zsol)
+        if (feh < -0.3) then
+           critmass = pow_cr(feh,2d0)*0.3618377 + feh*1.47045658 + 5.69083898
+           if (feh < -2.15) then
+              critmass = pow_cr(-2.15d0,2d0)*0.3618377 -2.15*1.47045658 + 5.69083898
+           end if
+        else if ((feh >= -0.3) .and. (feh <= -0.22)) then
+           critmass = feh*18.75 + 10.925
+        else
+           critmass = feh*1.09595794 + 7.0660861
+        end if
+        if ((s% initial_mass > critmass) .and. (s% have_done_TP)) then
+           if (s% Blocker_wind_eta < 1.0) then
+              write(*,*) '+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++'
+              write(*,*) 'turning up Blocker'
+              write(*,*) '+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++'
+           end if
+           s% Blocker_wind_eta = 3.0
+        end if
 
+        if ((s% have_done_TP) .and. (s% varcontrol_target < new_varcontrol_target)) then !only print the first time
+           s% varcontrol_target = new_varcontrol_target
+
+!     CONVERGENCE TEST CHANGING C
+    s% varcontrol_target = s% varcontrol_target * 1.0
+
+           write(*,*) '+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++'
+           write(*,*) 'increasing varcontrol to ', s% varcontrol_target
+           write(*,*) '+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++'
+        end if
+     end if
+
+!     treat postAGB: suppress late burning by turn off burning post-AGB and also save a model and photo
+     envelope_mass_fraction = 1d0 - max(s% he_core_mass, s% c_core_mass, s% o_core_mass)/s% star_mass
+     category_factors(:) = 1.0 !turn off burning except for H
+     category_factors(3:) = 0.0
+     if ((s% initial_mass < 10) .and. (envelope_mass_fraction < 0.1) .and. (s% center_h1 < 1d-4) .and. (s% center_he4 < 1d-4) &
+     .and. (s% L_phot > 3.0) .and. (s% Teff > 7000.0)) then
+		  if (burn_check == 0.0) then !only print the first time
+			  write(*,*) '++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++'
+			  write(*,*) 'now at post AGB phase, turning off all burning except for H & saving a model + photo'
+			  write(*,*) '++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++'
+
+			  !save a model and photo
+			  call star_write_model(id, s% job% save_model_filename, ierr)
+			  photoname = 'photos/pAGB_photo'
+			  call star_save_for_restart(id, photoname, ierr)
+
+			  !turn off burning
+			  do r=1,g% num_reactions
+				  burn_category = reaction_categories(g% reaction_id(r))
+				  s% rate_factors(r) = category_factors(burn_category)
+			  end do
+			  burn_check = 1.0
+		  end if
+     end if
+
+
+ ! !     check DIFFUSION: to determine whether or not diffusion should happen
+ ! !     no diffusion for fully convective, post-MS, and mega-old models
+ ! 	  s% diffusion_dt_limit = 3.15d7
+ !       if(abs(s% mass_conv_core - s% star_mass) < 1d-2) then ! => fully convective
+ !          s% diffusion_dt_limit = huge_dt_limit
+ !       end if
+ !       if (s% star_age > 5d10) then !50 Gyr is really old
+ !          s% diffusion_dt_limit = huge_dt_limit
+ !       end if
+ !       min_center_h1_for_diff = 1d-10
+ !       if (s% center_h1 < min_center_h1_for_diff) then
+ !          s% diffusion_dt_limit = huge_dt_limit
+ !       end if
+
+ !!!! MIST
       end function extras_check_model
 
 
