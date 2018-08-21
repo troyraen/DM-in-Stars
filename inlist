@@ -52,7 +52,7 @@
       extra_controls_inlist1_name = 'inlist_cluster'
       read_extra_controls_inlist2 = .true.
 !      extra_controls_inlist2_name = 'inlist_mymist'
-      extra_star_job_inlist1_name = 'inlist_my'
+      extra_controls_inlist2_name = 'inlist_my'
 
 
 / ! end of controls namelist
