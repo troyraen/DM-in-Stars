@@ -13,8 +13,8 @@
       filename_for_profile_when_terminate = 'LOGS/profile0.data'
 
       read_extra_star_job_inlist1 = .true.
-!      extra_star_job_inlist1_name = 'inlist_mymist'
-      extra_star_job_inlist1_name = 'inlist_my'
+      extra_star_job_inlist1_name = 'inlist_mymist_diffus'
+!      extra_star_job_inlist1_name = 'inlist_my'
 
 / ! end of star_job namelist
 
@@ -51,8 +51,8 @@
       read_extra_controls_inlist1 = .true.
       extra_controls_inlist1_name = 'inlist_cluster'
       read_extra_controls_inlist2 = .true.
-!      extra_controls_inlist2_name = 'inlist_mymist'
-      extra_controls_inlist2_name = 'inlist_my'
+      extra_controls_inlist2_name = 'inlist_mymist_diffus'
+!      extra_controls_inlist2_name = 'inlist_my'
 
 
 / ! end of controls namelist
