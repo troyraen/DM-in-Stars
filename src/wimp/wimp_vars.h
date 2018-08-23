@@ -1,6 +1,6 @@
 
 	INTEGER, PARAMETER :: maxspecies=50
-	INTEGER, PARAMETER :: maxcells=5000
+	INTEGER, PARAMETER :: maxcells=50000
 	DOUBLE PRECISION, PARAMETER ::  gperGeV= 1.78266D-24 ! grams to GeV/c^2 conversion
 
 	LOGICAL :: spindep
