@@ -24,10 +24,13 @@ declare -A svals=( [SD]=.TRUE. [SI]=.FALSE. )
 declare -a sord=( SD )
 declare -A cbvals=( [c0]=0.D0 [c1]=1.D1 [c2]=1.D2 [c3]=1.D3 [c4]=1.D4 [c5]=1.D5 [c6]=1.D6 )
 #declare -a cord=( c0 c1 c2 c3 c4 c5 c6 )
-declare -a cord=( c5 )
-declare -A mvals=( [m0p8]=0.8D0 [m4p1]=4.1D0 [m4p2]=4.2D0 [m4p3]=4.3D0 [m4p4]=4.4D0 [m4p5]=4.5D0 [m4p6]=4.6D0 [m4p7]=4.7D0 [m4p8]=4.8D0 [m4p9]=4.9D0 )
-declare -a mord=( m0p8 )
+declare -a cord=( c0 c2 c4 )
+declare -A mvals=( [m0p8]=0.8D0 [m5p0]=5.0D0 [m3p0]=3.0D0 [m4p3]=4.3D0 [m4p4]=4.4D0 [m4p5]=4.5D0 [m4p6]=4.6D0 [m4p7]=4.7D0 [m4p8]=4.8D0 [m4p9]=4.9D0 )
+declare -a mord=( m5p0 m3p0 m0p8 )
+declare -A ovals=( [na]=neither [n]=net [d]=diffus [b]=both )
+declare -a oord=( na )
 
+for oth in "${oord[@]}"; do
 for spin in "${sord[@]}"; do
     for cdir in "${cord[@]}"; do
 		oe=$([ $cdir = c0 ] && echo ".false." || echo ".true.") # use_other_energy_implicit=.false. if c0 else .true.
@@ -40,20 +43,24 @@ for spin in "${sord[@]}"; do
 				ma=13.D9
 			fi
 
-            mkdir -pm 777 $MESA_RUN/$spin/$cdir/$mass
-                cp $MESA_BASE/batch_run/xinlist_template $MESA_RUN/$spin/$cdir/$mass/inlist_cluster
+			Ldir=$MESA_RUN/$mass/LOGS${cdir}_mymist_${oth}
+            mkdir -pm 777 $Ldir
+                cp $MESA_BASE/batch_run/xinlist_template $Ldir/inlist_cluster
+				mist_inlist=inlist_mymist_$oth
+				cp $MESA_BASE/$mist_inlist $Ldir/$mist_inlist
                 check_okay
-                cd $MESA_RUN/$spin/$cdir/$mass
+                cd $Ldir
 
-                sed -i 's/imass_/'${mvals[$mass]}'/g; s/maxage_/'$ma'/g; s/oenergy_/'$oe'/g; s/cboost_/'${cbvals[$cdir]}'/g; s/SD_/'${svals[$spin]}'/g' inlist_cluster
+                sed -i 's/imass_/'${mvals[$mass]}'/g; s/maxage_/'$ma'/g; s/oenergy_/'$oe'/g; s/cboost_/'${cbvals[$cdir]}'/g; s/SD_/'${svals[$spin]}'/g; s/_OTHER/'${ovals[$oth]}'/g' inlist_cluster
                 check_okay
 
                 $MESA_BASE/star # &>> $logfile
                 check_okay
-				$MESA_BASE/bash_scripts/del_dup_mods.sh $(pwd) # &>> $logfile # delete duplicate models
+				$MESA_BASE/bash_scripts/del_dup_mods.sh $Ldir # &>> $logfile # delete duplicate models
 				check_okay
 
                 cd $MESA_RUN
         done
     done
+done
 done

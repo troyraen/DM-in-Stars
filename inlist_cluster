@@ -1,5 +1,7 @@
 &star_job
 
+    read_extra_star_job_inlist2 = .true.
+    extra_star_job_inlist2_name = 'inlist_mymist_OTHER'
 
 / ! end of star_job namelist
 
@@ -18,5 +20,7 @@
                                 ! .true. = spin dependent
                                 ! .false. = spin independent
 
+    read_extra_controls_inlist2 = .true.
+    extra_controls_inlist2_name = 'inlist_mymist_OTHER'
 
 / ! end of controls namelist

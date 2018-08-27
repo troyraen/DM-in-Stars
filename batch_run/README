@@ -7,8 +7,8 @@ cd mesaruns
 # git pull origin other_energy_implicit
 # optional: git stash pop
 
-mv RUNS RUNS_xheat_real4
-mv batch_run/logs RUNS_xheat_real4/.
+#mv RUNS RUNS_xheat_real4
+#mv batch_run/logs RUNS_xheat_real4/.
 #### check RUNS folder
 mkdir RUNS
 chmod 777 RUNS
@@ -20,9 +20,9 @@ git pull
 
 cd batch_run
 chmod 755 condor.submit condor_wrapper.sh rnMESA* xinlist_template
-rm logs/*
-#mkdir logs # for condor logs
-#chmod 777 logs
+#rm logs/*
+mkdir logs # for condor logs
+chmod 777 logs
 ###### **** CHECK THAT condor_wrapper HAS CORRECT DIRECTORY **** ######
 # ./gen_rnMESA_files # generates rnMESA$1.sh files
 
@@ -30,9 +30,19 @@ condor_q
 condor_submit condor.submit # this runs condor_wrapper which runs each rnMESA$1.sh file
 condor_q
 
-
 for f in {'err','log','out'}; do
     rm logs/${f}.${f}
     for i in {0..6}; do cat logs/imp${i}.${f} >> logs/${f}.${f}; done
     less logs/${f}.${f}
 done
+
+
+
+./bash_scripts/del_dup_mods.sh $(pwd)
+mv LOGS RUNS_mist_inlists/LOGSc2_mymist_net
+mv photos RUNS_mist_inlists/LOGSc2_mymist_net/.
+mkdir LOGS
+# download LOGS folder
+# CHANGE run_star_extras!! ()
+# change inlist_mymist_net to inlist_mymist_neither and run again
+tail -100 LOGS/STD.out |less

@@ -3,7 +3,8 @@
 server="tjr63@osiris-inode01.phyast.pitt.edu"
 
 maindirR="mesaruns"
-maindir="histdat"
+maindir="mesaruns"
+# maindir="histdat"
 spin=SD
 
 # for i in {0..6}; do
@@ -12,6 +13,7 @@ for cb in {1..6}; do
 		for mp in {8..9}; do
 
 	dirO="/home/tjr63/${maindir}/RUNS_xL_lt_0p2/${spin}/c${cb}/m${mr}p${mp}/LOGS/"
+	# dirO="/home/tjr63/${maindir}/LOGS/"
 	# histO="${dirO}history.data"
 	hO="history.data"
 	histO="${dirO}${hO}"

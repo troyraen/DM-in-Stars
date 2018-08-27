@@ -13,8 +13,7 @@
       filename_for_profile_when_terminate = 'LOGS/profile0.data'
 
       read_extra_star_job_inlist1 = .true.
-      extra_star_job_inlist1_name = 'inlist_mymist_neither'
-!      extra_star_job_inlist1_name = 'inlist_my'
+      extra_star_job_inlist1_name = 'inlist_cluster'
 
 / ! end of star_job namelist
 
@@ -34,7 +33,7 @@
 
 !	STOPPING CONDITIONS
       log_L_lower_limit = -1.0
-!	  stop_at_TP = .TRUE.
+	  stop_at_TP = .TRUE.
 !	  max_age = 13d9
 
 !   SAVE DATA
@@ -50,9 +49,6 @@
 
       read_extra_controls_inlist1 = .true.
       extra_controls_inlist1_name = 'inlist_cluster'
-      read_extra_controls_inlist2 = .true.
-      extra_controls_inlist2_name = 'inlist_mymist_neither'
-!      extra_controls_inlist2_name = 'inlist_my'
 
 
 / ! end of controls namelist
