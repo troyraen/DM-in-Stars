@@ -14,7 +14,7 @@ export OMP_NUM_THREADS=1
 export MESA_BASE=/home/tjr63/mesaruns
 # !!! If you change MESA_BASE you must change the file paths in inlist and condor_wrapper !!!
 export MESA_INLIST=$MESA_BASE/inlist
-export MESA_RUN=$MESA_BASE/RUNS
+export MESA_RUN=$MESA_BASE/RUNS_mist_inlists
 #export MESA_RUN=/home/tjr63/sand
 rnmesa=rnMESA1
 logfile=$MESA_BASE/batch_run/logs/$rnmesa.out
@@ -43,7 +43,7 @@ for spin in "${sord[@]}"; do
 				ma=13.D9
 			fi
 
-			Ldir=$MESA_RUN/$mass/LOGS${cdir}_mymist_${ovals[$oth]}
+			Ldir=$MESA_RUN/$mass/${cdir}_mymist_${ovals[$oth]}
             mkdir -pm 777 $Ldir
                 cp $MESA_BASE/batch_run/xinlist_template $Ldir/inlist_cluster
 				mist_inlist=inlist_mymist_${ovals[$oth]}
