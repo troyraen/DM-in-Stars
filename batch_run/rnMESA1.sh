@@ -43,10 +43,10 @@ for spin in "${sord[@]}"; do
 				ma=13.D9
 			fi
 
-			Ldir=$MESA_RUN/$mass/LOGS${cdir}_mymist_${oth}
+			Ldir=$MESA_RUN/$mass/LOGS${cdir}_mymist_${ovals[$oth]}
             mkdir -pm 777 $Ldir
                 cp $MESA_BASE/batch_run/xinlist_template $Ldir/inlist_cluster
-				mist_inlist=inlist_mymist_$oth
+				mist_inlist=inlist_mymist_${ovals[$oth]}
 				cp $MESA_BASE/$mist_inlist $Ldir/$mist_inlist
                 check_okay
                 cd $Ldir
