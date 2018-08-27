@@ -51,7 +51,7 @@ for spin in "${sord[@]}"; do
                 check_okay
                 cd $Ldir
 
-                sed -i 's/imass_/'${mvals[$mass]}'/g; s/maxage_/'$ma'/g; s/oenergy_/'$oe'/g; s/cboost_/'${cbvals[$cdir]}'/g; s/SD_/'${svals[$spin]}'/g; s/_OTHER/'${ovals[$oth]}'/g' inlist_cluster
+                sed -i 's/imass_/'${mvals[$mass]}'/g; s/maxage_/'$ma'/g; s/oenergy_/'$oe'/g; s/cboost_/'${cbvals[$cdir]}'/g; s/SD_/'${svals[$spin]}'/g; s/_OTHER/_'${ovals[$oth]}'/g' inlist_cluster
                 check_okay
 
                 $MESA_BASE/star # &>> $logfile
