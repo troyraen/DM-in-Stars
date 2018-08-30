@@ -28,7 +28,7 @@ declare -a cord=( c0 c2 c4 )
 declare -A mvals=( [m0p8]=0.8D0 [m5p0]=5.0D0 [m3p0]=3.0D0 [m4p3]=4.3D0 [m4p4]=4.4D0 [m4p5]=4.5D0 [m4p6]=4.6D0 [m4p7]=4.7D0 [m4p8]=4.8D0 [m4p9]=4.9D0 )
 declare -a mord=( m5p0 m3p0 m0p8 )
 declare -A ovals=( [na]=neither [n]=net [d]=diffus [b]=both )
-declare -a oord=( n )
+declare -a oord=( b )
 
 for oth in "${oord[@]}"; do
 for spin in "${sord[@]}"; do
