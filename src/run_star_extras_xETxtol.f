@@ -254,10 +254,10 @@
 
     !! If abs( extra_energy / star total energy ) > 0.01
     !! reduce tolerance in Tx_emoment root finding
-    IF ( (ABS(calc_xenergy(id, id_extra)/ s% total_energy) .GT. 0.01) .AND. (X_CTRL(7) .GT. 1.E-10) ) THEN
-        WRITE(*,*) "---*--- Tx tolerance reduced from ", X_CTRL(7), "to", 0.1* X_CTRL(7)
+    IF ( (ABS(calc_xenergy(id, id_extra)/ s% total_energy) .GT. 0.01) .AND. (s% X_CTRL(7) .GT. 1.E-10) ) THEN
+        WRITE(*,*) "---*--- Tx tolerance reduced from ", s% X_CTRL(7), "to", 0.1* s% X_CTRL(7)
         WRITE(*,*) "---*---     retrying model", s% model_number
-        X_CTRL(7) = 0.1* X_CTRL(7)
+        s% X_CTRL(7) = 0.1* s% X_CTRL(7)
         extras_check_model = retry
     END IF
 
