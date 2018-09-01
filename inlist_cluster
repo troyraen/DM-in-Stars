@@ -1,7 +1,7 @@
 &star_job
 
     read_extra_star_job_inlist2 = .true.
-    extra_star_job_inlist2_name = 'inlist_mymist_OTHER'
+    extra_star_job_inlist2_name = 'inlist_mymist_neither'
 
 / ! end of star_job namelist
 
@@ -10,17 +10,17 @@
 &controls
 
 
-  initial_mass = 1.0D0 ! 0.8D0
-  max_age = 13d9 ! 23.d9
+  initial_mass = 0.8D0 ! 1.0D0
+  max_age = 23.d9 ! 13d9
 
   use_other_energy_implicit = .true.
-  X_CTRL(1) = 1.D4  ! this sets cboost in wimp_module.f90
+  X_CTRL(1) = 1.D5  ! this sets cboost in wimp_module.f90
 
   X_LOGICAL_CTRL(1) = .TRUE.    ! sets spindep in wimp_module.f90
                                 ! .true. = spin dependent
                                 ! .false. = spin independent
 
     read_extra_controls_inlist2 = .true.
-    extra_controls_inlist2_name = 'inlist_mymist_OTHER'
+    extra_controls_inlist2_name = 'inlist_mymist_neither'
 
 / ! end of controls namelist
