@@ -321,7 +321,7 @@
 
       FUNCTION calc_xenergy(id, id_extra)
           integer, intent(in) :: id, id_extra
-          integer, intent(out) :: ierr
+          integer :: ierr
           real(dp) :: xe, calc_xenergy
           integer :: k
           type (star_info), pointer :: s
