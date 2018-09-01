@@ -54,8 +54,8 @@ for spin in "${sord[@]}"; do
 				cp $MESA_BASE/src/run_star_extras_${rsevals[$xE]}.f $MESA_BASE/src/run_star_extras.f
                 check_okay
 
-				$MESA_BASE/clean
-				$MESA_BASE/mk
+				$MESA_BASE/make/make clean
+				$MESA_BASE/make/make
 				check_okay
 
                 cd $Ldir
