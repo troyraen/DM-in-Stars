@@ -8,7 +8,7 @@ function check_okay {
 	fi
 }
 
-
+export MESASDK_ROOT=/home/tjr63/mesasdk
 export MESA_DIR=/home/tjr63/mesa-r10398
 export OMP_NUM_THREADS=1
 export MESA_BASE=/home/tjr63/mesaruns
