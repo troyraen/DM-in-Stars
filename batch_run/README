@@ -10,14 +10,15 @@ cd mesaruns
 #mv RUNS RUNS_xheat_real4
 #mv batch_run/logs RUNS_xheat_real4/.
 #### check RUNS folder
-mkdir RUNS
-chmod 777 RUNS
+mkdir RUNS_xETx
+chmod 777 RUNS_xETx
 
 git pull
 ./clean
 ./mk
 
 
+# chmod 777 src/*
 cd batch_run
 chmod 755 condor.submit condor_wrapper.sh rnMESA* xinlist_template
 #rm logs/*
@@ -28,7 +29,7 @@ chmod 777 logs
 
 condor_q
 condor_submit condor.submit # this runs condor_wrapper which runs each rnMESA$1.sh file
-condor_q
+
 
 for f in {'err','log','out'}; do
     rm logs/${f}.${f}
@@ -39,10 +40,16 @@ done
 
 
 ./bash_scripts/del_dup_mods.sh $(pwd)
-mv LOGS RUNS_mist_inlists/LOGSc2_mymist_net
-mv photos RUNS_mist_inlists/LOGSc2_mymist_net/.
+mv LOGS RUNS_xETx/LOGSc5_xEOG
+mv photos RUNS_xETx/LOGSc5_xEOG/.
 mkdir LOGS
 # download LOGS folder
-# CHANGE run_star_extras!! ()
-# change inlist_mymist_net to inlist_mymist_neither and run again
+# CHANGE run_star_extras!!
 tail -100 LOGS/STD.out |less
+
+
+
+######--------------######
+##  Check RUNS_mist_inlists data
+##  Check RUNS_xETx data
+######--------------######

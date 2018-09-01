@@ -2,17 +2,20 @@
 
 server="tjr63@osiris-inode01.phyast.pitt.edu"
 
-maindirR="mesaruns"
-maindir="mesaruns"
-# maindir="histdat"
-spin=SD
+# maindirR="mesaruns"
+# maindir="mesaruns"
+maindirR="histdat"
+maindir="histdat"
 
+spin=SD
 # for i in {0..6}; do
 for cb in {1..6}; do
-	for mr in {0..1}; do
-		for mp in {8..9}; do
+	# for mr in {0..1}; do
+	# 	for mp in {8..9}; do
+	mr=1
+	mp=5
 
-	dirO="/home/tjr63/${maindir}/RUNS_xL_lt_0p2/${spin}/c${cb}/m${mr}p${mp}/LOGS/"
+	dirO="/home/tjr63/${maindir}/RUNS/${spin}/c${cb}/m${mr}p${mp}/LOGS/"
 	# dirO="/home/tjr63/${maindir}/LOGS/"
 	# histO="${dirO}history.data"
 	hO="history.data"
@@ -29,7 +32,7 @@ for cb in {1..6}; do
         fi
     fi
 
-		done
-	done
+	# 	done
+	# done
 done
 # done
