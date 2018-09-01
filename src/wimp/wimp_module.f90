@@ -9,7 +9,7 @@
 !!! Nx = s% xtra1
 !!!	cboost = s% X_CTRL(1)
 !!!	spindep = s% X_LOGICAL_CTRL(1)  ! .true. = spin dependent; .false. = spin independent
-!!!	extra history columns values = s% X_CTRL(2:15)
+!!!	extra history columns values = s% X_CTRL(2:6)
 
 
 	MODULE wimp_module
@@ -313,11 +313,13 @@
 	DOUBLE PRECISION :: Ttmp, calc_Tx
 	INTEGER :: tries, model_err=-1
 	LOGICAL :: Tflag=.FALSE.
-	PARAMETER ( tol = 1.D-4 )
+	! PARAMETER ( tol = 1.D-4 )
 	TYPE (star_info), pointer :: s ! pointer to star type
 	ierr=0
 	CALL GET_STAR_PTR(id, s, ierr)
 	IF ( ierr /= 0 ) RETURN
+
+	tol = X_CTRL(7)
 
 	IF ((model_err.EQ. s% model_number) .AND. (.NOT.Tflag)) call nrerror('Txlow > Txhigh or root must be bracketed')
 	Txhigh = maxT*1.1
@@ -476,11 +478,7 @@
 		s% X_CTRL(3) = Nx ! names(2) = 'Nx_total'
 		s% X_CTRL(4) = nxk((s% nz)+1) ! names(3) = 'center_nx'
 		s% X_CTRL(5) = npk((s% nz)+1) ! names(4) = 'center_np'
-		! s% X_CTRL(6) = emoment(Tx) ! names(5) = 'Tx_emoment'
-		! DO j = 1,10
-		! 	idx = 5+j
-		! 	s% X_CTRL(idx) = njk(j,s% nz) ! names(idx) = chem_isos% name(chemj)
-		! ENDDO
+		s% X_CTRL(6) = emoment(Tx) ! names(5) = 'Tx_emoment'
 
 		DO k = 1,kmax
 			s% xtra1_array(k) = nxk(k)
