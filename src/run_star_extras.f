@@ -252,6 +252,28 @@
 
  !!!! MIST
 
+    !! If abs( extra_energy / star total energy ) > 0.01
+    !! reduce tolerance in Tx_emoment root finding
+    IF ( (ABS(calc_xenergy(id, id_extra)/ s% total_energy) .GT. 0.01) .AND. (X_CTRL(7) .GT. 1.E-10) ) THEN
+        WRITE(*,*) "---*--- Tx tolerance reduced from ", X_CTRL(7), "to", 0.1* X_CTRL(7)
+        WRITE(*,*) "---*---     retrying model", s% model_number
+        X_CTRL(7) = 0.1* X_CTRL(7)
+        extras_check_model = retry
+    END IF
+
+    ! !! If abs( extra_energy / star total energy ) > 0.01
+    ! !! decrease mesh in center
+    ! IF ( (ABS(calc_xenergy(id, id_extra)/ s% total_energy) .GT. 0.01) ) THEN ! .AND. (X_CTRL(7) .GT. 1.E-10) ) THEN
+    !     WRITE(*,*) "---*--- mesh_delta_coeff reduced (for q < 0.2) from ", s% mesh_delta_coeff, "to", 0.75* mesh_delta_coeff
+    !     WRITE(*,*) "---*---     retrying model", s% model_number
+    !     IF ( (s% q .LT. 0.2) .AND. (s% mesh_delta_coeff .GT. 0.1) ) THEN
+    !         s% mesh_delta_coeff = 0.75* s% mesh_delta_coeff
+    !     extras_check_model = retry
+    ! END IF
+
+
+
+
       end function extras_check_model
 
 
