@@ -319,7 +319,7 @@
 	CALL GET_STAR_PTR(id, s, ierr)
 	IF ( ierr /= 0 ) RETURN
 
-	tol = X_CTRL(7)
+	tol = s% X_CTRL(7)
 
 	IF ((model_err.EQ. s% model_number) .AND. (.NOT.Tflag)) call nrerror('Txlow > Txhigh or root must be bracketed')
 	Txhigh = maxT*1.1
