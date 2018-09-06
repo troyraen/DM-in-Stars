@@ -23,3 +23,5 @@ for inlst in "${iord[@]}"; do
     mv $maindir/LOGS $newlogs
     mv $maindir/photos $newlogs/.
     mv $maindir/png $newlogs/.
+
+done
