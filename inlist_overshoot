@@ -62,7 +62,7 @@
       profile_interval = 250
 	  max_num_profile_models = 5
 	  write_controls_info_with_profile = .true.
-      history_interval = 5
+      history_interval = 1
       terminal_interval = 100
       write_header_frequency = 10
 
@@ -87,35 +87,35 @@
     Pextra_factor = 2.0
 
     !H core overshoot calibrated to M67
-    overshoot_f_above_nonburn_core = 0.016
-    overshoot_f_above_burn_h_core  = 0.016
-    overshoot_f_above_burn_he_core = 0.016
-    overshoot_f_above_burn_z_core  = 0.016
-    overshoot_f0_above_nonburn_core = 0.008
-    overshoot_f0_above_burn_h_core  = 0.008
-    overshoot_f0_above_burn_he_core = 0.008
-    overshoot_f0_above_burn_z_core  = 0.008
+!    overshoot_f_above_nonburn_core = 0.016
+!    overshoot_f_above_burn_h_core  = 0.016
+!    overshoot_f_above_burn_he_core = 0.016
+!    overshoot_f_above_burn_z_core  = 0.016
+!    overshoot_f0_above_nonburn_core = 0.008
+!    overshoot_f0_above_burn_h_core  = 0.008
+!    overshoot_f0_above_burn_he_core = 0.008
+!    overshoot_f0_above_burn_z_core  = 0.008
 
     !envelope overshoot calibrated to the sun
-    overshoot_f_above_nonburn_shell = 0.0174
-    overshoot_f_below_nonburn_shell = 0.0174
-    overshoot_f_above_burn_h_shell  = 0.0174
-    overshoot_f_below_burn_h_shell  = 0.0174
-    overshoot_f_above_burn_he_shell = 0.0174
-    overshoot_f_below_burn_he_shell = 0.0174
-    overshoot_f_above_burn_z_shell  = 0.0174
-    overshoot_f_below_burn_z_shell  = 0.0174
-    overshoot_f0_above_nonburn_shell = 0.0087
-    overshoot_f0_below_nonburn_shell = 0.0087
-    overshoot_f0_above_burn_h_shell  = 0.0087
-    overshoot_f0_below_burn_h_shell  = 0.0087
-    overshoot_f0_above_burn_he_shell = 0.0087
-    overshoot_f0_below_burn_he_shell = 0.0087
-    overshoot_f0_below_burn_z_shell  = 0.0087
-    overshoot_f0_above_burn_z_shell  = 0.0087
+!    overshoot_f_above_nonburn_shell = 0.0174
+!    overshoot_f_below_nonburn_shell = 0.0174
+!    overshoot_f_above_burn_h_shell  = 0.0174
+!    overshoot_f_below_burn_h_shell  = 0.0174
+!    overshoot_f_above_burn_he_shell = 0.0174
+!    overshoot_f_below_burn_he_shell = 0.0174
+!    overshoot_f_above_burn_z_shell  = 0.0174
+!    overshoot_f_below_burn_z_shell  = 0.0174
+!    overshoot_f0_above_nonburn_shell = 0.0087
+!    overshoot_f0_below_nonburn_shell = 0.0087
+!    overshoot_f0_above_burn_h_shell  = 0.0087
+!    overshoot_f0_below_burn_h_shell  = 0.0087
+!    overshoot_f0_above_burn_he_shell = 0.0087
+!    overshoot_f0_below_burn_he_shell = 0.0087
+!    overshoot_f0_below_burn_z_shell  = 0.0087
+!    overshoot_f0_above_burn_z_shell  = 0.0087
 
     !enhance `overshoot_f_below_nonburn_shell` by this factor during 3DUP in TPAGB
-    overshoot_below_noburn_shell_factor = 10
+!    overshoot_below_noburn_shell_factor = 10
 
     !CO enhanced opacities
     use_Type2_opacities = .true.

@@ -7,7 +7,7 @@
 !!!!!!!!!! GRID 1
 !!!!!!!!!!
 
-  Grid1_win_flag = .TRUE.
+  Grid1_win_flag = .FALSE.
 
   Grid1_win_width = 15
   Grid1_win_aspect_ratio = 0.55 ! aspect_ratio = height/width
@@ -317,7 +317,7 @@
 !!!!!!!!!!
 !!!!!!!!!! GRID 2
 !!!!!!!!!!
-  Grid2_win_flag = .TRUE.
+  Grid2_win_flag = .false.
 
   Grid2_win_width = 15
   Grid2_win_aspect_ratio = 0.55 ! aspect_ratio = height/width

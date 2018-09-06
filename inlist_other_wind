@@ -62,7 +62,7 @@
       profile_interval = 250
 	  max_num_profile_models = 5
 	  write_controls_info_with_profile = .true.
-      history_interval = 5
+      history_interval = 1
       terminal_interval = 100
       write_header_frequency = 10
 
@@ -124,7 +124,7 @@
 !      Zbase = 0.00 ! this is set to Z of the star in run_star_extras.f
 !!!! RSE (currently set in regular inlist)
 
-  use_other_wind = .true.
+  use_other_wind = .false.
   cool_wind_RGB_scheme = 'Reimers'
   cool_wind_AGB_scheme = 'Blocker'
   RGB_to_AGB_wind_switch = 1d-4

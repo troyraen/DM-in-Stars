@@ -24,9 +24,9 @@
     new_net_name = 'o18_and_ne22.net'
 
     !opacities with AGSS09 abundances
-    kappa_file_prefix = 'a09'
-    kappa_lowT_prefix = 'lowT_fa05_a09p'
-    kappa_CO_prefix = 'a09_co'
+!    kappa_file_prefix = 'a09'
+!    kappa_lowT_prefix = 'lowT_fa05_a09p'
+!    kappa_CO_prefix = 'a09_co'
 
     !use jina
     set_rates_preference = .true.
@@ -62,7 +62,7 @@
       profile_interval = 250
 	  max_num_profile_models = 5
 	  write_controls_info_with_profile = .true.
-      history_interval = 5
+      history_interval = 1
       terminal_interval = 100
       write_header_frequency = 10
 
@@ -118,9 +118,9 @@
     overshoot_below_noburn_shell_factor = 10
 
     !CO enhanced opacities
-    use_Type2_opacities = .true.
-    kap_Type2_full_off_X = 1d-3
-    kap_Type2_full_on_X = 1d-6
+!    use_Type2_opacities = .true.
+!    kap_Type2_full_off_X = 1d-3
+!    kap_Type2_full_on_X = 1d-6
 !      Zbase = 0.00 ! this is set to Z of the star in run_star_extras.f
 !!!! RSE (currently set in regular inlist)
 

@@ -29,8 +29,8 @@
     kappa_CO_prefix = 'a09_co'
 
     !use jina
-    set_rates_preference = .true.
-    new_rates_preference = 2
+!    set_rates_preference = .true.
+!    new_rates_preference = 2
 
 / ! end of star_job namelist
 
@@ -62,7 +62,7 @@
       profile_interval = 250
 	  max_num_profile_models = 5
 	  write_controls_info_with_profile = .true.
-      history_interval = 5
+      history_interval = 1
       terminal_interval = 100
       write_header_frequency = 10
 

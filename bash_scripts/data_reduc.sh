@@ -14,7 +14,6 @@
 #
 #   for loop at bottom runs function on list of LOGS dirs
 #
-#   ASSUMES center_h1 IS COLUMN 30 AND model_number IS COLUMN 1 OF HISTORY FILE
 ######
 function data_reduc {
     if [ $# -eq 0 ]
@@ -23,7 +22,7 @@ function data_reduc {
         exit 1
     fi
 
-    num_keep=150 # number of models to keep from postMS (not exact since rounding happens later)
+    num_keep=500 # number of models to keep from postMS (not exact since rounding happens later)
     dir=$1
     pdat=$dir/profiles.index
     hdat=$dir/history.data
@@ -66,6 +65,10 @@ function data_reduc {
     wc -l $hreduc
     echo
 }
+
+data_reduc $1/LOGS
+
+
 ############
 
 # # drs=($(find /Users/troyraen/Google_Drive/MESA/code/DATA/mesaruns/mass0p8 -name 'LOGS*' -type d))
@@ -79,17 +82,18 @@ function data_reduc {
 # done
 
 
-maindir=/home/tjr63/histdat/RUNS_xL_lt_0p2/SD
-drs=($(find /home/tjr63/mesaruns/RUNS -name 'c[0-6]'))
-for dir in "${drs[@]}"; do
-    # echo $dir
-    cp -r $dir ${maindir}/.
-done
-drs=($(find ${maindir} -name 'LOGS'))
-for dir in "${drs[@]}"; do
-    ./del_dup_mods.sh ${dir}
-    rm ${dir}/history_pre_del_dup_mods.data
-    data_reduc ${dir}
-    mv ${dir}/history_reduc.data ${dir}/history.data
-    # rm ${dir}/history_reduc.data
-done
+############
+# maindir=/home/tjr63/histdat/RUNS_xL_lt_0p2/SD
+# drs=($(find /home/tjr63/mesaruns/RUNS -name 'c[0-6]'))
+# for dir in "${drs[@]}"; do
+#     # echo $dir
+#     cp -r $dir ${maindir}/.
+# done
+# drs=($(find ${maindir} -name 'LOGS'))
+# for dir in "${drs[@]}"; do
+#     ./del_dup_mods.sh ${dir}
+#     rm ${dir}/history_pre_del_dup_mods.data
+#     data_reduc ${dir}
+#     mv ${dir}/history_reduc.data ${dir}/history.data
+#     # rm ${dir}/history_reduc.data
+# done
