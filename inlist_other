@@ -24,9 +24,9 @@
     new_net_name = 'o18_and_ne22.net'
 
     !opacities with AGSS09 abundances
-!    kappa_file_prefix = 'a09'
-!    kappa_lowT_prefix = 'lowT_fa05_a09p'
-!    kappa_CO_prefix = 'a09_co'
+    kappa_file_prefix = 'a09'
+    kappa_lowT_prefix = 'lowT_fa05_a09p'
+    kappa_CO_prefix = 'a09_co'
 
     !use jina
     set_rates_preference = .true.
@@ -76,15 +76,34 @@
     which_atm_option = 'simple_photosphere'
 
     use_Ledoux_criterion = .true.
-    alpha_semiconvection = 0.1
-    thermohaline_coeff = 666.0
+    alpha_semiconvection = 4d-2
+    thermohaline_coeff = 2
+    mixing_length_alpha = 2
+    okay_to_reduce_gradT_excess = .true.
 
-    mixing_length_alpha = 1.82
-    mlt_option = 'Henyey'
+                ! these are for calculation of efficiency boosted gradT
+                gradT_excess_f1 = 1d-4
+                gradT_excess_f2 = 1d-2
+                gradT_excess_age_fraction = 0.9d0
+
+                ! turn on full all the time
+                gradT_excess_lambda1 = 1.0
+                gradT_excess_beta1 = 0.5
+                gradT_excess_lambda2 = 1.0
+                gradT_excess_beta2 = 0.5
+                gradT_excess_dlambda = 1
+                gradT_excess_dbeta = 1
+
+!    use_Ledoux_criterion = .true.
+!    alpha_semiconvection = 0.1
+!    thermohaline_coeff = 666.0
+
+!    mixing_length_alpha = 1.82
+!    mlt_option = 'Henyey'
 
     !to help with convergence
-    okay_to_reduce_gradT_excess = .true.
-    Pextra_factor = 2.0
+!    okay_to_reduce_gradT_excess = .true.
+!    Pextra_factor = 2.0
 
     !H core overshoot calibrated to M67
     overshoot_f_above_nonburn_core = 0.016
@@ -117,11 +136,10 @@
     !enhance `overshoot_f_below_nonburn_shell` by this factor during 3DUP in TPAGB
     overshoot_below_noburn_shell_factor = 10
 
-    use_Type2_opacities = .true.
     !CO enhanced opacities
-!    use_Type2_opacities = .true.
-!    kap_Type2_full_off_X = 1d-3
-!    kap_Type2_full_on_X = 1d-6
+    use_Type2_opacities = .true.
+    kap_Type2_full_off_X = 1d-3
+    kap_Type2_full_on_X = 1d-6
 !      Zbase = 0.00 ! this is set to Z of the star in run_star_extras.f
 !!!! RSE (currently set in regular inlist)
 
@@ -141,7 +159,7 @@
 !!!
 
   !to help with breathing pulses
-  include_dmu_dt_in_eps_grav = .true.
+!  include_dmu_dt_in_eps_grav = .true.
 
 !CORE MASS DEFINITION
 

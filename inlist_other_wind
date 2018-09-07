@@ -125,12 +125,22 @@
 !!!! RSE (currently set in regular inlist)
 
   use_other_wind = .false.
+  cool_wind_full_on_T = 9d6
+  hot_wind_full_on_T = 1d7
+!      cool_wind_full_off_T = 1d7
   cool_wind_RGB_scheme = 'Reimers'
   cool_wind_AGB_scheme = 'Blocker'
   RGB_to_AGB_wind_switch = 1d-4
-  Reimers_scaling_factor = 0.1
-  Blocker_scaling_factor = 0.2
-  max_wind = 1d-3
+  Reimers_scaling_factor = 0.7d0
+  Blocker_scaling_factor = 1.5d0
+
+!  use_other_wind = .true.
+!  cool_wind_RGB_scheme = 'Reimers'
+!  cool_wind_AGB_scheme = 'Blocker'
+!  RGB_to_AGB_wind_switch = 1d-4
+!  Reimers_scaling_factor = 0.1
+!  Blocker_scaling_factor = 0.2
+!  max_wind = 1d-3
 
 ! try this and see if it makes a difference
 !    do_element_diffusion = .true.
