@@ -1,7 +1,7 @@
 #!/bin/bash
 
-declare -A ivals=( [jina]=jina [mts]=mesh_timestep [opa]=opacity [ovs]=overshoot [ow]=other_wind [opos]=opacity_overshoot [oth]=other [OG]=OG)
-declare -a iord=( OG opa mts ow opos oth )
+declare -A ivals=( [mlt]=mlt [sc]=semiconvection [th]=thermohaline [jina]=jina [mts]=mesh_timestep [opa]=opacity [ovs]=overshoot [ow]=other_wind [opos]=opacity_overshoot [oth]=other [OG]=OG)
+declare -a iord=( mlt sc th )
 
 
 maindir=/home/tjr63/mesaruns

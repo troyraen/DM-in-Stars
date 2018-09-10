@@ -1,0 +1,203 @@
+
+&star_job
+
+    history_columns_file = '/home/tjr63/mesaruns/history_columns.list'
+    profile_columns_file = '/home/tjr63/mesaruns/profile_columns.list'
+
+      show_log_description_at_start = .false.
+
+      save_model_when_terminate = .true.
+      save_model_filename = 'final.mod'
+      save_photo_when_terminate = .true.
+      write_profile_when_terminate = .true.
+      filename_for_profile_when_terminate = 'LOGS/profile0.data'
+
+      pgstar_flag = .true.
+
+!PMS
+      create_pre_main_sequence_model = .true.
+      pre_ms_T_c = 5d5
+
+!OPACITY, NETWORK, RATE, etc.
+    !network
+    change_net = .true.
+    new_net_name = 'o18_and_ne22.net'
+
+    !opacities with AGSS09 abundances
+    kappa_file_prefix = 'a09'
+    kappa_lowT_prefix = 'lowT_fa05_a09p'
+    kappa_CO_prefix = 'a09_co'
+
+    !use jina
+    set_rates_preference = .true.
+    new_rates_preference = 2
+
+/ ! end of star_job namelist
+
+
+&controls
+
+!      use_other_energy_implicit = .true.
+                            ! to run models with no dark matter, set this to .false.
+!      X_CTRL(1) = 1.D1  ! this sets cboost in wimp_module.f90
+                            ! typical range is 0.D1 (no DM`) to 1.D6
+!      X_LOGICAL_CTRL(1) = .TRUE.    ! sets spindep in wimp_module.f90
+                                    ! .true. = spin dependent
+                                    ! .false. = spin independent
+!      initial_mass = 1.0
+
+        X_CTRL(7) = 1.E-4 ! tolerance finding emoment root (Tx)
+                            ! conditionally changed in run_star_extras
+
+      initial_z = 0.014d0
+      Zbase = 0.014d0
+
+!	STOPPING CONDITIONS
+      log_L_lower_limit = -1.0
+	  stop_at_TP = .TRUE.
+!	  max_age = 13d9
+
+!   SAVE DATA
+      photo_interval = 50
+      profile_interval = 250
+	  max_num_profile_models = 5
+	  write_controls_info_with_profile = .true.
+      history_interval = 1
+      terminal_interval = 100
+      write_header_frequency = 10
+
+      max_years_for_timestep = 1d9
+
+      read_extra_controls_inlist1 = .true.
+      extra_controls_inlist1_name = 'inlist_cluster'
+
+!PHYSICS (MIST)
+
+    which_atm_option = 'simple_photosphere'
+
+    use_Ledoux_criterion = .true.
+    alpha_semiconvection = 4d-2
+    thermohaline_coeff = 2
+!    mixing_length_alpha = 2
+    okay_to_reduce_gradT_excess = .true.
+
+                ! these are for calculation of efficiency boosted gradT
+                gradT_excess_f1 = 1d-4
+                gradT_excess_f2 = 1d-2
+                gradT_excess_age_fraction = 0.9d0
+
+                ! turn on full all the time
+                gradT_excess_lambda1 = 1.0
+                gradT_excess_beta1 = 0.5
+                gradT_excess_lambda2 = 1.0
+                gradT_excess_beta2 = 0.5
+                gradT_excess_dlambda = 1
+                gradT_excess_dbeta = 1
+
+!    use_Ledoux_criterion = .true.
+!    alpha_semiconvection = 0.1
+!    thermohaline_coeff = 666.0
+
+    mixing_length_alpha = 1.82
+    mlt_option = 'Henyey'
+
+    !to help with convergence
+!    okay_to_reduce_gradT_excess = .true.
+!    Pextra_factor = 2.0
+
+    !H core overshoot calibrated to M67
+    overshoot_f_above_nonburn_core = 0.016
+    overshoot_f_above_burn_h_core  = 0.016
+    overshoot_f_above_burn_he_core = 0.016
+    overshoot_f_above_burn_z_core  = 0.016
+    overshoot_f0_above_nonburn_core = 0.008
+    overshoot_f0_above_burn_h_core  = 0.008
+    overshoot_f0_above_burn_he_core = 0.008
+    overshoot_f0_above_burn_z_core  = 0.008
+
+    !envelope overshoot calibrated to the sun
+    overshoot_f_above_nonburn_shell = 0.0174
+    overshoot_f_below_nonburn_shell = 0.0174
+    overshoot_f_above_burn_h_shell  = 0.0174
+    overshoot_f_below_burn_h_shell  = 0.0174
+    overshoot_f_above_burn_he_shell = 0.0174
+    overshoot_f_below_burn_he_shell = 0.0174
+    overshoot_f_above_burn_z_shell  = 0.0174
+    overshoot_f_below_burn_z_shell  = 0.0174
+    overshoot_f0_above_nonburn_shell = 0.0087
+    overshoot_f0_below_nonburn_shell = 0.0087
+    overshoot_f0_above_burn_h_shell  = 0.0087
+    overshoot_f0_below_burn_h_shell  = 0.0087
+    overshoot_f0_above_burn_he_shell = 0.0087
+    overshoot_f0_below_burn_he_shell = 0.0087
+    overshoot_f0_below_burn_z_shell  = 0.0087
+    overshoot_f0_above_burn_z_shell  = 0.0087
+
+    !enhance `overshoot_f_below_nonburn_shell` by this factor during 3DUP in TPAGB
+    overshoot_below_noburn_shell_factor = 10
+
+    !CO enhanced opacities
+    use_Type2_opacities = .true.
+    kap_Type2_full_off_X = 1d-3
+    kap_Type2_full_on_X = 1d-6
+!      Zbase = 0.00 ! this is set to Z of the star in run_star_extras.f
+!!!! RSE (currently set in regular inlist)
+
+  use_other_wind = .true.
+  cool_wind_RGB_scheme = 'Reimers'
+  cool_wind_AGB_scheme = 'Blocker'
+  RGB_to_AGB_wind_switch = 1d-4
+  Reimers_scaling_factor = 0.1
+  Blocker_scaling_factor = 0.2
+  max_wind = 1d-3
+
+! try this and see if it makes a difference
+!    do_element_diffusion = .true.
+!    diffusion_dt_limit = 3.15e13
+!    diffusion_min_T_at_surface = 1d3
+!    radiation_turbulence_coeff = 1.0
+!!!
+
+  !to help with breathing pulses
+!  include_dmu_dt_in_eps_grav = .true.
+
+!CORE MASS DEFINITION
+
+    he_core_boundary_h1_fraction = 1d-4
+    c_core_boundary_he4_fraction = 1d-4
+    o_core_boundary_c12_fraction = 1d-4
+
+!MESH AND TIMESTEP PARAMETERS
+    mesh_delta_coeff = 1.0
+    varcontrol_target = 1d-4
+    max_allowed_nz = 50000
+
+    !better resolution of the Henyey hook
+    delta_lg_XH_cntr_max = -1
+
+    ! limit for magnitude of max change
+    delta_lgTeff_limit = 0.005
+    delta_lgTeff_hard_limit = 0.01
+    delta_lgL_limit = 0.02
+    delta_lgL_hard_limit = 0.05
+
+    !multiply mesh_delta_coeff in overshooting regions by this factor
+    xtra_coef_os_above_nonburn = 0.5
+    xtra_coef_os_below_nonburn = 0.5
+    xtra_coef_os_above_burn_h = 0.5
+    xtra_coef_os_below_burn_h = 0.5
+    xtra_coef_os_above_burn_he = 0.5
+    xtra_coef_os_below_burn_he = 0.5
+    xtra_coef_os_above_burn_z = 0.5
+    xtra_coef_os_below_burn_z = 0.5
+
+/ ! end of controls namelist
+
+
+
+&pgstar
+
+    read_extra_pgstar_inlist1 = .true.
+    extra_pgstar_inlist1_name = '/home/tjr63/mesaruns/inlist_pgstar_my'
+
+/ ! end of pgstar namelist
