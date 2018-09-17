@@ -22,7 +22,7 @@
       create_pre_main_sequence_model = .true.
 
 
-!      pgstar_flag = .true.
+      pgstar_flag = .true.
 
 !      read_extra_star_job_inlist1 = .true.
 !      extra_star_job_inlist1_name = 'inlist_cluster'  ! inlist controlling varying params
