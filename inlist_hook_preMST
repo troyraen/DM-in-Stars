@@ -16,7 +16,7 @@
 
 !PMS
       create_pre_main_sequence_model = .true.
-      pre_ms_T_c = 5d5
+!      pre_ms_T_c = 5d5
 
 !OPACITY, NETWORK, RATE, etc.
     !network
@@ -76,8 +76,7 @@
     which_atm_option = 'simple_photosphere'
 
     use_Ledoux_criterion = .true.
-!    alpha_semiconvection = 0.1
-    alpha_semiconvection = 4d-2
+    alpha_semiconvection = 0.1
     thermohaline_coeff = 666.0
 
     mixing_length_alpha = 1.82
@@ -155,7 +154,7 @@
     max_allowed_nz = 50000
 
     !better resolution of the Henyey hook
-    delta_lg_XH_cntr_max = -1
+!    delta_lg_XH_cntr_max = -1
 
     ! limit for magnitude of max change
     delta_lgTeff_limit = 0.005

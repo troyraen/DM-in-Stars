@@ -62,7 +62,7 @@
       profile_interval = 250
 	  max_num_profile_models = 5
 	  write_controls_info_with_profile = .true.
-      history_interval = 1
+      history_interval = 5
       terminal_interval = 100
       write_header_frequency = 10
 
@@ -76,34 +76,16 @@
     which_atm_option = 'simple_photosphere'
 
     use_Ledoux_criterion = .true.
-    alpha_semiconvection = 4d-2
-!    thermohaline_coeff = 2
-    mixing_length_alpha = 2
-    okay_to_reduce_gradT_excess = .true.
+    alpha_semiconvection = 0.1
+!    thermohaline_coeff = 666.0
+    thermohaline_coeff = 2
 
-                ! these are for calculation of efficiency boosted gradT
-                gradT_excess_f1 = 1d-4
-                gradT_excess_f2 = 1d-2
-                gradT_excess_age_fraction = 0.9d0
-
-                ! turn on full all the time
-                gradT_excess_lambda1 = 1.0
-                gradT_excess_beta1 = 0.5
-                gradT_excess_lambda2 = 1.0
-                gradT_excess_beta2 = 0.5
-                gradT_excess_dlambda = 1
-                gradT_excess_dbeta = 1
-
-!    use_Ledoux_criterion = .true.
-!    alpha_semiconvection = 0.1
-    thermohaline_coeff = 666.0
-
-!    mixing_length_alpha = 1.82
-!    mlt_option = 'Henyey'
+    mixing_length_alpha = 1.82
+    mlt_option = 'Henyey'
 
     !to help with convergence
-!    okay_to_reduce_gradT_excess = .true.
-!    Pextra_factor = 2.0
+    okay_to_reduce_gradT_excess = .true.
+    Pextra_factor = 2.0
 
     !H core overshoot calibrated to M67
     overshoot_f_above_nonburn_core = 0.016
@@ -159,7 +141,7 @@
 !!!
 
   !to help with breathing pulses
-!  include_dmu_dt_in_eps_grav = .true.
+  include_dmu_dt_in_eps_grav = .true.
 
 !CORE MASS DEFINITION
 

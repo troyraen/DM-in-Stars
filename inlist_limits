@@ -76,8 +76,7 @@
     which_atm_option = 'simple_photosphere'
 
     use_Ledoux_criterion = .true.
-!    alpha_semiconvection = 0.1
-    alpha_semiconvection = 4d-2
+    alpha_semiconvection = 0.1
     thermohaline_coeff = 666.0
 
     mixing_length_alpha = 1.82
@@ -158,10 +157,29 @@
     delta_lg_XH_cntr_max = -1
 
     ! limit for magnitude of max change
-    delta_lgTeff_limit = 0.005
-    delta_lgTeff_hard_limit = 0.01
-    delta_lgL_limit = 0.02
-    delta_lgL_hard_limit = 0.05
+!    delta_lgTeff_limit = 0.005
+!    delta_lgTeff_hard_limit = 0.01
+!    delta_lgL_limit = 0.02
+!    delta_lgL_hard_limit = 0.05
+! limit for magnitude of max change
+       mesh_delta_coeff_for_highT = 0.75d0
+       logT_max_for_standard_mesh_delta_coeff = 5.0d0
+       logT_min_for_highT_mesh_delta_coeff = 5.5d0
+
+       dH_div_H_limit = 0.9d0
+             ! these are for calculation of efficiency boosted gradT
+             gradT_excess_f1 = 1d-4
+             gradT_excess_f2 = 1d-2
+             gradT_excess_age_fraction = 0.9d0
+
+             ! turn on full all the time
+             gradT_excess_lambda1 = 1.0
+             gradT_excess_beta1 = 0.5
+             gradT_excess_lambda2 = 1.0
+             gradT_excess_beta2 = 0.5
+             gradT_excess_dlambda = 1
+             gradT_excess_dbeta = 1
+
 
     !multiply mesh_delta_coeff in overshooting regions by this factor
     xtra_coef_os_above_nonburn = 0.5

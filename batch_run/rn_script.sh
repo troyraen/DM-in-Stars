@@ -1,7 +1,8 @@
 #!/bin/bash
 
-declare -A ivals=( [mlt]=mlt [sc]=semiconvection [th]=thermohaline [jina]=jina [mts]=mesh_timestep [opa]=opacity [ovs]=overshoot [ow]=other_wind [opos]=opacity_overshoot [oth]=other [OG]=OG)
-declare -a iord=( mlt sc th )
+# declare -A ivals=( [mlt]=mlt [sc]=semiconvection [th]=thermohaline [jina]=jina [mts]=mesh_timestep [opa]=opacity [ovs]=overshoot [ow]=other_wind [opos]=opacity_overshoot [oth]=other [OG]=OG)
+declare -A ivals=( [mlt]=mlt [sc]=semiconvection [th]=thermohaline [opa]=opacity [oth]=other [OG]=OG [pre]=preMIST [lim]=limits [hms]=hook_preMST)
+declare -a iord=( pre opa mlt sc th lim hms oth)
 
 
 maindir=/home/tjr63/mesaruns
@@ -19,7 +20,7 @@ for inlst in "${iord[@]}"; do
     $maindir/pgstar_movie grid2
     mv $maindir/movie.mp4 $maindir/LOGS/grid2.mp4
 
-    newlogs=$maindir/RUNS_refined_mist/LOGSc5_${ivals[$inlst]}
+    newlogs=$maindir/RUNS_fixed_mist_test/LOGSc5_${ivals[$inlst]}
     mv $maindir/LOGS $newlogs
     mv $maindir/photos $newlogs/.
     mv $maindir/png $newlogs/.

@@ -29,8 +29,8 @@
     kappa_CO_prefix = 'a09_co'
 
     !use jina
-    set_rates_preference = .true.
-    new_rates_preference = 2
+!    set_rates_preference = .true.
+!    new_rates_preference = 2
 
 / ! end of star_job namelist
 
@@ -62,7 +62,7 @@
       profile_interval = 250
 	  max_num_profile_models = 5
 	  write_controls_info_with_profile = .true.
-      history_interval = 1
+      history_interval = 5
       terminal_interval = 100
       write_header_frequency = 10
 
@@ -76,65 +76,46 @@
     which_atm_option = 'simple_photosphere'
 
     use_Ledoux_criterion = .true.
-    alpha_semiconvection = 4d-2
-    thermohaline_coeff = 2
-    mixing_length_alpha = 2
-    okay_to_reduce_gradT_excess = .true.
+    alpha_semiconvection = 0.1
+    thermohaline_coeff = 666.0
 
-                ! these are for calculation of efficiency boosted gradT
-                gradT_excess_f1 = 1d-4
-                gradT_excess_f2 = 1d-2
-                gradT_excess_age_fraction = 0.9d0
-
-                ! turn on full all the time
-                gradT_excess_lambda1 = 1.0
-                gradT_excess_beta1 = 0.5
-                gradT_excess_lambda2 = 1.0
-                gradT_excess_beta2 = 0.5
-                gradT_excess_dlambda = 1
-                gradT_excess_dbeta = 1
-
-!    use_Ledoux_criterion = .true.
-!    alpha_semiconvection = 0.1
-!    thermohaline_coeff = 666.0
-
-!    mixing_length_alpha = 1.82
-!    mlt_option = 'Henyey'
+    mixing_length_alpha = 1.82
+    mlt_option = 'Henyey'
 
     !to help with convergence
-!    okay_to_reduce_gradT_excess = .true.
+    okay_to_reduce_gradT_excess = .true.
 !    Pextra_factor = 2.0
 
     !H core overshoot calibrated to M67
-    overshoot_f_above_nonburn_core = 0.016
-    overshoot_f_above_burn_h_core  = 0.016
-    overshoot_f_above_burn_he_core = 0.016
-    overshoot_f_above_burn_z_core  = 0.016
-    overshoot_f0_above_nonburn_core = 0.008
-    overshoot_f0_above_burn_h_core  = 0.008
-    overshoot_f0_above_burn_he_core = 0.008
-    overshoot_f0_above_burn_z_core  = 0.008
+!    overshoot_f_above_nonburn_core = 0.016
+!    overshoot_f_above_burn_h_core  = 0.016
+!    overshoot_f_above_burn_he_core = 0.016
+!    overshoot_f_above_burn_z_core  = 0.016
+!    overshoot_f0_above_nonburn_core = 0.008
+!    overshoot_f0_above_burn_h_core  = 0.008
+!    overshoot_f0_above_burn_he_core = 0.008
+!    overshoot_f0_above_burn_z_core  = 0.008
 
     !envelope overshoot calibrated to the sun
-    overshoot_f_above_nonburn_shell = 0.0174
-    overshoot_f_below_nonburn_shell = 0.0174
-    overshoot_f_above_burn_h_shell  = 0.0174
-    overshoot_f_below_burn_h_shell  = 0.0174
-    overshoot_f_above_burn_he_shell = 0.0174
-    overshoot_f_below_burn_he_shell = 0.0174
-    overshoot_f_above_burn_z_shell  = 0.0174
-    overshoot_f_below_burn_z_shell  = 0.0174
-    overshoot_f0_above_nonburn_shell = 0.0087
-    overshoot_f0_below_nonburn_shell = 0.0087
-    overshoot_f0_above_burn_h_shell  = 0.0087
-    overshoot_f0_below_burn_h_shell  = 0.0087
-    overshoot_f0_above_burn_he_shell = 0.0087
-    overshoot_f0_below_burn_he_shell = 0.0087
-    overshoot_f0_below_burn_z_shell  = 0.0087
-    overshoot_f0_above_burn_z_shell  = 0.0087
+!    overshoot_f_above_nonburn_shell = 0.0174
+!    overshoot_f_below_nonburn_shell = 0.0174
+!    overshoot_f_above_burn_h_shell  = 0.0174
+!    overshoot_f_below_burn_h_shell  = 0.0174
+!    overshoot_f_above_burn_he_shell = 0.0174
+!    overshoot_f_below_burn_he_shell = 0.0174
+!    overshoot_f_above_burn_z_shell  = 0.0174
+!    overshoot_f_below_burn_z_shell  = 0.0174
+!    overshoot_f0_above_nonburn_shell = 0.0087
+!    overshoot_f0_below_nonburn_shell = 0.0087
+!    overshoot_f0_above_burn_h_shell  = 0.0087
+!    overshoot_f0_below_burn_h_shell  = 0.0087
+!    overshoot_f0_above_burn_he_shell = 0.0087
+!    overshoot_f0_below_burn_he_shell = 0.0087
+!    overshoot_f0_below_burn_z_shell  = 0.0087
+!    overshoot_f0_above_burn_z_shell  = 0.0087
 
     !enhance `overshoot_f_below_nonburn_shell` by this factor during 3DUP in TPAGB
-    overshoot_below_noburn_shell_factor = 10
+!    overshoot_below_noburn_shell_factor = 10
 
     !CO enhanced opacities
     use_Type2_opacities = .true.
@@ -143,13 +124,18 @@
 !      Zbase = 0.00 ! this is set to Z of the star in run_star_extras.f
 !!!! RSE (currently set in regular inlist)
 
-  use_other_wind = .true.
+!  use_other_wind = .true.
   cool_wind_RGB_scheme = 'Reimers'
   cool_wind_AGB_scheme = 'Blocker'
   RGB_to_AGB_wind_switch = 1d-4
-  Reimers_scaling_factor = 0.1
-  Blocker_scaling_factor = 0.2
-  max_wind = 1d-3
+!  Reimers_scaling_factor = 0.1
+!  Blocker_scaling_factor = 0.2
+!  max_wind = 1d-3
+       cool_wind_full_on_T = 9d6
+       hot_wind_full_on_T = 1d7
+       Reimers_scaling_factor = 0.7d0
+       Blocker_scaling_factor = 1.5d0
+
 
 ! try this and see if it makes a difference
 !    do_element_diffusion = .true.
@@ -163,14 +149,16 @@
 
 !CORE MASS DEFINITION
 
-    he_core_boundary_h1_fraction = 1d-4
-    c_core_boundary_he4_fraction = 1d-4
-    o_core_boundary_c12_fraction = 1d-4
+!    he_core_boundary_h1_fraction = 1d-4
+!    c_core_boundary_he4_fraction = 1d-4
+!    o_core_boundary_c12_fraction = 1d-4
 
 !MESH AND TIMESTEP PARAMETERS
-    mesh_delta_coeff = 1.0
-    varcontrol_target = 1d-4
-    max_allowed_nz = 50000
+!    mesh_delta_coeff = 1.0
+!    varcontrol_target = 1d-4
+!    max_allowed_nz = 50000
+        varcontrol_target = 1d-3
+       mesh_delta_coeff = 1.5
 
     !better resolution of the Henyey hook
     delta_lg_XH_cntr_max = -1
@@ -182,14 +170,14 @@
     delta_lgL_hard_limit = 0.05
 
     !multiply mesh_delta_coeff in overshooting regions by this factor
-    xtra_coef_os_above_nonburn = 0.5
-    xtra_coef_os_below_nonburn = 0.5
-    xtra_coef_os_above_burn_h = 0.5
-    xtra_coef_os_below_burn_h = 0.5
-    xtra_coef_os_above_burn_he = 0.5
-    xtra_coef_os_below_burn_he = 0.5
-    xtra_coef_os_above_burn_z = 0.5
-    xtra_coef_os_below_burn_z = 0.5
+!    xtra_coef_os_above_nonburn = 0.5
+!    xtra_coef_os_below_nonburn = 0.5
+!    xtra_coef_os_above_burn_h = 0.5
+!    xtra_coef_os_below_burn_h = 0.5
+!    xtra_coef_os_above_burn_he = 0.5
+!    xtra_coef_os_below_burn_he = 0.5
+!    xtra_coef_os_above_burn_z = 0.5
+!    xtra_coef_os_below_burn_z = 0.5
 
 / ! end of controls namelist
 

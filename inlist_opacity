@@ -119,7 +119,7 @@
 
     use_Type2_opacities = .true.
     !CO enhanced opacities
-!    use_Type2_opacities = .true.
+    use_Type2_opacities = .true.
 !    kap_Type2_full_off_X = 1d-3
 !    kap_Type2_full_on_X = 1d-6
 !      Zbase = 0.00 ! this is set to Z of the star in run_star_extras.f
