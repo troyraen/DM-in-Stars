@@ -382,6 +382,9 @@
 	ENDDO
 	IF ( ABS(xL/ s% L_nuc_burn(1)) .GT. 1.0 ) THEN ! L_nuc_burn integrated from center (ergs/sec)
 		Ttmp = linear_root(Tarray)
+		WRITE(*,*) "ZBRENT---***---"
+		WRITE(*,*) "ZBRENT---***--- model number = " s% model_number
+		WRITE(*,*) "ZBRENT---***--- xL/ s% L_nuc_burn(1) = ", xL/ s% L_nuc_burn(1),  "---***---"
 	ENDIF
 
 	calc_Tx = Ttmp
@@ -403,6 +406,13 @@
 		y2 = Tarray(4)
 		m = (y2-y1)/(x2-x1)
 		linear_root = x1 - y1/m ! Tx
+
+		WRITE(*,*) "ZBRENT---***--- slope = ", m
+		WRITE(*,*) "ZBRENT---***--- Tx OLD = ", x1
+		WRITE(*,*) "ZBRENT---***--- emoment OLD = ", y1
+		WRITE(*,*) "ZBRENT---***--- Tx NEW = ", linear_root
+		WRITE(*,*) "ZBRENT---***--- emoment NEW = ", emoment(linear_root)
+		WRITE(*,*) "ZBRENT---***---"
 
 	END FUNCTION linear_root
 
