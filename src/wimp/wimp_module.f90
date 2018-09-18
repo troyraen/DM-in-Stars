@@ -376,8 +376,8 @@
 	! else approximate emoment root function
 	! with straight line to find better Tx
 	xL = 0.0
-	DO k = 1,kmax
-		xL = xL + s% extra_heat(k)* s% dq(k) ! (ergs/gm/sec)*gm
+	DO itr = 1,kmax
+		xL = xL + s% extra_heat(itr)* s% dq(itr) ! (ergs/gm/sec)*gm
 	ENDDO
 	IF ( ABS(xL/ s% L_nuc_burn(1)) .GT. 1.0 ) THEN ! L_nuc_burn integrated from center (ergs/sec)
 		Ttmp = linear_root(Tarray)
