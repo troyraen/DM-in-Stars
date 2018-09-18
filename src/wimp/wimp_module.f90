@@ -383,7 +383,7 @@
 	IF ( ABS(xL/ s% L_nuc_burn(1)) .GT. 1.0 ) THEN ! L_nuc_burn integrated from center (ergs/sec)
 		Ttmp = linear_root(Tarray)
 		WRITE(*,*) "ZBRENT---***---"
-		WRITE(*,*) "ZBRENT---***--- model number = " s% model_number
+		WRITE(*,*) "ZBRENT---***--- model number = ", s% model_number
 		WRITE(*,*) "ZBRENT---***--- xL/ s% L_nuc_burn(1) = ", xL/ s% L_nuc_burn(1),  "---***---"
 	ENDIF
 
