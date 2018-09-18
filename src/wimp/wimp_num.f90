@@ -11,7 +11,7 @@
 	USE nrtype; USE nrutil, ONLY : nrerror
 	IMPLICIT NONE
 	REAL(DP), INTENT(IN) :: x1,x2,tol
-	REAL(DP) :: zbrent
+	REAL(DP), DIMENSION(4) :: zbrent
 	INTERFACE
 		FUNCTION func(x)
 		USE nrtype
@@ -31,7 +31,7 @@
 	if ((fa > 0.0 .and. fb > 0.0) .or. (fa < 0.0 .and. fb < 0.0)) THEN
 !		call nrerror('root must be bracketed for zbrent')
 !		instead of exiting run, increase lower limit and try again
-		zbrent = -1.0
+		zbrent = [-1.0, 0.0, 0.0, 0.0]
 		RETURN
 	ENDIF
 	c=b
@@ -54,7 +54,26 @@
 		tol1=2.0_dp*EPS*abs(b)+0.5_dp*tol
 		xm=0.5_dp*(c-b)
 		if (abs(xm) <= tol1 .or. fb == 0.0) then
-			zbrent=b
+			! Root (b) has been found.
+			! Return this root plus the root from the other interval
+			! (and both function evaluations).
+			! This will be a or c depending on the signs of fa, fb, and fc.
+			! The second root will be used to approximate the emoment
+			! equation with a straight line so that a more accurate
+			! root can be found when the extra energy is "too high".
+			IF ( SIGN(1.0,fb) .EQ. -SIGN(1.0,fa) ) THEN
+				zbrent = [b, fb, a, fa]
+			ELSE IF ( SIGN(1.0,fb) .EQ. -SIGN(1.0,fc) ) THEN
+				zbrent = [b, fb, c, fc]
+			ELSE
+				WRITE(*,*) "---***--- ALL ZBRENT ROOTS HAVE THE SAME SIGN ---***---"
+				IF ( ABS(fa) .LT. ABS(fc) ) THEN
+					zbrent = [b, fb, a, fa]
+				ELSE
+					zbrent = [b, fb, c, fc]
+				END IF
+			END IF
+			! zbrent=b
 			RETURN
 		end if
 		if (abs(e) >= tol1 .and. abs(fa) > abs(fb)) then
@@ -87,7 +106,7 @@
 		fb=func(b)
 	end do
 	call nrerror('zbrent: exceeded maximum iterations')
-	zbrent=b
+	zbrent=[b, 0.0, 0.0, 0.0]
 	END FUNCTION zbrent
 
 	END MODULE wimp_num

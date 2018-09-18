@@ -310,7 +310,8 @@
 	INTEGER, INTENT(IN) :: id
 	INTEGER, INTENT(OUT) :: ierr
 	DOUBLE PRECISION :: Txhigh, Txlow, tol
-	DOUBLE PRECISION :: Ttmp, calc_Tx
+	DOUBLE PRECISION :: Ttmp, calc_Tx, xL, k
+	DOUBLE PRECISION :: Tarray(4)
 	INTEGER :: tries, model_err=-1
 	LOGICAL :: Tflag=.FALSE.
 	! PARAMETER ( tol = 1.D-4 )
@@ -339,7 +340,8 @@
 		! 	EXIT
 		! ENDIF
 
-		Ttmp = zbrent(emoment, Txhigh, Txlow, tol) ! returns -1 if gets root must be bracketed error
+		Tarray = zbrent(emoment, Txhigh, Txlow, tol) ! returns -1 if gets root must be bracketed error
+		Ttmp = Tarray(1)
 		IF (Txlow.GT.maxT) THEN ! treat as root must be bracketed error. Tx close to Tmax and slope is shallow (most likely)
 			WRITE(*,*) 'Txlow > maxT. Treating as root must be bracketed error. Model =', s% model_number
 			Ttmp = -1.0
@@ -356,7 +358,8 @@
 		ELSE ! go back a step, find root, make sure slope is negative
 			WRITE(*,*) 'root must be bracketed. Txhigh=', Txhigh, 'Txlow=', Txlow, 'tries=', tries, 'Model =', s% model_number
 			Txlow = Txlow/1.05
-			Ttmp = zbrent(emoment, Txhigh, Txlow, tol)
+			Tarray = zbrent(emoment, Txhigh, Txlow, tol)
+			Ttmp = Tarray(1)
 			Tflag = is_slope_negative(Ttmp)
 			IF (.NOT.Tflag) THEN
 				Ttmp= 10.**(s% log_center_temperature)
@@ -369,9 +372,37 @@
 
 	ENDDO
 
+	! check that L_extra / L_nuc < 1
+	! else approximate emoment root function
+	! with straight line to find better Tx
+	xL = 0.0
+	DO k = 1,kmax
+		xL = xL + s% extra_heat(k)* s% dq(k) ! (ergs/gm/sec)*gm
+	ENDDO
+	IF ( ABS(xL/ s% L_nuc_burn(1)) .GT. 1.0 ) THEN ! L_nuc_burn integrated from center (ergs/sec)
+		Ttmp = linear_root(Tarray)
+	ENDIF
+
 	calc_Tx = Ttmp
 !	WRITE(*,*) 'calc_Tx = ', calc_Tx, 's% xtra4', s% xtra4
 	END FUNCTION calc_Tx
+
+
+!!----------------------------
+!!	If extra energy is "too high", approximate emoment function with a
+!!	straight line and return a root closer to actual zero
+	FUNCTION linear_root(Tarray)
+		DOUBLE PRECISION :: x1, x2, y1, y2
+		DOUBLE PRECISION :: m, linear_root
+
+		x1 = Tarray(1)
+		y1 = Tarray(2)
+		x2 = Tarray(3)
+		y2 = Tarray(4)
+		m = (y2-y1)/(x2-x1)
+		linear_root = x1 - y1/m ! Tx
+
+	END FUNCTION linear_root
 
 
 !!----------------------------
