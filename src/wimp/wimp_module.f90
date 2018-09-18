@@ -394,6 +394,7 @@
 	FUNCTION linear_root(Tarray)
 		DOUBLE PRECISION :: x1, x2, y1, y2
 		DOUBLE PRECISION :: m, linear_root
+		DOUBLE PRECISION :: Tarray(4)
 
 		x1 = Tarray(1)
 		y1 = Tarray(2)
