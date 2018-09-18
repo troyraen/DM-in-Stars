@@ -31,7 +31,7 @@
 	if ((fa > 0.0 .and. fb > 0.0) .or. (fa < 0.0 .and. fb < 0.0)) THEN
 !		call nrerror('root must be bracketed for zbrent')
 !		instead of exiting run, increase lower limit and try again
-		zbrent = [-1.0, 0.0, 0.0, 0.0]
+		zbrent = [-1.0D0, 0.0D0, 0.0D0, 0.0D0]
 		RETURN
 	ENDIF
 	c=b
@@ -61,9 +61,9 @@
 			! The second root will be used to approximate the emoment
 			! equation with a straight line so that a more accurate
 			! root can be found when the extra energy is "too high".
-			IF ( SIGN(1.0,fb) .EQ. -SIGN(1.0,fa) ) THEN
+			IF ( SIGN(1.0D0,fb) .EQ. -SIGN(1.0D0,fa) ) THEN
 				zbrent = [b, fb, a, fa]
-			ELSE IF ( SIGN(1.0,fb) .EQ. -SIGN(1.0,fc) ) THEN
+			ELSE IF ( SIGN(1.0D0,fb) .EQ. -SIGN(1.0D0,fc) ) THEN
 				zbrent = [b, fb, c, fc]
 			ELSE
 				WRITE(*,*) "---***--- ALL ZBRENT ROOTS HAVE THE SAME SIGN ---***---"
@@ -106,7 +106,7 @@
 		fb=func(b)
 	end do
 	call nrerror('zbrent: exceeded maximum iterations')
-	zbrent=[b, 0.0, 0.0, 0.0]
+	zbrent=[b, 0.0D0, 0.0D0, 0.0D0]
 	END FUNCTION zbrent
 
 	END MODULE wimp_num
