@@ -309,8 +309,9 @@
 	IMPLICIT NONE
 	INTEGER, INTENT(IN) :: id
 	INTEGER, INTENT(OUT) :: ierr
+	INTEGER :: k
 	DOUBLE PRECISION :: Txhigh, Txlow, tol
-	DOUBLE PRECISION :: Ttmp, calc_Tx, xL, k
+	DOUBLE PRECISION :: Ttmp, calc_Tx, xL
 	DOUBLE PRECISION :: Tarray(4)
 	INTEGER :: tries, model_err=-1
 	LOGICAL :: Tflag=.FALSE.
@@ -376,8 +377,8 @@
 	! else approximate emoment root function
 	! with straight line to find better Tx
 	xL = 0.0
-	DO itr = 1,kmax
-		xL = xL + s% extra_heat(itr)* s% dq(itr) ! (ergs/gm/sec)*gm
+	DO k = 1,kmax
+		xL = xL + s% extra_heat(k)* s% dq(k) ! (ergs/gm/sec)*gm
 	ENDDO
 	IF ( ABS(xL/ s% L_nuc_burn(1)) .GT. 1.0 ) THEN ! L_nuc_burn integrated from center (ergs/sec)
 		Ttmp = linear_root(Tarray)
