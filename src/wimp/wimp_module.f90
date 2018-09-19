@@ -380,11 +380,11 @@
 	CALL calc_xheat(Ttmp)
 	xL = 0.0
 	DO k = 1,kmax
-		xL = xL + xheat(k)* s% dq(k) ! (ergs/gm/sec)*gm = ergs/sec
+		xL = xL + xheat(k)* s% dq(k)* s% xmstar ! (ergs/gm/sec)*gm = ergs/sec
 	ENDDO
 	xL = xL/Lsun
 	Lnuc = s% power_nuc_burn ! Lsun
-	IF ( ABS(xL/ Lnuc) .GT. 1.0 ) THEN !
+	IF ( ABS(xL/ Lnuc) .GT. 0.01 ) THEN !
 		Ttmp = linear_root(Tarray)
 		WRITE(*,*) "ZBRENT---***---"
 		WRITE(*,*) "ZBRENT---***--- model number = ", s% model_number
