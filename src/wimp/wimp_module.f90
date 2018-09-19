@@ -388,7 +388,14 @@
 		Ttmp = linear_root(Tarray)
 		WRITE(*,*) "ZBRENT---***---"
 		WRITE(*,*) "ZBRENT---***--- model number = ", s% model_number
-		WRITE(*,*) "ZBRENT---***--- xL/ Lnuc = ", xL/ Lnuc,  "---***---"
+		WRITE(*,*) "ZBRENT---***--- xL/ Lnuc OLD = ", xL/ Lnuc,  "---***---"
+		CALL calc_xheat(Ttmp)
+		xL = 0.0
+		DO k = 1,kmax
+			xL = xL + xheat(k)* s% dq(k)* s% xmstar ! (ergs/gm/sec)*gm = ergs/sec
+		ENDDO
+		xL = xL/Lsun
+		WRITE(*,*) "ZBRENT---***--- xL/ Lnuc NEW = ", xL/ Lnuc,  "---***---"
 	ENDIF
 
 	calc_Tx = Ttmp
