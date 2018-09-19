@@ -377,10 +377,10 @@
 	! check that L_extra / L_nuc < 1
 	! else approximate emoment root function
 	! with straight line to find better Tx
-	calc_xheat(Ttmp)
+	CALL calc_xheat(Ttmp)
 	xL = 0.0
 	DO k = 1,kmax
-		xL = xL + xheat(itr)* s% dq(k) ! (ergs/gm/sec)*gm = ergs/sec
+		xL = xL + xheat(k)* s% dq(k) ! (ergs/gm/sec)*gm = ergs/sec
 	ENDDO
 	xL = xL/Lsun
 	Lnuc = s% power_nuc_burn ! Lsun
