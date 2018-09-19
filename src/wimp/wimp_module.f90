@@ -384,7 +384,7 @@
 	ENDDO
 	xL = xL/Lsun
 	Lnuc = s% power_nuc_burn ! Lsun
-	IF ( ABS(xL/ Lnuc) .GT. 0.01 ) THEN !
+	IF (( ABS(xL/ Lnuc).GT.0.01 ) .AND. ( Lnuc.GT.0.1) THEN !
 		Ttmp = linear_root(Tarray)
 		WRITE(*,*) "ZBRENT---***---"
 		WRITE(*,*) "ZBRENT---***--- model number = ", s% model_number
