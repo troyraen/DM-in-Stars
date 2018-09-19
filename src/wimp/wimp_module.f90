@@ -41,7 +41,7 @@
 	spindep = s% X_LOGICAL_CTRL(1)
 	CALL get_star_variables(id,ierr)
 	CALL set_wimp_variables(id,ierr)
-	CALL calc_xheat()
+	CALL calc_xheat(Tx)
 
 	DO itr = 1,kmax
 		s% extra_heat(itr) = xheat(itr)
@@ -199,17 +199,17 @@
 !!	This is what needs to be given to the star program
 !!	This is SP85 equ 4.9 divided by rho(k)
 !!----------------------------
-	SUBROUTINE calc_xheat()
+	SUBROUTINE calc_xheat(Tx_given)
 	USE const_def, only : pi, mp, kerg ! Boltzmann's constant (erg K^-1)
 	IMPLICIT NONE
 	INTEGER :: itr, j
-	DOUBLE PRECISION :: mfact, dfact, Tfact, xheat_j
+	DOUBLE PRECISION :: mfact, dfact, Tfact, xheat_j, Tx_given
 
 !	LOGICAL :: ISOPEN
 
-!	INQUIRE(FILE='xheat.txt', OPENED=ISOPEN)
+!	INQUIRE(FILE='xheat.Tx_givent', OPENED=ISOPEN)
 !	IF (.NOT. ISOPEN) THEN
-!		OPEN(FILE='xheat.txt', UNIT=10)
+!		OPEN(FILE='xheat.Tx_givent', UNIT=10)
 !	ENDIF
 
 	IF (spindep) THEN
@@ -217,12 +217,12 @@
 
 		DO itr = 1,kmax
 			dfact = nxk(itr)*npk(itr)/rhok(itr)
-			Tfact = SQRT((mp*kerg*Tx+ mx*kerg*Tk(itr))/(mx*mp)) * kerg*(Tx- Tk(itr))	! Tx-Tk gives correct sign
+			Tfact = SQRT((mp*kerg*Tx_given+ mx*kerg*Tk(itr))/(mx*mp)) * kerg*(Tx_given- Tk(itr))	! Tx_given-Tk gives correct sign
 			xheat(itr) = mfact* dfact* Tfact
 
 			! partial drvs for other_energy_implicit. all those not calculated here are zero.
 			d_xheat_dlnd00(itr) = -xheat(itr)
-			Tfact = mx*kerg/2.D0/(mp*kerg*Tx+ mx*kerg*Tk(itr)) - 1.D0/(Tx-Tk(itr))
+			Tfact = mx*kerg/2.D0/(mp*kerg*Tx_given+ mx*kerg*Tk(itr)) - 1.D0/(Tx_given-Tk(itr))
 			d_xheat_dlnT00(itr) = xheat(itr)*Tk(itr)*Tfact
 	!		WRITE(10,*) itr, xheat(itr)
 		ENDDO
@@ -238,12 +238,12 @@
 			DO j = 1,numspecies
 				mfact = 8.D0*SQRT(2.D0/pi)* sigmaxj(j)* mx*mj(j)/((mx+mj(j))**2)
 				dfact = nxk(itr)*njk(j,itr)/rhok(itr)
-				Tfact = SQRT((mj(j)*kerg*Tx+ mx*kerg*Tk(itr))/(mx*mj(j))) * kerg*(Tx- Tk(itr))	! Tx-Tk gives correct sign
+				Tfact = SQRT((mj(j)*kerg*Tx_given+ mx*kerg*Tk(itr))/(mx*mj(j))) * kerg*(Tx_given- Tk(itr))	! Tx_given-Tk gives correct sign
 				xheat_j = mfact* dfact* Tfact
 				xheat(itr) = xheat(itr)+ xheat_j
 				! partial drvs for other_energy_implicit. all those not calculated here are zero.
 				d_xheat_dlnd00(itr) = d_xheat_dlnd00(itr) - xheat_j
-				Tfact = mx*kerg/2.D0/(mj(j)*kerg*Tx+ mx*kerg*Tk(itr)) - 1.D0/(Tx-Tk(itr))
+				Tfact = mx*kerg/2.D0/(mj(j)*kerg*Tx_given+ mx*kerg*Tk(itr)) - 1.D0/(Tx_given-Tk(itr))
 				d_xheat_dlnT00(itr) = d_xheat_dlnT00(itr) + xheat_j*Tk(itr)*Tfact
 			ENDDO
 		ENDDO
@@ -306,12 +306,13 @@
 !!----------------------------
 	FUNCTION calc_Tx(id,ierr)
 	USE nrutil, ONLY : nrerror
+	USE const_def, only : Lsun
 	IMPLICIT NONE
 	INTEGER, INTENT(IN) :: id
 	INTEGER, INTENT(OUT) :: ierr
 	INTEGER :: k
 	DOUBLE PRECISION :: Txhigh, Txlow, tol
-	DOUBLE PRECISION :: Ttmp, calc_Tx, xL
+	DOUBLE PRECISION :: Ttmp, calc_Tx, xL, Lnuc
 	DOUBLE PRECISION :: Tarray(4)
 	INTEGER :: tries, model_err=-1
 	LOGICAL :: Tflag=.FALSE.
@@ -376,15 +377,18 @@
 	! check that L_extra / L_nuc < 1
 	! else approximate emoment root function
 	! with straight line to find better Tx
+	calc_xheat(Ttmp)
 	xL = 0.0
 	DO k = 1,kmax
-		xL = xL + s% extra_heat(k)* s% dq(k) ! (ergs/gm/sec)*gm
+		xL = xL + xheat(itr)* s% dq(k) ! (ergs/gm/sec)*gm = ergs/sec
 	ENDDO
-	IF ( ABS(xL/ s% L_nuc_burn(1)) .GT. 1.0 ) THEN ! L_nuc_burn integrated from center (ergs/sec)
+	xL = xL/Lsun
+	Lnuc = s% power_nuc_burn ! Lsun
+	IF ( ABS(xL/ Lnuc) .GT. 1.0 ) THEN !
 		Ttmp = linear_root(Tarray)
 		WRITE(*,*) "ZBRENT---***---"
 		WRITE(*,*) "ZBRENT---***--- model number = ", s% model_number
-		WRITE(*,*) "ZBRENT---***--- xL/ s% L_nuc_burn(1) = ", xL/ s% L_nuc_burn(1),  "---***---"
+		WRITE(*,*) "ZBRENT---***--- xL/ Lnuc = ", xL/ Lnuc,  "---***---"
 	ENDIF
 
 	calc_Tx = Ttmp
