@@ -139,7 +139,7 @@
 
 	! calculate V(k) from center to outer edge
 	DO itr = kmax, 1, -1
-		Vk(itr) = Vk(itr+1)+ 0.5D0*(gravk(itr)+ gravk(itr+1))* (rk(itr)- rk(itr+1))
+		Vk(itr) = Vk(itr+1)+ 0.5D0*(gravk(itr)+ gravk(itr+1))* (rk(itr)- rk(itr+1)) ! cm^2/s^2
 	ENDDO
 
 	END SUBROUTINE get_star_variables
@@ -374,29 +374,31 @@
 
 	ENDDO
 
-	! check that L_extra / L_nuc < 1
-	! else approximate emoment root function
-	! with straight line to find better Tx
-	CALL calc_xheat(Ttmp)
-	xL = 0.0
-	DO k = 1,kmax
-		xL = xL + xheat(k)* s% dq(k)* s% xmstar ! (ergs/gm/sec)*gm = ergs/sec
-	ENDDO
-	xL = xL/Lsun
-	Lnuc = s% power_nuc_burn ! Lsun
-	IF (( ABS(xL/ Lnuc).GT.0.01 ) .AND. ( Lnuc.GT.0.1)) THEN !
-		Ttmp = linear_root(Tarray)
-		WRITE(*,*) "ZBRENT---***---"
-		WRITE(*,*) "ZBRENT---***--- model number = ", s% model_number
-		WRITE(*,*) "ZBRENT---***--- xL/ Lnuc OLD = ", xL/ Lnuc,  "---***---"
-		CALL calc_xheat(Ttmp)
-		xL = 0.0
-		DO k = 1,kmax
-			xL = xL + xheat(k)* s% dq(k)* s% xmstar ! (ergs/gm/sec)*gm = ergs/sec
-		ENDDO
-		xL = xL/Lsun
-		WRITE(*,*) "ZBRENT---***--- xL/ Lnuc NEW = ", xL/ Lnuc,  "---***---"
-	ENDIF
+	WRITE(*,*) "ZBRENT---***--- Tx1, emom1, Tx2, emom2", Tarray(1), Tarray(2), Tarray(3), Tarray(4)
+
+! ! check that L_extra / L_nuc < 1
+! ! else approximate emoment root function
+! ! with straight line to find better Tx
+	! CALL calc_xheat(Ttmp)
+	! xL = 0.0
+	! DO k = 1,kmax
+	! 	xL = xL + xheat(k)* s% dq(k)* s% xmstar ! (ergs/gm/sec)*gm = ergs/sec
+	! ENDDO
+	! xL = xL/Lsun
+	! Lnuc = s% power_nuc_burn ! Lsun
+	! IF (( ABS(xL/ Lnuc).GT.0.01 ) .AND. ( Lnuc.GT.0.1)) THEN !
+	! 	Ttmp = linear_root(Tarray)
+	! 	WRITE(*,*) "ZBRENT---***---"
+	! 	WRITE(*,*) "ZBRENT---***--- model number = ", s% model_number
+	! 	WRITE(*,*) "ZBRENT---***--- xL/ Lnuc OLD = ", xL/ Lnuc,  "---***---"
+	! 	CALL calc_xheat(Ttmp)
+	! 	xL = 0.0
+	! 	DO k = 1,kmax
+	! 		xL = xL + xheat(k)* s% dq(k)* s% xmstar ! (ergs/gm/sec)*gm = ergs/sec
+	! 	ENDDO
+	! 	xL = xL/Lsun
+	! 	WRITE(*,*) "ZBRENT---***--- xL/ Lnuc NEW = ", xL/ Lnuc,  "---***---"
+	! ENDIF
 
 	calc_Tx = Ttmp
 !	WRITE(*,*) 'calc_Tx = ', calc_Tx, 's% xtra4', s% xtra4
@@ -483,21 +485,40 @@
 !!	zbrent() finds Tx as the root of this equation
 !!----------------------------
 	FUNCTION emoment(Txtest)
-	USE const_def, only : kerg ! Boltzmann's constant (erg K^-1)
+	USE const_def, only : Rsun, kerg ! Boltzmann's constant (erg K^-1)
 	IMPLICIT NONE
 	INTEGER :: itr, j
 	DOUBLE PRECISION, INTENT(IN) :: Txtest
 	DOUBLE PRECISION :: mpGeV, Tfact, efact, rfact, mjfact, sum, emoment
+	DOUBLE PRECISION :: Tnorm, nnorm, Rnorm, m, npbar, Txbar, Tbar, rbar, drbar
 	PARAMETER ( mpGeV=0.938272D0 ) ! Proton mass in GeV
+
+	! normalization constants
+	Tnorm = 1.D7 ! K
+	nnorm = 1.D25 ! unitless
+	Rnorm = 10.**(s% log_surface_radius) * Rsun ! Rsun * cm/Rsun = cm
+	! normalized variables
+	m = mxGeV / mpGeV
+	Txbar = Txtest / Tnorm
 
 	sum = 0.D0
 	DO itr = kmax,1,-1 ! integrate from r=0 to r_star
+		! normalized variables
+		npbar = npk(itr) / nnorm
+		Tbar = Tk(itr) / Tnorm
+		rbar = rk(itr) / Rnorm
+		drbar = (rk(itr)- rk(itr+1)) / Rnorm
+
 		efact = EXP(-mx*Vk(itr)/ kerg/Txtest)
-		rfact = rk(itr+1)*rk(itr+1)* (rk(itr)- rk(itr+1))
+		! rfact = rk(itr+1)*rk(itr+1)* (rk(itr)- rk(itr+1))
+		rfact = rbar*rbar*drbar
 		IF (spindep) THEN
-			Tfact = SQRT((mpGeV*Txtest+ mxGeV*Tk(itr))/(mxGeV*mpGeV))* (Tk(itr)-Txtest)
-			sum = sum+ npk(itr)*Tfact*efact*rfact
+			! Tfact = SQRT((mpGeV*Txtest+ mxGeV*Tk(itr))/(mxGeV*mpGeV))* (Tk(itr)-Txtest)
+			! sum = sum+ npk(itr)*Tfact*efact*rfact
+			Tfact = SQRT(Txbar+ m*Tbar)* (Tbar - Txbar)
+			sum = sum+ npbar*Tfact*efact*rfact
 		ELSE
+!!! THIS STILL NEEDS TO BE NORMALIZED.... !!!
 			DO j = 1,numspecies
 				Tfact = SQRT((mGeVj(j)*Txtest+ mxGeV*Tk(itr))/(mxGeV*mGeVj(j)))* (Tk(itr)-Txtest)
 				mjfact = Aj(j)*Aj(j)* (mGeVj(j)/mpGeV)**3 *(mxGeV+mpGeV)**2 &
