@@ -496,7 +496,7 @@
 	! normalization constants
 	Tnorm = 1.D7 ! K
 	nnorm = 1.D25 ! unitless
-	Rnorm = 10.**(s% log_surface_radius) * Rsun ! Rsun * cm/Rsun = cm
+	Rnorm = Rsun ! cm
 	! normalized variables
 	m = mxGeV / mpGeV
 	Txbar = Txtest / Tnorm
@@ -506,7 +506,7 @@
 		! normalized variables
 		npbar = npk(itr) / nnorm
 		Tbar = Tk(itr) / Tnorm
-		rbar = rk(itr) / Rnorm
+		rbar = rk(itr+1) / Rnorm
 		drbar = (rk(itr)- rk(itr+1)) / Rnorm
 
 		efact = EXP(-mx*Vk(itr)/ kerg/Txtest)
