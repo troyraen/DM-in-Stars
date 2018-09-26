@@ -344,6 +344,7 @@
 
 		Tarray = zbrent(emoment, Txhigh, Txlow, tol) ! returns -1 if gets root must be bracketed error
 		Ttmp = Tarray(1)
+		WRITE(*,*) 'Ttmp = ', Ttmp, 'model = ', s% model_number
 		IF (Txlow.GT.maxT) THEN ! treat as root must be bracketed error. Tx close to Tmax and slope is shallow (most likely)
 			WRITE(*,*) 'Txlow > maxT. Treating as root must be bracketed error. Model =', s% model_number
 			Ttmp = -1.0
@@ -435,16 +436,16 @@
 !!	calculate slope of Ttmp
 !!	lower root has slope ~0, correct slope is usually very steep
 !!	if abs(slope) < 10, return .FALSE.
-	FUNCTION is_slope_steep(Tx)
+	FUNCTION is_slope_steep(Tx_given)
 		IMPLICIT NONE
-		DOUBLE PRECISION, INTENT(IN) :: Tx
+		DOUBLE PRECISION, INTENT(IN) :: Tx_given
 		DOUBLE PRECISION :: Tl, Tx_int, Tl_int, slope
 		LOGICAL :: is_slope_steep
 
-		Tx_int = emoment(Tx)
+		Tx_int = emoment(Tx_given)
 		Tl = 0.99*Tx
 		Tl_int = emoment(Tl)
-		slope = ABS((Tx_int-Tl_int)/(Tx-Tl))
+		slope = ABS((Tx_int-Tl_int)/(Tx_given-Tl))
 !		WRITE(*,*) 'slope=',slope
 
 		IF (slope.GT.10.0) THEN
@@ -457,16 +458,16 @@
 	END FUNCTION is_slope_steep
 !!	if slope < 0, return .TRUE.
 !!----------------------------
-	FUNCTION is_slope_negative(Tx)
+	FUNCTION is_slope_negative(Tx_given)
 		IMPLICIT NONE
-		DOUBLE PRECISION, INTENT(IN) :: Tx
+		DOUBLE PRECISION, INTENT(IN) :: Tx_given
 		DOUBLE PRECISION :: Tl, Tx_int, Tl_int, slope
 		LOGICAL :: is_slope_negative
 
-		Tx_int = emoment(Tx)
-		Tl = 0.999*Tx ! use narrower range to avoid function maximum
+		Tx_int = emoment(Tx_given)
+		Tl = 0.999*Tx_given ! use narrower range to avoid function maximum
 		Tl_int = emoment(Tl)
-		slope = (Tx_int-Tl_int)/(Tx-Tl)
+		slope = (Tx_int-Tl_int)/(Tx_given-Tl)
 		WRITE(*,*) 'is_slope_negative called. slope=',slope
 
 		IF (slope.LT.0.0) THEN
@@ -495,7 +496,7 @@
 
 	! normalization constants
 	Tnorm = 1.D7 ! K
-	nnorm = 1.D25 ! unitless
+	nnorm = 1.D25 ! dimensionless
 	Rnorm = Rsun ! cm
 	! normalized variables
 	m = mxGeV / mpGeV
@@ -509,9 +510,9 @@
 		rbar = rk(itr+1) / Rnorm
 		drbar = (rk(itr)- rk(itr+1)) / Rnorm
 
-		efact = EXP(-mx*Vk(itr)/ kerg/Txtest)
 		! rfact = rk(itr+1)*rk(itr+1)* (rk(itr)- rk(itr+1))
 		rfact = rbar*rbar*drbar
+		efact = EXP(-mx*Vk(itr)/ kerg/Txtest)
 		IF (spindep) THEN
 			! Tfact = SQRT((mpGeV*Txtest+ mxGeV*Tk(itr))/(mxGeV*mpGeV))* (Tk(itr)-Txtest)
 			! sum = sum+ npk(itr)*Tfact*efact*rfact
