@@ -20,7 +20,7 @@ for inlst in "${iord[@]}"; do
     $maindir/pgstar_movie grid2
     mv $maindir/movie.mp4 $maindir/LOGS/grid2.mp4
 
-    newlogs=$maindir/RUNS_linear_slope/LOGSc5_${ivals[$inlst]}
+    newlogs=$maindir/RUNS_emom_normalized/LOGSc5_${ivals[$inlst]}
     mv $maindir/LOGS $newlogs
     mv $maindir/photos $newlogs/.
     mv $maindir/png $newlogs/.
