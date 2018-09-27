@@ -475,14 +475,13 @@
 		Tl = 0.999*Tx_given ! use narrower range to avoid function maximum
 		Tl_int = emoment(Tl)
 		slope = (Tx_int-Tl_int)/(Tx_given-Tl)
-		WRITE(*,*) 'is_slope_negative called. slope=',slope
 
 		IF (slope.LT.0.0) THEN
 			is_slope_negative=.TRUE.
-			WRITE(*,*) 'is_slope_negative returns true. slope=',slope
+			! WRITE(*,*) 'is_slope_negative returns true. slope=',slope
 		ELSE
 			is_slope_negative=.FALSE.
-			WRITE(*,*) 'is_slope_negative returns false. slope=',slope
+			! WRITE(*,*) 'is_slope_negative returns false. slope=',slope
 		ENDIF
 
 	END FUNCTION is_slope_negative
