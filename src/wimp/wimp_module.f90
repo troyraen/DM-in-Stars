@@ -481,7 +481,7 @@
 			! WRITE(*,*) 'is_slope_negative returns true. slope=',slope
 		ELSE
 			is_slope_negative=.FALSE.
-			! WRITE(*,*) 'is_slope_negative returns false. slope=',slope
+			WRITE(*,*) 'is_slope_negative returns false. slope=',slope
 		ENDIF
 
 	END FUNCTION is_slope_negative
