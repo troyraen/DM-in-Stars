@@ -354,7 +354,7 @@
 		ENDIF
 
 		IF (Ttmp.GT.0.0) THEN
-			Tflag = is_slope_steep(Ttmp)
+			Tflag = is_slope_negative(Ttmp)
 			WRITE(*,*) 'Tflag = ', Tflag
 			Txlow = 1.05*Txlow
 !			WRITE(*,*) 'tries=', tries, 'Txhigh=', Txhigh, 'Txlow=', Txlow, 'Ttmp=', Ttmp
