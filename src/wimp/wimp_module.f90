@@ -331,6 +331,9 @@
 
 	tries=0
 	Tflag=.FALSE.
+	WRITE(*,*) '#****# BEGIN #****# '
+	WRITE(*,*) 'Model = ', s% model_number
+	WRITE(*,*) 'Tflag = ', Tflag
 	DO WHILE ( .NOT. Tflag )
 		tries = tries+1
 
@@ -344,7 +347,7 @@
 
 		Tarray = zbrent(emoment, Txhigh, Txlow, tol) ! returns -1 if gets root must be bracketed error
 		Ttmp = Tarray(1)
-		WRITE(*,*) 'Ttmp = ', Ttmp, 'model = ', s% model_number
+		WRITE(*,*) 'Ttmp = ', Ttmp
 		IF (Txlow.GT.maxT) THEN ! treat as root must be bracketed error. Tx close to Tmax and slope is shallow (most likely)
 			WRITE(*,*) 'Txlow > maxT. Treating as root must be bracketed error. Model =', s% model_number
 			Ttmp = -1.0
@@ -352,6 +355,7 @@
 
 		IF (Ttmp.GT.0.0) THEN
 			Tflag = is_slope_steep(Ttmp)
+			WRITE(*,*) 'Tflag = ', Tflag
 			Txlow = 1.05*Txlow
 !			WRITE(*,*) 'tries=', tries, 'Txhigh=', Txhigh, 'Txlow=', Txlow, 'Ttmp=', Ttmp
 		ELSE IF (tries.EQ.1) THEN ! expand the range and try again
@@ -364,6 +368,7 @@
 			Tarray = zbrent(emoment, Txhigh, Txlow, tol)
 			Ttmp = Tarray(1)
 			Tflag = is_slope_negative(Ttmp)
+			WRITE(*,*) 'Tflag = ', Tflag
 			IF (.NOT.Tflag) THEN
 				Ttmp= 10.**(s% log_center_temperature)
 				WRITE(*,*) '**** Tx set to center_T ****', Ttmp, 'problem model ', s% model_number
@@ -376,6 +381,7 @@
 	ENDDO
 
 	WRITE(*,*) "ZBRENT---***--- Tx1, emom1, Tx2, emom2", Tarray(1), Tarray(2), Tarray(3), Tarray(4)
+	WRITE(*,*) '#****# END #****# '
 
 ! ! check that L_extra / L_nuc < 1
 ! ! else approximate emoment root function
@@ -446,13 +452,14 @@
 		Tl = 0.99*Tx
 		Tl_int = emoment(Tl)
 		slope = ABS((Tx_int-Tl_int)/(Tx_given-Tl))
-!		WRITE(*,*) 'slope=',slope
+		! WRITE(*,*) 'slope=',slope
 
 		IF (slope.GT.10.0) THEN
 			is_slope_steep=.TRUE.
+			WRITE(*,*) 'is_slope_steep returns true. slope=',slope
 		ELSE
 			is_slope_steep=.FALSE.
-			! WRITE(*,*) 'is_slope_steep returns false. slope=',slope
+			WRITE(*,*) 'is_slope_steep returns false. slope=',slope
 		ENDIF
 
 	END FUNCTION is_slope_steep
@@ -472,8 +479,10 @@
 
 		IF (slope.LT.0.0) THEN
 			is_slope_negative=.TRUE.
+			WRITE(*,*) 'is_slope_negative returns true. slope=',slope
 		ELSE
 			is_slope_negative=.FALSE.
+			WRITE(*,*) 'is_slope_negative returns false. slope=',slope
 		ENDIF
 
 	END FUNCTION is_slope_negative
