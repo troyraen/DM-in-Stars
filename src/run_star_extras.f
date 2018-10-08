@@ -430,9 +430,9 @@
          	s% save_profiles_model_priority = 10
          ENDIF
 
-         IF ( (ABS(s% xtra6) .GT. 0.05) .AND. (s% xtra4 .GT. 0.25)) THEN
-             extras_finish_step = terminate
-         ENDIF
+         ! IF ( (ABS(s% xtra6) .GT. 0.05) .AND. (s% xtra4 .GT. 0.25)) THEN
+         !     extras_finish_step = terminate
+         ! ENDIF
 
 
          ! STOPPING CONDITION:
