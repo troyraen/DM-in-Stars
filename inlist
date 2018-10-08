@@ -59,10 +59,10 @@
 
 !   SAVE DATA
       photo_interval = 50
-      profile_interval = 250
-	  max_num_profile_models = 5
+      profile_interval = 1
+	  max_num_profile_models = 25
 	  write_controls_info_with_profile = .true.
-      history_interval = 5
+      history_interval = 1
       terminal_interval = 100
       write_header_frequency = 10
 

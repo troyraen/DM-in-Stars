@@ -433,6 +433,9 @@
          ! IF ( (ABS(s% xtra6) .GT. 0.05) .AND. (s% xtra4 .GT. 0.25)) THEN
          !     extras_finish_step = terminate
          ! ENDIF
+         IF ( s% model_number .GT. 1240) THEN
+             extras_finish_step = terminate
+         ENDIF
 
 
          ! STOPPING CONDITION:
