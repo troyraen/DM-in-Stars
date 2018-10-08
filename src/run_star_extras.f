@@ -284,7 +284,7 @@
          ierr = 0
          call star_ptr(id, s, ierr)
          if (ierr /= 0) return
-         how_many_extra_history_columns = 6
+         how_many_extra_history_columns = 7
       end function how_many_extra_history_columns
 
 
@@ -315,6 +315,8 @@
          vals(5) = s% X_CTRL(6)
          names(6) = 'extra_energy'
          vals(6) = calc_xenergy(id, id_extra) ! ergs
+         names(7) = 'xL/Lnuc'
+         vals(7) = s% xtra6
 
       end subroutine data_for_extra_history_columns
 
@@ -426,6 +428,10 @@
          	s% need_to_update_history_now = .true.
          	s% need_to_save_profiles_now = .true.
          	s% save_profiles_model_priority = 10
+         ENDIF
+
+         IF ( ABS(s% xtra6) .GT. 0.05 ) THEN
+             extras_finish_step = terminate
          ENDIF
 
 
