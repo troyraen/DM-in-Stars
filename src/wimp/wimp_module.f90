@@ -506,7 +506,7 @@
 	DOUBLE PRECISION :: Tnorm, nnorm, Rnorm, m, npbar, Txbar, Tbar, rbar, drbar
 	PARAMETER ( mpGeV=0.938272D0 ) ! Proton mass in GeV
 
-! !!!! nomalized
+! !!!! normalized
 ! 	! normalization constants
 ! 	Tnorm = 1.D7 ! K
 ! 	nnorm = 1.D25 ! dimensionless
@@ -533,7 +533,7 @@
 ! 	ENDDO
 ! !!!! end normalized
 
-!!!! non-nomalized
+!!!! non-normalized
 	sum = 0.D0
 	DO itr = kmax,1,-1 ! integrate from r=0 to r_star
 		rfact = rk(itr+1)*rk(itr+1)* (rk(itr)- rk(itr+1))
@@ -550,7 +550,7 @@
 			ENDDO
 		ENDIF
 	ENDDO
-!!!! end non-nomalized
+!!!! end non-normalized
 
 	emoment = sum
 	END FUNCTION emoment
