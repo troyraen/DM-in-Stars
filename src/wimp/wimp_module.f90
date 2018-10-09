@@ -396,19 +396,19 @@
 	Lnuc = s% power_nuc_burn ! Lsun
 	s% xtra4 = Lnuc
 	s% xtra5 = xL
-	! IF (( ABS(xL/ Lnuc).GT.0.01 ) .AND. ( Lnuc.GT.0.1)) THEN !
-	! 	Ttmp = linear_root(Tarray)
-	! 	WRITE(*,*) "ZBRENT---***---"
-	! 	WRITE(*,*) "ZBRENT---***--- model number = ", s% model_number
-	! 	WRITE(*,*) "ZBRENT---***--- xL/ Lnuc OLD = ", xL/ Lnuc,  "---***---"
-	! 	CALL calc_xheat(Ttmp)
-	! 	xL = 0.0
-	! 	DO k = 1,kmax
-	! 		xL = xL + xheat(k)* s% dq(k)* s% xmstar ! (ergs/gm/sec)*gm = ergs/sec
-	! 	ENDDO
-	! 	xL = xL/Lsun
-	! 	WRITE(*,*) "ZBRENT---***--- xL/ Lnuc NEW = ", xL/ Lnuc,  "---***---"
-	! ENDIF
+	IF (( ABS(xL/ Lnuc).GT.0.01 ) .AND. ( Lnuc.GT.0.1)) THEN !
+		Ttmp = linear_root(Tarray)
+		WRITE(*,*) "ZBRENT---***---"
+		WRITE(*,*) "ZBRENT---***--- model number = ", s% model_number
+		WRITE(*,*) "ZBRENT---***--- xL/ Lnuc OLD = ", xL/ Lnuc,  "---***---"
+		CALL calc_xheat(Ttmp)
+		xL = 0.0
+		DO k = 1,kmax
+			xL = xL + xheat(k)* s% dq(k)* s% xmstar ! (ergs/gm/sec)*gm = ergs/sec
+		ENDDO
+		xL = xL/Lsun
+		WRITE(*,*) "ZBRENT---***--- xL/ Lnuc NEW = ", xL/ Lnuc,  "---***---"
+	ENDIF
 	s% xtra6 = xL/Lnuc
 !!!!!!!!
 
