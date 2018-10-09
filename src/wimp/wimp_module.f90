@@ -396,19 +396,19 @@
 	Lnuc = s% power_nuc_burn ! Lsun
 	s% xtra4 = Lnuc
 	s% xtra5 = xL
-	IF (( ABS(xL/ Lnuc).GT.0.01 ) .AND. ( Lnuc.GT.0.1)) THEN !
-		Ttmp = linear_root(Tarray)
-		WRITE(*,*) "ZBRENT---***---"
-		WRITE(*,*) "ZBRENT---***--- model number = ", s% model_number
-		WRITE(*,*) "ZBRENT---***--- xL/ Lnuc OLD = ", xL/ Lnuc,  "---***---"
-		CALL calc_xheat(Ttmp)
-		xL = 0.0
-		DO k = 1,kmax
-			xL = xL + xheat(k)* s% dq(k)* s% xmstar ! (ergs/gm/sec)*gm = ergs/sec
-		ENDDO
-		xL = xL/Lsun
-		WRITE(*,*) "ZBRENT---***--- xL/ Lnuc NEW = ", xL/ Lnuc,  "---***---"
-	ENDIF
+	! IF (( ABS(xL/ Lnuc).GT.0.01 ) .AND. ( Lnuc.GT.0.1)) THEN !
+	! 	Ttmp = linear_root(Tarray)
+	! 	WRITE(*,*) "ZBRENT---***---"
+	! 	WRITE(*,*) "ZBRENT---***--- model number = ", s% model_number
+	! 	WRITE(*,*) "ZBRENT---***--- xL/ Lnuc OLD = ", xL/ Lnuc,  "---***---"
+	! 	CALL calc_xheat(Ttmp)
+	! 	xL = 0.0
+	! 	DO k = 1,kmax
+	! 		xL = xL + xheat(k)* s% dq(k)* s% xmstar ! (ergs/gm/sec)*gm = ergs/sec
+	! 	ENDDO
+	! 	xL = xL/Lsun
+	! 	WRITE(*,*) "ZBRENT---***--- xL/ Lnuc NEW = ", xL/ Lnuc,  "---***---"
+	! ENDIF
 	s% xtra6 = xL/Lnuc
 !!!!!!!!
 
@@ -506,51 +506,51 @@
 	DOUBLE PRECISION :: Tnorm, nnorm, Rnorm, m, npbar, Txbar, Tbar, rbar, drbar
 	PARAMETER ( mpGeV=0.938272D0 ) ! Proton mass in GeV
 
-! !!!! normalized
-! 	! normalization constants
-! 	Tnorm = 1.D7 ! K
-! 	nnorm = 1.D25 ! dimensionless
-! 	Rnorm = Rsun ! cm
-! 	! normalized variables
-! 	m = mxGeV / mpGeV
-! 	Txbar = Txtest / Tnorm
-!
-! 	sum = 0.D0
-! 	DO itr = kmax,1,-1 ! integrate from r=0 to r_star
-! 		! normalized variables
-! 		npbar = npk(itr) / nnorm
-! 		Tbar = Tk(itr) / Tnorm
-! 		rbar = rk(itr+1) / Rnorm
-! 		drbar = (rk(itr)- rk(itr+1)) / Rnorm
-!
-! 		rfact = rbar*rbar*drbar
-! 		efact = EXP(-mx*Vk(itr)/ kerg/Txtest)
-! 		IF (spindep) THEN
-! 			Tfact = SQRT(Txbar+ m*Tbar)* (Tbar - Txbar)
-! 			sum = sum+ npbar*Tfact*efact*rfact
-! !!!! STILL NEED SPIN INDEPENDENT NORMALIZED
-! 		ENDIF
-! 	ENDDO
-! !!!! end normalized
+!!!! normalized
+	! normalization constants
+	Tnorm = 1.D7 ! K
+	nnorm = 1.D25 ! dimensionless
+	Rnorm = Rsun ! cm
+	! normalized variables
+	m = mxGeV / mpGeV
+	Txbar = Txtest / Tnorm
 
-!!!! non-normalized
 	sum = 0.D0
 	DO itr = kmax,1,-1 ! integrate from r=0 to r_star
-		rfact = rk(itr+1)*rk(itr+1)* (rk(itr)- rk(itr+1))
+		! normalized variables
+		npbar = npk(itr) / nnorm
+		Tbar = Tk(itr) / Tnorm
+		rbar = rk(itr+1) / Rnorm
+		drbar = (rk(itr)- rk(itr+1)) / Rnorm
+
+		rfact = rbar*rbar*drbar
 		efact = EXP(-mx*Vk(itr)/ kerg/Txtest)
 		IF (spindep) THEN
-			Tfact = SQRT((mpGeV*Txtest+ mxGeV*Tk(itr))/(mxGeV*mpGeV))* (Tk(itr)-Txtest)
-			sum = sum+ npk(itr)*Tfact*efact*rfact
-		ELSE
-			DO j = 1,numspecies
-				Tfact = SQRT((mGeVj(j)*Txtest+ mxGeV*Tk(itr))/(mxGeV*mGeVj(j)))* (Tk(itr)-Txtest)
-				mjfact = Aj(j)*Aj(j)* (mGeVj(j)/mpGeV)**3 *(mxGeV+mpGeV)**2 &
-				*mxGeV*mpGeV/ (mxGeV+mGeVj(j))**4
-				sum = sum+ njk(j,itr)*Tfact*efact*rfact*mjfact
-			ENDDO
+			Tfact = SQRT(Txbar+ m*Tbar)* (Tbar - Txbar)
+			sum = sum+ npbar*Tfact*efact*rfact
+!!!! STILL NEED SPIN INDEPENDENT NORMALIZED
 		ENDIF
 	ENDDO
-!!!! end non-normalized
+!!!! end normalized
+
+! !!!! non-normalized
+! 	sum = 0.D0
+! 	DO itr = kmax,1,-1 ! integrate from r=0 to r_star
+! 		rfact = rk(itr+1)*rk(itr+1)* (rk(itr)- rk(itr+1))
+! 		efact = EXP(-mx*Vk(itr)/ kerg/Txtest)
+! 		IF (spindep) THEN
+! 			Tfact = SQRT((mpGeV*Txtest+ mxGeV*Tk(itr))/(mxGeV*mpGeV))* (Tk(itr)-Txtest)
+! 			sum = sum+ npk(itr)*Tfact*efact*rfact
+! 		ELSE
+! 			DO j = 1,numspecies
+! 				Tfact = SQRT((mGeVj(j)*Txtest+ mxGeV*Tk(itr))/(mxGeV*mGeVj(j)))* (Tk(itr)-Txtest)
+! 				mjfact = Aj(j)*Aj(j)* (mGeVj(j)/mpGeV)**3 *(mxGeV+mpGeV)**2 &
+! 				*mxGeV*mpGeV/ (mxGeV+mGeVj(j))**4
+! 				sum = sum+ njk(j,itr)*Tfact*efact*rfact*mjfact
+! 			ENDDO
+! 		ENDIF
+! 	ENDDO
+! !!!! end non-normalized
 
 	emoment = sum
 	END FUNCTION emoment
