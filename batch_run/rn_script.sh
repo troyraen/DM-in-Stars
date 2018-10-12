@@ -3,7 +3,7 @@
 # declare -A ivals=( [mlt]=mlt [sc]=semiconvection [th]=thermohaline [jina]=jina [mts]=mesh_timestep [opa]=opacity [ovs]=overshoot [ow]=other_wind [opos]=opacity_overshoot [oth]=other [OG]=OG)
 declare -A ivals=( [mlt]=mlt [sc]=semiconvection [th]=thermohaline [opa]=opacity [oth]=other [OG]=OG [pre]=preMIST [lim]=limits [hms]=hook_preMST [otm]=op_thrm_mlt)
 # declare -a iord=( pre opa mlt sc th lim hms oth)
-declare -a iord=(OG pre op_thrm_mlt)
+declare -a iord=(OG pre otm)
 
 maindir=/home/tjr63/mesaruns
 outfl=$maindir/LOGS/STD.out
