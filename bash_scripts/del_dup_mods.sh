@@ -17,7 +17,9 @@ if [ $# -eq 0 ]
 fi
 
 dir=$1
-# dir=$1/LOGS
+if [ ! -f $dir/history.data ]; then
+    dir=$1/LOGS
+fi
 hdat=$dir/history.data
 hdatpdd=$dir/history_pre_del_dup_mods.data
 cp -n $hdat $hdatpdd # will not overwrite existing and so current $hdat will be lost
