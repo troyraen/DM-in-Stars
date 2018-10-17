@@ -430,12 +430,12 @@
          	s% save_profiles_model_priority = 10
          ENDIF
 
-         IF ( (ABS(s% xtra6_older).GT.0.085) .AND. (s% xtra4.GT.0.2) ) THEN
-             extras_finish_step = terminate
-         ENDIF
-         ! IF ( s% model_number .GT. 1290) THEN
+         ! IF ( (ABS(s% xtra6_older).GT.0.085) .AND. (s% xtra4.GT.0.2) ) THEN
          !     extras_finish_step = terminate
          ! ENDIF
+         IF ( s% model_number .GT. 2973) THEN
+             extras_finish_step = terminate
+         ENDIF
 
 
          ! STOPPING CONDITION:
