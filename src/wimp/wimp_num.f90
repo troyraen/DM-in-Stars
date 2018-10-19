@@ -11,7 +11,7 @@
 	USE nrtype; USE nrutil, ONLY : nrerror
 	IMPLICIT NONE
 	REAL(DP), INTENT(IN) :: x1,x2,tol
-	REAL(DP), DIMENSION(4) :: zbrent
+	REAL(DP), DIMENSION(4) :: zbrent !  = [ Tx1, emom1, Tx2, emom2 ], Tx1 is the best root
 	INTERFACE
 		FUNCTION func(x)
 		USE nrtype

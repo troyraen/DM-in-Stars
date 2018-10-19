@@ -6,11 +6,11 @@
 # declare -a iord=(OG pre otm)
 
 declare -A ivals=( [base]=base [enlr]=en_lr [enom]=enom [lr]=lr )
-declare -a iord=(base enlr enom lr)
+declare -a iord=(base enom)
 
 maindir=/home/tjr63/mesaruns
 outfl=$maindir/LOGS/STD.out
-RUNS=RUNS_xLdivLnuc_test
+RUNS=RUNS_plot_Tx_energies # RUNS_xLdivLnuc_test
 xphoto=x773_xLdivLnuc_GT_0p085_photo
 
 for inlst in "${iord[@]}"; do
@@ -32,15 +32,16 @@ for inlst in "${iord[@]}"; do
     $maindir/bash_scripts/del_dup_mods.sh $maindir &>> $outfl
     # $maindir/bash_scripts/data_reduc.sh $maindir &>> $outfl
 
-    $maindir/pgstar_movie grid1
-    mv $maindir/movie.mp4 $maindir/LOGS/grid1.mp4
-    $maindir/pgstar_movie grid2
-    mv $maindir/movie.mp4 $maindir/LOGS/grid2.mp4
-    rm -r $maindir/png
+    # pgstar movies
+    # $maindir/pgstar_movie grid1
+    # mv $maindir/movie.mp4 $maindir/LOGS/grid1.mp4
+    # $maindir/pgstar_movie grid2
+    # mv $maindir/movie.mp4 $maindir/LOGS/grid2.mp4
+    # rm -r $maindir/png
 
     newlogs=$maindir/$RUNS/LOGSc5_${ivals[$inlst]}
     mv $maindir/LOGS $newlogs
     mv $maindir/photos $newlogs/.
-    # mv $maindir/png $newlogs/.
+    mv $maindir/png $newlogs/.
 
 done

@@ -383,10 +383,10 @@
 	! WRITE(*,*) "ZBRENT---***--- Tx1, emom1, Tx2, emom2", Tarray(1), Tarray(2), Tarray(3), Tarray(4)
 	! WRITE(*,*) '#****# END #****# '
 
-!!!!!!!!
-! check that L_extra / L_nuc < 1
-! else approximate emoment root function
-! with straight line to find better Tx
+	!!!!!!!!
+	! check that L_extra / L_nuc < 1
+	! else approximate emoment root function
+	! with straight line to find better Tx
 	CALL calc_xheat(Ttmp)
 	xL = 0.0
 	DO k = 1,kmax
@@ -410,10 +410,75 @@
 	! 	WRITE(*,*) "ZBRENT---***--- xL/ Lnuc NEW = ", xL/ Lnuc,  "---***---"
 	! ENDIF
 	s% xtra6 = xL/Lnuc
+	!!!!!!!!
+
+
 !!!!!!!!
+	CALL test_routine(id,ierr,Tarray)
+!!!!!!!!
+
 
 	calc_Tx = Ttmp
 	END FUNCTION calc_Tx
+
+
+!!!!!!!!
+! already have [ Tx1, emom1, Tx2, emom2 ] from wimp_num root finding.
+! find linear_root Tx and emom with this Tx
+! calc xenergy for all these Tx's
+!!!!!!!!
+	SUBROUTINE test_routine(id,ierr,Tarray)
+		INTEGER, INTENT(IN) :: id
+		INTEGER, INTENT(OUT) :: ierr
+		INTEGER :: i
+		DOUBLE PRECISION :: matrx(3,3)
+		! matrx = 	[ Tx1, emom(Tx1), xEnergy(Tx1) ]
+		!			[ Tx2, emom(Tx2), xEnergy(Tx2) ]
+		!			[ Tx_linapprox, emom(Tx_linapprox), xEnergy(Tx_linapprox) ]
+		TYPE (star_info), pointer :: s ! pointer to star type
+		ierr=0
+		CALL GET_STAR_PTR(id, s, ierr)
+		IF ( ierr /= 0 ) RETURN
+
+		matrx(1,1) = Tarray(1)
+		matrx(1,2) = Tarray(2)
+		matrx(2,1) = Tarray(3)
+		matrx(2,2) = Tarray(4)
+		matrx(3,1) = linear_root(Tarray)
+		matrx(3,2) = emoment(matrx(3,1))
+
+		DO i = 1,3
+			CALL calc_xheat(matrx(i,1))
+			matrx(i,3) = calc_xenergy(id,ierr)
+		ENDDO
+
+		OPEN(UNIT=9, FILE="/home/tjr63/mesaruns/LOGS/matrx.data", FILE_STATUS="NEW", ,ACTION="WRITE")
+		WRITE(UNIT=9, FMT="("matrx"/(3F15.2))") , ((matrx(i,j), i = 1, 3), j = 1, 3)
+		CLOSE(UNIT=9)
+
+		STOP
+
+	END SUBROUTINE test_routine
+
+!!! ONLY USED FOR test_routine:
+	FUNCTION calc_xenergy(id, ierr)
+		integer, intent(in) :: id, ierr
+		integer :: ierr
+		real(dp) :: xe, calc_xenergy
+		integer :: k
+		type (star_info), pointer :: s
+		ierr = 0
+		call star_ptr(id, s, ierr)
+		if (ierr /= 0) return
+
+		xe = 0.d0
+		DO k = 1, s% nz
+			xe = xe + s% extra_heat(k)* s% dm(k)* s% dt
+		ENDDO
+
+		calc_xenergy = xe ! ergs
+	END FUNCTION calc_xenergy
+!!! ONLY USED FOR test_routine
 
 
 !!----------------------------
