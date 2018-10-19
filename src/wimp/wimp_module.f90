@@ -462,7 +462,8 @@
 
 !!! ONLY USED FOR test_routine:
 	FUNCTION calc_xenergy(id, ierr)
-		integer, intent(in) :: id, ierr
+		INTEGER, INTENT(IN) :: id
+		INTEGER, INTENT(OUT) :: ierr
 		real(dp) :: xe, calc_xenergy
 		integer :: k
 		type (star_info), pointer :: s
