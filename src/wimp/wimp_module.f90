@@ -431,7 +431,7 @@
 		INTEGER, INTENT(IN) :: id
 		INTEGER, INTENT(OUT) :: ierr
 		INTEGER :: i
-		DOUBLE PRECISION :: matrx(3,3)
+		DOUBLE PRECISION :: Tarray(4), matrx(3,3)
 		! matrx = 	[ Tx1, emom(Tx1), xEnergy(Tx1) ]
 		!			[ Tx2, emom(Tx2), xEnergy(Tx2) ]
 		!			[ Tx_linapprox, emom(Tx_linapprox), xEnergy(Tx_linapprox) ]
@@ -452,8 +452,8 @@
 			matrx(i,3) = calc_xenergy(id,ierr)
 		ENDDO
 
-		OPEN(UNIT=9, FILE="/home/tjr63/mesaruns/LOGS/matrx.data", FILE_STATUS="NEW", ,ACTION="WRITE")
-		WRITE(UNIT=9, FMT="("matrx"/(3F15.2))") , ((matrx(i,j), i = 1, 3), j = 1, 3)
+		OPEN(UNIT=9, FILE="/home/tjr63/mesaruns/LOGS/matrx.data", STATUS="NEW", ACTION="WRITE")
+		WRITE(UNIT=9, FMT="(3F15.2)") ((matrx(i,j), i = 1, 3), j = 1, 3)
 		CLOSE(UNIT=9)
 
 		STOP
@@ -463,7 +463,6 @@
 !!! ONLY USED FOR test_routine:
 	FUNCTION calc_xenergy(id, ierr)
 		integer, intent(in) :: id, ierr
-		integer :: ierr
 		real(dp) :: xe, calc_xenergy
 		integer :: k
 		type (star_info), pointer :: s
