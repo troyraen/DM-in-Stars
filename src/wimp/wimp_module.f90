@@ -430,7 +430,7 @@
 	SUBROUTINE test_routine(id,ierr,Tarray)
 		INTEGER, INTENT(IN) :: id
 		INTEGER, INTENT(OUT) :: ierr
-		INTEGER :: i
+		INTEGER :: i, j
 		DOUBLE PRECISION :: Tarray(4), matrx(3,3)
 		! matrx = 	[ Tx1, emom(Tx1), xEnergy(Tx1) ]
 		!			[ Tx2, emom(Tx2), xEnergy(Tx2) ]
@@ -467,7 +467,7 @@
 		integer :: k
 		type (star_info), pointer :: s
 		ierr = 0
-		call star_ptr(id, s, ierr)
+		call GET_STAR_PTR(id, s, ierr)
 		if (ierr /= 0) return
 
 		xe = 0.d0
