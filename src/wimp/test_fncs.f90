@@ -12,8 +12,7 @@
 
 	MODULE test_fncs
 
-	use star_def
-	use const_def
+	! use const_def
     use wimp_module
 	! use chem_def
 	! use wimp_num
@@ -30,6 +29,7 @@
 ! write to separate file for plotting
 !!!!!!!!
 	SUBROUTINE energy_plots(id,ierr)
+        use wimp_module
 		INTEGER, INTENT(IN) :: id
 		INTEGER, INTENT(OUT) :: ierr
 		INTEGER :: i, j, k
@@ -70,6 +70,7 @@
 
 !!! ONLY USED FOR test_routine:
 	FUNCTION calc_xenrgy(id, ierr)
+        use star_def
 		INTEGER, INTENT(IN) :: id
 		INTEGER, INTENT(OUT) :: ierr
 		real(dp) :: xe, calc_xenrgy

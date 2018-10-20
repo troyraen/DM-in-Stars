@@ -26,7 +26,10 @@ $(STAR) : $(OBJS)
 
 # WORK_COMPILE defined in makefile_header
 
-wimp_module.o: $(WORK_SRC_DIR)/wimp/wimp_module.f90 wimp_num.o test_fncs.o
+test_fncs.o: $(WORK_SRC_DIR)/wimp/test_fncs.f90 wimp_module.o
+	$(WORK_COMPILE) $<
+
+wimp_module.o: $(WORK_SRC_DIR)/wimp/wimp_module.f90 wimp_num.o
 	$(WORK_COMPILE) $<
 
 wimp_num.o: $(WORK_SRC_DIR)/wimp/wimp_num.f90 nrtype.o nrutil.o
@@ -38,8 +41,6 @@ nrtype.o: $(WORK_SRC_DIR)/wimp/nrtype.f90
 nrutil.o: $(WORK_SRC_DIR)/wimp/nrutil.f90
 	$(WORK_COMPILE) $<
 
-test_fncs.o: $(WORK_SRC_DIR)/wimp/test_fncs.f90 wimp_module.o
-	$(WORK_COMPILE) $<
 
 ifeq ($(SKIP_NAN_TRAPS),YES)
 run.o: $(WORK_SRC_DIR)/run.f

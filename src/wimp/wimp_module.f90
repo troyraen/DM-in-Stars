@@ -25,7 +25,7 @@
 	use const_def
 	use chem_def
 	use wimp_num
-	use test_fncs
+	! use test_fncs
 	IMPLICIT NONE
 	INCLUDE 'wimp_vars.h'
 
