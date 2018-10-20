@@ -46,8 +46,7 @@
                                     ! .false. = spin independent
 !      initial_mass = 1.0
 
-        X_CTRL(7) = 1.E-4 ! tolerance finding emoment root (Tx)
-                            ! conditionally changed in run_star_extras
+!        X_CTRL(7) =
 
       initial_z = 0.014d0
       Zbase = 0.014d0
@@ -70,6 +69,8 @@
 
       read_extra_controls_inlist1 = .true.
       extra_controls_inlist1_name = 'inlist_cluster'
+      read_extra_controls_inlist2 = .true.
+      extra_controls_inlist2_name = 'inlist_test'
 
 !PHYSICS (MIST)
 

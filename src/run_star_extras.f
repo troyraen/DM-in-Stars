@@ -31,6 +31,7 @@
       use const_def
       use chem_def
       use wimp_module   ! necessary to point towards the other_energy hook
+      use test_fncs
 
       implicit none
 
@@ -433,9 +434,16 @@
          ! IF ( (ABS(s% xtra6_older).GT.0.085) .AND. (s% xtra4.GT.0.2) ) THEN
          !     extras_finish_step = terminate
          ! ENDIF
-         IF ( s% model_number .GT. 2973) THEN
-             extras_finish_step = terminate
-         ENDIF
+         ! IF ( s% model_number .GT. 2973) THEN
+         !     extras_finish_step = terminate
+         ! ENDIF
+
+ !!!!!!!!
+ 	CALL energy_plots(id,ierr)
+ !!!!!!!!
+
+
+
 
 
          ! STOPPING CONDITION:

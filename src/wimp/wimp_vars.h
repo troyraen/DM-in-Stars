@@ -8,7 +8,7 @@
 
 !// 	! wimp variables
 	DOUBLE PRECISION mx, mxGeV, sigmaxp, cboost, Tx, Nx
-
+	DOUBLE PRECISION Tx_array(4)
 
 !//	! star variables
 	DOUBLE PRECISION dttmp, maxT, vesc, M_star, R_star, Age_star

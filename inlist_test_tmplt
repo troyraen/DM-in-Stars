@@ -1,0 +1,9 @@
+
+&controls
+
+
+
+    X_LOGICAL_CTRL(2) = emom_norm_ ! emom_norm true or false
+
+
+/ ! end of controls namelist

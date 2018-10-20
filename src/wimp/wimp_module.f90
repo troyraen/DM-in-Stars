@@ -10,6 +10,13 @@
 !!!	cboost = s% X_CTRL(1)
 !!!	spindep = s% X_LOGICAL_CTRL(1)  ! .true. = spin dependent; .false. = spin independent
 !!!	extra history columns values = s% X_CTRL(2:6)
+!!! s% X_CTRL(7) =
+!!! emom_norm = s% X_LOGICAL_CTRL(2)
+!!!
+!!! s% xtra4 = Lnuc
+!!!	s% xtra5 = xL
+!!!	s% xtra6 = xL/Lnuc
+
 
 
 	MODULE wimp_module
@@ -18,6 +25,7 @@
 	use const_def
 	use chem_def
 	use wimp_num
+	use test_fncs
 	IMPLICIT NONE
 	INCLUDE 'wimp_vars.h'
 
@@ -322,7 +330,7 @@
 	CALL GET_STAR_PTR(id, s, ierr)
 	IF ( ierr /= 0 ) RETURN
 
-	tol = s% X_CTRL(7)
+	tol = 1.D-4
 
 	IF ((model_err.EQ. s% model_number) .AND. (.NOT.Tflag)) call nrerror('Txlow > Txhigh or root must be bracketed')
 	Txhigh = maxT*1.1
@@ -412,73 +420,10 @@
 	s% xtra6 = xL/Lnuc
 	!!!!!!!!
 
-
-!!!!!!!!
-	CALL test_routine(id,ierr,Tarray)
-!!!!!!!!
-
-
+	Tx_array = Tarray ! set wimp_vars Tx_array
 	calc_Tx = Ttmp
 	END FUNCTION calc_Tx
 
-
-!!!!!!!!
-! already have [ Tx1, emom1, Tx2, emom2 ] from wimp_num root finding.
-! find linear_root Tx and emom with this Tx
-! calc xenergy for all these Tx's
-!!!!!!!!
-	SUBROUTINE test_routine(id,ierr,Tarray)
-		INTEGER, INTENT(IN) :: id
-		INTEGER, INTENT(OUT) :: ierr
-		INTEGER :: i, j
-		DOUBLE PRECISION :: Tarray(4), matrx(3,3)
-		! matrx = 	[ Tx1, emom(Tx1), xEnergy(Tx1) ]
-		!			[ Tx2, emom(Tx2), xEnergy(Tx2) ]
-		!			[ Tx_linapprox, emom(Tx_linapprox), xEnergy(Tx_linapprox) ]
-		TYPE (star_info), pointer :: s ! pointer to star type
-		ierr=0
-		CALL GET_STAR_PTR(id, s, ierr)
-		IF ( ierr /= 0 ) RETURN
-
-		matrx(1,1) = Tarray(1)
-		matrx(1,2) = Tarray(2)
-		matrx(2,1) = Tarray(3)
-		matrx(2,2) = Tarray(4)
-		matrx(3,1) = linear_root(Tarray)
-		matrx(3,2) = emoment(matrx(3,1))
-
-		DO i = 1,3
-			CALL calc_xheat(matrx(i,1))
-			matrx(i,3) = calc_xenergy(id,ierr)
-		ENDDO
-
-		OPEN(UNIT=9, FILE="/home/tjr63/mesaruns/LOGS/matrx.data", STATUS="NEW", ACTION="WRITE")
-		WRITE(UNIT=9, FMT="(3F15.2)") ((matrx(i,j), i = 1, 3), j = 1, 3)
-		CLOSE(UNIT=9)
-
-		STOP
-
-	END SUBROUTINE test_routine
-
-!!! ONLY USED FOR test_routine:
-	FUNCTION calc_xenergy(id, ierr)
-		INTEGER, INTENT(IN) :: id
-		INTEGER, INTENT(OUT) :: ierr
-		real(dp) :: xe, calc_xenergy
-		integer :: k
-		type (star_info), pointer :: s
-		ierr = 0
-		call GET_STAR_PTR(id, s, ierr)
-		if (ierr /= 0) return
-
-		xe = 0.d0
-		DO k = 1, s% nz
-			xe = xe + s% extra_heat(k)* s% dm(k)* s% dt
-		ENDDO
-
-		calc_xenergy = xe ! ergs
-	END FUNCTION calc_xenergy
-!!! ONLY USED FOR test_routine
 
 
 !!----------------------------
@@ -496,12 +441,12 @@
 		m = (y2-y1)/(x2-x1)
 		linear_root = x1 - y1/m ! Tx
 
-		WRITE(*,*) "ZBRENT---***--- slope = ", m
-		WRITE(*,*) "ZBRENT---***--- Tx OLD = ", x1
-		WRITE(*,*) "ZBRENT---***--- emoment OLD = ", y1
-		WRITE(*,*) "ZBRENT---***--- Tx NEW = ", linear_root
-		WRITE(*,*) "ZBRENT---***--- emoment NEW = ", emoment(linear_root)
-		WRITE(*,*) "ZBRENT---***---"
+		! WRITE(*,*) "linear_root---***---"
+		! WRITE(*,*) "linear_root---***--- slope = ", m
+		! WRITE(*,*) "linear_root---***--- Tx OLD = ", x1
+		! WRITE(*,*) "linear_root---***--- emoment OLD = ", y1
+		! WRITE(*,*) "linear_root---***--- Tx NEW = ", linear_root
+		! WRITE(*,*) "linear_root---***--- emoment NEW = ", emoment(linear_root)
 
 	END FUNCTION linear_root
 
@@ -571,51 +516,28 @@
 	DOUBLE PRECISION :: Tnorm, nnorm, Rnorm, m, npbar, Txbar, Tbar, rbar, drbar
 	PARAMETER ( mpGeV=0.938272D0 ) ! Proton mass in GeV
 
-! !!!! normalized
-! 	! normalization constants
-! 	Tnorm = 1.D7 ! K
-! 	nnorm = 1.D25 ! dimensionless
-! 	Rnorm = Rsun ! cm
-! 	! normalized variables
-! 	m = mxGeV / mpGeV
-! 	Txbar = Txtest / Tnorm
-!
-! 	sum = 0.D0
-! 	DO itr = kmax,1,-1 ! integrate from r=0 to r_star
-! 		! normalized variables
-! 		npbar = npk(itr) / nnorm
-! 		Tbar = Tk(itr) / Tnorm
-! 		rbar = rk(itr+1) / Rnorm
-! 		drbar = (rk(itr)- rk(itr+1)) / Rnorm
-!
-! 		rfact = rbar*rbar*drbar
-! 		efact = EXP(-mx*Vk(itr)/ kerg/Txtest)
-! 		IF (spindep) THEN
-! 			Tfact = SQRT(Txbar+ m*Tbar)* (Tbar - Txbar)
-! 			sum = sum+ npbar*Tfact*efact*rfact
-! !!!! STILL NEED SPIN INDEPENDENT NORMALIZED
-! 		ENDIF
-! 	ENDDO
-! !!!! end normalized
 
-!!!! non-normalized
-	sum = 0.D0
-	DO itr = kmax,1,-1 ! integrate from r=0 to r_star
-		rfact = rk(itr+1)*rk(itr+1)* (rk(itr)- rk(itr+1))
-		efact = EXP(-mx*Vk(itr)/ kerg/Txtest)
-		IF (spindep) THEN
-			Tfact = SQRT((mpGeV*Txtest+ mxGeV*Tk(itr))/(mxGeV*mpGeV))* (Tk(itr)-Txtest)
-			sum = sum+ npk(itr)*Tfact*efact*rfact
-		ELSE
-			DO j = 1,numspecies
-				Tfact = SQRT((mGeVj(j)*Txtest+ mxGeV*Tk(itr))/(mxGeV*mGeVj(j)))* (Tk(itr)-Txtest)
-				mjfact = Aj(j)*Aj(j)* (mGeVj(j)/mpGeV)**3 *(mxGeV+mpGeV)**2 &
-				*mxGeV*mpGeV/ (mxGeV+mGeVj(j))**4
-				sum = sum+ njk(j,itr)*Tfact*efact*rfact*mjfact
-			ENDDO
-		ENDIF
-	ENDDO
-!!!! end non-normalized
+	IF ( X_LOGICAL_CTRL(2) ) THEN ! get normalized emoment
+		sum = emom_normalized(Txtest)
+	ELSE
+	!!!! non-normalized
+		sum = 0.D0
+		DO itr = kmax,1,-1 ! integrate from r=0 to r_star
+			rfact = rk(itr+1)*rk(itr+1)* (rk(itr)- rk(itr+1))
+			efact = EXP(-mx*Vk(itr)/ kerg/Txtest)
+			IF (spindep) THEN
+				Tfact = SQRT((mpGeV*Txtest+ mxGeV*Tk(itr))/(mxGeV*mpGeV))* (Tk(itr)-Txtest)
+				sum = sum+ npk(itr)*Tfact*efact*rfact
+			ELSE
+				DO j = 1,numspecies
+					Tfact = SQRT((mGeVj(j)*Txtest+ mxGeV*Tk(itr))/(mxGeV*mGeVj(j)))* (Tk(itr)-Txtest)
+					mjfact = Aj(j)*Aj(j)* (mGeVj(j)/mpGeV)**3 *(mxGeV+mpGeV)**2 &
+					*mxGeV*mpGeV/ (mxGeV+mGeVj(j))**4
+					sum = sum+ njk(j,itr)*Tfact*efact*rfact*mjfact
+				ENDDO
+			ENDIF
+		ENDDO
+	!!!! end non-normalized
 
 	emoment = sum
 	END FUNCTION emoment

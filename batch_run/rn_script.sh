@@ -5,8 +5,11 @@
 # declare -a iord=( pre opa mlt sc th lim hms oth)
 # declare -a iord=(OG pre otm)
 
-declare -A ivals=( [base]=base [enlr]=en_lr [enom]=enom [lr]=lr )
-declare -a iord=(base enom)
+# declare -A ivals=( [base]=base [enlr]=en_lr [enom]=enom [lr]=lr )
+# declare -a iord=(base enom)
+
+declare -A ivals=( [enom_true]=.TRUE. [enom_false]=.FALSE.)
+declare -a iord=(enom_false enom_true)
 
 maindir=/home/tjr63/mesaruns
 outfl=$maindir/LOGS/STD.out
@@ -15,21 +18,24 @@ xphoto=x773_xLdivLnuc_GT_0p085_photo
 
 for inlst in "${iord[@]}"; do
     mkdir $maindir/LOGS $maindir/png $maindir/photos
+    cp $maindir/$RUNS/$xphoto $maindir/photos/.
 
     # CHANGE INLIST
     # cp $maindir/inlist_${ivals[$inlst]} $maindir/inlist
     # cp $maindir/inlist $maindir/LOGS/inlist_${ivals[$inlst]}
     # $maindir/rn &> $outfl
-
-    # CHANGE WIMP_MODULE.f90
-    cp $maindir/src/wimp/wimp_module_$inlst.f90 $maindir/src/wimp/wimp_module.f90
-    $maindir/clean
-    $maindir/mk
-
-    cp $maindir/$RUNS/$xphoto $maindir/photos/.
+    cp $maindir/inlist_test_tmplt $maindir/inlist_test
+    sed -i 's/emom_norm_/'${ivals[$inlst]}'/g' $maindir/inlist_test
     $maindir/re $xphoto &>> LOGS/STD.out
 
-    $maindir/bash_scripts/del_dup_mods.sh $maindir &>> $outfl
+    # # CHANGE WIMP_MODULE.f90
+    # cp $maindir/src/wimp/wimp_module_$inlst.f90 $maindir/src/wimp/wimp_module.f90
+    # $maindir/clean
+    # $maindir/mk
+    # cp $maindir/$RUNS/$xphoto $maindir/photos/.
+    # $maindir/re $xphoto &>> LOGS/STD.out
+
+    # $maindir/bash_scripts/del_dup_mods.sh $maindir &>> $outfl
     # $maindir/bash_scripts/data_reduc.sh $maindir &>> $outfl
 
     # pgstar movies
@@ -39,7 +45,8 @@ for inlst in "${iord[@]}"; do
     # mv $maindir/movie.mp4 $maindir/LOGS/grid2.mp4
     # rm -r $maindir/png
 
-    newlogs=$maindir/$RUNS/LOGSc5_${ivals[$inlst]}
+    # newlogs=$maindir/$RUNS/LOGSc5_${ivals[$inlst]}
+    newlogs=$maindir/$RUNS/LOGSc5_$inlst
     mv $maindir/LOGS $newlogs
     mv $maindir/photos $newlogs/.
     mv $maindir/png $newlogs/.
