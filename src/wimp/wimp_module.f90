@@ -594,7 +594,7 @@
 		IMPLICIT NONE
 		INTEGER, INTENT(IN) :: id
 		INTEGER, INTENT(OUT) :: ierr
-		INTEGER :: i, j, k
+		INTEGER :: i, k
 		INTEGER, PARAMETER :: cols=853
 		DOUBLE PRECISION :: matrx(3,cols)
 		! matrx = 	[ Tx1, emom(Tx1), xEnergy(Tx1) xheat(Tx1) for each zone ]
@@ -615,7 +615,7 @@
 		DO i = 1,3
 			CALL calc_xheat(matrx(i,1))
 			matrx(i,3) = calc_xenrgy(id,ierr)
-            DO k = 1,kmax
+            DO k = kmax,1,-1 ! write from center to surface
                 matrx(i,k+3) = xheat(k)
             ENDDO
             DO k = kmax+1,850
@@ -625,7 +625,7 @@
 
 		OPEN(UNIT=9, FILE="/home/tjr63/mesaruns/LOGS/matrx.data", STATUS="NEW", ACTION="WRITE")
 		DO i = 1,3
-			WRITE(UNIT=9, FMT="(9999F15.2)") matrx(i,:)
+			WRITE(UNIT=9, FMT="(9999ES15.14E2)") matrx(i,:)
 		ENDDO
 		CLOSE(UNIT=9)
 
