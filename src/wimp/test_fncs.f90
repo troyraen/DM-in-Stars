@@ -16,7 +16,7 @@
 	use const_def
     use wimp_module
 	! use chem_def
-	use wimp_num
+	! use wimp_num
 	IMPLICIT NONE
 	INCLUDE 'wimp_vars.h'
 
@@ -93,8 +93,7 @@
 
 !!----------------------------
 !!	this is LHS of SP85 equ 4.10 which implicitly defines Tx
-!!	called by zbrent() (which is called by calc_Tx())
-!!	zbrent() finds Tx as the root of this equation
+!!	called by emoment function if inlist specifies it should be normalized
 !!----------------------------
 	FUNCTION emom_normalized(Txtest)
 	USE const_def, only : Rsun, kerg ! Boltzmann's constant (erg K^-1)
