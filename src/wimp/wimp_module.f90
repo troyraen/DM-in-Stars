@@ -595,7 +595,6 @@
 ! write to separate file for plotting
 !!!!!!!!
 	SUBROUTINE energy_plots(id,ierr)
-        use wimp_module
 		INTEGER, INTENT(IN) :: id
 		INTEGER, INTENT(OUT) :: ierr
 		INTEGER :: i, j, k
@@ -636,7 +635,6 @@
 
 !!! ONLY USED FOR energy_plots:
 	FUNCTION calc_xenrgy(id, ierr)
-        use star_def
 		INTEGER, INTENT(IN) :: id
 		INTEGER, INTENT(OUT) :: ierr
 		real(dp) :: xe, calc_xenrgy
