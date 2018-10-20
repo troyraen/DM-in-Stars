@@ -47,6 +47,8 @@
 
 	cboost = s% X_CTRL(1)  ! boost in capture rate of WIMPs compared to the local capture rate near the Sun, \propto density/sigma_v
 	spindep = s% X_LOGICAL_CTRL(1)
+	emom_logical = s% X_LOGICAL_CTRL(2)
+
 	CALL get_star_variables(id,ierr)
 	CALL set_wimp_variables(id,ierr)
 	CALL calc_xheat(Tx)
@@ -516,8 +518,7 @@
 	DOUBLE PRECISION :: Tnorm, nnorm, Rnorm, m, npbar, Txbar, Tbar, rbar, drbar
 	PARAMETER ( mpGeV=0.938272D0 ) ! Proton mass in GeV
 
-
-	IF ( X_LOGICAL_CTRL(2) ) THEN ! get normalized emoment
+	IF ( emom_logical ) THEN ! get normalized emoment
 		sum = emom_normalized(Txtest)
 	ELSE
 	!!!! non-normalized
