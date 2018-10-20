@@ -13,7 +13,7 @@ STAR = star
 endif
 
 # STAR_WORK_OBJS defined in makefile_header
-OBJS = $(STAR_WORK_OBJS) run.o wimp_module.o wimp_num.o nrtype.o nrutil.o test_fncs.o
+OBJS = $(STAR_WORK_OBJS) run.o wimp_module.o wimp_num.o nrtype.o nrutil.o
 
 WORK_DIR = ..
 WORK_SRC_DIR = $(WORK_DIR)/src
@@ -25,9 +25,6 @@ $(STAR) : $(OBJS)
 #################################################################
 
 # WORK_COMPILE defined in makefile_header
-
-test_fncs.o: $(WORK_SRC_DIR)/wimp/test_fncs.f90 wimp_module.o
-	$(WORK_COMPILE) $<
 
 wimp_module.o: $(WORK_SRC_DIR)/wimp/wimp_module.f90 wimp_num.o
 	$(WORK_COMPILE) $<
@@ -50,7 +47,7 @@ run.o: $(WORK_SRC_DIR)/run.f
 	$(WORK_COMPILE) $(FCtrapNANs) $<
 endif
 
-run_star_extras.o: $(WORK_SRC_DIR)/run_star_extras.f wimp_module.o wimp_num.o test_fncs.o
+run_star_extras.o: $(WORK_SRC_DIR)/run_star_extras.f wimp_module.o wimp_num.o
 	$(WORK_COMPILE) $<
 
 %.o: $(STAR_JOB_DIR)/%.f
