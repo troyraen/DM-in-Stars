@@ -538,6 +538,7 @@
 			ENDIF
 		ENDDO
 	!!!! end non-normalized
+	ENDIF
 
 	emoment = sum
 	END FUNCTION emoment
