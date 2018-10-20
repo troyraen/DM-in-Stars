@@ -625,7 +625,7 @@
 
 		OPEN(UNIT=9, FILE="/home/tjr63/mesaruns/LOGS/matrx.data", STATUS="NEW", ACTION="WRITE")
 		DO i = 1,3
-			WRITE(UNIT=9, FMT="(9999ES15.14E2)") matrx(i,:)
+			WRITE(9,"(ES15.14E2)") matrx(i,:)
 		ENDDO
 		CLOSE(UNIT=9)
 
