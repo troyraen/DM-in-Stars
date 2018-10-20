@@ -595,7 +595,8 @@
 		INTEGER, INTENT(IN) :: id
 		INTEGER, INTENT(OUT) :: ierr
 		INTEGER :: i, j, k
-		DOUBLE PRECISION :: matrx(3,853)
+		INTEGER, PARAMETER :: cols=853
+		DOUBLE PRECISION :: matrx(3,cols)
 		! matrx = 	[ Tx1, emom(Tx1), xEnergy(Tx1) xheat(Tx1) for each zone ]
 		!			[ Tx2, emom(Tx2), xEnergy(Tx2) xheat(Tx2) for each zone ]
 		!			[ Tx_linapprox, emom(Tx_linapprox), xEnergy(Tx_linapprox) xheat(Tx_linapprox) for each zone ]
@@ -623,7 +624,9 @@
 		ENDDO
 
 		OPEN(UNIT=9, FILE="/home/tjr63/mesaruns/LOGS/matrx.data", STATUS="NEW", ACTION="WRITE")
-		WRITE(UNIT=9, FMT="(3F15.2)") ((matrx(i,j), i = 1, 3), j = 1, 853)
+		DO i = 1,3
+			WRITE(UNIT=9, FMT="(9999F15.2)") matrx(i,:)
+		ENDDO
 		CLOSE(UNIT=9)
 
 		STOP
