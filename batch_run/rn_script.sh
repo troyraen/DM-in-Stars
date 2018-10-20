@@ -47,6 +47,7 @@ for inlst in "${iord[@]}"; do
 
     # newlogs=$maindir/$RUNS/LOGSc5_${ivals[$inlst]}
     newlogs=$maindir/$RUNS/LOGSc5_$inlst
+    rm -r $newlogs
     mv $maindir/LOGS $newlogs
     mv $maindir/photos $newlogs/.
     mv $maindir/png $newlogs/.
