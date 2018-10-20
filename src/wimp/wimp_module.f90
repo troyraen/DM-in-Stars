@@ -581,10 +581,6 @@
 	END SUBROUTINE store_hist
 
 
-	END MODULE wimp_module
-
-
-
 
 !!!***!!!*** TEST FUNCTIONS !!!***!!!***
 
@@ -595,6 +591,7 @@
 ! write to separate file for plotting
 !!!!!!!!
 	SUBROUTINE energy_plots(id,ierr)
+		IMPLICIT NONE
 		INTEGER, INTENT(IN) :: id
 		INTEGER, INTENT(OUT) :: ierr
 		INTEGER :: i, j, k
@@ -660,45 +657,50 @@
 !!	called by emoment function if inlist specifies it should be normalized
 !!----------------------------
 	FUNCTION emom_normalized(Txtest)
-	USE const_def, only : Rsun, kerg ! Boltzmann's constant (erg K^-1)
-	IMPLICIT NONE
-	INTEGER :: itr, j
-	DOUBLE PRECISION, INTENT(IN) :: Txtest
-	DOUBLE PRECISION :: mpGeV, Tfact, efact, rfact, mjfact, sum, emom_normalized
-	DOUBLE PRECISION :: Tnorm, nnorm, Rnorm, m, npbar, Txbar, Tbar, rbar, drbar
-	PARAMETER ( mpGeV=0.938272D0 ) ! Proton mass in GeV
+		USE const_def, only : Rsun, kerg ! Boltzmann's constant (erg K^-1)
+		IMPLICIT NONE
+		INTEGER :: itr, j
+		DOUBLE PRECISION, INTENT(IN) :: Txtest
+		DOUBLE PRECISION :: mpGeV, Tfact, efact, rfact, mjfact, sum, emom_normalized
+		DOUBLE PRECISION :: Tnorm, nnorm, Rnorm, m, npbar, Txbar, Tbar, rbar, drbar
+		PARAMETER ( mpGeV=0.938272D0 ) ! Proton mass in GeV
 
-!!!! normalized
-	! normalization constants
-	Tnorm = 1.D7 ! K
-	nnorm = 1.D25 ! dimensionless
-	Rnorm = Rsun ! cm
-	! normalized variables
-	m = mxGeV / mpGeV
-	Txbar = Txtest / Tnorm
-
-	sum = 0.D0
-	DO itr = kmax,1,-1 ! integrate from r=0 to r_star
+	!!!! normalized
+		! normalization constants
+		Tnorm = 1.D7 ! K
+		nnorm = 1.D25 ! dimensionless
+		Rnorm = Rsun ! cm
 		! normalized variables
-		npbar = npk(itr) / nnorm
-		Tbar = Tk(itr) / Tnorm
-		rbar = rk(itr+1) / Rnorm
-		drbar = (rk(itr)- rk(itr+1)) / Rnorm
+		m = mxGeV / mpGeV
+		Txbar = Txtest / Tnorm
 
-		rfact = rbar*rbar*drbar
-		efact = EXP(-mx*Vk(itr)/ kerg/Txtest)
-		IF (spindep) THEN
-			Tfact = SQRT(Txbar+ m*Tbar)* (Tbar - Txbar)
-			sum = sum+ npbar*Tfact*efact*rfact
-!!!! STILL NEED SPIN INDEPENDENT NORMALIZED
-		ENDIF
-	ENDDO
-!!!! end normalized
+		sum = 0.D0
+		DO itr = kmax,1,-1 ! integrate from r=0 to r_star
+			! normalized variables
+			npbar = npk(itr) / nnorm
+			Tbar = Tk(itr) / Tnorm
+			rbar = rk(itr+1) / Rnorm
+			drbar = (rk(itr)- rk(itr+1)) / Rnorm
+
+			rfact = rbar*rbar*drbar
+			efact = EXP(-mx*Vk(itr)/ kerg/Txtest)
+			IF (spindep) THEN
+				Tfact = SQRT(Txbar+ m*Tbar)* (Tbar - Txbar)
+				sum = sum+ npbar*Tfact*efact*rfact
+	!!!! STILL NEED SPIN INDEPENDENT NORMALIZED
+			ENDIF
+		ENDDO
+	!!!! end normalized
 
 
 
-	emom_normalized = sum
-END FUNCTION emom_normalized
+		emom_normalized = sum
+
+	END FUNCTION emom_normalized
 
 
 !!!***!!!*** END TEST FUNCTIONS !!!***!!!***
+
+
+
+END MODULE wimp_module
