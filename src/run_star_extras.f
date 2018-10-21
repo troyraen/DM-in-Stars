@@ -31,7 +31,7 @@
       use const_def
       use chem_def
       use wimp_module   ! necessary to point towards the other_energy hook
-      ! use test_fncs
+      use test_fncs
 
       implicit none
 
