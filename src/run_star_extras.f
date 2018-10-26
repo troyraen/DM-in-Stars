@@ -439,7 +439,7 @@
          ! ENDIF
 
  !!!!!!!!
- 	CALL energy_plots(id,ierr)
+ 	! CALL energy_plots(id,ierr)
  !!!!!!!!
 
 
