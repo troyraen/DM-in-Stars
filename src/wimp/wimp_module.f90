@@ -514,7 +514,7 @@
 	IMPLICIT NONE
 	INTEGER :: itr, j
 	DOUBLE PRECISION, INTENT(IN) :: Txtest
-	DOUBLE PRECISION :: mpGeV, Tfact, efact, rfact, mjfact, sum, emoment
+	DOUBLE PRECISION :: mpGeV, Tfact, efact, rfact, mfact, mjfact, sum, emoment
 	DOUBLE PRECISION :: Tnorm, nnorm, Rnorm, m, npbar, Txbar, Tbar, rbar, drbar
 	PARAMETER ( mpGeV=0.938272D0 ) ! Proton mass in GeV
 
@@ -525,7 +525,7 @@
 	!!!! non-normalized
 		sum = 0.D0
 		DO itr = kmax,1,-1 ! integrate over dm from r=0 to r_star
-			mfact =  dm(itr)/4./pi/rhok(itr) ! r^2 dr = dm / (4 pi rho)
+			mfact =  s% dm(itr)/4./pi/rhok(itr) ! r^2 dr = dm / (4 pi rho)
 			efact = EXP(-mx*Vk(itr)/ kerg/Txtest)
 			IF (spindep) THEN
 				Tfact = SQRT((mpGeV*Txtest+ mxGeV*Tk(itr))/(mxGeV*mpGeV))* (Tk(itr)-Txtest)
@@ -659,7 +659,7 @@
 		IMPLICIT NONE
 		INTEGER :: itr, j
 		DOUBLE PRECISION, INTENT(IN) :: Txtest
-		DOUBLE PRECISION :: mpGeV, Tfact, efact, rfact, mjfact, sum, emom_normalized
+		DOUBLE PRECISION :: mpGeV, Tfact, efact, rfact, mfact, mjfact, sum, emom_normalized
 		DOUBLE PRECISION :: Tnorm, nnorm, Rnorm, Mnorm, m, npbar, Txbar, Tbar, rbar, drbar, dmbar
 		PARAMETER ( mpGeV=0.938272D0 ) ! Proton mass in GeV
 
@@ -681,7 +681,7 @@
 			Tbar = Tk(itr) / Tnorm
 			rbar = rk(itr+1) / Rnorm
 			drbar = (rk(itr)- rk(itr+1)) / Rnorm
-			dmbar = dm(itr) / Mnorm
+			dmbar = s% dm(itr) / Mnorm
 
 			mfact =  dmbar/rhok(itr) ! r^2 dr = dm / (4 pi rho)
 			efact = EXP(-mx*Vk(itr)/ kerg/Txtest)
