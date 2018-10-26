@@ -510,7 +510,7 @@
 !!	zbrent() finds Tx as the root of this equation
 !!----------------------------
 	FUNCTION emoment(Txtest)
-	USE const_def, only : Rsun, kerg ! Boltzmann's constant (erg K^-1)
+	USE const_def, only : pi, Rsun, kerg ! Boltzmann's constant (erg K^-1)
 	IMPLICIT NONE
 	INTEGER :: itr, j
 	DOUBLE PRECISION, INTENT(IN) :: Txtest
@@ -521,24 +521,19 @@
 	IF ( emom_logical ) THEN ! get normalized emoment
 		sum = emom_normalized(Txtest)
 	ELSE
+
 	!!!! non-normalized
 		sum = 0.D0
-		DO itr = kmax,1,-1 ! integrate from r=0 to r_star
-			rfact = rk(itr+1)*rk(itr+1)* (rk(itr)- rk(itr+1))
+		DO itr = kmax,1,-1 ! integrate over dm from r=0 to r_star
+			mfact =  dm(itr)/4./pi/rhok(itr) ! r^2 dr = dm / (4 pi rho)
 			efact = EXP(-mx*Vk(itr)/ kerg/Txtest)
 			IF (spindep) THEN
 				Tfact = SQRT((mpGeV*Txtest+ mxGeV*Tk(itr))/(mxGeV*mpGeV))* (Tk(itr)-Txtest)
-				sum = sum+ npk(itr)*Tfact*efact*rfact
-			ELSE
-				DO j = 1,numspecies
-					Tfact = SQRT((mGeVj(j)*Txtest+ mxGeV*Tk(itr))/(mxGeV*mGeVj(j)))* (Tk(itr)-Txtest)
-					mjfact = Aj(j)*Aj(j)* (mGeVj(j)/mpGeV)**3 *(mxGeV+mpGeV)**2 &
-					*mxGeV*mpGeV/ (mxGeV+mGeVj(j))**4
-					sum = sum+ njk(j,itr)*Tfact*efact*rfact*mjfact
-				ENDDO
+				sum = sum+ npk(itr)*Tfact*efact*mfact
 			ENDIF
 		ENDDO
 	!!!! end non-normalized
+
 	ENDIF
 
 	emoment = sum
@@ -660,12 +655,12 @@
 !!	called by emoment function if inlist specifies it should be normalized
 !!----------------------------
 	FUNCTION emom_normalized(Txtest)
-		USE const_def, only : Rsun, kerg ! Boltzmann's constant (erg K^-1)
+		USE const_def, only : Rsun, Msun, kerg ! Boltzmann's constant (erg K^-1)
 		IMPLICIT NONE
 		INTEGER :: itr, j
 		DOUBLE PRECISION, INTENT(IN) :: Txtest
 		DOUBLE PRECISION :: mpGeV, Tfact, efact, rfact, mjfact, sum, emom_normalized
-		DOUBLE PRECISION :: Tnorm, nnorm, Rnorm, m, npbar, Txbar, Tbar, rbar, drbar
+		DOUBLE PRECISION :: Tnorm, nnorm, Rnorm, Mnorm, m, npbar, Txbar, Tbar, rbar, drbar, dmbar
 		PARAMETER ( mpGeV=0.938272D0 ) ! Proton mass in GeV
 
 	!!!! normalized
@@ -673,9 +668,11 @@
 		Tnorm = 1.D7 ! K
 		nnorm = 1.D25 ! dimensionless
 		Rnorm = Rsun ! cm
+		Mnorm = Msun ! grams
 		! normalized variables
 		m = mxGeV / mpGeV
 		Txbar = Txtest / Tnorm
+
 
 		sum = 0.D0
 		DO itr = kmax,1,-1 ! integrate from r=0 to r_star
@@ -684,12 +681,13 @@
 			Tbar = Tk(itr) / Tnorm
 			rbar = rk(itr+1) / Rnorm
 			drbar = (rk(itr)- rk(itr+1)) / Rnorm
+			dmbar = dm(itr) / Mnorm
 
-			rfact = rbar*rbar*drbar
+			mfact =  dmbar/rhok(itr) ! r^2 dr = dm / (4 pi rho)
 			efact = EXP(-mx*Vk(itr)/ kerg/Txtest)
 			IF (spindep) THEN
 				Tfact = SQRT(Txbar+ m*Tbar)* (Tbar - Txbar)
-				sum = sum+ npbar*Tfact*efact*rfact
+				sum = sum+ npbar*Tfact*efact*mfact
 	!!!! STILL NEED SPIN INDEPENDENT NORMALIZED
 			ENDIF
 		ENDDO
