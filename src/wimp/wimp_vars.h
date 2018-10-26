@@ -15,6 +15,7 @@
 !//! defined at cell center:
 	DOUBLE PRECISION Xk(1:maxcells)
 	DOUBLE PRECISION Tk(1:maxcells)
+	DOUBLE PRECISION dmk(1:maxcells)
 	DOUBLE PRECISION rhok(1:maxcells)
 	DOUBLE PRECISION npk(1:maxcells)
 	DOUBLE PRECISION nxk(1:maxcells)

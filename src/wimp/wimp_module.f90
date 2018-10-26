@@ -116,6 +116,7 @@
 	DO itr = kmax,1, -1
 		Xk(itr) = s% X(itr) !! mass fraction hydrogen
 		Tk(itr) = s% T(itr) !! in K
+		dmk(itr) = s% dm(itr)
 		rhok(itr) = s% rho(itr) !! in g/cm^3
 		npk(itr) = Xk(itr)*rhok(itr)/mp !! cm^-3
 		rk(itr) = s% r(itr) !! in cm
@@ -525,7 +526,7 @@
 	!!!! non-normalized
 		sum = 0.D0
 		DO itr = kmax,1,-1 ! integrate over dm from r=0 to r_star
-			mfact =  s% dm(itr)/4./pi/rhok(itr) ! r^2 dr = dm / (4 pi rho)
+			mfact =  dmk(itr)/4./pi/rhok(itr) ! r^2 dr = dm / (4 pi rho)
 			efact = EXP(-mx*Vk(itr)/ kerg/Txtest)
 			IF (spindep) THEN
 				Tfact = SQRT((mpGeV*Txtest+ mxGeV*Tk(itr))/(mxGeV*mpGeV))* (Tk(itr)-Txtest)
@@ -681,7 +682,7 @@
 			Tbar = Tk(itr) / Tnorm
 			rbar = rk(itr+1) / Rnorm
 			drbar = (rk(itr)- rk(itr+1)) / Rnorm
-			dmbar = s% dm(itr) / Mnorm
+			dmbar = dmk(itr) / Mnorm
 
 			mfact =  dmbar/rhok(itr) ! r^2 dr = dm / (4 pi rho)
 			efact = EXP(-mx*Vk(itr)/ kerg/Txtest)
