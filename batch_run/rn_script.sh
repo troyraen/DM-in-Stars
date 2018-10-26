@@ -19,7 +19,7 @@ mkdir -p $RUNS
 
 for inlst in "${iord[@]}"; do
     mkdir $maindir/LOGS $maindir/png $maindir/photos
-    cp $maindir/$RUNS/$xphoto $maindir/photos/.
+    # cp $maindir/$RUNS/$xphoto $maindir/photos/.
 
     # CHANGE INLIST
     # cp $maindir/inlist_${ivals[$inlst]} $maindir/inlist
@@ -51,6 +51,9 @@ for inlst in "${iord[@]}"; do
     rm -r $newlogs
     mv $maindir/LOGS $newlogs
     mv $maindir/photos $newlogs/.
+    cp $maindir/inlist $newlogs/.
+    cp $maindir/inlist_cluster $newlogs/.
+    cp $maindir/inlist_test $newlogs/.
     # mv $maindir/png $newlogs/.
 
 done
