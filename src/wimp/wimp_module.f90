@@ -6,13 +6,13 @@
 !!!	calculates extra heat transported by WIMPS
 !!!-------------------------------------------!!!
 !!! controls:
-!!! Nx = s% xtra1
 !!!	cboost = s% X_CTRL(1)
-!!!	spindep = s% X_LOGICAL_CTRL(1)  ! .true. = spin dependent; .false. = spin independent
 !!!	extra history columns values = s% X_CTRL(2:6)
 !!! s% X_CTRL(7) =
-!!! emom_norm = s% X_LOGICAL_CTRL(2)
+!!!	spindep = s% X_LOGICAL_CTRL(1)  ! .true. = spin dependent; .false. = spin independent
+!!! emom_norm = s% X_LOGICAL_CTRL(2) ! whether emoment integral should be normalized
 !!!
+!!! Nx = s% xtra1
 !!! s% xtra4 = Lnuc
 !!!	s% xtra5 = xL
 !!!	s% xtra6 = xL/Lnuc
@@ -55,14 +55,11 @@
 
 	DO itr = 1,kmax
 		s% extra_heat(itr) = xheat(itr)
-		! s% extra_heat(itr) = 1.0
 		s% d_extra_heat_dlndm1(itr) = 0.D0
         s% d_extra_heat_dlnd00(itr) = d_xheat_dlnd00(itr)
-		! s% d_extra_heat_dlnd00(itr) = 0.D0
         s% d_extra_heat_dlndp1(itr) = 0.D0
         s% d_extra_heat_dlnTm1(itr) = 0.D0
         s% d_extra_heat_dlnT00(itr) = d_xheat_dlnT00(itr)
-		! s% d_extra_heat_dlnT00(itr) = 0.D0
         s% d_extra_heat_dlnTp1(itr) = 0.D0
         s% d_extra_heat_dlnR00(itr) = 0.D0
         s% d_extra_heat_dlnRp1(itr) = 0.D0
@@ -185,20 +182,13 @@
 		ENDDO
 	ENDIF
 
-	! IF (cboost == 0.D0) THEN
-	! 	Tx = 0.D0
-	! ELSE
 	Tx = calc_Tx(id,ierr)
-	! ENDIF
 
 !! in extras_finish_step (run_star_extras) s% xtra1 = s% xtra2
 !! so wimps are not collected when step is not accepted
-!	WRITE(*,*) 's% xtra1 = ', s% xtra1
 	dNx = calc_dNx()
 	Nx = (s% xtra1) + dNx
-!	WRITE(*,*) 's% xtra1 = ', s% xtra1, 'dNx = ', dNx, 'Nx = ', Nx
 	s% xtra2 = Nx
-!	WRITE(*,*) 'mod:  Tx =',Tx, '  dNx =',dNx, '  Nx =',Nx
 	CALL calc_nxk()
 
 	END SUBROUTINE set_wimp_variables
@@ -207,7 +197,7 @@
 
 !!----------------------------
 !!	xheat is luminosity per unit mass (in cgs units) that wimps give up to baryons
-!!	This is what needs to be given to the star program
+!!	This is what needs to be given to MESA
 !!	This is SP85 equ 4.9 divided by rho(k)
 !!----------------------------
 	SUBROUTINE calc_xheat(Tx_given)
@@ -235,11 +225,7 @@
 			d_xheat_dlnd00(itr) = -xheat(itr)
 			Tfact = mx*kerg/2.D0/(mp*kerg*Tx_given+ mx*kerg*Tk(itr)) - 1.D0/(Tx_given-Tk(itr))
 			d_xheat_dlnT00(itr) = xheat(itr)*Tk(itr)*Tfact
-	!		WRITE(10,*) itr, xheat(itr)
 		ENDDO
-	!	DO itr = 1,kmax
-	!		WRITE(10,"(F10.5)",advance="no") xheat(itr)
-	!	ENDDO
 
 	ELSE
 		DO itr = 1,kmax
@@ -327,38 +313,26 @@
 	DOUBLE PRECISION :: Tarray(4)
 	INTEGER :: tries, model_err=-1
 	LOGICAL :: Tflag=.FALSE.
-	! PARAMETER ( tol = 1.D-4 )
+	PARAMETER ( tol = 1.D-4 )
 	TYPE (star_info), pointer :: s ! pointer to star type
 	ierr=0
 	CALL GET_STAR_PTR(id, s, ierr)
 	IF ( ierr /= 0 ) RETURN
 
-	tol = 1.D-4
+	IF ((model_err.EQ. s% model_number) .AND. (.NOT.Tflag)) THEN
+		call nrerror('Txlow > Txhigh or root must be bracketed')
+	ENDIF
 
-	IF ((model_err.EQ. s% model_number) .AND. (.NOT.Tflag)) call nrerror('Txlow > Txhigh or root must be bracketed')
 	Txhigh = maxT*1.1
 	Txlow = maxT/25.0
-!	Ttmp = 10.0D0
-
-	tries=0
 	Tflag=.FALSE.
-	! WRITE(*,*) '#****# BEGIN #****# '
-	! WRITE(*,*) 'Model = ', s% model_number
-	! WRITE(*,*) 'Tflag = ', Tflag
+	tries=0
+
 	DO WHILE ( .NOT. Tflag )
 		tries = tries+1
 
-		! IF (Txlow.GT.maxT) THEN !call nrerror('Txlow > Txhigh')
-		! 	Ttmp=10.**(s% log_center_temperature)
-		! 	model_err= s% model_number +1
-		! 	WRITE(*,*) 'Txlow>maxT. problem model ', s% model_number
-		! 	WRITE(*,*) 'tries=', tries, 'Txhigh=', Txhigh, 'Txlow=', Txlow
-		! 	EXIT
-		! ENDIF
-
 		Tarray = zbrent(emoment, Txhigh, Txlow, tol) ! returns -1 if gets root must be bracketed error
 		Ttmp = Tarray(1)
-		! WRITE(*,*) 'Ttmp = ', Ttmp
 		IF (Txlow.GT.maxT) THEN ! treat as root must be bracketed error. Tx close to Tmax and slope is shallow (most likely)
 			WRITE(*,*) 'Txlow > maxT. Treating as root must be bracketed error. Model =', s% model_number
 			Ttmp = -1.0
@@ -366,9 +340,7 @@
 
 		IF (Ttmp.GT.0.0) THEN
 			Tflag = is_slope_negative(Ttmp)
-			! WRITE(*,*) 'Tflag = ', Tflag
 			Txlow = 1.05*Txlow
-!			WRITE(*,*) 'tries=', tries, 'Txhigh=', Txhigh, 'Txlow=', Txlow, 'Ttmp=', Ttmp
 		ELSE IF (tries.EQ.1) THEN ! expand the range and try again
 			WRITE(*,*) 'root must be bracketed. Txhigh=', Txhigh, 'Txlow=', Txlow, 'tries=', tries, 'Model =', s% model_number
 			Txlow = Txlow/2.0
@@ -379,7 +351,6 @@
 			Tarray = zbrent(emoment, Txhigh, Txlow, tol)
 			Ttmp = Tarray(1)
 			Tflag = is_slope_negative(Ttmp)
-			! WRITE(*,*) 'Tflag = ', Tflag
 			IF (.NOT.Tflag) THEN
 				Ttmp= 10.**(s% log_center_temperature)
 				WRITE(*,*) '**** Tx set to center_T ****', Ttmp, 'problem model ', s% model_number
@@ -390,9 +361,6 @@
 		ENDIF
 
 	ENDDO
-
-	! WRITE(*,*) "ZBRENT---***--- Tx1, emom1, Tx2, emom2", Tarray(1), Tarray(2), Tarray(3), Tarray(4)
-	! WRITE(*,*) '#****# END #****# '
 
 	!!!!!!!!
 	! check that L_extra / L_nuc < 1
@@ -473,10 +441,10 @@
 
 		IF (slope.GT.10.0) THEN
 			is_slope_steep=.TRUE.
-			WRITE(*,*) 'is_slope_steep returns true. slope=',slope
+			! WRITE(*,*) 'is_slope_steep returns true. slope=',slope
 		ELSE
 			is_slope_steep=.FALSE.
-			WRITE(*,*) 'is_slope_steep returns false. slope=',slope
+			! WRITE(*,*) 'is_slope_steep returns false. slope=',slope
 		ENDIF
 
 	END FUNCTION is_slope_steep
@@ -522,7 +490,6 @@
 	IF ( emom_logical ) THEN ! get normalized emoment
 		sum = emom_normalized(Txtest)
 	ELSE
-
 	!!!! non-normalized
 		sum = 0.D0
 		DO itr = kmax,1,-1 ! integrate over dm from r=0 to r_star
