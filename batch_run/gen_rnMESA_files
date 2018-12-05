@@ -21,4 +21,4 @@ done
 n=10
 fname="rnMESA$n.sh"
 cp -p rnMESA_template.sh $fname
-sed -i 's/mvals=.*/mvals=( [m5p0]=5.0 [m0p9]=0.9 [m0p8]=0.8 )/g; s/mord=.*/mord=( m5p0 m0p9 m0p8 )/g; s/rnMESA4/rnMESA'$n'/g' $fname
+sed -i 's/mvals=.*/mvals=( [m5p0]=5.0 [m0p9]=0.9 [m0p8]=0.8 )/g; s/mord=.*/mord=( m5p0 m0p9 m0p8 )/g; s/rnMESA4/rnMESA'$n'/g; s/rnMESAn/rnMESA'$n'/g' $fname
