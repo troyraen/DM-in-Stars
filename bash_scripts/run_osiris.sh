@@ -15,7 +15,7 @@ function rnmesa () {
     cp ${maindir}/inlist ${maindir}/${inlistm} ${RUN}/LOGS/.
 
     cd ${RUN}
-    ${maindir}/rn &>> ${stdout}
+    ${maindir}/star &>> ${stdout}
     # $maindir/re $xphoto &>> LOGS/STD.out
     ${maindir}/bash_scripts/del_dup_mods.sh ${RUN}/LOGS &>> ${stdout}
     # ${maindir}/bash_scripts/data_reduc.sh ${RUN}/LOGS &>> ${stdout}
