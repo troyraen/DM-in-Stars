@@ -12,7 +12,7 @@ function rnmesa () {
     # CHANGE INLIST
     cp ${maindir}/inlist_tmplt ${maindir}/inlist
     sed -i 's/inlist_1/'${inlistm}'/g' $maindir/inlist
-    cp ${maindir}/inlist ${maindir}/${inlistm} ${RUN}/LOGS/.
+    cp ${maindir}/inlist ${maindir}/${inlistm} ${RUN}/.
 
     cd ${RUN}
     ${maindir}/star &>> ${stdout}
@@ -34,6 +34,10 @@ declare -a iord=( inlist_m1p2 inlist_m1p3 inlist_m1p4 inlist_m1p5 )
 
 maindir="/home/tjr63/mesaruns"
 RUNS="RUNS_convCore"
+
+cd ${maindir}
+./clean
+./mk
 
 for inlst in "${iord[@]}"; do
 
