@@ -39,7 +39,7 @@ function write_options_inlist () {
 
 function rnmesa () {
     maindir=$1 # main mesa_wimps dir (e.g. mesaruns)
-    RUN=${maindir}/$2 # specific directory for log files
+    RUN=${maindir}/$2 # specific directory for log files (e.g. RUNS_/SD/C0/m1p4)
     mass=$3 # floating point number
     cboost=$4 # = integer 0..6
     pgstar=${5:-0} # = 1 generates a movie, default 0
@@ -66,24 +66,30 @@ function rnmesa () {
             rm -r $maindir/png
         else
             echo "\nSomething went wrong making pgstar movies!\n" &>> ${stdout}
+        fi
     fi
 
     cd ${maindir}
 }
 
-# declare -A ivals=( [enom_true]=.TRUE. [enom_false]=.FALSE.)
-# declare -a iord=( inlist_m1p2 inlist_m1p3 inlist_m1p4 inlist_m1p5 )
-
+### MAIN PROGRAM
+### runs mesa models with specified params
 maindir="/home/tjr63/mesaruns"
-RUNS="RUNS_convCore"
+RUNS="RUNS_TEST"
 
 cd ${maindir}
 ./clean
 ./mk
 
-for inlst in "${iord[@]}"; do
+rnmesa "${maindir}" "${RUNS}/m1p4" 5.0 1 1
 
-    rnmesa "${maindir}" "${RUNS}/${inlst: -4}" "${inlst}"
-    # echo -e "\n${RUNS}/${inlst: -4}\n"
 
-done
+# declare -A ivals=( [enom_true]=.TRUE. [enom_false]=.FALSE.)
+# declare -a iord=( inlist_m1p2 inlist_m1p3 inlist_m1p4 inlist_m1p5 )
+#
+# for inlst in "${iord[@]}"; do
+#
+#     rnmesa "${maindir}" "${RUNS}/${inlst: -4}" "${inlst}"
+#     # echo -e "\n${RUNS}/${inlst: -4}\n"
+#
+# done
