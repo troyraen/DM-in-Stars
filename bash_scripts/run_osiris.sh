@@ -9,8 +9,10 @@ function write_options_inlist () {
     cboost=$4 # = integer 0..6
     pgstar=${5:-0} # = 1 generates a movie, default 0
 
+    # INLISTS
     fopts="${RUN}/inlist_options"
     cp ${maindir}/inlist_options_tmplt ${fopts} # copy template
+    cp ${maindir}/inlist ${RUN}/. # copy main inlist
 
     # MASS
     sed -i 's/_MASS_/'${mass}'/g' ${fopts}
