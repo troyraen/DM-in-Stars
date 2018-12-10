@@ -2,7 +2,7 @@
 
 ### copies $1/inlist_options_tmplt to $2/inlist_options
 ### then changes options according to $3, $4, and $5
-function write_options_inlist () {
+function write_inlists () {
     maindir=$1 # main mesa_wimps dir (e.g. mesaruns)
     RUN=$2 # specific directory for log files
     mass=$3 # floating point number
@@ -36,7 +36,7 @@ function write_options_inlist () {
         cp ${maindir}/inlist_pgstar_my ${RUN}/. # cp custom pgstar inlist
         sed -i 's/read_extra_pgstar_inlist2 = .false./read_extra_pgstar_inlist2 = .true./g' ${fopts} # read it
     fi
-    echo "Wrote ${fopts}"
+    echo "Wrote inlists (${fopts})"
 }
 
 
@@ -48,13 +48,15 @@ function rnmesa () {
     cboost=$4 # = integer 0..6
     pgstar=${5:-0} # = 1 generates a movie, default 0
     # inlistm=$3 # call this from inlist
-    echo
 
+    ### Prep
+    echo
     mkdir -p ${RUN}/LOGS ${RUN}/png ${RUN}/photos
     stdout=${RUN}/LOGS/STD.out
     # cp $maindir/$RUNS/$xphoto $maindir/photos/.
-    write_options_inlist ${maindir} ${RUN} ${mass} ${cboost} ${pgstar}
+    write_inlists ${maindir} ${RUN} ${mass} ${cboost} ${pgstar}
 
+    ### RUN
     echo "Running MESA ..."
     cd ${RUN}
     ${maindir}/star &>> ${stdout}
@@ -62,7 +64,7 @@ function rnmesa () {
     ${maindir}/bash_scripts/del_dup_mods.sh ${RUN}/LOGS &>> ${stdout}
     # ${maindir}/bash_scripts/data_reduc.sh ${RUN}/LOGS &>> ${stdout}
 
-    #** pgstar movies
+    ### Finish pgstar movies
     if [ "${pgstar}" = 1 ]; then
         images_to_movie.sh "png/grid1*.png" /LOGS/grid1.mp4 # make movies
         images_to_movie.sh "png/grid2*.png" /LOGS/grid2.mp4
@@ -92,14 +94,3 @@ cd ${maindir}
 ./mk
 
 rnmesa "${maindir}" "${RUNS}/m5p0" 5.0 1 1
-
-
-# declare -A ivals=( [enom_true]=.TRUE. [enom_false]=.FALSE.)
-# declare -a iord=( inlist_m1p2 inlist_m1p3 inlist_m1p4 inlist_m1p5 )
-#
-# for inlst in "${iord[@]}"; do
-#
-#     rnmesa "${maindir}" "${RUNS}/${inlst: -4}" "${inlst}"
-#     # echo -e "\n${RUNS}/${inlst: -4}\n"
-#
-# done
