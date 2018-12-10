@@ -24,6 +24,7 @@ function write_options_inlist () {
 
     # CBOOST
     if (( ${cboost} != 0 )); then
+        sed -i 's/use_other_energy_implicit = .false./use_other_energy_implicit = .true./g' ${fopts}
         sed -i 's/X_CTRL(1) = 0.E0/X_CTRL(1) = 1.E'${cboost}'/g' ${fopts}
     fi
 
