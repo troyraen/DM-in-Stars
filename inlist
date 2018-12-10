@@ -12,7 +12,7 @@
       write_profile_when_terminate = .true.
       filename_for_profile_when_terminate = 'LOGS/profile0.data'
 
-      pgstar_flag = .true.
+!      pgstar_flag = .true.
 
 !PMS
       create_pre_main_sequence_model = .true.
@@ -31,6 +31,10 @@
     !use jina
     set_rates_preference = .true.
     new_rates_preference = 2
+
+    read_extra_star_job_inlist1 = .true.
+    extra_star_job_inlist1_name = 'inlist_options'
+
 
 / ! end of star_job namelist
 
@@ -180,6 +184,6 @@
 &pgstar
 
     read_extra_pgstar_inlist1 = .true.
-    extra_pgstar_inlist1_name = '/home/tjr63/mesaruns/inlist_pgstar_my'
+    extra_pgstar_inlist1_name = 'inlist_options'
 
 / ! end of pgstar namelist
