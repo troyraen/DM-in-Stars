@@ -34,7 +34,7 @@ function write_options_inlist () {
     if [ "${pgstar}" = 1 ]; then # save png files
         sed -i 's/pgstar_flag = .false./pgstar_flag = .true./g' ${fopts} # save png files
         cp ${maindir}/inlist_pgstar_my ${RUN}/. # cp custom pgstar inlist
-        sed -i 's/read_extra_pgstar_inlist1 = .false./read_extra_pgstar_inlist1 = .true./g' ${fopts} # read it
+        sed -i 's/read_extra_pgstar_inlist2 = .false./read_extra_pgstar_inlist2 = .true./g' ${fopts} # read it
     fi
     echo "Wrote ${fopts}"
 }
@@ -64,12 +64,12 @@ function rnmesa () {
 
     #** pgstar movies
     if [ "${pgstar}" = 1 ]; then
-        sed -i "/\.png\/png/d" ${stdout} # strip png lines from stdout
         images_to_movie.sh "png/grid1*.png" /LOGS/grid1.mp4 # make movies
         images_to_movie.sh "png/grid2*.png" /LOGS/grid2.mp4
-        if [ -f /LOGS/grid1.mp4 ]; then # del png files
+        if [ -f /LOGS/grid1.mp4 ]; then
             echo "Pgstar movies created." &>> ${stdout}
-            rm -r $maindir/png
+            sed -i "/\.png\/png/d" ${stdout} # strip png lines from stdout
+            rm -r $maindir/png # del png files
         else
             echo "Something went wrong making pgstar movies!" &>> ${stdout}
         fi
