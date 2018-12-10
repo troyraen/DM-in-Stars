@@ -66,8 +66,8 @@ function rnmesa () {
 
     ### Finish pgstar movies
     if [ "${pgstar}" = 1 ]; then
-        images_to_movie.sh "png/grid1*.png" /LOGS/grid1.mp4 # make movies
-        images_to_movie.sh "png/grid2*.png" /LOGS/grid2.mp4
+        images_to_movie.sh "png/grid1*.png" ./LOGS/grid1.mp4 # make movies
+        images_to_movie.sh "png/grid2*.png" ./LOGS/grid2.mp4
         if [ -f /LOGS/grid1.mp4 ]; then
             echo "Pgstar movies created." &>> ${stdout}
             sed -i "/\.png\/png/d" ${stdout} # strip png lines from stdout
