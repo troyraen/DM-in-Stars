@@ -36,6 +36,7 @@ function write_options_inlist () {
         cp ${maindir}/inlist_pgstar_my ${RUN}/. # cp custom pgstar inlist
         sed -i 's/read_extra_pgstar_inlist1 = .false./read_extra_pgstar_inlist1 = .true./g' ${fopts} # read it
     fi
+    echo "Wrote ${fopts}"
 }
 
 
@@ -47,13 +48,14 @@ function rnmesa () {
     cboost=$4 # = integer 0..6
     pgstar=${5:-0} # = 1 generates a movie, default 0
     # inlistm=$3 # call this from inlist
-
+    echo
 
     mkdir -p ${RUN}/LOGS ${RUN}/png ${RUN}/photos
     stdout=${RUN}/LOGS/STD.out
     # cp $maindir/$RUNS/$xphoto $maindir/photos/.
     write_options_inlist ${maindir} ${RUN} ${mass} ${cboost} ${pgstar}
 
+    echo "Running MESA ..."
     cd ${RUN}
     ${maindir}/star &>> ${stdout}
     # $maindir/re $xphoto &>> LOGS/STD.out
@@ -66,14 +68,19 @@ function rnmesa () {
         images_to_movie.sh "png/grid1*.png" /LOGS/grid1.mp4 # make movies
         images_to_movie.sh "png/grid2*.png" /LOGS/grid2.mp4
         if [ -f /LOGS/grid1.mp4 ]; then # del png files
+            echo "Pgstar movies created." &>> ${stdout}
             rm -r $maindir/png
         else
-            echo "\nSomething went wrong making pgstar movies!\n" &>> ${stdout}
+            echo "Something went wrong making pgstar movies!" &>> ${stdout}
         fi
     fi
 
     cd ${maindir}
+    echo "Finished ${mass}M_sun cb${cboost}"
+    echo
 }
+
+
 
 ### MAIN PROGRAM
 ### runs mesa models with specified params
@@ -84,7 +91,7 @@ cd ${maindir}
 ./clean
 ./mk
 
-rnmesa "${maindir}" "${RUNS}/m1p4" 5.0 1 1
+rnmesa "${maindir}" "${RUNS}/m5p0" 5.0 1 1
 
 
 # declare -A ivals=( [enom_true]=.TRUE. [enom_false]=.FALSE.)
