@@ -72,9 +72,9 @@
       max_years_for_timestep = 1d9
 
       read_extra_controls_inlist1 = .true.
-      extra_controls_inlist1_name = 'inlist_cluster'
-!      read_extra_controls_inlist2 = .true.
-!      extra_controls_inlist2_name = 'inlist_test'
+      extra_controls_inlist1_name = 'inlist_options'
+
+
 
 !PHYSICS (MIST)
 
