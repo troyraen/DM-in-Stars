@@ -49,7 +49,7 @@ function rnmesa () {
     pgstar=${5:-0} # = 1 generates a movie, default 0
     # inlistm=$3 # call this from inlist
 
-    ### Prep
+    ### PREP
     echo
     mkdir -p ${RUN}/LOGS ${RUN}/png ${RUN}/photos
     stdout=${RUN}/LOGS/STD.out
@@ -68,15 +68,16 @@ function rnmesa () {
     if [ "${pgstar}" = 1 ]; then
         images_to_movie.sh "png/grid1*.png" ./LOGS/grid1.mp4 # make movies
         images_to_movie.sh "png/grid2*.png" ./LOGS/grid2.mp4
-        if [ -f /LOGS/grid1.mp4 ]; then
+        if [ -f ./LOGS/grid1.mp4 ]; then
             echo "Pgstar movies created." &>> ${stdout}
             sed -i "/\.png\/png/d" ${stdout} # strip png lines from stdout
-            rm -r $maindir/png # del png files
+            rm -r ${RUN}/png # del png files
         else
             echo "Something went wrong making pgstar movies!" &>> ${stdout}
         fi
     fi
 
+    ### CLEANUP
     cd ${maindir}
     echo "Finished ${mass}M_sun cb${cboost}"
     echo
