@@ -8,11 +8,14 @@ function write_inlists () {
     mass=$3 # floating point number
     cboost=$4 # = integer 0..6
     pgstar=${5:-0} # = 1 generates a movie, default 0
+    inlist_master=${6:-"master"} # inlist_$6 will be used as base inlist
 
     # INLISTS
     fopts="${RUN}/inlist_options"
     cp ${maindir}/inlist_options_tmplt ${fopts} # copy template
-    cp ${maindir}/inlist ${RUN}/. # copy main inlist
+    cp ${maindir}/inlist_${inlist_master} ${RUN}/inlist # copy main inlist
+
+    ### Change inlist_options properties:
 
     # MASS
     sed -i 's/_MASS_/'${mass}'/g' ${fopts}
@@ -47,6 +50,7 @@ function rnmesa () {
     mass=$3 # floating point number
     cboost=$4 # = integer 0..6
     pgstar=${5:-0} # = 1 generates a movie, default 0
+    inlist_master=${6:-"master"} # inlist_$6 will be used as base inlist
     # inlistm=$3 # call this from inlist
 
     ### PREP
@@ -54,7 +58,7 @@ function rnmesa () {
     mkdir -p ${RUN}/LOGS ${RUN}/png ${RUN}/photos
     stdout=${RUN}/LOGS/STD.out
     # cp $maindir/$RUNS/$xphoto $maindir/photos/.
-    write_inlists ${maindir} ${RUN} ${mass} ${cboost} ${pgstar}
+    write_inlists ${maindir} ${RUN} ${mass} ${cboost} ${pgstar} ${inlist_master}
 
     ### RUN
     echo "Running MESA ..."
@@ -95,5 +99,5 @@ cd ${maindir}
 ./mk
 
 for cb in 0 6; do
-    rnmesa "${maindir}" "${RUNS}/${cb}/m1p3" 1.3 ${cb} 1
+    rnmesa "${maindir}" "${RUNS}/${cb}/m1p3" 1.3 ${cb} 1 "master"
 done
