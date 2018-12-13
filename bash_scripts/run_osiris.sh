@@ -88,10 +88,12 @@ function rnmesa () {
 ### MAIN PROGRAM
 ### runs mesa models with specified params
 maindir="/home/tjr63/mesaruns"
-RUNS="RUNS_TEST"
+RUNS="RUNS_convCore"
 
 cd ${maindir}
 ./clean
 ./mk
 
-rnmesa "${maindir}" "${RUNS}/m5p0" 5.0 1 1
+for cb in 0 6; do
+    rnmesa "${maindir}" "${RUNS}/${cb}/m1p3" 1.3 ${cb} 1
+done
