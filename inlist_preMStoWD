@@ -1,4 +1,5 @@
-!!! This is the inlist from mesa-r10398/star/test_suite/1M_pre_ms_to_wd/inlist_1.0
+!!! This can be used as a "master" inlist
+!!! It is the inlist from mesa-r10398/star/test_suite/1M_pre_ms_to_wd/inlist_1.0
 !!!     with metalicity initial_z = 0.014d0
 
 

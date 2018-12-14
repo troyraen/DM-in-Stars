@@ -51,7 +51,6 @@ function rnmesa () {
     cboost=$4 # = integer 0..6
     pgstar=${5:-0} # = 1 generates a movie, default 0
     inlist_master=${6:-"master"} # inlist_$6 will be used as base inlist
-    # inlistm=$3 # call this from inlist
 
     ### PREP
     echo
@@ -99,5 +98,5 @@ cd ${maindir}
 ./mk
 
 for cb in 0 6; do
-    rnmesa "${maindir}" "${RUNS}/${cb}/m1p3" 1.3 ${cb} 1 "master"
+    rnmesa "${maindir}" "${RUNS}/generic_inlist/c${cb}/m1p3" 1.3 ${cb} 1 "preMStoWD"
 done
