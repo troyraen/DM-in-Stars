@@ -34,8 +34,8 @@
 ! the following lines of the log file contain info about 1 model per row
 
 !!!!!!! for pgstar, Kipp
-! mixing_regions 40
-! burning_regions 80
+mixing_regions 40
+burning_regions 80
 !!!!!!!
 
    ! some general info about the model
@@ -260,7 +260,7 @@
       !c_core_omega
       !c_core_omega_div_omega_crit
 
-      !o_core_mass
+      o_core_mass
       !o_core_radius
       !o_core_lgT
       !o_core_lgRho
@@ -269,7 +269,7 @@
       !o_core_omega
       !o_core_omega_div_omega_crit
 
-      !si_core_mass
+      si_core_mass
       !si_core_radius
       !si_core_lgT
       !si_core_lgRho
@@ -278,7 +278,7 @@
       !si_core_omega
       !si_core_omega_div_omega_crit
 
-      !fe_core_mass
+      fe_core_mass
       !fe_core_radius
       !fe_core_lgT
       !fe_core_lgRho
@@ -350,7 +350,7 @@
       !log_Lnuc_sub_log_L
       extra_L ! integral of extra_heat in Lsun units
       log_extra_L ! log10 extra_L
-      !log_Lneu ! log10 power emitted in neutrinos, nuclear and thermal (in Lsun units)
+      log_Lneu ! log10 power emitted in neutrinos, nuclear and thermal (in Lsun units)
       !log_Lneu_nuc ! log10 power emitted in neutrinos, nuclear sources only (in Lsun units)
       !log_Lneu_nonnuc ! log10 power emitted in neutrinos, thermal sources only (in Lsun units)
       !mass_loc_of_max_eps_nuc ! (in Msun units)

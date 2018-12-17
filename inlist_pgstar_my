@@ -7,6 +7,7 @@
 !!!!!!!!!! GRID 1
 !!!!!!!!!!
 
+! Grid1
   Grid1_win_flag = .FALSE.
 
   Grid1_win_width = 15
@@ -44,7 +45,7 @@
   Grid1_plot_pad_bot(:) = 0.03 ! fraction of full window height for padding at bottom
   Grid1_txt_scale_factor(:) = 0.7 ! multiply txt_scale for subplot by this
 
-
+! TRho_Profile
   Grid1_plot_name(1) = 'TRho_Profile'
   Grid1_plot_row(1) = 1 ! number from 1 at top
   Grid1_plot_rowspan(1) = 1 ! plot spans this number of rows
@@ -83,7 +84,7 @@
 			  TRho_Profile_win_width = 8
 			  TRho_Profile_win_aspect_ratio = 0.75
 
-
+! Abundance
   Grid1_plot_name(2) = 'Abundance'
   Grid1_plot_row(2) = 2 ! number from 1 at top
   Grid1_plot_rowspan(2) = 1 ! plot spans this number of rows
@@ -92,7 +93,7 @@
   Grid1_plot_pad_left(2) = -0.05 ! fraction of full window width for padding on left
   Grid1_plot_pad_right(2) = 0.05 ! fraction of full window width for padding on right
   Grid1_plot_pad_top(2) = 0.025 ! fraction of full window height for padding at top
-  Grid1_plot_pad_bot(2) = 0.025 ! fraction of full window height for padding at bottom
+  Grid1_plot_pad_bot(2) = 0.05 ! fraction of full window height for padding at bottom
   Grid1_txt_scale_factor(2) = 0.65 ! multiply txt_scale for subplot by this
 
 			  Abundance_win_flag = .false.
@@ -135,7 +136,7 @@
 			  Abundance_file_aspect_ratio = -1 ! negative means use same value as for window
 
 
-
+! Mixing
   Grid1_plot_name(3) = 'Mixing'
   Grid1_plot_row(3) = 3 ! number from 1 at top
   Grid1_plot_rowspan(3) = 1 ! plot spans this number of rows
@@ -143,7 +144,7 @@
   Grid1_plot_colspan(3) = 2 ! plot spans this number of columns
   Grid1_plot_pad_left(3) = -0.05 ! fraction of full window width for padding on left
   Grid1_plot_pad_right(3) = 0.05 ! fraction of full window width for padding on right
-  Grid1_plot_pad_top(3) = 0.05 ! fraction of full window height for padding at top
+  Grid1_plot_pad_top(3) = 0.075 ! fraction of full window height for padding at top
   Grid1_plot_pad_bot(3) = 0.0 ! fraction of full window height for padding at bottom
   Grid1_txt_scale_factor(3) = 0.65 ! multiply txt_scale for subplot by this
 
@@ -164,12 +165,12 @@
 			Mixing_xaxis_name = 'mass'
 			Mixing_xaxis_reversed = .false.
 			Mixing_xmin = 0.0
-			Mixing_xmax = 0.1
+			Mixing_xmax = 0.4
 			Mixing_ymin = -101d0
 			Mixing_ymax = -101d0
 			Mixing_dymin = -101d0
 
-
+! TRho
   Grid1_plot_name(4) = 'TRho'
   Grid1_plot_row(4) = 1 ! number from 1 at top
   Grid1_plot_rowspan(4) = 1 ! plot spans this number of rows
@@ -190,7 +191,7 @@
 
 
 
-  !Grid1_plot_name(5) = 'History_Track2'
+!  !Grid1_plot_name(5) = 'HR'
   Grid1_plot_name(5) = 'HR'
 
   Grid1_plot_row(5) = 1 ! number from 1 at top
@@ -219,7 +220,7 @@
 
 
 
-!  Grid1_plot_name(6) = 'History_Panels2'
+!  Grid1_plot_name(6) = 'Profile_Panels2'
   Grid1_plot_name(6) = 'Profile_Panels2'
   Grid1_plot_row(6) = 2 ! number from 1 at top
   Grid1_plot_rowspan(6) = 2 ! plot spans this number of rows
@@ -246,7 +247,7 @@
 		  Profile_Panels2_xaxis_name = 'mass'
 		  Profile_Panels2_xaxis_reversed = .false.
 		  Profile_Panels2_xmin = 0d0
-		  Profile_Panels2_xmax = 0.1
+		  Profile_Panels2_xmax = 0.4
 		  Profile_Panels2_xmargin = 0d0
 		  Profile_Panels2_show_grid = .true.
 
@@ -273,8 +274,8 @@
 		  Profile_Panels2_yaxis_log(2) = .true.
 		  Profile_Panels2_other_yaxis_name(2) = 'np'
 		  Profile_Panels2_other_yaxis_log(2) = .true.
-		  Profile_Panels2_yaxis_name(3) = 'logRho'
-		  Profile_Panels2_other_yaxis_name(3) = 'logT'
+		  Profile_Panels2_yaxis_name(3) = 'logT'
+		  Profile_Panels2_other_yaxis_name(3) = 'logRho'
 
 		  ! Profile_Panels2_ymin(2) = -1.0
 		  ! Profile_Panels2_ymax(2) = 1.0
@@ -285,7 +286,7 @@
 		  !Profile_Panels2_other_ymin(1) = 0.490
 		  !Profile_Panels2_other_ymax(1) = 0.501
 
-		  ! file output
+!		  ! file output
 		  Profile_Panels2_file_flag = .false.
 		  Profile_Panels2_file_dir = 'png'
 		  Profile_Panels2_file_prefix = 'profile_Panels2_'
@@ -315,7 +316,7 @@
 
 
 !!!!!!!!!!
-!!!!!!!!!! GRID 2
+!!!!!!!!!! Grid2
 !!!!!!!!!!
   Grid2_win_flag = .false.
 
@@ -327,22 +328,12 @@
   Grid2_ybot = 0.08 ! fraction of full window width for margin on bottom
   Grid2_ytop = 0.92 ! fraction of full window width for margin on top
 
-  Grid2_plot_name(:) = ''
-  Grid2_plot_row(:) = 1 ! number from 1 at top
-  Grid2_plot_rowspan(:) = 1 ! plot spans this number of rows
-  Grid2_plot_col(:) =  1 ! number from 1 at left
-  Grid2_plot_colspan(:) = 1 ! plot spans this number of columns
-  Grid2_plot_pad_left(:) = 0.0 ! fraction of full window width for padding on left
-  Grid2_plot_pad_right(:) = 0.0 ! fraction of full window width for padding on right
-  Grid2_plot_pad_top(:) = 0.0 ! fraction of full window height for padding at top
-  Grid2_plot_pad_bot(:) = 0.0 ! fraction of full window height for padding at bottom
-  Grid2_txt_scale_factor(:) = 0.7 ! multiply txt_scale for subplot by this
-
   ! set default
   Grid2_num_cols = 4 ! divide plotting region into this many equal width cols
   Grid2_num_rows = 3 ! divide plotting region into this many equal height rows
   Grid2_num_plots = 10 ! <= 10
 
+    !Blanks
   Grid2_plot_name(:) = ''
   Grid2_plot_row(:) = 1 ! number from 1 at top
   Grid2_plot_rowspan(:) = 1 ! plot spans this number of rows
@@ -355,50 +346,234 @@
   Grid2_txt_scale_factor(:) = 0.7 ! multiply txt_scale for subplot by this
 
 
-  Grid2_plot_name(1) = 'TRho_Profile'
-  Grid2_plot_row(1) = 1 ! number from 1 at top
-  Grid2_plot_rowspan(1) = 1 ! plot spans this number of rows
-  Grid2_plot_col(1) =  1 ! number from 1 at left
-  Grid2_plot_colspan(1) = 2 ! plot spans this number of columns
-  Grid2_plot_pad_left(1) = -0.05 ! fraction of full window width for padding on left
-  Grid2_plot_pad_right(1) = 0.05 ! fraction of full window width for padding on right
-  Grid2_plot_pad_top(1) = 0.0 ! fraction of full window height for padding at top
-  Grid2_plot_pad_bot(1) = 0.05 ! fraction of full window height for padding at bottom
-  Grid2_txt_scale_factor(1) = 0.6 ! multiply txt_scale for subplot by this
+
+! TRho
+    Grid1_plot_name(4) = 'TRho'
+    Grid1_plot_row(4) = 1 ! number from 1 at top
+    Grid1_plot_rowspan(4) = 1 ! plot spans this number of rows
+    Grid1_plot_col(4) =  1 ! number from 1 at left
+    Grid1_plot_colspan(4) = 1 ! plot spans this number of columns
+    Grid1_plot_pad_left(4) = 0.05 ! fraction of full window width for padding on left
+    Grid1_plot_pad_right(4) = 0.0 ! fraction of full window width for padding on right
+    Grid1_plot_pad_top(4) = 0.00 ! fraction of full window height for padding at top
+    Grid1_plot_pad_bot(4) = 0.05 ! fraction of full window height for padding at bottom
+    Grid1_txt_scale_factor(4) = 0.65 ! multiply txt_scale for subplot by this
+
+    		  TRho_title = ''
+
+    		  TRho_logT_min = 4.0 ! only used if /= -101d0
+    		  TRho_logT_max = 9.0 ! only used if /= -101d0
+    		  TRho_logRho_min = -6.0 ! only used if /= -101d0
+    		  TRho_logRho_max = 8.0 ! only used if /= -101d0
 
 
-			  ! show temperature/density profile
-			  ! this plots the internal structure at single timestep
-			  TRho_Profile_win_flag = .false.
-			  TRho_Profile_title = ''
+!  Grid2_plot_name(5) = 'HR'
 
-			  TRho_Profile_xmin = -12.0
-			  TRho_Profile_xmax = 8.0
-			  TRho_Profile_ymin = 2.0
-			  TRho_Profile_ymax = 9.0
-			  show_TRho_Profile_logQ_limit = .true.
-			  show_TRho_Profile_eos_regions = .true.
-			  ! add legend explaining colors
-			  show_TRho_Profile_legend = .true.
+    Grid2_plot_row(5) = 1 ! number from 1 at top
+    Grid2_plot_rowspan(5) = 1 ! plot spans this number of rows
+    Grid2_plot_col(5) =  2 ! number from 1 at left
+    Grid2_plot_colspan(5) = 1 ! plot spans this number of columns
+    Grid2_plot_pad_left(5) = 0.075 ! fraction of full window width for padding on left
+    Grid2_plot_pad_right(5) = -0.025 ! fraction of full window width for padding on right
+    Grid2_plot_pad_top(5) = 0.00 ! fraction of full window height for padding at top
+    Grid2_plot_pad_bot(5) = 0.05 ! fraction of full window height for padding at bottom
+    Grid2_txt_scale_factor(5) = 0.65 ! multiply txt_scale for subplot by this
 
-			  ! display numerical info about the star
+    		  HR_win_flag = .false.
 
-			  show_TRho_Profile_text_info = .true.
-			  TRho_Profile_text_info_xfac = 0.82 ! controls x location
-			  TRho_Profile_text_info_dxfac = 0.02 ! controls x spacing to value from text
-			  TRho_Profile_text_info_yfac = 0.6 ! controls y location of 1st line
-			  TRho_Profile_text_info_dyfac = -0.04 ! controls line spacing
+    		  HR_xleft = 0.15
+    		  HR_xright = 0.85
+    		  HR_ybot = 0.15
+    		  HR_ytop = 0.85
+    		  HR_txt_scale = 1.0
+    		  HR_title = 'HR'
 
-			  ! set window size (aspect_ratio = height/width)
-			  TRho_Profile_win_width = 8
-			  TRho_Profile_win_aspect_ratio = 0.75
-
-
+    		  !HR_logT_min = -101d0
+    		  !HR_logT_max = -101d0
+    		  !HR_logL_min = -101d0
+    		  !HR_logL_max = -101d0
 
 
+! TRho_Profile
+    Grid2_plot_name(1) = 'TRho_Profile'
+    Grid2_plot_row(1) = 2 ! number from 1 at top
+    Grid2_plot_rowspan(1) = 1 ! plot spans this number of rows
+    Grid2_plot_col(1) =  1 ! number from 1 at left
+    Grid2_plot_colspan(1) = 2 ! plot spans this number of columns
+    Grid2_plot_pad_left(1) = -0.05 ! fraction of full window width for padding on left
+    Grid2_plot_pad_right(1) = 0.05 ! fraction of full window width for padding on right
+    Grid2_plot_pad_top(1) = 0.0 ! fraction of full window height for padding at top
+    Grid2_plot_pad_bot(1) = 0.05 ! fraction of full window height for padding at bottom
+    Grid2_txt_scale_factor(1) = 0.6 ! multiply txt_scale for subplot by this
 
 
-  Grid2_plot_name(2) = 'Summary_Burn'
+  			  ! show temperature/density profile
+  			  ! this plots the internal structure at single timestep
+  			  TRho_Profile_win_flag = .false.
+  			  TRho_Profile_title = ''
+
+  			  TRho_Profile_xmin = -12.0
+  			  TRho_Profile_xmax = 8.0
+  			  TRho_Profile_ymin = 2.0
+  			  TRho_Profile_ymax = 9.0
+  			  show_TRho_Profile_logQ_limit = .true.
+  			  show_TRho_Profile_eos_regions = .true.
+  			  ! add legend explaining colors
+  			  show_TRho_Profile_legend = .true.
+
+  			  ! display numerical info about the star
+
+  			  show_TRho_Profile_text_info = .true.
+  			  TRho_Profile_text_info_xfac = 0.82 ! controls x location
+  			  TRho_Profile_text_info_dxfac = 0.02 ! controls x spacing to value from text
+  			  TRho_Profile_text_info_yfac = 0.6 ! controls y location of 1st line
+  			  TRho_Profile_text_info_dyfac = -0.04 ! controls line spacing
+
+  			  ! set window size (aspect_ratio = height/width)
+  			  TRho_Profile_win_width = 8
+  			  TRho_Profile_win_aspect_ratio = 0.75
+
+
+! Kipp
+    Grid2_plot_name(4) = 'Kipp'
+    Grid2_plot_row(4) = 3 ! number from 1 at top
+    Grid2_plot_rowspan(4) = 1 ! plot spans this number of rows
+    Grid2_plot_col(4) =  1 ! number from 1 at left
+    Grid2_plot_colspan(4) = 2 ! plot spans this number of columns
+    Grid2_plot_pad_left(4) = 0.05 ! fraction of full window width for padding on left
+    Grid2_plot_pad_right(4) = 0.0 ! fraction of full window width for padding on right
+    Grid2_plot_pad_top(4) = 0.00 ! fraction of full window height for padding at top
+    Grid2_plot_pad_bot(4) = 0.05 ! fraction of full window height for padding at bottom
+    Grid2_txt_scale_factor(4) = 0.65 ! multiply txt_scale for subplot by this
+
+
+  			Kipp_win_flag = .false.
+  			Kipp_win_width = 7
+  			Kipp_win_aspect_ratio = 0.75
+  			Kipp_xleft = 0.15
+  			Kipp_xright = 0.85
+  			Kipp_ybot = 0.15
+  			Kipp_ytop = 0.85
+  			Kipp_txt_scale = 1.0
+  			Kipp_title = 'Kipp'
+
+  			Kipp_step_xmin = -1
+  			Kipp_step_xmax = -1
+  			Kipp_max_width = -1
+  			Kipp_xaxis_name = 'star_age'
+  			!are model_number or star_age
+
+  			Kipp_xaxis_log = .true.
+  			Kipp_xmin = -101d0
+  			Kipp_xmax = -101d0
+  			Kipp_xmargin = 0.0
+  			Kipp_xaxis_reversed = .false.
+  			Kipp_xaxis_in_seconds = .false.
+  			!Requires Kipp_xaxis_name='star_age'
+
+  			Kipp_xaxis_in_Myr = .true.
+  			!Requires Kipp_xaxis_name='star_age'
+
+  			Kipp_xaxis_time_from_present = .false.
+  			!plots star_age-max(star_age) Requires Kipp_xaxis_name='star_age'
+
+  			!bounds for mass yaxis
+  			Kipp_mass_max = 0.5
+  			Kipp_mass_min = 0.0
+  			Kipp_mass_margin = 0.01
+  			!bounds for luminosity yaxis
+  			Kipp_lgL_max = -101d0
+  			Kipp_lgL_min = -101d0
+  			Kipp_lgL_margin = 0.1
+  			Kipp_show_mixing = .true.
+  			!this uses the mixing_regions specified in your history_columns.list
+  			Kipp_show_burn = .true.
+  			!this uses the burning_regions specified in your history_columns.list
+  			Kipp_show_luminosities = .true.
+  			!to use this option, include the following in your history_columns.list log_L, log_Lneu, log_LH, log_LHe
+  			Kipp_show_mass_boundaries = .true.
+  			!to use this option, include the following in your history_columns.list he_core_mass, c_core_mass, o_core_mass, si_core_mass, fe_core_mass
+  			!Kipp_mix_line_weight = 10
+  			!Kipp_mix_interval = 4
+  			!show mixing for steps with mod(model_number, Kipp_mix_interval) = 0.
+  			!Kipp_burn_line_weight = 14
+  			!Kipp_burn_type_cutoff = 0d0
+  			!show burn lines only for abs(log(eps)) > Kipp_burn_type_cutoff
+  			!Kipp_luminosities_line_weight = 8
+  			!Kipp_masses_line_weight = 8
+  			show_Kipp_annotation1 = .false.
+  			show_Kipp_annotation2 = .false.
+  			show_Kipp_annotation3 = .false.
+  			!Enables calling a subroutine to add extra information to a plot see !$MESA_DIR/star/other/pgstar_decorator.f90
+
+  			Kipp_use_decorator = .false.
+
+  			Kipp_file_flag = .false.
+  			Kipp_file_dir = 'png'
+  			Kipp_file_prefix = 'conv_'
+  			Kipp_file_interval = 5
+  			Kipp_file_width = -1
+  			Kipp_file_aspect_ratio = -1
+
+
+
+!  Grid1_plot_name(6) = 'Profile_Panels2'
+  Grid1_plot_name(6) = 'Profile_Panels2'
+  Grid1_plot_row(6) = 1 ! number from 1 at top
+  Grid1_plot_rowspan(6) = 3 ! plot spans this number of rows
+  Grid1_plot_col(6) =  3 ! number from 1 at left
+  Grid1_plot_colspan(6) = 2 ! plot spans this number of columns
+  Grid1_plot_pad_left(6) = 0.10 ! fraction of full window width for padding on left
+  Grid1_plot_pad_right(6) = 0.05 ! fraction of full window width for padding on right
+  Grid1_plot_pad_top(6) = 0.05 ! fraction of full window height for padding at top
+  Grid1_plot_pad_bot(6) = 0.0 ! fraction of full window height for padding at bottom
+  Grid1_txt_scale_factor(6) = 0.65 ! multiply txt_scale for subplot by this
+
+
+		  Profile_Panels2_win_flag = .false.
+		  Profile_Panels2_win_width = 6
+		  Profile_Panels2_win_aspect_ratio = 0.75 ! aspect_ratio = height/width
+
+		  Profile_Panels2_xleft = 0.15
+		  Profile_Panels2_xright = 0.85
+		  Profile_Panels2_ybot = 0.15
+		  Profile_Panels2_ytop = 0.85
+		  Profile_Panels2_txt_scale = 1.0
+		  Profile_Panels2_title = ''
+
+		  Profile_Panels2_xaxis_name = 'mass'
+		  Profile_Panels2_xaxis_reversed = .false.
+		  Profile_Panels2_xmin = 0d0
+		  Profile_Panels2_xmax = 0.4
+		  Profile_Panels2_xmargin = 0d0
+		  Profile_Panels2_show_grid = .true.
+          ! Blanks
+		  Profile_Panels2_yaxis_name(:) = ''
+		  Profile_Panels2_yaxis_reversed(:) = .false.
+		  Profile_Panels2_ymin(:) = -101d0 ! only used if /= -101d0
+		  Profile_Panels2_ymax(:) = -101d0 ! only used if /= -101d0
+		  Profile_Panels2_ymargin(:) = 0.1
+		  Profile_Panels2_dymin(:) = -1
+		  Profile_Panels2_other_yaxis_name(:) = ''
+		  Profile_Panels2_other_yaxis_reversed(:) = .false.
+		  Profile_Panels2_other_ymin(:) = -101d0 ! only used if /= -101d0
+		  Profile_Panels2_other_ymax(:) = -101d0 ! only used if /= -101d0
+		  Profile_Panels2_other_ymargin(:) = 0.1
+		  Profile_Panels2_other_dymin(:) = -1
+
+		  ! setup default plot
+		  Profile_Panels2_num_panels = 5
+          Profile_Panels2_yaxis_name(1) = 'Abundance'
+		  Profile_Panels2_yaxis_name(2) = 'extra_heat'
+		  Profile_Panels2_yaxis_log(2) = .true.
+		  Profile_Panels2_other_yaxis_name(2) = 'eta'
+		  Profile_Panels2_yaxis_name(3) = 'Power'
+		  Profile_Panels2_yaxis_name(4) = 'Summary_Burn'
+          Profile_Panels2_yaxis_name(5) = 'Mixing'
+
+
+! Summary_Burn
+  Grid2_plot_name(:) = 'Summary_Burn'
   Grid2_plot_row(2) = 2 ! number from 1 at top
   Grid2_plot_rowspan(2) = 1 ! plot spans this number of rows
   Grid2_plot_col(2) =  1 ! number from 1 at left
@@ -433,7 +608,8 @@
 			Summary_Burn_file_width = -1
 			Summary_Burn_file_aspect_ratio = -1
 
-  Grid2_plot_name(3) = 'Power'
+! Power
+  Grid2_plot_name(:) = 'Power'
   Grid2_plot_row(3) = 3 ! number from 1 at top
   Grid2_plot_rowspan(3) = 1 ! plot spans this number of rows
   Grid2_plot_col(3) =  1 ! number from 1 at left
@@ -472,118 +648,43 @@
 			Power_file_width = -1
 			Power_file_aspect_ratio = -1
 
-
-  Grid2_plot_name(4) = 'Kipp'
-  Grid2_plot_row(4) = 1 ! number from 1 at top
-  Grid2_plot_rowspan(4) = 1 ! plot spans this number of rows
-  Grid2_plot_col(4) =  3 ! number from 1 at left
-  Grid2_plot_colspan(4) = 2 ! plot spans this number of columns
-  Grid2_plot_pad_left(4) = 0.05 ! fraction of full window width for padding on left
-  Grid2_plot_pad_right(4) = 0.0 ! fraction of full window width for padding on right
-  Grid2_plot_pad_top(4) = 0.00 ! fraction of full window height for padding at top
-  Grid2_plot_pad_bot(4) = 0.05 ! fraction of full window height for padding at bottom
-  Grid2_txt_scale_factor(4) = 0.65 ! multiply txt_scale for subplot by this
-
-
-			Kipp_win_flag = .false.
-			Kipp_win_width = 7
-			Kipp_win_aspect_ratio = 0.75
-			Kipp_xleft = 0.15
-			Kipp_xright = 0.85
-			Kipp_ybot = 0.15
-			Kipp_ytop = 0.85
-			Kipp_txt_scale = 1.0
-			Kipp_title = 'Kipp'
-
-			Kipp_step_xmin = -1
-			Kipp_step_xmax = -1
-			Kipp_max_width = -1
-			Kipp_xaxis_name = 'model_number'
-!			are model_number or star_age
-
-			Kipp_xaxis_log = .false.
-			Kipp_xmin = -101d0
-			Kipp_xmax = -101d0
-			Kipp_xmargin = 0.0
-			Kipp_xaxis_reversed = .false.
-			Kipp_xaxis_in_seconds = .false.
-!			Requires Kipp_xaxis_name='star_age'
-
-			Kipp_xaxis_in_Myr = .false.
-!			Requires Kipp_xaxis_name='star_age'
-
-			Kipp_xaxis_time_from_present = .false.
-!			plots star_age-max(star_age) Requires Kipp_xaxis_name='star_age'
-
-!			bounds for mass yaxis
-			Kipp_mass_max = 0.25
-			Kipp_mass_min = 0.0
-			Kipp_mass_margin = 0.01
-!			bounds for luminosity yaxis
-			Kipp_lgL_max = -101d0
-			Kipp_lgL_min = -101d0
-			Kipp_lgL_margin = 0.1
-			Kipp_show_mixing = .true.
-!			this uses the mixing_regions specified in your history_columns.list
-			Kipp_show_burn = .true.
-!			this uses the burning_regions specified in your history_columns.list
-			Kipp_show_luminosities = .false.
-!			to use this option, include the following in your history_columns.list log_L, log_Lneu, log_LH, log_LHe
-			Kipp_show_mass_boundaries = .true.
-!			to use this option, include the following in your history_columns.list he_core_mass, c_core_mass, o_core_mass, si_core_mass, fe_core_mass
-!			Kipp_mix_line_weight = 10
-!			Kipp_mix_interval = 4
-!			show mixing for steps with mod(model_number, Kipp_mix_interval) = 0.
-!			Kipp_burn_line_weight = 14
-!			Kipp_burn_type_cutoff = 0d0
-!			show burn lines only for abs(log(eps)) > Kipp_burn_type_cutoff
-!			Kipp_luminosities_line_weight = 8
-!			Kipp_masses_line_weight = 8
-			show_Kipp_annotation1 = .false.
-			show_Kipp_annotation2 = .false.
-			show_Kipp_annotation3 = .false.
-!			Enables calling a subroutine to add extra information to a plot see !$MESA_DIR/star/other/pgstar_decorator.f90
-
-			Kipp_use_decorator = .false.
-
-			Kipp_file_flag = .false.
-			Kipp_file_dir = 'png'
-			Kipp_file_prefix = 'conv_'
-			Kipp_file_interval = 5
-			Kipp_file_width = -1
-			Kipp_file_aspect_ratio = -1
-
-
-
-  Grid2_plot_name(5) = ''
-!  Grid2_plot_name(5) = 'HR'
-
-  Grid2_plot_row(5) = 1 ! number from 1 at top
+! Mixing
+  Grid2_plot_name(:) = 'Mixing'
+  Grid2_plot_row(5) = 2 ! number from 1 at top
   Grid2_plot_rowspan(5) = 1 ! plot spans this number of rows
-  Grid2_plot_col(5) =  4 ! number from 1 at left
-  Grid2_plot_colspan(5) = 1 ! plot spans this number of columns
-  Grid2_plot_pad_left(5) = 0.075 ! fraction of full window width for padding on left
-  Grid2_plot_pad_right(5) = -0.025 ! fraction of full window width for padding on right
-  Grid2_plot_pad_top(5) = 0.00 ! fraction of full window height for padding at top
-  Grid2_plot_pad_bot(5) = 0.05 ! fraction of full window height for padding at bottom
+  Grid2_plot_col(5) =  2 ! number from 1 at left
+  Grid2_plot_colspan(5) = 2 ! plot spans this number of columns
+  Grid2_plot_pad_left(5) = 0.05 ! fraction of full window width for padding on left
+  Grid2_plot_pad_right(5) = 0.05 ! fraction of full window width for padding on right
+  Grid2_plot_pad_top(5) = 0.075 ! fraction of full window height for padding at top
+  Grid2_plot_pad_bot(5) = 0.0 ! fraction of full window height for padding at bottom
   Grid2_txt_scale_factor(5) = 0.65 ! multiply txt_scale for subplot by this
 
-			  HR_win_flag = .false.
+			Mixing_win_flag = .false.
+			Mixing_win_width = 6
+			Mixing_win_aspect_ratio = 0.75
+			Mixing_xleft = 0.15
+			Mixing_xright = 0.85
+			Mixing_ybot = 0.15
+			Mixing_ytop = 0.85
+			Mixing_txt_scale = 1.0
+			Mixing_title = 'Mixing'
+			Mixing_legend_txt_scale_factor = 1
+			show_Mixing_annotation1 = .true.
+			show_Mixing_annotation2 = .true.
+			show_Mixing_annotation3 = .true.
+			Mixing_show_rotation_details = .true.
+			Mixing_xaxis_name = 'mass'
+			Mixing_xaxis_reversed = .false.
+			Mixing_xmin = 0.0
+			Mixing_xmax = 0.4
+			Mixing_ymin = -101d0
+			Mixing_ymax = -101d0
+			Mixing_dymin = -101d0
 
-			  HR_xleft = 0.15
-			  HR_xright = 0.85
-			  HR_ybot = 0.15
-			  HR_ytop = 0.85
-			  HR_txt_scale = 1.0
-			  HR_title = 'HR'
 
-			  !HR_logT_min = -101d0
-			  !HR_logT_max = -101d0
-			  !HR_logL_min = -101d0
-			  !HR_logL_max = -101d0
-
-
-
+!!! GET RID OF ME
+!!! Mode_Prop
   Grid2_plot_name(5) = 'Mode_Prop'
   Grid2_plot_row(5) = 2 ! number from 1 at top
   Grid2_plot_rowspan(5) = 2 ! plot spans this number of rows
@@ -623,7 +724,7 @@
 				Mode_Prop_file_aspect_ratio = -1
 
 
-  ! file output
+! file output
   Grid2_file_flag = .true.
   Grid2_file_dir = 'png'
   Grid2_file_prefix = 'grid2'
@@ -636,6 +737,332 @@
 
 
   !### Grid2
+
+
+
+!!! Grid3
+  !!!!!!!!!!
+  !!!!!!!!!! Grid3
+  !!!!!!!!!!
+    Grid3_win_flag = .false.
+
+    Grid3_win_width = 15
+    Grid3_win_aspect_ratio = 0.55 ! aspect_ratio = height/width
+
+    Grid3_xleft = 0.12 ! fraction of full window width for margin on left
+    Grid3_xright = 0.95 ! fraction of full window width for margin on right
+    Grid3_ybot = 0.08 ! fraction of full window width for margin on bottom
+    Grid3_ytop = 0.92 ! fraction of full window width for margin on top
+
+    Grid3_plot_name(:) = ''
+    Grid3_plot_row(:) = 1 ! number from 1 at top
+    Grid3_plot_rowspan(:) = 1 ! plot spans this number of rows
+    Grid3_plot_col(:) =  1 ! number from 1 at left
+    Grid3_plot_colspan(:) = 1 ! plot spans this number of columns
+    Grid3_plot_pad_left(:) = 0.0 ! fraction of full window width for padding on left
+    Grid3_plot_pad_right(:) = 0.0 ! fraction of full window width for padding on right
+    Grid3_plot_pad_top(:) = 0.0 ! fraction of full window height for padding at top
+    Grid3_plot_pad_bot(:) = 0.0 ! fraction of full window height for padding at bottom
+    Grid3_txt_scale_factor(:) = 0.7 ! multiply txt_scale for subplot by this
+
+    ! set default
+    Grid3_num_cols = 4 ! divide plotting region into this many equal width cols
+    Grid3_num_rows = 3 ! divide plotting region into this many equal height rows
+    Grid3_num_plots = 10 ! <= 10
+
+    Grid3_plot_name(:) = ''
+    Grid3_plot_row(:) = 1 ! number from 1 at top
+    Grid3_plot_rowspan(:) = 1 ! plot spans this number of rows
+    Grid3_plot_col(:) =  1 ! number from 1 at left
+    Grid3_plot_colspan(:) = 1 ! plot spans this number of columns
+    Grid3_plot_pad_left(:) = 0.03 ! fraction of full window width for padding on left
+    Grid3_plot_pad_right(:) = 0.03 ! fraction of full window width for padding on right
+    Grid3_plot_pad_top(:) = 0.03 ! fraction of full window height for padding at top
+    Grid3_plot_pad_bot(:) = 0.03 ! fraction of full window height for padding at bottom
+    Grid3_txt_scale_factor(:) = 0.7 ! multiply txt_scale for subplot by this
+
+
+    Grid3_plot_name(1) = 'TRho_Profile'
+    Grid3_plot_row(1) = 1 ! number from 1 at top
+    Grid3_plot_rowspan(1) = 1 ! plot spans this number of rows
+    Grid3_plot_col(1) =  1 ! number from 1 at left
+    Grid3_plot_colspan(1) = 2 ! plot spans this number of columns
+    Grid3_plot_pad_left(1) = -0.05 ! fraction of full window width for padding on left
+    Grid3_plot_pad_right(1) = 0.05 ! fraction of full window width for padding on right
+    Grid3_plot_pad_top(1) = 0.0 ! fraction of full window height for padding at top
+    Grid3_plot_pad_bot(1) = 0.05 ! fraction of full window height for padding at bottom
+    Grid3_txt_scale_factor(1) = 0.6 ! multiply txt_scale for subplot by this
+
+
+  			  ! show temperature/density profile
+  			  ! this plots the internal structure at single timestep
+  			  TRho_Profile_win_flag = .false.
+  			  TRho_Profile_title = ''
+
+  			  TRho_Profile_xmin = -12.0
+  			  TRho_Profile_xmax = 8.0
+  			  TRho_Profile_ymin = 2.0
+  			  TRho_Profile_ymax = 9.0
+  			  show_TRho_Profile_logQ_limit = .true.
+  			  show_TRho_Profile_eos_regions = .true.
+  			  ! add legend explaining colors
+  			  show_TRho_Profile_legend = .true.
+
+  			  ! display numerical info about the star
+
+  			  show_TRho_Profile_text_info = .true.
+  			  TRho_Profile_text_info_xfac = 0.82 ! controls x location
+  			  TRho_Profile_text_info_dxfac = 0.02 ! controls x spacing to value from text
+  			  TRho_Profile_text_info_yfac = 0.6 ! controls y location of 1st line
+  			  TRho_Profile_text_info_dyfac = -0.04 ! controls line spacing
+
+  			  ! set window size (aspect_ratio = height/width)
+  			  TRho_Profile_win_width = 8
+  			  TRho_Profile_win_aspect_ratio = 0.75
+
+
+
+
+
+
+    Grid3_plot_name(2) = 'Summary_Burn'
+    Grid3_plot_row(2) = 2 ! number from 1 at top
+    Grid3_plot_rowspan(2) = 1 ! plot spans this number of rows
+    Grid3_plot_col(2) =  1 ! number from 1 at left
+    Grid3_plot_colspan(2) = 2 ! plot spans this number of columns
+    Grid3_plot_pad_left(2) = -0.05 ! fraction of full window width for padding on left
+    Grid3_plot_pad_right(2) = 0.05 ! fraction of full window width for padding on right
+    Grid3_plot_pad_top(2) = 0.025 ! fraction of full window height for padding at top
+    Grid3_plot_pad_bot(2) = 0.025 ! fraction of full window height for padding at bottom
+    Grid3_txt_scale_factor(2) = 0.65 ! multiply txt_scale for subplot by this
+
+  			Summary_Burn_win_flag = .false.
+  			Summary_Burn_win_width = 6
+  			Summary_Burn_win_aspect_ratio = 0.75
+  			Summary_Burn_xleft = 0.15
+  			Summary_Burn_xright = 0.85
+  			Summary_Burn_ybot = 0.15
+  			Summary_Burn_ytop = 0.80
+  			Summary_Burn_txt_scale = 1.0
+  			Summary_Burn_title = 'Summary_Burn'
+  			Summary_Burn_title_shift = 2.5
+  			Summary_Burn_xaxis_name = 'mass'
+  			Summary_Burn_xaxis_reversed = .false.
+  			Summary_Burn_xmin = 0.0
+  			Summary_Burn_xmax = 0.25
+
+  			Summary_Burn_use_decorator = .false.
+
+  			Summary_Burn_file_flag = .false.
+  			Summary_Burn_file_dir = 'png'
+  			Summary_Burn_file_prefix = 'Summary_Burn_'
+  			Summary_Burn_file_interval = 5
+  			Summary_Burn_file_width = -1
+  			Summary_Burn_file_aspect_ratio = -1
+
+    Grid3_plot_name(3) = 'Power'
+    Grid3_plot_row(3) = 3 ! number from 1 at top
+    Grid3_plot_rowspan(3) = 1 ! plot spans this number of rows
+    Grid3_plot_col(3) =  1 ! number from 1 at left
+    Grid3_plot_colspan(3) = 2 ! plot spans this number of columns
+    Grid3_plot_pad_left(3) = -0.05 ! fraction of full window width for padding on left
+    Grid3_plot_pad_right(3) = 0.05 ! fraction of full window width for padding on right
+    Grid3_plot_pad_top(3) = 0.05 ! fraction of full window height for padding at top
+    Grid3_plot_pad_bot(3) = 0.0 ! fraction of full window height for padding at bottom
+    Grid3_txt_scale_factor(3) = 0.65 ! multiply txt_scale for subplot by this
+
+  			Power_win_flag = .false.
+  			Power_win_width = 6
+  			Power_win_aspect_ratio = 0.75
+  			Power_xleft = 0.15
+  			Power_xright = 0.85
+  			Power_ybot = 0.15
+  			Power_ytop = 0.85
+  			Power_txt_scale = 1.0
+  			Power_title = 'Power'
+  			Power_xaxis_name = 'mass'
+  			Power_xaxis_reversed = .false.
+  			Power_legend_max_cnt = 16
+  			Power_legend_txt_scale_factor = 0.7
+
+  			Power_xmin = 0.0
+  			Power_xmax = 0.25
+  			Power_ymin = -101d0
+  			Power_ymax = -101d0
+
+  			Power_use_decorator = .false.
+
+  			Power_file_flag = .false.
+  			Power_file_dir = 'png'
+  			Power_file_prefix = 'power_'
+  			Power_file_interval = 5
+  			Power_file_width = -1
+  			Power_file_aspect_ratio = -1
+
+
+    Grid3_plot_name(4) = 'Kipp'
+    Grid3_plot_row(4) = 1 ! number from 1 at top
+    Grid3_plot_rowspan(4) = 1 ! plot spans this number of rows
+    Grid3_plot_col(4) =  3 ! number from 1 at left
+    Grid3_plot_colspan(4) = 2 ! plot spans this number of columns
+    Grid3_plot_pad_left(4) = 0.05 ! fraction of full window width for padding on left
+    Grid3_plot_pad_right(4) = 0.0 ! fraction of full window width for padding on right
+    Grid3_plot_pad_top(4) = 0.00 ! fraction of full window height for padding at top
+    Grid3_plot_pad_bot(4) = 0.05 ! fraction of full window height for padding at bottom
+    Grid3_txt_scale_factor(4) = 0.65 ! multiply txt_scale for subplot by this
+
+
+  			Kipp_win_flag = .false.
+  			Kipp_win_width = 7
+  			Kipp_win_aspect_ratio = 0.75
+  			Kipp_xleft = 0.15
+  			Kipp_xright = 0.85
+  			Kipp_ybot = 0.15
+  			Kipp_ytop = 0.85
+  			Kipp_txt_scale = 1.0
+  			Kipp_title = 'Kipp'
+
+  			Kipp_step_xmin = -1
+  			Kipp_step_xmax = -1
+  			Kipp_max_width = -1
+  			Kipp_xaxis_name = 'star_age'
+  !			are model_number or star_age
+
+  			Kipp_xaxis_log = .true.
+  			Kipp_xmin = -101d0
+  			Kipp_xmax = -101d0
+  			Kipp_xmargin = 0.0
+  			Kipp_xaxis_reversed = .false.
+  			Kipp_xaxis_in_seconds = .false.
+  !			Requires Kipp_xaxis_name='star_age'
+
+  			Kipp_xaxis_in_Myr = .true.
+  !			Requires Kipp_xaxis_name='star_age'
+
+  			Kipp_xaxis_time_from_present = .false.
+  !			plots star_age-max(star_age) Requires Kipp_xaxis_name='star_age'
+
+  !			bounds for mass yaxis
+  			Kipp_mass_max = 0.5
+  			Kipp_mass_min = 0.0
+  			Kipp_mass_margin = 0.01
+  !			bounds for luminosity yaxis
+  			Kipp_lgL_max = -101d0
+  			Kipp_lgL_min = -101d0
+  			Kipp_lgL_margin = 0.1
+  			Kipp_show_mixing = .true.
+  !			this uses the mixing_regions specified in your history_columns.list
+  			Kipp_show_burn = .true.
+  !			this uses the burning_regions specified in your history_columns.list
+  			Kipp_show_luminosities = .false.
+  !			to use this option, include the following in your history_columns.list log_L, log_Lneu, log_LH, log_LHe
+  			Kipp_show_mass_boundaries = .true.
+  !			to use this option, include the following in your history_columns.list he_core_mass, c_core_mass, o_core_mass, si_core_mass, fe_core_mass
+  !			Kipp_mix_line_weight = 10
+  !			Kipp_mix_interval = 4
+  !			show mixing for steps with mod(model_number, Kipp_mix_interval) = 0.
+  !			Kipp_burn_line_weight = 14
+  !			Kipp_burn_type_cutoff = 0d0
+  !			show burn lines only for abs(log(eps)) > Kipp_burn_type_cutoff
+  !			Kipp_luminosities_line_weight = 8
+  !			Kipp_masses_line_weight = 8
+  			show_Kipp_annotation1 = .false.
+  			show_Kipp_annotation2 = .false.
+  			show_Kipp_annotation3 = .false.
+  !			Enables calling a subroutine to add extra information to a plot see !$MESA_DIR/star/other/pgstar_decorator.f90
+
+  			Kipp_use_decorator = .false.
+
+  			Kipp_file_flag = .false.
+  			Kipp_file_dir = 'png'
+  			Kipp_file_prefix = 'conv_'
+  			Kipp_file_interval = 5
+  			Kipp_file_width = -1
+  			Kipp_file_aspect_ratio = -1
+
+
+
+    Grid3_plot_name(5) = ''
+  !  Grid3_plot_name(5) = 'HR'
+
+    Grid3_plot_row(5) = 1 ! number from 1 at top
+    Grid3_plot_rowspan(5) = 1 ! plot spans this number of rows
+    Grid3_plot_col(5) =  4 ! number from 1 at left
+    Grid3_plot_colspan(5) = 1 ! plot spans this number of columns
+    Grid3_plot_pad_left(5) = 0.075 ! fraction of full window width for padding on left
+    Grid3_plot_pad_right(5) = -0.025 ! fraction of full window width for padding on right
+    Grid3_plot_pad_top(5) = 0.00 ! fraction of full window height for padding at top
+    Grid3_plot_pad_bot(5) = 0.05 ! fraction of full window height for padding at bottom
+    Grid3_txt_scale_factor(5) = 0.65 ! multiply txt_scale for subplot by this
+
+  			  HR_win_flag = .false.
+
+  			  HR_xleft = 0.15
+  			  HR_xright = 0.85
+  			  HR_ybot = 0.15
+  			  HR_ytop = 0.85
+  			  HR_txt_scale = 1.0
+  			  HR_title = 'HR'
+
+  			  !HR_logT_min = -101d0
+  			  !HR_logT_max = -101d0
+  			  !HR_logL_min = -101d0
+  			  !HR_logL_max = -101d0
+
+
+
+    Grid3_plot_name(5) = 'Mode_Prop'
+    Grid3_plot_row(5) = 2 ! number from 1 at top
+    Grid3_plot_rowspan(5) = 2 ! plot spans this number of rows
+    Grid3_plot_col(5) =  3 ! number from 1 at left
+    Grid3_plot_colspan(5) = 2 ! plot spans this number of columns
+    Grid3_plot_pad_left(5) = 0.10 ! fraction of full window width for padding on left
+    Grid3_plot_pad_right(5) = 0.05 ! fraction of full window width for padding on right
+    Grid3_plot_pad_top(5) = 0.05 ! fraction of full window height for padding at top
+    Grid3_plot_pad_bot(5) = 0.0 ! fraction of full window height for padding at bottom
+    Grid3_txt_scale_factor(5) = 0.95 ! multiply txt_scale for subplot by this
+
+  				Mode_Prop_win_flag = .false.
+  				Mode_Prop_win_width = 6
+  				Mode_Prop_win_aspect_ratio = 0.75
+  				Mode_Prop_xleft = 0.15
+  				Mode_Prop_xright = 0.85
+  				Mode_Prop_ybot = 0.15
+  				Mode_Prop_ytop = 0.85
+  				Mode_Prop_txt_scale = 1.0
+  				Mode_Prop_title = 'Mode_Prop'
+  				Mode_Prop_nu_max_obs = -999
+  				Mode_Prop_xaxis_name = 'mass'
+  				Mode_Prop_xaxis_reversed = .false.
+
+  				Mode_Prop_xmin = 0.0
+  				Mode_Prop_xmax = 0.25
+
+  				Mode_Prop_ymin = 0.0
+  				Mode_Prop_ymax = 9.0
+  				Mode_Prop_use_decorator = .false.
+
+  				Mode_Prop_file_flag = .false.
+  				Mode_Prop_file_dir = 'png'
+  				Mode_Prop_file_prefix = 'mode_prop_'
+  				Mode_Prop_file_interval = 5
+  				Mode_Prop_file_width = -1
+  				Mode_Prop_file_aspect_ratio = -1
+
+
+    ! file output
+    Grid3_file_flag = .false.
+    Grid3_file_dir = 'png'
+    Grid3_file_prefix = 'Grid3'
+    Grid3_file_interval = 1 ! output when mod(model_number,Grid3_file_interval)==0
+    Grid3_file_width = 16 ! negative means use same value as for window
+    Grid3_file_aspect_ratio = -1 ! negative means use same value as for window
+
+
+
+
+
+    !### Grid3
 
 
   / ! end of pgstar namelist
