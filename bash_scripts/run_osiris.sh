@@ -91,12 +91,18 @@ function rnmesa () {
 ### MAIN PROGRAM
 ### runs mesa models with specified params
 maindir="/home/tjr63/mesaruns"
-RUNS="RUNS_convCore"
+RUNS="RUNS_pgstarGrid2"
 
 cd ${maindir}
 ./clean
 ./mk
 
-for cb in 0 6; do
-    rnmesa "${maindir}" "${RUNS}/generic_inlist/c${cb}/m1p3" 1.3 ${cb} 1 "preMStoWD"
+
+declare -A mvals=( [m0p8]=0.8D0 [m1p0]=1.0D0 [m1p2]=1.2D0 [m1p4]=1.4D0 )
+declare -a mord=( m0p8 m1p0 m1p2 m1p4 )
+
+for mass in "${mord[@]}"; do
+for cb in 0 3 6; do
+    rnmesa "${maindir}" "${RUNS}/generic_inlist/c${cb}/${mass}" ${mvals[$mass]} ${cb} 1 "master"
+done
 done
