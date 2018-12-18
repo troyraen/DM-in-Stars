@@ -9,6 +9,7 @@ function write_inlists () {
     cboost=$4 # = integer 0..6
     pgstar=${5:-0} # = 1 generates a movie, default 0
     inlist_master=${6:-"master"} # inlist_$6 will be used as base inlist
+    stop_leaveMS=${7:-0} # = 1 stops the run when h1 frac < 1.e-3
 
     # INLISTS
     fopts="${RUN}/inlist_options"
@@ -39,6 +40,12 @@ function write_inlists () {
         cp ${maindir}/inlist_pgstar_my ${RUN}/. # cp custom pgstar inlist
         sed -i 's/read_extra_pgstar_inlist2 = .false./read_extra_pgstar_inlist2 = .true./g' ${fopts} # read it
     fi
+
+    # stop after leave MS
+    if [ "${stop_leaveMS}" = 1 ]; then
+        sed -i 's/! xa_central_lower_limit/xa_central_lower_limit/g' ${fopts} # uncomment these 2 lines
+    fi
+
     echo "Wrote inlists (${fopts})"
 }
 
@@ -51,13 +58,14 @@ function rnmesa () {
     cboost=$4 # = integer 0..6
     pgstar=${5:-0} # = 1 generates a movie, default 0
     inlist_master=${6:-"master"} # inlist_$6 will be used as base inlist
+    stop_leaveMS=${7:-0} # = 1 stops the run when h1 frac < 1.e-3
 
     ### PREP
     echo
     mkdir -p ${RUN}/LOGS ${RUN}/png ${RUN}/photos
     stdout=${RUN}/LOGS/STD.out
     # cp $maindir/$RUNS/$xphoto $maindir/photos/.
-    write_inlists ${maindir} ${RUN} ${mass} ${cboost} ${pgstar} ${inlist_master}
+    write_inlists ${maindir} ${RUN} ${mass} ${cboost} ${pgstar} ${inlist_master} ${stop_leaveMS}
 
     ### RUN
     echo "Running MESA ..."
@@ -107,6 +115,6 @@ declare -a mord=( m0p8 m1p0 m1p1 m1p2 m1p3 m1p4 m1p6 m2p0 m3p0 m4p0 )
 
 for cb in 0 3 6; do
     for mass in "${mord[@]}"; do
-        rnmesa "${maindir}" "${RUNS}/c${cb}/${mass}" "${mvals[${mass}]}" "${cb}" 1 "master"
+        rnmesa "${maindir}" "${RUNS}/c${cb}/${mass}" "${mvals[${mass}]}" "${cb}" 1 "master" 1
     done
 done
