@@ -463,7 +463,7 @@
   			!are model_number or star_age
 
   			Kipp_xaxis_log = .true.
-  			Kipp_xmin = 1d6
+  			Kipp_xmin = 6
   			Kipp_xmax = -101d0
   			Kipp_xmargin = 0.0
   			Kipp_xaxis_reversed = .false.
@@ -836,75 +836,6 @@
     Grid3_plot_pad_top(4) = 0.00 ! fraction of full window height for padding at top
     Grid3_plot_pad_bot(4) = 0.05 ! fraction of full window height for padding at bottom
     Grid3_txt_scale_factor(4) = 0.65 ! multiply txt_scale for subplot by this
-
-
-  			Kipp_win_flag = .false.
-  			Kipp_win_width = 7
-  			Kipp_win_aspect_ratio = 0.75
-  			Kipp_xleft = 0.15
-  			Kipp_xright = 0.85
-  			Kipp_ybot = 0.15
-  			Kipp_ytop = 0.85
-  			Kipp_txt_scale = 1.0
-  			Kipp_title = 'Kipp'
-
-  			Kipp_step_xmin = -1
-  			Kipp_step_xmax = -1
-  			Kipp_max_width = -1
-  			Kipp_xaxis_name = 'star_age'
-  !			are model_number or star_age
-
-  			Kipp_xaxis_log = .true.
-  			Kipp_xmin = -101d0
-  			Kipp_xmax = -101d0
-  			Kipp_xmargin = 0.0
-  			Kipp_xaxis_reversed = .false.
-  			Kipp_xaxis_in_seconds = .false.
-  !			Requires Kipp_xaxis_name='star_age'
-
-  			Kipp_xaxis_in_Myr = .true.
-  !			Requires Kipp_xaxis_name='star_age'
-
-  			Kipp_xaxis_time_from_present = .false.
-  !			plots star_age-max(star_age) Requires Kipp_xaxis_name='star_age'
-
-  !			bounds for mass yaxis
-  			Kipp_mass_max = 0.5
-  			Kipp_mass_min = 0.0
-  			Kipp_mass_margin = 0.01
-  !			bounds for luminosity yaxis
-  			Kipp_lgL_max = -101d0
-  			Kipp_lgL_min = -101d0
-  			Kipp_lgL_margin = 0.1
-  			Kipp_show_mixing = .true.
-  !			this uses the mixing_regions specified in your history_columns.list
-  			Kipp_show_burn = .true.
-  !			this uses the burning_regions specified in your history_columns.list
-  			Kipp_show_luminosities = .false.
-  !			to use this option, include the following in your history_columns.list log_L, log_Lneu, log_LH, log_LHe
-  			Kipp_show_mass_boundaries = .true.
-  !			to use this option, include the following in your history_columns.list he_core_mass, c_core_mass, o_core_mass, si_core_mass, fe_core_mass
-  !			Kipp_mix_line_weight = 10
-  !			Kipp_mix_interval = 4
-  !			show mixing for steps with mod(model_number, Kipp_mix_interval) = 0.
-  !			Kipp_burn_line_weight = 14
-  !			Kipp_burn_type_cutoff = 0d0
-  !			show burn lines only for abs(log(eps)) > Kipp_burn_type_cutoff
-  !			Kipp_luminosities_line_weight = 8
-  !			Kipp_masses_line_weight = 8
-  			show_Kipp_annotation1 = .false.
-  			show_Kipp_annotation2 = .false.
-  			show_Kipp_annotation3 = .false.
-  !			Enables calling a subroutine to add extra information to a plot see !$MESA_DIR/star/other/pgstar_decorator.f90
-
-  			Kipp_use_decorator = .false.
-
-  			Kipp_file_flag = .false.
-  			Kipp_file_dir = 'png'
-  			Kipp_file_prefix = 'conv_'
-  			Kipp_file_interval = 5
-  			Kipp_file_width = -1
-  			Kipp_file_aspect_ratio = -1
 
 
 
