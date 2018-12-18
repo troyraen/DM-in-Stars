@@ -103,6 +103,6 @@ declare -a mord=( m0p8 m1p0 m1p2 m1p4 )
 
 for mass in "${mord[@]}"; do
 for cb in 0 3 6; do
-    rnmesa "${maindir}" "${RUNS}/generic_inlist/c${cb}/${mass}" ${mvals[$mass]} ${cb} 1 "master"
+    rnmesa "${maindir}" "${RUNS}/c${cb}/${mass}" "${mvals[$mass]}" "${cb}" 1 "master"
 done
 done
