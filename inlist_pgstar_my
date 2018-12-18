@@ -220,8 +220,8 @@
 
 
 
-!  Grid1_plot_name(6) = 'Profile_Panels2'
-  Grid1_plot_name(6) = 'Profile_Panels2'
+!  Grid1_plot_name(6) = 'Profile_Panels1'
+  Grid1_plot_name(6) = 'Profile_Panels1'
   Grid1_plot_row(6) = 2 ! number from 1 at top
   Grid1_plot_rowspan(6) = 2 ! plot spans this number of rows
   Grid1_plot_col(6) =  3 ! number from 1 at left
@@ -233,58 +233,58 @@
   Grid1_txt_scale_factor(6) = 0.65 ! multiply txt_scale for subplot by this
 
 
-		  Profile_Panels2_win_flag = .false.
-		  Profile_Panels2_win_width = 6
-		  Profile_Panels2_win_aspect_ratio = 0.75 ! aspect_ratio = height/width
+		  Profile_Panels1_win_flag = .false.
+		  Profile_Panels1_win_width = 6
+		  Profile_Panels1_win_aspect_ratio = 0.75 ! aspect_ratio = height/width
 
-		  Profile_Panels2_xleft = 0.15
-		  Profile_Panels2_xright = 0.85
-		  Profile_Panels2_ybot = 0.15
-		  Profile_Panels2_ytop = 0.85
-		  Profile_Panels2_txt_scale = 1.0
-		  Profile_Panels2_title = ''
+		  Profile_Panels1_xleft = 0.15
+		  Profile_Panels1_xright = 0.85
+		  Profile_Panels1_ybot = 0.15
+		  Profile_Panels1_ytop = 0.85
+		  Profile_Panels1_txt_scale = 1.0
+		  Profile_Panels1_title = ''
 
-		  Profile_Panels2_xaxis_name = 'mass'
-		  Profile_Panels2_xaxis_reversed = .false.
-		  Profile_Panels2_xmin = 0d0
-		  Profile_Panels2_xmax = 0.4
-		  Profile_Panels2_xmargin = 0d0
-		  Profile_Panels2_show_grid = .true.
+		  Profile_Panels1_xaxis_name = 'mass'
+		  Profile_Panels1_xaxis_reversed = .false.
+		  Profile_Panels1_xmin = 0d0
+		  Profile_Panels1_xmax = 0.4
+		  Profile_Panels1_xmargin = 0d0
+		  Profile_Panels1_show_grid = .true.
 
-		  Profile_Panels2_yaxis_name(:) = ''
-		  Profile_Panels2_yaxis_reversed(:) = .false.
-		  Profile_Panels2_ymin(:) = -101d0 ! only used if /= -101d0
-		  Profile_Panels2_ymax(:) = -101d0 ! only used if /= -101d0
-		  Profile_Panels2_ymargin(:) = 0.1
-		  Profile_Panels2_dymin(:) = -1
+		  Profile_Panels1_yaxis_name(:) = ''
+		  Profile_Panels1_yaxis_reversed(:) = .false.
+		  Profile_Panels1_ymin(:) = -101d0 ! only used if /= -101d0
+		  Profile_Panels1_ymax(:) = -101d0 ! only used if /= -101d0
+		  Profile_Panels1_ymargin(:) = 0.1
+		  Profile_Panels1_dymin(:) = -1
 
-		  Profile_Panels2_other_yaxis_name(:) = ''
-		  Profile_Panels2_other_yaxis_reversed(:) = .false.
-		  Profile_Panels2_other_ymin(:) = -101d0 ! only used if /= -101d0
-		  Profile_Panels2_other_ymax(:) = -101d0 ! only used if /= -101d0
-		  Profile_Panels2_other_ymargin(:) = 0.1
-		  Profile_Panels2_other_dymin(:) = -1
+		  Profile_Panels1_other_yaxis_name(:) = ''
+		  Profile_Panels1_other_yaxis_reversed(:) = .false.
+		  Profile_Panels1_other_ymin(:) = -101d0 ! only used if /= -101d0
+		  Profile_Panels1_other_ymax(:) = -101d0 ! only used if /= -101d0
+		  Profile_Panels1_other_ymargin(:) = 0.1
+		  Profile_Panels1_other_dymin(:) = -1
 
 		  ! setup default plot
-		  Profile_Panels2_num_panels = 3
-		  Profile_Panels2_yaxis_name(1) = 'extra_heat'
-		  Profile_Panels2_yaxis_log(1) = .true.
-		  Profile_Panels2_other_yaxis_name(1) = 'eta'
-		  Profile_Panels2_yaxis_name(2) = 'nx'
-		  Profile_Panels2_yaxis_log(2) = .true.
-		  Profile_Panels2_other_yaxis_name(2) = 'np'
-		  Profile_Panels2_other_yaxis_log(2) = .true.
-		  Profile_Panels2_yaxis_name(3) = 'logT'
-		  Profile_Panels2_other_yaxis_name(3) = 'logRho'
+		  Profile_Panels1_num_panels = 3
+		  Profile_Panels1_yaxis_name(1) = 'extra_heat'
+		  Profile_Panels1_yaxis_log(1) = .true.
+		  Profile_Panels1_other_yaxis_name(1) = 'eta'
+		  Profile_Panels1_yaxis_name(2) = 'nx'
+		  Profile_Panels1_yaxis_log(2) = .true.
+		  Profile_Panels1_other_yaxis_name(2) = 'np'
+		  Profile_Panels1_other_yaxis_log(2) = .true.
+		  Profile_Panels1_yaxis_name(3) = 'logT'
+		  Profile_Panels1_other_yaxis_name(3) = 'logRho'
 
-		  ! Profile_Panels2_ymin(2) = -1.0
-		  ! Profile_Panels2_ymax(2) = 1.0
+		  ! Profile_Panels1_ymin(2) = -1.0
+		  ! Profile_Panels1_ymax(2) = 1.0
 
-		  ! Profile_Panels2_other_ymin(2) = 0.0
-		  ! Profile_Panels2_other_ymax(2) = 1.0
+		  ! Profile_Panels1_other_ymin(2) = 0.0
+		  ! Profile_Panels1_other_ymax(2) = 1.0
 
-		  !Profile_Panels2_other_ymin(1) = 0.490
-		  !Profile_Panels2_other_ymax(1) = 0.501
+		  !Profile_Panels1_other_ymin(1) = 0.490
+		  !Profile_Panels1_other_ymax(1) = 0.501
 
 !		  ! file output
 		  Profile_Panels2_file_flag = .false.
@@ -517,17 +517,17 @@
 
 
 
-!  Grid1_plot_name(6) = 'Profile_Panels2'
-  Grid1_plot_name(5) = 'Profile_Panels2'
-  Grid1_plot_row(5) = 1 ! number from 1 at top
-  Grid1_plot_rowspan(5) = 3 ! plot spans this number of rows
-  Grid1_plot_col(5) =  3 ! number from 1 at left
-  Grid1_plot_colspan(5) = 2 ! plot spans this number of columns
-  Grid1_plot_pad_left(5) = 0.10 ! fraction of full window width for padding on left
-  Grid1_plot_pad_right(5) = 0.05 ! fraction of full window width for padding on right
-  Grid1_plot_pad_top(5) = 0.05 ! fraction of full window height for padding at top
-  Grid1_plot_pad_bot(5) = 0.0 ! fraction of full window height for padding at bottom
-  Grid1_txt_scale_factor(5) = 0.65 ! multiply txt_scale for subplot by this
+!  Grid2_plot_name(6) = 'Profile_Panels2'
+  Grid2_plot_name(5) = 'Profile_Panels2'
+  Grid2_plot_row(5) = 1 ! number from 1 at top
+  Grid2_plot_rowspan(5) = 3 ! plot spans this number of rows
+  Grid2_plot_col(5) =  3 ! number from 1 at left
+  Grid2_plot_colspan(5) = 2 ! plot spans this number of columns
+  Grid2_plot_pad_left(5) = 0.10 ! fraction of full window width for padding on left
+  Grid2_plot_pad_right(5) = 0.05 ! fraction of full window width for padding on right
+  Grid2_plot_pad_top(5) = 0.05 ! fraction of full window height for padding at top
+  Grid2_plot_pad_bot(5) = 0.0 ! fraction of full window height for padding at bottom
+  Grid2_txt_scale_factor(5) = 0.65 ! multiply txt_scale for subplot by this
 
 
 		  Profile_Panels2_win_flag = .false.
