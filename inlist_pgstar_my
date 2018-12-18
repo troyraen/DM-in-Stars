@@ -331,7 +331,7 @@
   ! set default
   Grid2_num_cols = 4 ! divide plotting region into this many equal width cols
   Grid2_num_rows = 3 ! divide plotting region into this many equal height rows
-  Grid2_num_plots = 10 ! <= 10
+  Grid2_num_plots = 5 ! <= 10
 
     !Blanks
   Grid2_plot_name(:) = ''
@@ -562,14 +562,19 @@
 		  Profile_Panels2_other_dymin(:) = -1
 
 		  ! setup default plot
-		  Profile_Panels2_num_panels = 5
+		  Profile_Panels2_num_panels = 6
           Profile_Panels2_yaxis_name(1) = 'Abundance'
-		  Profile_Panels2_yaxis_name(2) = 'extra_heat'
-		  Profile_Panels2_yaxis_log(2) = .true.
-		  Profile_Panels2_other_yaxis_name(2) = 'eta'
-		  Profile_Panels2_yaxis_name(3) = 'Power'
-		  Profile_Panels2_yaxis_name(4) = 'Summary_Burn'
-          Profile_Panels2_yaxis_name(5) = 'Mixing'
+          Profile_Panels2_yaxis_name(2) = 'logT'
+          Profile_Panels2_other_yaxis_name(2) = 'logRho'
+          Profile_Panels2_yaxis_name(2) = 'logP'
+          Profile_Panels2_other_yaxis_name(2) = 'eta'
+		  Profile_Panels2_yaxis_name(3) = 'extra_heat'
+		  Profile_Panels2_yaxis_log(3) = .true.
+		  Profile_Panels2_other_yaxis_name(3) = 'eps_nuc'
+          Profile_Panels2_other_yaxis_log(3) = .true.
+		  Profile_Panels2_yaxis_name(4) = 'Power'
+		  !Profile_Panels2_yaxis_name(5) = 'Summary_Burn'
+          Profile_Panels2_yaxis_name(6) = 'Mixing'
 
 
 ! Summary_Burn
