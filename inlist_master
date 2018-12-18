@@ -12,8 +12,6 @@
       write_profile_when_terminate = .true.
       filename_for_profile_when_terminate = 'LOGS/profile0.data'
 
-!      pgstar_flag = .true.
-
 !PMS
       create_pre_main_sequence_model = .true.
       pre_ms_T_c = 5d5
@@ -41,24 +39,13 @@
 
 &controls
 
-!      use_other_energy_implicit = .true.
-                            ! to run models with no dark matter, set this to .false.
-!      X_CTRL(1) = 1.D1  ! this sets cboost in wimp_module.f90
-                            ! typical range is 0.D1 (no DM`) to 1.D6
-!      X_LOGICAL_CTRL(1) = .TRUE.    ! sets spindep in wimp_module.f90
-                                    ! .true. = spin dependent
-                                    ! .false. = spin independent
-!      initial_mass = 1.0
-
-!        X_CTRL(7) =
-
       initial_z = 0.014d0
       Zbase = 0.014d0
 
 !	STOPPING CONDITIONS
       log_L_lower_limit = -1.0
 	  stop_at_TP = .TRUE.
-!	  max_age = 13d9
+
 
 !   SAVE DATA
       photo_interval = 50

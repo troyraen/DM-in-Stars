@@ -22,8 +22,8 @@
   X_LOGICAL_CTRL(2) = .FALSE. ! emom_norm true or false
 
 
-    xa_central_lower_limit_species(1) = 'h1'
-    xa_central_lower_limit(1) = 1.0E-3
+    ! xa_central_lower_limit_species(1) = 'h1'
+    ! xa_central_lower_limit(1) = 1.0E-3
 
 
 / ! end of controls namelist
