@@ -110,7 +110,7 @@ if [ "${mkcln}" = 1 ]; then
 fi
 
 
-declare -A mvals=( [m0p8]=0.8D0 [m1p0]=1.0D0 [m1p1]=1.1D0 [m1p2]=1.2D0 [m1p3]=1.3D0 [m1p4]=1.4D0 [m1p6]=1.6D0 [m2p0]=2.0D0 [m3p0]=3.0D0 [m4p0]=4.0D0 )
+declare -A mvals=( [m0p8]=0.8 [m1p0]=1.0 [m1p1]=1.1 [m1p2]=1.2 [m1p3]=1.3 [m1p4]=1.4 [m1p6]=1.6 [m2p0]=2.0 [m3p0]=3.0 [m4p0]=4.0 )
 declare -a mord=( m0p8 m1p0 m1p1 m1p2 m1p3 m1p4 m1p6 m2p0 m3p0 m4p0 )
 
 for cb in 0 3 6; do
