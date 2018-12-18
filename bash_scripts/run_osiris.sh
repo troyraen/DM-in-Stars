@@ -102,11 +102,7 @@ declare -A mvals=( [m0p8]=0.8D0 [m1p0]=1.0D0 [m1p2]=1.2D0 [m1p4]=1.4D0 )
 declare -a mord=( m0p8 m1p0 m1p2 m1p4 )
 
 for mass in "${mord[@]}"; do
-for cb in 0 3 6; do
-    echo "${mvals[${mass}]}"
-    # rnmesa "${maindir}" "${RUNS}/c${cb}/${mass}" "${mvals[${mass}]}" "${cb}" 1 "master"
+    for cb in 0 3 6; do
+        rnmesa "${maindir}" "${RUNS}/c${cb}/${mass}" "${mvals[${mass}]}" "${cb}" 1 "master"
+    done
 done
-done
-
-``
-for mass in "${mord[@]}"; do echo $mass; done
