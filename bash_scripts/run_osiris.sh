@@ -64,8 +64,12 @@ function rnmesa () {
     ### PREP
     echo
     if [ -d "${RUN}" ]; then
-        tm=$(date +"%m%d%y_%H%M")
-        mv ${RUN} ${RUN}_ow_${tm}  # move anything that's already here
+        if [ -f "${RUN}/LOGS/history.data"]; then
+            tm=$(date +"%m%d%y_%H%M")
+            mv ${RUN} ${RUN}_ow_${tm}  # move anything that's already here
+        else
+            rm -r ${RUN} # no previous history.data file exists. delete the folder
+        fi
     fi
     mkdir -p ${RUN}/LOGS ${RUN}/png ${RUN}/photos
     stdout=${RUN}/LOGS/STD.out
