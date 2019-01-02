@@ -1,10 +1,5 @@
 #!/bin/bash
 
-maindir="/home/tjr63/mesaruns"
-RUNS="RUNS_pgstarGrid2"
-source ${maindir}/bash_scripts/write_inlists
-
-
 ###... MOVED TO EXTERNAL FILE ...###
 # ### copies $1/inlist_options_tmplt to $2/inlist_options
 # ### then changes options according to $3, $4, and $5
@@ -113,6 +108,8 @@ function rnmesa () {
 ### MAIN PROGRAM
 ### runs mesa models with specified params
 mkcln="${1:-1}" #  = 1 will execute ./mk and ./clean
+maindir="/home/tjr63/mesaruns"
+RUNS="RUNS_pgstarGrid2"
 
 cd ${maindir}
 if [ "${mkcln}" = 1 ]; then
@@ -125,6 +122,7 @@ fi
 declare -A mvals=( [m0p8]=0.8 [m1p0]=1.0 [m1p3]=1.3 [m2p5]=2.5 [m3p5]=3.5 [m4p5]=4.5 )
 declare -a mord=( m4p5 m3p5 m2p5 m1p3 m1p0 m0p8 )
 
+source ${maindir}/bash_scripts/write_inlists.sh
 for cb in 0 3 6; do
     for mass in "${mord[@]}"; do
         rnmesa "${maindir}" "${RUNS}/c${cb}/${mass}" "${mvals[${mass}]}" "${cb}" 1 "master" 0
