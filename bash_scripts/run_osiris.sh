@@ -1,5 +1,10 @@
 #!/bin/bash
 
+maindir="/home/tjr63/mesaruns"
+RUNS="RUNS_pgstarGrid2"
+source ${maindir}/bash_scripts/write_inlists
+
+
 ###... MOVED TO EXTERNAL FILE ...###
 # ### copies $1/inlist_options_tmplt to $2/inlist_options
 # ### then changes options according to $3, $4, and $5
@@ -64,7 +69,7 @@ function rnmesa () {
     ### PREP
     echo
     if [ -d "${RUN}" ]; then
-        if [ -f "${RUN}/LOGS/history.data"]; then
+        if [ -f "${RUN}/LOGS/history.data" ]; then
             tm=$(date +"%m%d%y_%H%M")
             mv ${RUN} ${RUN}_ow_${tm}  # move anything that's already here
         else
@@ -109,22 +114,17 @@ function rnmesa () {
 ### runs mesa models with specified params
 mkcln="${1:-1}" #  = 1 will execute ./mk and ./clean
 
-maindir="/home/tjr63/mesaruns"
-RUNS="RUNS_pgstarGrid2"
-
 cd ${maindir}
 if [ "${mkcln}" = 1 ]; then
         ./clean
         ./mk
 fi
 
-
 # declare -A mvals=( [m0p8]=0.8 [m1p0]=1.0 [m1p1]=1.1 [m1p2]=1.2 [m1p3]=1.3 [m1p4]=1.4 [m1p6]=1.6 [m2p0]=2.0 [m3p0]=3.0 [m4p0]=4.0 )
 # declare -a mord=( m0p8 m1p0 m1p1 m1p2 m1p3 m1p4 m1p6 m2p0 m3p0 m4p0 )
 declare -A mvals=( [m0p8]=0.8 [m1p0]=1.0 [m1p3]=1.3 [m2p5]=2.5 [m3p5]=3.5 [m4p5]=4.5 )
 declare -a mord=( m4p5 m3p5 m2p5 m1p3 m1p0 m0p8 )
 
-source ${maindir}/bash_scripts/write_inlists
 for cb in 0 3 6; do
     for mass in "${mord[@]}"; do
         rnmesa "${maindir}" "${RUNS}/c${cb}/${mass}" "${mvals[${mass}]}" "${cb}" 1 "master" 0
