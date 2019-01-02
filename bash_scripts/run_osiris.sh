@@ -120,7 +120,7 @@ fi
 declare -A mvals=( [m0p8]=0.8 [m1p0]=1.0 [m1p3]=1.3 [m2p5]=2.5 [m3p5]=3.5 [m4p5]=4.5 )
 declare -a mord=( m4p5 m3p5 m2p5 m1p3 m1p0 m0p8 )
 
-source bash_scripts/write_inlists
+source ${maindir}/bash_scripts/write_inlists
 for cb in 0 3 6; do
     for mass in "${mord[@]}"; do
         rnmesa "${maindir}" "${RUNS}/c${cb}/${mass}" "${mvals[${mass}]}" "${cb}" 1 "master" 0
