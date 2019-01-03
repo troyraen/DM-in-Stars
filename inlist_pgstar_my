@@ -658,13 +658,20 @@
   Grid2_plot_colspan(6) = 2 ! plot spans this number of columns
   Grid2_plot_pad_left(6) = 0.05 ! fraction of full window width for padding on left
   Grid2_plot_pad_right(6) = 0.05 ! fraction of full window width for padding on right
-  Grid2_plot_pad_top(6) = 0.0 ! fraction of full window height for padding at top
+  Grid2_plot_pad_top(6) = 0.05 ! fraction of full window height for padding at top
   Grid2_plot_pad_bot(6) = 0.0 ! fraction of full window height for padding at bottom
   Grid2_txt_scale_factor(6) = 0.65 ! multiply txt_scale for subplot by this
+
+    History_Panels1_xaxis_name = 'star_age'
+    History_Panels1_xaxis_log = .true.
+    History_Panels1_xmin = 6.6
+    History_Panels1_xmax = 8.5
 
       History_Panels1_num_panels = 1
     History_Panels1_yaxis_name(1) = 'log_R'
     History_Panels1_other_yaxis_name(1) = 'trace_mass_radius'
+    History_Panels1_other_ymin(1) = 0.
+    History_Panels1_other_ymax(1) = 0.3
 
 
 
