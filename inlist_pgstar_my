@@ -477,7 +477,7 @@
   			!plots star_age-max(star_age) Requires Kipp_xaxis_name='star_age'
 
   			!bounds for mass yaxis
-  			Kipp_mass_max = 2.0
+  			Kipp_mass_max = 3.8
   			Kipp_mass_min = 0.0
   			Kipp_mass_margin = 0.01
   			!bounds for luminosity yaxis
@@ -662,10 +662,11 @@
   Grid2_plot_pad_bot(6) = 0.0 ! fraction of full window height for padding at bottom
   Grid2_txt_scale_factor(6) = 0.65 ! multiply txt_scale for subplot by this
 
+    History_Panels1_title = ''
     History_Panels1_xaxis_name = 'star_age'
     History_Panels1_xaxis_log = .true.
-    History_Panels1_xmin = 6.6
-    History_Panels1_xmax = 8.5
+    History_Panels1_xmin = 5.5
+    History_Panels1_xmax = 9.0
 
       History_Panels1_num_panels = 1
     History_Panels1_yaxis_name(1) = 'log_R'
