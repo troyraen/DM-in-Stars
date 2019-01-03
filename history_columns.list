@@ -651,8 +651,8 @@ burning_regions 80
 
 
    ! info at a specified mass coordinate (given by trace_mass_location)
-      !trace_mass_location ! (Msun)
-      !trace_mass_radius ! (Rsun)
+      trace_mass_location ! (Msun)
+      trace_mass_radius ! (Rsun)
       !trace_mass_lgT
       !trace_mass_lgRho
       !trace_mass_L ! (Lsun)

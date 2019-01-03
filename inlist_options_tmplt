@@ -25,6 +25,8 @@
     ! xa_central_lower_limit_species(1) = 'h1'
     ! xa_central_lower_limit(1) = 1.0E-3
 
+    trace_mass_location = 0.1
+
 
 / ! end of controls namelist
 
