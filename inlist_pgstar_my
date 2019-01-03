@@ -436,7 +436,7 @@
 ! Kipp
     Grid2_plot_name(4) = 'Kipp'
     Grid2_plot_row(4) = 3 ! number from 1 at top
-    Grid2_plot_rowspan(4) = 1 ! plot spans this number of rows
+    Grid2_plot_rowspan(4) = 2 ! plot spans this number of rows
     Grid2_plot_col(4) =  1 ! number from 1 at left
     Grid2_plot_colspan(4) = 2 ! plot spans this number of columns
     Grid2_plot_pad_left(4) = -0.05 ! fraction of full window width for padding on left
@@ -463,7 +463,7 @@
   			!are model_number or star_age
 
   			Kipp_xaxis_log = .true.
-  			Kipp_xmin = 6
+  			Kipp_xmin = 6.5
   			Kipp_xmax = -101d0
   			Kipp_xmargin = 0.0
   			Kipp_xaxis_reversed = .false.
@@ -477,7 +477,7 @@
   			!plots star_age-max(star_age) Requires Kipp_xaxis_name='star_age'
 
   			!bounds for mass yaxis
-  			Kipp_mass_max = 0.8
+  			Kipp_mass_max = 2.0
   			Kipp_mass_min = 0.0
   			Kipp_mass_margin = 0.01
   			!bounds for luminosity yaxis
@@ -490,7 +490,7 @@
   			!this uses the burning_regions specified in your history_columns.list
   			Kipp_show_luminosities = .true.
   			!to use this option, include the following in your history_columns.list log_L, log_Lneu, log_LH, log_LHe
-  			Kipp_show_mass_boundaries = .true.
+  			Kipp_show_mass_boundaries = .false.
   			!to use this option, include the following in your history_columns.list he_core_mass, c_core_mass, o_core_mass, si_core_mass, fe_core_mass
   			!Kipp_mix_line_weight = 10
   			!Kipp_mix_interval = 4
@@ -543,7 +543,7 @@
 		  Profile_Panels2_xaxis_name = 'mass'
 		  Profile_Panels2_xaxis_reversed = .false.
 		  Profile_Panels2_xmin = 0d0
-		  Profile_Panels2_xmax = 0.5
+		  Profile_Panels2_xmax = 1.0
 		  Profile_Panels2_xmargin = 0d0
 		  Profile_Panels2_show_grid = .true.
           ! Blanks
@@ -568,7 +568,7 @@
           Profile_Panels2_yaxis_name(3) = 'logP'
           Profile_Panels2_other_yaxis_name(3) = 'eta'
 		  Profile_Panels2_yaxis_name(4) = 'extra_heat'
-		  Profile_Panels2_yaxis_log(4) = .true.
+		  Profile_Panels2_yaxis_log(4) = .false.
 		  Profile_Panels2_other_yaxis_name(4) = 'eps_nuc'
           Profile_Panels2_other_yaxis_log(4) = .true.
 		  Profile_Panels2_yaxis_name(5) = 'Power'
