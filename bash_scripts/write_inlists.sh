@@ -15,7 +15,7 @@ function write_inlists () {
     cboost=$4 # = integer 0..6
     pgstar=${5:-0} # = 1 generates a movie, default 0
     inlist_master=${6:-"master"} # inlist_$6 will be used as base inlist
-    stop_leaveMS=${7:-0} # = 1 stops the run when h1 frac < 1.e-3
+    stop_TAMS=${7:-0} # = 1 stops the run when h1 frac < 1.e-12
 
     # INLISTS
     fopts="${RUN}/inlist_options"
@@ -48,7 +48,7 @@ function write_inlists () {
     fi
 
     # stop after leave MS
-    if [ "${stop_leaveMS}" = 1 ]; then
+    if [ "${stop_TAMS}" = 1 ]; then
         sed -i 's/! xa_central_lower_limit/xa_central_lower_limit/g' ${fopts} # uncomment these 2 lines
     fi
 
