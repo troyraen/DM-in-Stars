@@ -477,7 +477,7 @@
   			!plots star_age-max(star_age) Requires Kipp_xaxis_name='star_age'
 
   			!bounds for mass yaxis
-  			Kipp_mass_max = 3.6
+  			Kipp_mass_max = 1.1
   			Kipp_mass_min = 0.0
   			Kipp_mass_margin = 0.01
   			!bounds for luminosity yaxis
@@ -543,7 +543,7 @@
 		  Profile_Panels2_xaxis_name = 'mass'
 		  Profile_Panels2_xaxis_reversed = .false.
 		  Profile_Panels2_xmin = 0d0
-		  Profile_Panels2_xmax = 1.0
+		  Profile_Panels2_xmax = 0.25
 		  Profile_Panels2_xmargin = 0d0
 		  Profile_Panels2_show_grid = .true.
           ! Blanks
@@ -565,6 +565,7 @@
           Profile_Panels2_yaxis_name(1) = 'Abundance'
           Profile_Panels2_yaxis_name(2) = 'logT'
           Profile_Panels2_other_yaxis_name(2) = 'nx'
+          Profile_Panels2_other_yaxis_log(2) = .true.
 		  Profile_Panels2_yaxis_name(3) = 'luminosity'
 		  Profile_Panels2_yaxis_log(3) = .false.
 		  Profile_Panels2_other_yaxis_name(3) = 'extra_L'
