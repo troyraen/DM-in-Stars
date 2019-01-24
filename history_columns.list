@@ -678,8 +678,8 @@ burning_regions 80
       log_max_T ! temperature
       !max_T
       !max_T_lgT
-      !max_T_mass ! (Msun)
-      !max_T_radius ! (Rsun)
+      max_T_mass ! (Msun)
+      max_T_radius ! (Rsun)
       !max_T_lgRho
       !max_T_lgP
       !max_T_entropy

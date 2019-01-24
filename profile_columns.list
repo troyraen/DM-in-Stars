@@ -35,7 +35,7 @@
    logR ! log10(radius/Rsun) at outer boundary of zone
    !log_column_depth ! log10 column depth, exterior mass / area (g cm^-2)
    !log_radial_depth ! log10 radial distance to surface (cm)
-   !luminosity ! luminosity at outer boundary of zone (in Lsun units)
+   luminosity ! luminosity at outer boundary of zone (in Lsun units)
 
 !   conv_vel
    !conv_L_div_L
