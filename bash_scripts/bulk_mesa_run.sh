@@ -15,14 +15,14 @@
 # --- Arguments
 # set directories
 maindir="/home/tjr63/mesaruns"
-RUNS=${1}
+RUNS=$1
 # other arguments
-mstart=${2}
-minc=${3}
-mstop=${4}
-cstart=${5}
-cinc=${6}
-cstop=${7}
+mstart=$2
+minc=$3
+mstop=$4
+cstart=$5
+cinc=$6
+cstop=$7
 # ---
 
 
@@ -55,6 +55,6 @@ stop_TAMS=0
 for cb in "${cvals[@]}"; do
     for mass in "${mord[@]}"; do
         # do_mesa_run "${maindir}" "${RUNS}/c${cb}/${mass}" "${mvals[${mass}]}" "${cb}" "${pgstar}" "${inlist}" "${stop_TAMS}"
-        mkdir -p "${maindir}/${RUNS}/c${cb}/${mass}"
+        mkdir -p ${maindir}/${RUNS}/c${cb}/${mass}
     done
 done
