@@ -14,7 +14,7 @@ function do_mesa_run () {
     source ${maindir}/bash_scripts/write_inlists.sh
 
     echo
-    if [ -d "${RUN}" ]; then
+    if [ -d "${RUN}" ]; then # check for existing history file in $RUN
         if [ -f "${RUN}/LOGS/history.data" ]; then
             tm=$(date +"%m%d%y_%H%M")
             mv ${RUN} ${RUN}_ow_${tm}  # move what's already here
@@ -28,7 +28,8 @@ function do_mesa_run () {
     write_inlists ${maindir} ${RUN} ${mass} ${cboost} ${pgstar} ${inlist_master} ${stop_TAMS}
 
     ### RUN
-    echo "Running MESA ..."
+    echo "Running MESA in dir ${RUN}"
+    echo "  ... ... ..."
     cd ${RUN}
     ${maindir}/star &>> ${stdout}
     # $maindir/re $xphoto &>> LOGS/STD.out
@@ -37,6 +38,7 @@ function do_mesa_run () {
 
     ### Finish pgstar movies
     if [ "${pgstar}" = 1 ]; then
+        echo "Making pgstar movies"
         images_to_movie.sh "png/grid1*.png" ./LOGS/grid1_${mass}c${cb}.mp4 # make movies
         images_to_movie.sh "png/grid2*.png" ./LOGS/grid2_${mass}c${cb}.mp4
         if [ -f ./LOGS/grid2_${mass}c${cb}.mp4 ]; then
