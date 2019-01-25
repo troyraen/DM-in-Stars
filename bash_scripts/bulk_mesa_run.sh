@@ -55,8 +55,8 @@ inlist="master"
 stop_TAMS=0
 for cb in "${cvals[@]}"; do
     for mass in "${mord[@]}"; do
-        # do_mesa_run "${maindir}" "${RUNS}/c${cb}/${mass}" "${mvals[${mass}]}" "${cb}" "${pgstar}" "${inlist}" "${stop_TAMS}"
-            mkdir -p ${maindir}/${RUNS}/c${cb}/${mass}
+        do_mesa_run "${maindir}" "${RUNS}/c${cb}/${mass}" "${mvals[${mass}]}" "${cb}" "${pgstar}" "${inlist}" "${stop_TAMS}"
+            # mkdir -p ${maindir}/${RUNS}/c${cb}/${mass}
     done
 done
 
