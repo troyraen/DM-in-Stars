@@ -60,6 +60,7 @@ function bmr_caller () {
         echo
         echo "bmr_caller calling bulk_mesa_run with start mass: ${ms} Msun."
         echo "  Runs folder is ${RUNS}."
+        echo "  Screen name is ${screenname}"
         screen -dm -S ${screenname} ./bulk_mesa_run.sh ${RUNS} ${ms} ${minc_scrn} ${mstop} ${cstart} ${cinc} ${cstop}
         # screen -dm bulk_mesa_run ${RUNS} ${ms} ${minc_scrn} ${mstop} ${cstart} ${cinc} ${cstop}
     	# echo "list $ms"
