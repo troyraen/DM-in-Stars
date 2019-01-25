@@ -107,11 +107,16 @@
 
 ### MAIN PROGRAM
 ### runs mesa models with specified params
-mkcln="${1:-1}" #  = 1 will execute ./mk and ./clean
+# mkcln="${1:-1}" #  = 1 will execute ./mk and ./clean
 maindir="/home/tjr63/mesaruns"
+cd ${maindir}
 RUNS="RUNS_pgstarGrid2"
 
-cd ${maindir}
+# Ask user, run make/clean?
+echo
+echo "Run clean and make in dir ${maindir}?"
+echo "  0 = no; 1 = yes"
+read mkcln
 if [ "${mkcln}" = 1 ]; then
         ./clean
         ./mk
