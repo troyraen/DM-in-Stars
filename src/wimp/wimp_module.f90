@@ -54,7 +54,7 @@
 	CALL calc_xheat(Tx)
 
 	DO itr = 1,kmax
-		IF (s% model_number .LT. 1450) THEN
+		IF (s% star_age .LT. 281838293) THEN ! 10^8.45
 			s% extra_heat(itr) = 0.D0
 			s% d_extra_heat_dlnd00(itr) = 0.D0
 			s% d_extra_heat_dlnT00(itr) = 0.D0
