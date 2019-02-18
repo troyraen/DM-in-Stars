@@ -54,12 +54,19 @@
 	CALL calc_xheat(Tx)
 
 	DO itr = 1,kmax
-		s% extra_heat(itr) = xheat(itr)
+		IF s% model_number .LT.1450 THEN
+			s% extra_heat(itr) = 0.D0
+			s% d_extra_heat_dlnd00(itr) = 0.D0
+			s% d_extra_heat_dlnT00(itr) = 0.D0
+		ELSE
+			s% extra_heat(itr) = xheat(itr)
+			s% d_extra_heat_dlnd00(itr) = d_xheat_dlnd00(itr)
+			s% d_extra_heat_dlnT00(itr) = d_xheat_dlnT00(itr)
+		ENDIF
+
 		s% d_extra_heat_dlndm1(itr) = 0.D0
-        s% d_extra_heat_dlnd00(itr) = d_xheat_dlnd00(itr)
         s% d_extra_heat_dlndp1(itr) = 0.D0
         s% d_extra_heat_dlnTm1(itr) = 0.D0
-        s% d_extra_heat_dlnT00(itr) = d_xheat_dlnT00(itr)
         s% d_extra_heat_dlnTp1(itr) = 0.D0
         s% d_extra_heat_dlnR00(itr) = 0.D0
         s% d_extra_heat_dlnRp1(itr) = 0.D0
