@@ -435,7 +435,7 @@
       !center_eps_grav
       !center_non_nuc_neu
       !center_dL_dm
-      !center_eps_nuc
+      center_eps_nuc
       !d_center_eps_nuc_dlnT
       !d_center_eps_nuc_dlnd
       !log_center_eps_nuc
