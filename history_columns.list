@@ -33,11 +33,6 @@
 
 ! the following lines of the log file contain info about 1 model per row
 
-!!!!!!! for pgstar, Kipp
-mixing_regions 40
-burning_regions 80
-!!!!!!!
-
    ! some general info about the model
 
       model_number ! counting from the start of the run
@@ -919,3 +914,10 @@ burning_regions 80
       !logxq_CpTMdot_lt_L
 
       !surface_extra_Pgas
+
+
+
+!!!!!!! for pgstar, Kipp
+      mixing_regions 40
+      burning_regions 80
+!!!!!!!
