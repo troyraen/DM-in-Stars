@@ -33,7 +33,7 @@ function do_mesa_run () {
     cd ${RUN}
     ${maindir}/star &>> ${stdout}
     # $maindir/re $xphoto &>> LOGS/STD.out
-    ${maindir}/bash_scripts/del_dup_mods.sh ${RUN}/LOGS &>> ${stdout}
+    # ${maindir}/bash_scripts/del_dup_mods.sh ${RUN}/LOGS &>> ${stdout}
     # ${maindir}/bash_scripts/data_reduc.sh ${RUN}/LOGS &>> ${stdout}
 
     ### Finish pgstar movies
