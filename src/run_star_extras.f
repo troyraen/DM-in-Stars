@@ -318,6 +318,8 @@
          vals(6) = calc_xenergy(id, id_extra) ! ergs
          names(7) = 'xL/Lnuc'
          vals(7) = s% xtra6
+         names(8) = 'center_xheat'
+         vals(8) = s% extra_heat(s% nz)
 
       end subroutine data_for_extra_history_columns
 
