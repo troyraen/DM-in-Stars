@@ -7,12 +7,15 @@
 # Function arguments:
 #       run_directory and start, increment, stop
 #           for complete mass and cboost range sequences
-#       nscreens (optional)
+#       nscreens (optional, default=5)
 #       (maindir and scripts_dir are hardcoded below)
 #   and completes a series of mesa runs by calling do_mesa_run.sh.
 #   Assumes masses have precision no greater than 2 decimal places
 #
+# Example Usage:
+#   ./bash_scripts/bmr_caller.sh RUNS_2test_final 0.8 0.05 5.0 0 1 6 4
 
+export OMP_NUM_THREADS=6
 
 function bmr_caller () {
     RUNS=$1
