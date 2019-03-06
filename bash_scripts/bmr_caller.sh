@@ -13,7 +13,10 @@
 #   Assumes masses have precision no greater than 2 decimal places
 #
 # Example Usage:
-#   ./bash_scripts/bmr_caller.sh RUNS_2test_final 0.8 0.05 5.0 0 1 6 4
+# THIS SHOULD BE THE LAST LINE OF THE FILE!
+#   bmr_caller "RUNS_2test_final" 5.0 -0.05 0.79 0 1 6 4
+
+
 
 export OMP_NUM_THREADS=6
 
@@ -73,5 +76,4 @@ function bmr_caller () {
 
 }
 
-
-bmr_caller "RUNS_test_final" 5.0 -0.05 0.79 3 1 6
+bmr_caller "RUNS_2test_final" 5.0 -0.05 0.79 5 1 6 4
