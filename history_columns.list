@@ -34,8 +34,8 @@
 ! the following lines of the log file contain info about 1 model per row
 
 !!!!!!! for pgstar, Kipp
-mixing_regions 40
-burning_regions 80
+! mixing_regions 40
+! burning_regions 80
 !!!!!!!
 
    ! some general info about the model
