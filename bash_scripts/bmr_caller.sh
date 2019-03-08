@@ -8,13 +8,14 @@
 #       run_directory and start, increment, stop
 #           for complete mass and cboost range sequences
 #       nscreens (optional, default=5)
+#       use_nohup (optional, default=TRUE) uses nohup instead of screen to launch scripts
 #       (maindir and scripts_dir are hardcoded below)
 #   and completes a series of mesa runs by calling do_mesa_run.sh.
 #   Assumes masses have precision no greater than 2 decimal places
 #
 # Example Usage:
 # THIS SHOULD BE THE LAST LINE OF THE FILE!
-#   bmr_caller "RUNS_2test_final" 5.0 -0.05 0.79 0 1 6 4
+#   bmr_caller "RUNS_2test_final" 5.0 -0.05 0.79 0 1 6 4 1
 
 
 
@@ -37,6 +38,7 @@ function bmr_caller () {
     # cinc=1
     # cstop=6
     nscreens=${8:-5} # number of screen processes to spawn
+    use_nohup=${9:-1} # = 1 uses nohup to launch scripts instead of screen
 
 
 
@@ -66,8 +68,16 @@ function bmr_caller () {
         echo
         echo "bmr_caller calling bulk_mesa_run with start mass: ${ms} Msun."
         echo "  Runs folder is ${RUNS}."
-        echo "  Screen name is ${screenname}"
-        screen -dm -S ${screenname} ./bulk_mesa_run.sh ${RUNS} ${ms} ${minc_scrn} ${mstop} ${cstart} ${cinc} ${cstop}
+        if [ "${use_nohup}" = 1 ]; then
+            nohup_dir="nohup_out"
+            mkdir -p "${nohup_dir}"
+            nohup_file="./${nohup_dir}/${ms}_StartMass.out"
+            echo "  Redirecting stdout to ${nohup_file}"
+            nohup nice ./bulk_mesa_run.sh ${RUNS} ${ms} ${minc_scrn} ${mstop} ${cstart} ${cinc} ${cstop} &>> "${nohup_file}" &
+        else
+            echo "  Screen name is ${screenname}"
+            screen -dm -S ${screenname} ./bulk_mesa_run.sh ${RUNS} ${ms} ${minc_scrn} ${mstop} ${cstart} ${cinc} ${cstop}
+        fi
         # screen -dm bulk_mesa_run ${RUNS} ${ms} ${minc_scrn} ${mstop} ${cstart} ${cinc} ${cstop}
     	# echo "list $ms"
         # echo $(seq $ms $minc_scrn $mstop)
@@ -76,4 +86,4 @@ function bmr_caller () {
 
 }
 
-bmr_caller "RUNS_2test_final" 5.0 -0.05 0.79 5 1 6 4
+bmr_caller "RUNS_2test_final" 5.0 -0.05 0.79 5 1 6 4 1
