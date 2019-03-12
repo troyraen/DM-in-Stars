@@ -24,7 +24,7 @@ from numpy import inf
 
 
 # ---------------------------------- #
-def calc_emoment_dm(prof, hist, hidx, norm=False):
+def calc_emoment_dm(prof, hist, hidx, norm=False) -> "array, emoment[k] = emoment(T[k])":
     """prof = specific stars dict profile
     hist = stars dict history
     norm: whether to return normalized integral
@@ -226,7 +226,7 @@ def sort_stars_dicts(stars):
 # ---------------------------------- #
 # create description dataframe
 
-def desc_to_DF(sdic, MStau_DF, othmap):
+def desc_to_DF(sdic, MStau_DF, othmap) -> "sdic['descDF'] = ":
     star_idx = get_star_idx(sdic,othmap)
     mass, cb, other, numprofs = get_desc(sdic)
     other = int(str(star_idx)[-1])# = 0 if other=='basic' else 1
@@ -246,7 +246,7 @@ def desc_to_DF(sdic, MStau_DF, othmap):
 # ---------------------------------- #
 # get hist data and profile data into dataframe
 
-def histprof_to_DF(sdic,othmap, list_Hcols, list_Pcols):
+def histprof_to_DF(sdic,othmap, list_Hcols, list_Pcols) -> 'get hist data and profile data into dataframe':
     sidx = get_star_idx(sdic,othmap)
 
      # create DF from history data
@@ -408,8 +408,8 @@ def histprof_to_DF(sdic,othmap, list_Hcols, list_Pcols):
 # remove duplicate model numbers (currently none exist, so skipping for now)
     # and thin or remove data from post-MS
 
-def clean_histprofDF(sdic, post_MS_action='remove', clean='all'):
-
+def clean_histprofDF(sdic, post_MS_action='remove', clean='all') -> \
+            '[ historyDF, allprofilesDF ], cleaned according to clean option':
     """Post-MS models thinned or removed from sdic[historyDF'] and sdic['profilesDF']['all']
         Returns second element as an empty list if there are no profiles loaded."""
     if post_MS_action!='remove':
@@ -450,7 +450,7 @@ def clean_histprofDF(sdic, post_MS_action='remove', clean='all'):
 # function: create dataframe containing MS lifetimes and cboosts for plotting
 # returns: dataframe with columns = ['star_index', mass', 'cb', 'MStau']
 
-def create_MS_DF(star_dicts, othmap):
+def create_MS_DF(star_dicts, othmap) -> 'msdf':
     sdicts = star_dicts[:]
     listMSdicts = []
 
@@ -547,7 +547,7 @@ def load_profiles(dic, root):
 # ---------------------------------- #
 # get descriptions of star dicts for different purposes
 
-def get_desc(dic):
+def get_desc(dic) -> "desc = [ mass, cb, other, #profiles] as strings":
     if 0 in dic.keys(): # dic is a dict of single star dicts
         desc = []
         for dkey, d in dic.items():
@@ -560,7 +560,7 @@ def get_desc(dic):
                 str(numprofs)+' profiles']
     return desc
 
-def get_desc_mcb(dic):
+def get_desc_mcb(dic) -> "desc = [ dic['mass'], dic['cb'] ]":
     if 0 in dic.keys(): # dic is a dict of single star dicts
         desc = []
         for dkey, d in dic.items():
@@ -569,7 +569,7 @@ def get_desc_mcb(dic):
         desc = [ dic['mass'], dic['cb'] ]
     return desc
 
-def get_star_idx(dic, othmap={'basic':'0'}):
+def get_star_idx(dic, othmap={'basic':'0'}) -> "desc = MassCbSpinOther as 4-6 digit int (leading 0 stripped)":
 #     oth = { 'basic':'0', 'real4':'4', 'real8':'8', 'real16':'9'}
     m = str(dic['mass'])[0]+str(dic['mass'])[2:]
     c = dic['cb'][1]
@@ -581,7 +581,7 @@ def get_star_idx(dic, othmap={'basic':'0'}):
 
 # ---------------------------------- #
 # returns [ model number, history index ]
-def get_model_num(profile_num, dic):
+def get_model_num(profile_num, dic) -> '[ model_num, hidx ]':
     h = dic['hist']
     profile_num = np.int64(profile_num)
     if profile_num == 1001 or profile_num == 0:
@@ -599,14 +599,14 @@ def get_model_num(profile_num, dic):
     return [ model_num, hidx ]
 
 # returns [ profile number, ? ]
-def get_profile_num(model_num, dic):
+def get_profile_num(model_num, dic) -> 'profile number':
     idx= np.where(dic['pidx'].model_numbers==model_num)[0][0]
     p= dic['pidx'].profile_numbers[idx]
     return p
 
 # ---------------------------------- #
 #### FIND EVENTS FUNCTIONS
-def findEV_leaveMS(hist_data):
+def findEV_leaveMS(hist_data) -> 'h1idx':
     """
     find h1_center < 0.01 (leave MS) event:
     returns h index of event, 0 if event not found
@@ -619,7 +619,7 @@ def findEV_leaveMS(hist_data):
 # find h1_center < 0.71 (enter MS) event:
 # returns h index of event, 0 if event not found
 
-def findEV_enterMS(hist_data):
+def findEV_enterMS(hist_data) -> 'h1idx':
     h = hist_data
     tmp = np.where(h.center_h1<0.71)[0]
     h1idx = tmp[0] if len(tmp)!=0 else 0
@@ -627,14 +627,14 @@ def findEV_enterMS(hist_data):
 
 
 # find index of given model number
-def findEV_model(hist_data, model_num):
+def findEV_model(hist_data, model_num) -> 'model_hidx':
     h = hist_data
     model_hidx = np.where(h.model_number==model_num)[0][0]
     return model_hidx
 
 
 # returns true if model is in main sequence
-def is_in_MS(sdic, hidx=None, model=None, profile=None):
+def is_in_MS(sdic, hidx=None, model=None, profile=None) -> 'True if hidx or model is in MS':
     h = sdic['hist']
     if model is not None: hidx = findEV_model(h, model)
     if profile is not None: hidx = get_model_num(profile, sdic)[1]
@@ -644,7 +644,7 @@ def is_in_MS(sdic, hidx=None, model=None, profile=None):
     return in_MS
 
 # ---------------------------------- #
-def Trho_degen_line(sdic):
+def Trho_degen_line(sdic) -> 'ydata = 1.21e5*mu**(-2/3)*free_e**(-5/3)*(rho**(2/3)); 0 if no suitable profiles':
     h = sdic['hist']
     rho = h.center_Rho
     # get earliest profile in MS and use central mu and free_e from that profile:
