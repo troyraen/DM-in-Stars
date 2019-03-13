@@ -13,7 +13,8 @@ numprofs=$5 # max number of profiles to save
 
 maindir="/home/tjr63/mesaruns"
 cd ${maindir}
-RUNS="RUNS_pgstarGrid2/profile_runs"
+RUNS="RUNS_2test_final/profile_runs"
+specRUNS="${RUNS}/c${cb}/${mass}"
 
 # Ask user, run make/clean?
 echo
@@ -30,7 +31,10 @@ finlist="inlist_master_profiles"
 sed -i 's/__NUM_PROFILES__/'${numprofs}'/g' ${finlist}
 
 source ${maindir}/bash_scripts/do_mesa_run.sh
-do_mesa_run "${maindir}" "${RUNS}/c${cb}/${mass}" "${mval}" "${cb}" 1 "master_profiles" "${stopmod}"
+do_mesa_run "${maindir}" "${specRUNS}" "${mval}" "${cb}" 1 "master_profiles" "${stopmod}"
 
 # Invert: Set max number of profiles to save
 sed -i 's/'${numprofs}'/__NUM_PROFILES__/g' ${finlist}
+
+# rename directory
+mv "${maindir}/${specRUNS}" "${maindir}/${specRUNS}_stopmod${stopmod}"
