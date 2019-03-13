@@ -1,7 +1,8 @@
 #!/bin/bash
 
+### copies $6 master inlist to $2/inlist
 ### copies $1/inlist_options_tmplt to $2/inlist_options
-### then changes options according to $3, $4, ...
+### then changes options according to $3, $4, $7 ...
 function write_inlists () {
     if [ $# -eq 0 ]
       then
@@ -15,7 +16,9 @@ function write_inlists () {
     cboost=$4 # = integer 0..6
     pgstar=${5:-0} # = 1 generates a movie, default 0
     inlist_master=${6:-"master"} # inlist_$6 will be used as base inlist
-    stop_TAMS=${7:-0} # = 1 stops the run when h1 frac < 1.e-12
+    stop_TAMS=${7:-0} # = 0 does nothing
+                      # = 1 stops the run when h1 frac < 1.e-12
+                      # > 1 stops the run when model_number == $7
 
     # INLISTS
     fopts="${RUN}/inlist_options"
@@ -47,9 +50,13 @@ function write_inlists () {
         sed -i 's/read_extra_pgstar_inlist2 = .false./read_extra_pgstar_inlist2 = .true./g' ${fopts} # read it
     fi
 
-    # stop after leave MS
-    if [ "${stop_TAMS}" = 1 ]; then
+    # stop condition
+    if [ "${stop_TAMS}" = 0 ]; then
+        : # pass
+    elif [ "${stop_TAMS}" = 1 ]; then # stop at TAMS
         sed -i 's/! xa_central_lower_limit/xa_central_lower_limit/g' ${fopts} # uncomment these 2 lines
+    else # stop at model_number = stop_TAMS
+        sed -i 's/max_model_number = -1/max_model_number = '${stop_TAMS}'/g' ${fopts} # set max model number
     fi
 
     echo "Wrote inlists (${fopts})"

@@ -22,10 +22,14 @@
   X_LOGICAL_CTRL(2) = .FALSE. ! emom_norm true or false
 
 
+    trace_mass_location = 0.1
+
+! Stopping conditions:
+
     ! xa_central_lower_limit_species(1) = 'h1'
     ! xa_central_lower_limit(1) = 1.0E-12
 
-    trace_mass_location = 0.1
+    max_model_number = -1
 
 
 / ! end of controls namelist
