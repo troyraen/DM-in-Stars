@@ -372,10 +372,13 @@
          names(1) = 'nx'
          names(2) = 'np'
          names(3) = 'Vk'
+         names(4) = 'wimp_temp'
+
          do k = 1, nz
             vals(k,1) = s% xtra1_array(k)
             vals(k,2) = s% xtra2_array(k)
             vals(k,3) = s% xtra3_array(k)
+            vals(k,4) = s% X_CTRL(2)
          end do
 
       end subroutine data_for_extra_profile_columns
