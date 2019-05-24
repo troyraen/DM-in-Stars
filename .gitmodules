@@ -1,0 +1,3 @@
+[submodule "DMS-Paper"]
+	path = DMS-Paper
+	url = git@github.com:troyraen/DMS-Paper.git
