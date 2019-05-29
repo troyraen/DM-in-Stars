@@ -1,20 +1,19 @@
-#### MESA_WIMPS adds modules to the base code Modules for Experiments in Stellar Astrophysics (MESA). These modules calculate the capture of WIMPs and the resulting energy transport. The mechanism for both is the scattering of WIMPs in the stellar environment with stellar nuclei.
+#### DM-in-Stars explores the effects of dark matter (DM) on stellar evolution. It adds a module to the code base Modules for Experiments in Stellar Astrophysics (MESA, \url{http://mesa.sourceforge.net}) which calculates the capture of DM by stars and the subsequent energy transport. The physical mechanism is the scattering of stellar nuclei with DM particles in the environment.
 
-# Physics ####
-####   Since WIMPs have a very small cross section they have a large mean free path which means they can transport energy across large distances. At high enough densities the WIMPs can transport enough energy to affect the evolution of the star in an observable way, via stellar cluster isochrones on HR diagrams.
-
-# MESA_WIMPS #####
+<!-- # Physics ####
+####   DM with a very small cross section they have a large mean free path which means they can transport energy across large distances. At high enough densities the WIMPs can transport enough energy to affect the evolution of the star in an observable way, via stellar cluster isochrones on HR diagrams.
+-->
 
 ## Parameters ##
-####   Whether scattering is spin dependent or independent. Spin dependence means that only hydrogen is available for scattering.
-####   Cboost factor. This is a boost factor to the WIMP capture rate relative to the Sun's environment. It encapsulates the local WIMP density and their characteristic infall speed which are both unknown and degenerate with each other.
-####   WIMP cross section.
+  - Spin dependent or independent scattering. Spin dependence effectively means that only hydrogen is available for scattering.
+  - Cboost factor. This is a boost factor to the DM capture rate relative to the Sun's environment. It encapsulates the local DM density and its characteristic infall speed which are both unknown and degenerate with each other.
+  - DM-nucleon cross section.
 
 ## Function ##
-####   The following is computed for each time step (in a MESA run):
-####       The total number of WIMPs captured
-####       The number density of WIMPs as a function of distance from the center
-####       The amount of energy transported as a result of WIMP-nucleon scattering events as a function of distance from the center
+The following is computed for each time step in a MESA run:
+  - Total number of DM particles captured
+  - Number density of WIMPs as a function of distance from the center
+  - Amount of energy transported as a result of DM-nucleon scattering events as a function of distance from the center of the star
 
 ## Output ##
-#### The amount of energy transported by WIMPs (as a function of 'zone') is passed to MESA via the built-in 'extra_heat' hook.
+The amount of energy transported by DM (as a function of 'zone') is passed to MESA via the built-in 'extra_heat' hook.
