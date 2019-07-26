@@ -64,7 +64,8 @@ def calc_emoment_dm(prof, hist, hidx, norm=False) -> "array, emoment[k] = emomen
 
 
 # ---------------------------------- #
-def make_csv(stars, othmap, list_Hcols,list_Pcols, clean=False, rt = '/Users/troyraen/Google_Drive/MESA/code/DATA'):
+def make_csv(stars,othmap,list_Hcols,list_Pcols, clean=False, write=['hist','prof','desc'], \
+            rt = '/Users/troyraen/Google_Drive/MESA/code/DATA'):
     dic_allhist = {}
     dic_allprof = {}
     dic_alldesc = {}
@@ -73,7 +74,9 @@ def make_csv(stars, othmap, list_Hcols,list_Pcols, clean=False, rt = '/Users/tro
     # clean = False
     print('\n')
     for skey, sdic in stars.items():
-        histprof_to_DF(sdic,othmap,list_Hcols,list_Pcols) # get history and profiles dataframes
+        if (('historyDF' not in sdic.keys()) or ('profilesDF' not in sdic.keys() and 'profiles' in sdic.keys())):
+            # get history and profiles dataframes
+            histprof_to_DF(sdic,othmap,list_Hcols,list_Pcols)
         if not clean: # clean = False
             histDF = sdic['historyDF']
             b = 'profilesDF' in sdic.keys()
@@ -105,9 +108,12 @@ def make_csv(stars, othmap, list_Hcols,list_Pcols, clean=False, rt = '/Users/tro
     # save these to csv files
     maindir = rt+'/Glue'
     # maindir='./dftest'
-    glue_historyDF.to_csv(maindir+'/historyDF.csv', index=True, index_label='star_index')
-    glue_profilesDF.to_csv(maindir+'/profilesDF.csv', index=True, index_label='star_index')
-    glue_descDF.to_csv(maindir+'/descDF.csv', index=True, index_label='star_index')
+    if 'hist' in write:
+        glue_historyDF.to_csv(maindir+'/historyDF.csv', index=True, index_label='star_index')
+    if 'prof' in write:
+        glue_profilesDF.to_csv(maindir+'/profilesDF.csv', index=True, index_label='star_index')
+    if 'desc' in write:
+        glue_descDF.to_csv(maindir+'/descDF.csv', index=True, index_label='star_index')
 
 # ---------------------------------- #
 # LOAD FROM SOURCE
@@ -132,13 +138,15 @@ def make_csv(stars, othmap, list_Hcols,list_Pcols, clean=False, rt = '/Users/tro
 
 # print("\n# ***** # LOADING DATA... \n")
 def make_dicts(root, masses, load_prof=True):
+    """ pass masses = [] (empty list) to load all available
+    """
     stars=OD([])
     massdirs = [ item for item in os.listdir(root) if os.path.isdir(root + item) ]
     for mdir in sorted(massdirs):
         if mdir[0] != 'm': continue
     #         if mdir != 'mass0p8': continue
         mass = float(mdir[4]+'.'+mdir[6:])
-        if mass not in masses: continue
+        if (mass not in masses) and (len(masses) != 0): continue
         mkcbdir_flat(stars, mass, 'Dep', root+mdir+'/', load_prof)
         print('finished directory '+ root+mdir +'\n')
 
@@ -231,13 +239,39 @@ def desc_to_DF(sdic, MStau_DF, othmap) -> "sdic['descDF'] = ":
     mass, cb, other, numprofs = get_desc(sdic)
     other = int(str(star_idx)[-1])# = 0 if other=='basic' else 1
     h = sdic['hist']
-    enterMSmodel = h.model_number[findEV_enterMS(h)]
-    leaveMSmodel = h.model_number[findEV_leaveMS(h)]
+
+    zidx = findEV_enterMS(h)
+    enterMSmodel = h.model_number[zidx]
+    ZAMS_Teff = h.log_Teff[zidx]
+    ZAMS_L = h.log_L[zidx]
+
+    lidx = findEV_leaveMS(h)
+    leaveMSmodel = h.model_number[lidx]
+    lAMS_Teff = h.log_Teff[lidx]
+    lAMS_L = h.log_L[lidx]
+
+    tidx = findEV_TAMS(h)
+    TAMSmodel = h.model_number[tidx]
+    TAMS_Teff = h.log_Teff[tidx]
+    TAMS_L = h.log_L[tidx]
+
+    TACHeBmodel = h.model_number[findEV_TACHeB(h)]
     MStau = MStau_DF.MStau[star_idx]
+    pp = MStau_DF.PPavg[star_idx]
+    cno = MStau_DF.CNOavg[star_idx]
+    masscc_avg = MStau_DF.masscc_avg[star_idx]
+    masscc_ZAMS = MStau_DF.masscc_ZAMS[star_idx]
 
-
-    cols=['star_index', 'mass', 'cboost', 'other', 'enterMS_model', 'leaveMS_model', 'MStau']
-    data = [ int(star_idx), float(mass[0:3]), int(cb[1]), other, enterMSmodel, leaveMSmodel, MStau ]
+    cols=['star_index', 'mass', 'cboost', 'other', \
+            'enterMS_model', 'ZAMS_Teff', 'ZAMS_L', \
+            'leaveMS_model', 'lAMS_Teff', 'lAMS_L', \
+            'TAMS_model', 'TAMS_Teff', 'TAMS_L', \
+            'TACHeB_model', 'MStau', 'PPavg', 'CNOavg', 'masscc_avg', 'masscc_ZAMS']
+    data = [ int(star_idx), float(mass[:-5]), int(cb[1]), other, \
+                enterMSmodel, ZAMS_Teff, ZAMS_L, \
+                leaveMSmodel, lAMS_Teff, lAMS_L, \
+                TAMSmodel, TAMS_Teff, TAMS_L, \
+                TACHeBmodel, MStau, pp, cno, masscc_avg, masscc_ZAMS ]
     datadic = {1:data}
 #     print(type(datadic[1]))
     df = pd.DataFrame.from_dict(datadic, orient='index', columns=cols)
@@ -245,7 +279,6 @@ def desc_to_DF(sdic, MStau_DF, othmap) -> "sdic['descDF'] = ":
 
 # ---------------------------------- #
 # get hist data and profile data into dataframe
-
 def histprof_to_DF(sdic,othmap, list_Hcols, list_Pcols) -> 'get hist data and profile data into dataframe':
     sidx = get_star_idx(sdic,othmap)
 
@@ -448,8 +481,7 @@ def clean_histprofDF(sdic, post_MS_action='remove', clean='all') -> \
 
 # ---------------------------------- #
 # function: create dataframe containing MS lifetimes and cboosts for plotting
-# returns: dataframe with columns = ['star_index', mass', 'cb', 'MStau']
-
+# returns: dataframe with columns = ['star_index', 'mass', 'cb', 'MStau', 'PPavg', 'CNOavg']
 def create_MS_DF(star_dicts, othmap) -> 'msdf':
     sdicts = star_dicts[:]
     listMSdicts = []
@@ -461,7 +493,11 @@ def create_MS_DF(star_dicts, othmap) -> 'msdf':
         listMSdicts.append({'mass':mass}) # create dict for this mass
         star_idx = []
         cb = []
-        tau = [] #convert these to arrays at end
+        tau = []
+        pp = []
+        cno = []
+        mass_conv_core = []
+        mcc_ZAMS = [] #convert these to arrays at end
 
         # do this twice. 1st time, get c0. 2nd time, get all others.
         for k in [1,2]:
@@ -472,19 +508,40 @@ def create_MS_DF(star_dicts, othmap) -> 'msdf':
                     if k==2 and sdic['cb']=='c0': continue
                     if k==2 and len(cb)==0:
                         print('WARNING:', mass, 'DOES NOT CONTAIN C0 MODEL')
+                        idx = idx + [sdicts.index(sdic)]
+                        continue
                     idx = idx + [sdicts.index(sdic)]
 
                     # cboost:
                     cbtmp = int(sdic['cb'][1])
                     cb.append(cbtmp if sdic['other']=='basic' else cbtmp+0.5)
 
-                    # ms lifetime:
+                    # MS lifetime:
                     h = sdic['hist']
                     enterMS = h.star_age[findEV_enterMS(h)]
                     leaveMS = h.star_age[findEV_leaveMS(h)]
                     MStau = leaveMS - enterMS
                     MStau0 = MStau if k==1 else MStau0
                     tau.append(0. if k==1 else (MStau-MStau0)/MStau0)
+
+                    # setup a DF for what follows
+                    en = findEV_enterMS(h) - 1 # get 1 model before MS for delta_age (below)
+                    ex = findEV_leaveMS(h)
+                    df = pd.DataFrame(data={'star_age':h.star_age[en:ex],
+                                            'pp':h.pp[en:ex],
+                                            'cno':h.cno[en:ex],
+                                            'mass_conv_core':h.mass_conv_core[en:ex]
+                                            })
+                    df['delta_age'] = df.star_age.diff()
+                    df.drop(labels=0, axis=0, inplace=True) # drop the model before MS
+
+                    # PP and CNO burning (average over MS)
+                    pp.append(np.log10((10**(df.pp)* df.delta_age).sum() / MStau))
+                    cno.append(np.log10((10**(df.cno)* df.delta_age).sum() / MStau))
+
+                    # convective core (average over MS)
+                    mass_conv_core.append((df.mass_conv_core* df.delta_age).sum() / MStau)
+                    mcc_ZAMS.append(df.mass_conv_core.iloc[0])
 
                     # star_index
                     star_idx.append(get_star_idx(sdic,othmap))
@@ -493,9 +550,14 @@ def create_MS_DF(star_dicts, othmap) -> 'msdf':
         listMSdicts[l]['cb'] = np.array(list(cb))
         listMSdicts[l]['MStau'] = np.array(list(tau))
         listMSdicts[l]['mass'] = np.ones(len(cb))*mass
+        listMSdicts[l]['PPavg'] = np.array(list(pp))
+        listMSdicts[l]['CNOavg'] = np.array(list(cno))
+        listMSdicts[l]['masscc_avg'] = np.array(list(mass_conv_core))
+        listMSdicts[l]['masscc_ZAMS'] = np.array(list(mcc_ZAMS))
         sdicts = [s for s in sdicts if sdicts.index(s) not in idx]
 
-    columns = ['star_index', 'mass', 'cb', 'MStau']
+    columns = ['star_index', 'mass', 'cb', 'MStau', 'PPavg', 'CNOavg', \
+                'masscc_avg', 'masscc_ZAMS']
     msdf = pd.concat([pd.DataFrame(listMSdicts[i], columns=columns) \
              for i in range(len(listMSdicts))], ignore_index=True)
     msdf.set_index('star_index', drop=False, inplace=True, verify_integrity=True)
@@ -606,25 +668,45 @@ def get_profile_num(model_num, dic) -> 'profile number':
 
 # ---------------------------------- #
 #### FIND EVENTS FUNCTIONS
+# find h1_center < 0.71 (enter MS) event:
+# returns h index of event, 0 if event not found
+def findEV_enterMS(hist_data) -> 'h1idx':
+    h = hist_data
+    # tmp = np.where(h.center_h1<0.71)[0]
+    tmp = np.where(h.center_h1 < (h.center_h1[0] - 0.0015))[0]
+    h1idx = tmp[0] if len(tmp)!=0 else 0
+    return h1idx
+
 def findEV_leaveMS(hist_data) -> 'h1idx':
     """
-    find h1_center < 0.01 (leave MS) event:
+    find h1_center < 0.001 (leave MS) event:
     returns h index of event, 0 if event not found
     """
     h = hist_data
-    tmp = np.where(h.center_h1<0.01)[0]
+    tmp = np.where(h.center_h1<0.001)[0]
     h1idx = tmp[0] if len(tmp)!=0 else 0
     return h1idx
 
-# find h1_center < 0.71 (enter MS) event:
-# returns h index of event, 0 if event not found
-
-def findEV_enterMS(hist_data) -> 'h1idx':
+def findEV_TAMS(hist_data) -> 'h1idx':
+    """
+    find h1_center < 10^-12 (terminal age MS) event:
+    returns h index of event, 0 if event not found
+    """
     h = hist_data
-    tmp = np.where(h.center_h1<0.71)[0]
+    tmp = np.where(h.center_h1<1e-12)[0]
     h1idx = tmp[0] if len(tmp)!=0 else 0
     return h1idx
 
+
+def findEV_TACHeB(hist_data) -> 'h1idx':
+    """
+    find center_he4 < 10^-4 (terminal age He burning) event:
+    returns h index of event, 0 if event not found
+    """
+    h = hist_data
+    tmp = np.where(h.center_he4<1e-4)[0]
+    h1idx = tmp[0] if len(tmp)!=0 else 0
+    return h1idx
 
 # find index of given model number
 def findEV_model(hist_data, model_num) -> 'model_hidx':
