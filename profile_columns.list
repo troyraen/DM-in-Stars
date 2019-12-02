@@ -56,7 +56,7 @@
    !g_div_r ! grav/radius (sec^2)
    !r_div_g ! radius/grav (sec^-2)
    !cgrav_factor ! = cgrav(k)/standard_cgrav
-   !eps_grav ! -T*ds/dt (negative for expansion)
+   eps_grav ! -T*ds/dt (negative for expansion)
    !eps_grav_old ! eps_grav from start of step
    !eps_grav_dm_term_const_q ! advection term, T*(ds/dm)*(dm/dt)_q
    !eps_grav_dt_term_const_q ! fixed relative mass time derivative term, -T*(ds/dt)_q
@@ -69,7 +69,7 @@
    net_energy ! net_energy + eps_grav.
       ! The value plotted is net_energy = sign(val)*log10(max(1,abs(val)))
       ! where val = net nuclear energy plus eps_grav minus all neutrino losses.
-!   eps_nuc_plus_nuc_neu
+   eps_nuc_plus_nuc_neu
    !log_Ledd ! log10(Leddington/Lsun) -- local Ledd, 4 pi clight G m / kap
    !log_L_div_Ledd ! log10(max(1d-12,L/Leddington))
    !log_Lrad_div_Ledd
@@ -149,7 +149,7 @@
    !d_lnepsnuc_dlnT
    !d_epsnuc_dlnT
    !deps_dlnT_at_face
-   !eps_nuc_neu_total ! erg/gm/sec as neutrinos from nuclear reactions
+   eps_nuc_neu_total ! erg/gm/sec as neutrinos from nuclear reactions
    !non_nuc_neu ! non-nuclear-reaction neutrino losses
    !nonnucneu_plas ! plasmon neutrinos (for collective reactions like gamma_plasmon => nu_e + nubar_e)
    !nonnucneu_brem ! bremsstrahlung (for reactions like e- + (z,a) => e- + (z,a) + nu + nubar)
