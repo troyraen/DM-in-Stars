@@ -1,3 +1,35 @@
+# Creating 1.0 Msun profile movie
+```python
+import pandas as pd
+from matplotlib import pyplot as plt
+import plot_fncs as pf
+pf.mdf.columns
+
+mass = 1.0
+cb = 6
+# get meta info about all available m1.0c6 profiles
+s6mdf = pf.mdf[(pf.mdf['initial_mass']==mass)&(pf.mdf['cb']==cb)]
+s6mdf = s6mdf[s6mdf['star_age']>1e7].sort_values('star_age')
+
+s6mdf.plot.scatter('star_age','model_number')
+plt.semilogx()
+plt.show(block=False)
+
+modnums = s6mdf.model_number.unique()
+# idx, pdf, metadf = pf.load_prof_from_file(cb, modnums[0], mass=mass) # check one
+pdfs = []
+for m in modnums:
+    idx, pdf, metadf = pf.load_prof_from_file(cb, m, mass=mass)
+    pdf['model_number'] = metadf.model_number.iloc[0]
+    pdf['star_age'] = metadf.star_age.iloc[0]
+    pdfs.append(pdf)
+pdf = pd.concat(pdfs, axis=0, sort=True)
+
+pdf = pdf[pdf['mass']<0.25]
+pdfg = pdf.groupby('model_number') # automatically sorted by model_number
+
+```
+
 # Increased MS lifetimes
 <!-- fs -->
 Why do MS lifetimes of solar mass stars with cb in {1,2,3,4} have increased liftimes?
@@ -12,6 +44,7 @@ These stars:
     * burn more total hydrogen over their lifetimes
 
 This is a competition between increased burning rate (decreasing lifetimes) and increased burning extent due to increased temps in a shell giving it access to more fuel (increasing lifetimes)
+NO because our MS lifetimes are defined by core burning. These stars have decreased burning rates at the center, so they live longer. But they also experience shell burning at earlier times and it is stronger.
 
 ```python
 import plot_fncs as pf
