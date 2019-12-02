@@ -86,4 +86,4 @@ function bmr_caller () {
 
 }
 
-bmr_caller "RUNS_2test_final" 5.0 -0.05 0.79 5 1 6 4 1
+bmr_caller "RUNS_2test_final" 4.98 -0.05 1.92 0 1 0 4 1

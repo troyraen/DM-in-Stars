@@ -14,7 +14,7 @@
 
 !PMS
       create_pre_main_sequence_model = .true.
-      pre_ms_T_c = 5d5
+      pre_ms_T_c = __NUM_PROFILES__d__NUM_PROFILES__
 
 !OPACITY, NETWORK, RATE, etc.
     !network
@@ -23,7 +23,7 @@
 
     !opacities with AGSS09 abundances
     kappa_file_prefix = 'a09'
-    kappa_lowT_prefix = 'lowT_fa05_a09p'
+    kappa_lowT_prefix = 'lowT_fa0__NUM_PROFILES___a09p'
     kappa_CO_prefix = 'a09_co'
 
     !use jina
@@ -48,7 +48,7 @@
 
 
 !   SAVE DATA
-      photo_interval = 50
+      photo_interval = __NUM_PROFILES__
       profile_interval = 1
 	  max_num_profile_models = __NUM_PROFILES__
 	  write_controls_info_with_profile = .true.
@@ -126,7 +126,7 @@
 
 ! try this and see if it makes a difference
 !    do_element_diffusion = .true.
-!    diffusion_dt_limit = 3.15e13
+!    diffusion_dt_limit = 3.1__NUM_PROFILES__e13
 !    diffusion_min_T_at_surface = 1d3
 !    radiation_turbulence_coeff = 1.0
 !!!
@@ -143,26 +143,26 @@
 !MESH AND TIMESTEP PARAMETERS
     mesh_delta_coeff = 1.0
     varcontrol_target = 1d-4
-    max_allowed_nz = 50000
+    max_allowed_nz = __NUM_PROFILES__000
 
     !better resolution of the Henyey hook
     delta_lg_XH_cntr_max = -1
 
     ! limit for magnitude of max change
-    delta_lgTeff_limit = 0.005
+    delta_lgTeff_limit = 0.00__NUM_PROFILES__
     delta_lgTeff_hard_limit = 0.01
     delta_lgL_limit = 0.02
-    delta_lgL_hard_limit = 0.05
+    delta_lgL_hard_limit = 0.0__NUM_PROFILES__
 
     !multiply mesh_delta_coeff in overshooting regions by this factor
-    xtra_coef_os_above_nonburn = 0.5
-    xtra_coef_os_below_nonburn = 0.5
-    xtra_coef_os_above_burn_h = 0.5
-    xtra_coef_os_below_burn_h = 0.5
-    xtra_coef_os_above_burn_he = 0.5
-    xtra_coef_os_below_burn_he = 0.5
-    xtra_coef_os_above_burn_z = 0.5
-    xtra_coef_os_below_burn_z = 0.5
+    xtra_coef_os_above_nonburn = 0.__NUM_PROFILES__
+    xtra_coef_os_below_nonburn = 0.__NUM_PROFILES__
+    xtra_coef_os_above_burn_h = 0.__NUM_PROFILES__
+    xtra_coef_os_below_burn_h = 0.__NUM_PROFILES__
+    xtra_coef_os_above_burn_he = 0.__NUM_PROFILES__
+    xtra_coef_os_below_burn_he = 0.__NUM_PROFILES__
+    xtra_coef_os_above_burn_z = 0.__NUM_PROFILES__
+    xtra_coef_os_below_burn_z = 0.__NUM_PROFILES__
 
 / ! end of controls namelist
 

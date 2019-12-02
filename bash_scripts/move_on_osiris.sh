@@ -37,7 +37,7 @@ function move_on_O () {
 }
 
 
-basedir="/Users/troyraen/Osiris/mesaruns/RUNS_2test_final" # Run script on Roy. Assumes Osiris has been remote mounted to Roy.
+# basedir="/Users/troyraen/Osiris/mesaruns/RUNS_2test_final" # Run script on Roy. Assumes Osiris has been remote mounted to Roy.
 basedir="/home/tjr63/mesaruns/RUNS_2test_final" # Run script on Osiris.
 newbasedir="${basedir}/plotsdata"
 move_profs=0
