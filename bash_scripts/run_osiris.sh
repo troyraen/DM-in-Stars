@@ -108,7 +108,7 @@
 ### MAIN PROGRAM
 ### runs mesa models with specified params
 # mkcln="${1:-1}" #  = 1 will execute ./mk and ./clean
-maindir="/home/tjr63/mesaruns"
+maindir="/home/tjr63/DMS/mesaruns"
 cd ${maindir}
 RUNS="RUNS_largeLH"
 
