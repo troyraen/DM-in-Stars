@@ -369,7 +369,7 @@
 
    ! conditions at or near the surface of the model (outer edge of outer cell)
 
-      !luminosity ! luminosity in Lsun units
+      luminosity ! luminosity in Lsun units
       log_L ! log10 luminosity in Lsun units
       log_R ! log10 radius in Rsun units
       !radius ! Rsun
