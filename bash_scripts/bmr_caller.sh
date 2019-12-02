@@ -68,6 +68,7 @@ function bmr_caller () {
         echo
         echo "bmr_caller calling bulk_mesa_run with start mass: ${ms} Msun."
         echo "  Runs folder is ${RUNS}."
+<<<<<<< Updated upstream
         if [ "${use_nohup}" = 1 ]; then
             nohup_dir="nohup_out"
             mkdir -p "${nohup_dir}"
@@ -79,6 +80,11 @@ function bmr_caller () {
             screen -dm -S ${screenname} ./bulk_mesa_run.sh ${RUNS} ${ms} ${minc_scrn} ${mstop} ${cstart} ${cinc} ${cstop}
         fi
         # screen -dm bulk_mesa_run ${RUNS} ${ms} ${minc_scrn} ${mstop} ${cstart} ${cinc} ${cstop}
+=======
+        bulk_mesa_run ${RUNS} ${ms} ${minc_scrn} ${mstop} ${cstart} ${cinc} ${cstop}
+
+#        screen -dm bulk_mesa_run ${RUNS} ${ms} ${minc_scrn} ${mstop} ${cstart} ${cinc} ${cstop}
+>>>>>>> Stashed changes
     	# echo "list $ms"
         # echo $(seq $ms $minc_scrn $mstop)
     	# echo
