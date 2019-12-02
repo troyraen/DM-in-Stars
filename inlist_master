@@ -49,8 +49,9 @@
 
 !   SAVE DATA
       photo_interval = 50
-      profile_interval = 250
-	  max_num_profile_models = 5
+      max_model_number = 1925
+      profile_interval = 25
+	  max_num_profile_models = 100
 	  write_controls_info_with_profile = .true.
       history_interval = 1
       terminal_interval = 100
