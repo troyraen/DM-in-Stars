@@ -150,11 +150,11 @@
    !d_epsnuc_dlnT
    !deps_dlnT_at_face
    eps_nuc_neu_total ! erg/gm/sec as neutrinos from nuclear reactions
-   !non_nuc_neu ! non-nuclear-reaction neutrino losses
-   !nonnucneu_plas ! plasmon neutrinos (for collective reactions like gamma_plasmon => nu_e + nubar_e)
-   !nonnucneu_brem ! bremsstrahlung (for reactions like e- + (z,a) => e- + (z,a) + nu + nubar)
-   !nonnucneu_phot ! photon neutrinos (for reactions like e- + gamma => e- + nu_e + nubar_e)
-   !nonnucneu_pair ! pair production (for reactions like e+ + e- => nu_e + nubar_e)
+   non_nuc_neu ! non-nuclear-reaction neutrino losses
+   nonnucneu_plas ! plasmon neutrinos (for collective reactions like gamma_plasmon => nu_e + nubar_e)
+   nonnucneu_brem ! bremsstrahlung (for reactions like e- + (z,a) => e- + (z,a) + nu + nubar)
+   nonnucneu_phot ! photon neutrinos (for reactions like e- + gamma => e- + nu_e + nubar_e)
+   nonnucneu_pair ! pair production (for reactions like e+ + e- => nu_e + nubar_e)
 
    extra_heat
    extra_L ! extra_heat integrated from center (Lsun)
