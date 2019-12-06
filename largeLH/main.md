@@ -5,7 +5,7 @@
 hdf, pidf, h0df, pi0df = load_main_data()
 ```
 
-## Which timesteps have profiles? (and plot lum v age)
+## which timesteps have profiles? (and plot lum v age)
 <!-- fs  -->
 ```python
 lums = ['age','L','Lnuc','Lgrav','Ltneu']
@@ -62,10 +62,13 @@ plot_lum_excess(hdf_dict)
 plot_energy_cons_error(hdf_dict, title='') # compare to Paxton19_Fig25.png
 ```
 
-<img src="Lexcess.png" alt="Lexcess.png"/>  
-<img src="rel_enery_error.png" alt="rel_enery_error.png"/>
+<img src="Lexcess.png" alt="Lexcess.png" width="400"/>  
+<img src="rel_enery_error.png" alt="rel_enery_error.png" width="400"/>
+
 Compare the above plot with Paxton19 Fig 25:
+
 <img src="Paxton19_Fig25.png" alt="Paxton19_Fig25"/>
+
 __The problem seems to be that energy is simply not conserved sufficiently well.
 Need to install latest MESA version (which includes an update that significantly
 improves energy conservation) and run these again.__
