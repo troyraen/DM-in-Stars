@@ -5,7 +5,8 @@
 hdf, pidf, h0df, pi0df = load_main_data()
 ```
 
-<!-- fs which timesteps have profiles? (and plot lum v age) -->
+## Which timesteps have profiles? (and plot lum v age)
+<!-- fs  -->
 ```python
 lums = ['age','L','Lnuc','Lgrav','Ltneu']
 dic = lums_dict(hdf, lums)
@@ -23,16 +24,18 @@ plot_lums_history(dic, profiles=pnums4df, hdf=hdf)
 <!-- fe which timesteps have profiles? -->
 
 
-<!-- fs plot luminosities v age -->
+## plot luminosities v age
+<!-- fs  -->
+```python
 lums = ['age','L','Lneu','Lnuc','Lgrav']
 dic = lums_dict(hdf, lums)
 plot_lums_history(dic)
-
+```
 <!-- fe plot luminosities v age -->
 
 
-
-<!-- fs plot luminosity profiles -->
+## plot luminosity profiles
+<!-- fs  -->
 ```python
 # load profiles to df
 # get pnums4df from 'which timesteps have profiles?' section
@@ -43,14 +46,16 @@ d = plot_lums_profiles(pdf, hdf=hdf)
 <img src="lum_v_q_profiles.png" alt="lum_v_q_profiles.png"/>
 <!-- fe plot luminosity profiles -->
 
-
-<!-- fs plot temperatures -->
+## plot temperatures
+<!-- fs  -->
+```python
 plot_T_profiles(pdf)
+```
 <!-- fe plot temperatures -->
 
 
-
-<!-- fs check conservation of energy -->
+## check conservation of energy
+<!-- fs  -->
 ```python
 hdf_dict = {'0': h0df.loc[h0df.star_age>1e7,:], '10^6': hdf.loc[hdf.star_age>1e7,:]}
 plot_lum_excess(hdf_dict)
