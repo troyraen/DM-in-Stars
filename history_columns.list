@@ -826,12 +826,16 @@
          total_extra_heating
          total_energy_sources_and_sinks
          !cumulative_sources_and_sinks
-         !error_in_energy_conservation
+         error_in_energy_conservation
+            ! see https://lists.mesastar.org/pipermail/mesa-users/2015-November/005921.html
+            ! and equation 57 in MESA paper 3 (Paxton 2015)
          !rel_error_in_energy_conservation
          !total_energy_and_integrated_fluxes ! total_energy + cumulative_sources_and_sinks
          !cumulative_energy_error ! should be same as total_energy_and_integrated_fluxes
 
-         !energy_convervation_error !  = total_energy_and_integrated_fluxes - total_energy_initial
+         energy_convervation_error !  = total_energy_and_integrated_fluxes - total_energy_initial
+             ! see https://lists.mesastar.org/pipermail/mesa-users/2015-November/005921.html
+             ! and equation 57 in MESA paper 3 (Paxton 2015)
          !rel_energy_convervation_error !  = energy_convervation_error/cumulative_sources_and_sinks
          !log_rel_energy_convervation_error !  = log abs(energy_convervation_error/cumulative_sources_and_sinks)
 
