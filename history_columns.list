@@ -834,6 +834,8 @@
          !cumulative_energy_error ! should be same as total_energy_and_integrated_fluxes
 
          !energy_convervation_error !  = total_energy_and_integrated_fluxes - total_energy_initial
+            ! THIS COLUMN GIVES AN ERROR: 'bad history list name'
+            ! USE error_in_energy_conservation COLUMN (ABOVE)
              ! see https://lists.mesastar.org/pipermail/mesa-users/2015-November/005921.html
              ! and equation 57 in MESA paper 3 (Paxton 2015)
          !rel_energy_convervation_error !  = energy_convervation_error/cumulative_sources_and_sinks
