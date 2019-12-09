@@ -9,8 +9,10 @@ import matplotlib.pyplot as plt
 import matplotlib as mpl
 
 mesaruns = '/Users/troyraen/Osiris/DMS/mesaruns'
-dr = mesaruns + '/RUNS_largeLH'
+dr_r10398 = mesaruns + '/RUNS_largeLH'
+dr_r12115 = mesaruns + '/RUNS_largeLH_mesa-r12115' # using newest MESA release r12115
 
+dr = dr_r12115
 c6path = dr+ '/c6/m1p0/LOGS'
 hpath = c6path+ '/history.data'
 pipath = c6path+ '/profiles.index'

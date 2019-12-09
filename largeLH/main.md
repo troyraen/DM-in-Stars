@@ -5,6 +5,8 @@
 hdf, pidf, h0df, pi0df = load_main_data()
 ```
 
+# Results from older MESA version (r10398)
+<!-- fs -->
 ## which timesteps have profiles? (and plot lum v age)
 <!-- fs  -->
 ```python
@@ -62,10 +64,9 @@ plot_lum_excess(hdf_dict)
 plot_energy_cons_error(hdf_dict, title='') # compare to Paxton19_Fig25.png
 ```
 
-<img src="Lexcess.png" alt="Lexcess.png" width="400"/>  
-<img src="rel_enery_error.png" alt="rel_enery_error.png" width="400"/>
+<img src="Lexcess.png" alt="Lexcess.png" width="400"/><img src="rel_enery_error.png" alt="rel_enery_error.png" width="400"/>
 
-Compare the above plot with Paxton19 Fig 25:
+Compare the Rel. Energy Error plot with Paxton19 Fig 25:
 
 <img src="Paxton19_Fig25.png" alt="Paxton19_Fig25"/>
 
@@ -74,3 +75,8 @@ Need to install latest MESA version (which includes an update that significantly
 improves energy conservation) and run these again.__
 
 <!-- fe check conservation of energy -->
+
+<!-- fe # Results from older MESA version (r10398) -->
+
+
+# Results from newest MESA version (r12115)
