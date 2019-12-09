@@ -317,7 +317,7 @@
          names(6) = 'extra_energy'
          vals(6) = calc_xenergy(id, id_extra) ! ergs
          names(7) = 'xL/Lnuc'
-         vals(7) = s% xtra6
+         vals(7) = s% xtra(6)
 
       end subroutine data_for_extra_history_columns
 
@@ -399,7 +399,7 @@
          extras_finish_step = keep_going
          call store_extra_info(s)
 
-         s% xtra1 = s% xtra2  !! = Nx (so wimps are not collected when step is not accepted)
+         s% xtra(1) = s% xtra(2)  !! = Nx (so wimps are not collected when step is not accepted)
 
          IF ( (.NOT. flg1) .AND. (s% center_h1 .LT. 0.71D0) ) THEN
          	flg1 = .TRUE.
@@ -432,7 +432,7 @@
          	s% save_profiles_model_priority = 10
          ENDIF
 
-         ! IF ( (ABS(s% xtra6_older).GT.0.085) .AND. (s% xtra4.GT.0.2) ) THEN
+         ! IF ( (ABS(s% xtra6_older).GT.0.085) .AND. (s% xtra(4).GT.0.2) ) THEN
          !     extras_finish_step = terminate
          ! ENDIF
          ! IF ( s% model_number .GT. 2973) THEN

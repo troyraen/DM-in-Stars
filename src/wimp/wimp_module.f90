@@ -12,10 +12,10 @@
 !!!	spindep = s% X_LOGICAL_CTRL(1)  ! .true. = spin dependent; .false. = spin independent
 !!! emom_norm = s% X_LOGICAL_CTRL(2) ! whether emoment integral should be normalized
 !!!
-!!! Nx = s% xtra1
-!!! s% xtra4 = Lnuc
-!!!	s% xtra5 = xL
-!!!	s% xtra6 = xL/Lnuc
+!!! Nx = s% xtra(1)
+!!! s% xtra(4) = Lnuc
+!!!	s% xtra(5) = xL
+!!!	s% xtra(6) = xL/Lnuc
 
 
 
@@ -184,11 +184,11 @@
 
 	Tx = calc_Tx(id,ierr)
 
-!! in extras_finish_step (run_star_extras) s% xtra1 = s% xtra2
+!! in extras_finish_step (run_star_extras) s% xtra(1) = s% xtra(2)
 !! so wimps are not collected when step is not accepted
 	dNx = calc_dNx()
-	Nx = (s% xtra1) + dNx
-	s% xtra2 = Nx
+	Nx = (s% xtra(1)) + dNx
+	s% xtra(2) = Nx
 	CALL calc_nxk()
 
 	END SUBROUTINE set_wimp_variables
@@ -373,8 +373,8 @@
 	ENDDO
 	xL = xL/Lsun
 	Lnuc = s% power_nuc_burn ! Lsun
-	s% xtra4 = Lnuc
-	s% xtra5 = xL
+	s% xtra(4) = Lnuc
+	s% xtra(5) = xL
 	! IF (( ABS(xL/ Lnuc).GT.0.1 ) .AND. ( Lnuc.GT.0.1)) THEN !
 	! 	Ttmp = linear_root(Tarray)
 	! 	WRITE(*,*) "ZBRENT---***---"
@@ -388,7 +388,7 @@
 	! 	xL = xL/Lsun
 	! 	WRITE(*,*) "ZBRENT---***--- xL/ Lnuc NEW = ", xL/ Lnuc,  "---***---"
 	! ENDIF
-	s% xtra6 = xL/Lnuc
+	s% xtra(6) = xL/Lnuc
 	!!!!!!!!
 
 	Tx_array = Tarray ! set wimp_vars Tx_array
