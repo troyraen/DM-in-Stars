@@ -71,7 +71,7 @@
 
 !PHYSICS (MIST)
 
-    which_atm_option = 'simple_photosphere'
+    !which_atm_option = 'simple_photosphere' ! this no longer works in mesa-r12115
 
     use_Ledoux_criterion = .true.
     alpha_semiconvection = 0.1
