@@ -49,9 +49,8 @@
 
 !   SAVE DATA
       photo_interval = 50
-      max_model_number = 1925
-      profile_interval = 25
-	  max_num_profile_models = 100
+      profile_interval = 1000
+	  max_num_profile_models = 20
 	  write_controls_info_with_profile = .true.
       history_interval = 1
       terminal_interval = 100
@@ -138,7 +137,7 @@
 !!!
 
   !to help with breathing pulses
-  include_dmu_dt_in_eps_grav = .true.
+  !include_dmu_dt_in_eps_grav = .true. ! this no longer works in mesa-r12115
 
 !CORE MASS DEFINITION
 
