@@ -110,7 +110,7 @@
 # mkcln="${1:-1}" #  = 1 will execute ./mk and ./clean
 maindir="/home/tjr63/DMS/mesaruns"
 cd ${maindir}
-RUNS="RUNS_largeLH"
+RUNS="RUNS_largeLH_mesa-r12115" # using the newest MESA release r12115
 
 # Ask user, run make/clean?
 echo
