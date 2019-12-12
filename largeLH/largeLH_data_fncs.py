@@ -74,14 +74,22 @@ def load_profiles_df(pnums4df, cb=6):
 def lums_dict(hdf, lums, age_cut=1e7):
     h = hdf.loc[hdf.star_age>age_cut,:]
     age = h.star_age
-    L = h.luminosity
+    try:
+        L = h.luminosity
+    except:
+        L = 10**h.log_L
     LH = 10**h.log_LH
     LHe = 10**h.log_LHe
     Lnuc = 10**h.log_Lnuc # excludes neutrinos [Lsun]
     Lneu = 10**h.log_Lneu # power emitted in neutrinos, nuclear and thermal [Lsun]
+    # try:
     Lgrav = h.eps_grav_integral # [Lsun]
     Ltneu = 10**h.log_Lneu_nonnuc # power emitted in neutrinos, thermal sources only [Lsun]
+    # except:
+    #     Lgrav = 0
+    #     Ltneu = 0
     extra_L = h.extra_L # [Lsun]
+    # LTgrav = h.total_eps_grav/Lsun # DON'T KNOW THE UNITS. probably erg/g/s
 
     dic = OD([
             ('age', age),
@@ -93,6 +101,7 @@ def lums_dict(hdf, lums, age_cut=1e7):
             ('Lnuc', (Lnuc, '-')),
             ('Lgrav', (Lgrav, '-')),
             ('Ltneu', (Ltneu, '-')),
+            # ('LTgrav', (LTgrav, '-')),
           ])
 
     d = OD([])
@@ -322,14 +331,14 @@ def plot_burning_06(hdf_dict, title=''):
     plt.title(title)
     plt.show(block=False)
 
-
 def plot_center_abundances(hdf_dict, title=''):
     plt.figure()
 
     for cb, hdf in hdf_dict.items():
-        plt.plot(hdf.star_age, hdf.center_nx, label=rf'$\Gamma_B = {cb}$, nx$_c$')
-        plt.plot(hdf.star_age, hdf.center_np, label=rf'$\Gamma_B = {cb}$, np$_c$')
-        # plt.plot(hdf.star_age, hdf.center_h1, label=rf'$\Gamma_B = {cb}$, h1$_c$')
+        ls = ':' if cb=='10^6' else '-'
+        # plt.plot(hdf.star_age, hdf.center_nx, ls=ls, label=rf'$\Gamma_B = {cb}$, nx$_c$')
+        # plt.plot(hdf.star_age, hdf.center_np, ls=ls, label=rf'$\Gamma_B = {cb}$, np$_c$')
+        plt.plot(hdf.star_age, hdf.center_h1, ls=ls, label=rf'$\Gamma_B = {cb}$, h1$_c$')
     plt.loglog()
     plt.xlabel('star age')
     plt.ylabel('fractional abundance')
@@ -341,7 +350,7 @@ def plot_center_abundances(hdf_dict, title=''):
 # fe----- plot other history columns -----#
 
 # fs----- plot other profiles -----#
-def plot_nx_profiles(pdf, title=''):
+def plot_nx_profiles(pdf, log=False, title=''):
     gb = pdf.groupby('profile_number')
 
     ncols = 2
@@ -356,6 +365,8 @@ def plot_nx_profiles(pdf, title=''):
         ax.plot(d.q, d.np)
         ax.axhline(0, c='k',lw=0.5)
 
+        if log:
+            ax.semilogy()
         ax.grid()
         if i==0: ax.legend()
         ax.set_ylabel(r'number density [cm$^{-3}$]')
@@ -394,7 +405,7 @@ def plot_abundance_profiles(pdf, title=''):
 
     return None
 
-def plot_epsnuc_profiles(pdf, title=''):
+def plot_eps_profiles(pdf, title=''):
     gb = pdf.groupby('profile_number')
 
     ncols = 2
@@ -406,6 +417,7 @@ def plot_epsnuc_profiles(pdf, title=''):
         ax = axs[i]
         d = df.loc[df.q<0.5,:]
         ax.plot(d.q, d.eps_nuc, label=r'$\epsilon_{nuc}$')
+        # ax.plot(d.q, d.eps_grav, label=r'$\epsilon_{grav}$')
         if title=='c6':
             ax.plot(d.q, d.extra_heat, label=r'$\epsilon_{DM}$')
         ax.axhline(0, c='0.5', lw=0.5)

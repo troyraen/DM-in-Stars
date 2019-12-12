@@ -4,7 +4,7 @@
 hdf, pidf, h0df, pi0df = load_main_data()
 ```
 
---------------------------------------------------------------------------------
+-----------------------------------------------------------------------------
 __This branch is used to investigate why L < LH in the m1p0c6 model, as seen here:__
 <!-- fs -->
 ```python
@@ -21,14 +21,13 @@ lums = ['age', 'L','LH','extra_L'] # exclude Lnuc to see what the others do
 dicog = lums_dict(hogdf.loc[hogdf.star_age>3e9,:], lums)
 plot_lums_history(dicog, title='Original Run: m1p0c6')
 ```
-<img src="lum_v_age_og.png" alt="lum_v_age_og" width="500"/>
+<img src="lum_v_age_og.png" alt="lum_v_age_og"/>
 
 In the process of making the above plot I realized that the luminosity goes completely crazy at the very end of the run.
 
-<img src="lum_v_age_og_end.png" alt="lum_v_age_og_end" width="400"/>
-<img src="lum_v_age_og_end_no_nuc.png" alt="lum_v_age_og_end_no_nuc" width="400"/>
---------------------------------------------------------------------------------
+<img src="lum_v_age_og_end.png" alt="lum_v_age_og_end" width="400"/> <img src="lum_v_age_og_end_no_nuc.png" alt="lum_v_age_og_end_no_nuc" width="400"/>
 <!-- fe og problem -->
+-----------------------------------------------------------------------------
 
 
 
