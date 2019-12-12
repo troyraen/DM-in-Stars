@@ -131,6 +131,6 @@ declare -a mord=( m1p0 )
 source ${maindir}/bash_scripts/do_mesa_run.sh
 for cb in 0 6; do
     for mass in "${mord[@]}"; do
-        do_mesa_run "${maindir}" "${RUNS}/c${cb}/${mass}" "${mvals[${mass}]}" "${cb}" 1 "master" 1
+        do_mesa_run "${maindir}" "${RUNS}/c${cb}/${mass}" "${mvals[${mass}]}" "${cb}" 0 "master" 1
     done
 done
