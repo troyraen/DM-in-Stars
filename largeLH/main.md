@@ -82,6 +82,12 @@ improves energy conservation) and run these again.__
 
 # Results from newest MESA version (r12115)
 <!-- fs -->
+The following were done with inlist options:
+```
+use_dedt_form_of_energy_eqn = .true.
+use_gold_tolerances = .true.
+!which_atm_option = 'simple_photosphere' (uses default, 'simple_photosphere' does not work in this version of MESA)
+```
 
 ## which timesteps have profiles? (and plot lum v age)
 <!-- fs  -->
@@ -104,7 +110,7 @@ plot_lums_history(dic0, profiles=p0nums4df, hdf=h0df, title='c0')
 <img src="plots_r12115/lum_v_age_c0_with_profile_nums.png" alt="lum_v_age_c0_with_profile_nums"/>
 <img src="plots_r12115/lum_v_age_c6_with_profile_nums.png" alt="lum_v_age_c6_with_profile_nums"/>
 
-__Note Lgrav is now 0 throughout.__ Not sure what has changed in calculating Lgrav in this version of MESA. This uses history column 'eps_grav_integral'. There is also a column 'total_eps_grav' that I haven't saved here, but will save and check in future runs.
+__Note Lgrav is now 0 throughout.__ Not sure what has changed in calculating Lgrav in this version of MESA. This uses history column `eps_grav_integral`. There is also a column `total_eps_grav` that I haven't saved here, but will save and check in future runs.
 
 <!-- fe which timesteps have profiles? -->
 
@@ -152,9 +158,9 @@ plot_lum_excess(hdf_dict)
 plot_energy_cons_error(hdf_dict, title='') # compare to Paxton19_Fig25.png
 ```
 
-<img src="plots_r12115/Lexcess.png" alt="Lexcess"/> <img src="plots_r12115/rel_enery_error.png" alt="rel_enery_error"/>
+<img src="plots_r12115/Lexcess.png" alt="Lexcess" width="400"/> <img src="plots_r12115/rel_enery_error.png" alt="rel_enery_error" width="400"/>
 
-__Physical energy does not seem to be conserved during pre-ZAMS since Lgrav is 0 (see above). Relative energy error is now acceptably low.__ (Compare to Paxton19_Fig25 above. I believe the relative energy error is _numerical_ energy error. This uses history column 'error_in_energy_conservation', see [this mailing list question](https://lists.mesastar.org/pipermail/mesa-users/2015-November/005921.html) and equation 57 in MESA paper 3 (Paxton 2015))
+__Physical energy does not seem to be conserved during pre-ZAMS since Lgrav is 0 (see above). Relative energy error is now acceptably low.__ (Compare to Paxton19_Fig25 above. I believe the relative energy error is _numerical_ energy error. This uses history column `error_in_energy_conservation`, see [this mailing list question](https://lists.mesastar.org/pipermail/mesa-users/2015-November/005921.html) and equation 57 in MESA paper 3 (Paxton 2015))
 
 <!-- fe check conservation of energy -->
 
