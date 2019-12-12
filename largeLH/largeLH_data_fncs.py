@@ -26,7 +26,6 @@ Msun = 1.9892e33 # grams
 
 # fe----- imports, paths, constants -----#
 
-
 # fs----- mount Osiris -----#
 try: # mount Osiris dir if not already
     assert os.path.isdir(mesaruns)
@@ -45,7 +44,6 @@ except:
             raise
 # fe----- mount Osiris -----#
 
-
 # fs----- load data -----#
 def load_main_data():
     hdf = pd.read_csv(hpath, header=4, sep='\s+').set_index('model_number', drop=False)
@@ -60,10 +58,12 @@ def load_main_data():
 
     return (hdf, pidf, h0df, pi0df)
 
-def load_profiles_df(pnums4df):
+def load_profiles_df(pnums4df, cb=6):
     dfs = []
     for p in pnums4df:
-        ppath = c6path+ f'/profile{p}.data'
+        if cb==6: path = c6path
+        elif cb==0: path = c0path
+        ppath = path+ f'/profile{p}.data'
         pdf = pd.read_csv(ppath, header=4, sep='\s+')
         pdf['profile_number'] = p
         dfs.append(pdf.set_index(['profile_number','zone']))
@@ -108,7 +108,7 @@ def lums_dict(hdf, lums, age_cut=1e7):
 
 
 # fs----- plot luminosity profiles -----#
-def plot_lums_profiles(pdf, hdf=None):
+def plot_lums_profiles(pdf, hdf=None, title=''):
     gb = pdf.groupby('profile_number')
 
     ncols = 2
@@ -126,9 +126,10 @@ def plot_lums_profiles(pdf, hdf=None):
         dic.move_to_end('L',False)
         dic['extra_L'] = df.extra_L
         # plot
-        for key, L in dic.items():
-            ls = ':' if key == 'L' else '-'
-            ax.plot(df.q, L, ls=ls, label=key)
+        for z, (key, L) in enumerate(dic.items()):
+            if title=='c0' and key=='extra_L': continue
+            ls = ':' if (key=='L' or key=='L_non-nuc-neu') else '-'
+            ax.plot(df.q, L, ls=ls, zorder=-z, label=key)
             ax.axhline(0, c='0.5', lw=0.5)
 
         # add luminosities from hdf to check against integrated eps
@@ -136,9 +137,10 @@ def plot_lums_profiles(pdf, hdf=None):
             row = hdf.loc[hdf.profile_number==p,:]
             ax.scatter(1, 10**row.log_L, label=r'L')
             ax.scatter(1, 10**row.log_Lnuc, label=r'L$_{nuc}$')
-            ax.scatter(1, row.eps_grav_integral, label=r'L$_{grav}$')
             ax.scatter(1, 10**row.log_Lneu, label=r'L$_{\nu,tot}$')
-            ax.scatter(1, row.extra_L, label=r'L$_{DM}$')
+            ax.scatter(1, row.eps_grav_integral, label=r'L$_{grav}$')
+            if title!='c0':
+                ax.scatter(1, row.extra_L, label=r'L$_{DM}$')
 
         if i==0: ax.legend(loc=10, ncol=2)
         ax.set_ylabel(r'luminosity [L$_\odot$]')
@@ -146,10 +148,10 @@ def plot_lums_profiles(pdf, hdf=None):
     axs[-1].set_xlabel(r'q = m(<r)/M$_\star$')
     axs[-2].set_xlabel(r'q = m(<r)/M$_\star$')
 
+    plt.suptitle(title)
     plt.show(block=False)
 
     return dic
-
 
 def eps_to_lum(df):
     df = df.sort_values('zone',ascending=False,axis=0) # sort star center -> sfc
@@ -157,7 +159,7 @@ def eps_to_lum(df):
     Mstar = df.iloc[-1].mass * Msun # grams
 
     dic = OD([])
-    for eps in ['eps_nuc', 'eps_grav', 'non_nuc_neu']:#, 'eps_nuc_neu_total']:
+    for eps in ['eps_nuc', 'non_nuc_neu', 'eps_grav']:#, 'eps_nuc_neu_total']:
         dqeps = df.dq * df[eps] # erg / g / s
         dqeps_sum = dqeps.cumsum() # integrate from center outward
         if eps == 'non_nuc_neu': eps = 'non-nuc-neu'
@@ -167,14 +169,12 @@ def eps_to_lum(df):
 
 # fe----- plot luminosity profiles -----#
 
-
-
 # fs----- plot luminosity histories -----#
 
 # plot all luminosities
-def plot_lums_history(lum_dict, profiles=None, hdf=None):
+def plot_lums_history(lum_dict, profiles=None, hdf=None, title=''):
     """ lum_dict (dict): should include age (x-axis) and luminosities
-                         see dic defined in main.py for structure.
+                         as returned by lums_dict() fnc above.
         profiles (list): 'all' or list of profile numbers to plot axvline
     """
     dic = lum_dict.copy()
@@ -200,7 +200,35 @@ def plot_lums_history(lum_dict, profiles=None, hdf=None):
             for index, row in vlines.iterrows():
                 if row.star_age < age.min(): continue
                 plt.axvline(row.star_age, lw=0.5)
-                plt.annotate(f'{row.profile_number:.0f}',(row.star_age,3))
+                plt.annotate(f'{row.profile_number:.0f}',(row.star_age,0.5))
+
+    plt.semilogx()
+    plt.legend()
+    plt.xlabel('star_age')
+    plt.ylabel(r'luminosity [L$_\odot$]')
+    plt.title(title)
+    plt.tight_layout()
+    plt.show(block=False)
+
+    return None
+
+def plot_lums_history_06(lum_dict):
+    """ lum_dict (dict): dict of dicts. Each individual dict
+                         should include age (x-axis) and luminosities
+                         as returned by lums_dict() fnc above.
+    """
+    plt.figure(figsize=(14,8))
+
+    for cb,d in lum_dict.items():
+        dic = d.copy()
+        age = dic.pop('age')
+
+        # plot luminosities
+        for i, (sl, tup) in enumerate(dic.items()):
+            l, ls = tup
+            w = len(dic.keys())
+            plt.plot(age,l,ls=ls,label=rf'$\Gamma_B = {cb}$ ${sl}$', zorder=w-i)
+    plt.axhline(0, c='0.5', lw=0.5)
 
     plt.semilogx()
     plt.legend()
@@ -211,39 +239,7 @@ def plot_lums_history(lum_dict, profiles=None, hdf=None):
 
     return None
 
-
 # fe----- plot luminosities v age -----#
-
-
-
-# fs----- plot temperature profiles -----#
-def plot_T_profiles(pdf):
-    gb = pdf.groupby('profile_number')
-
-    ncols = 2
-    nrows = int(np.ceil(len(gb)/2))
-    f, axs = plt.subplots(sharex=True, nrows=nrows,ncols=ncols, figsize=(14,8))
-    axs = axs.flatten()
-
-    for i, (p, df) in enumerate(gb):
-        ax = axs[i]
-        d = df.loc[df.q<0.05,:]
-
-        ax.plot(d.q, d.wimp_temp - 10**d.logT, label=r'T$_{DM}$ - T')
-        ax.axhline(0, c='k', lw=0.5)
-
-        if i==0: ax.legend(loc=10)
-        ax.set_ylabel('temp [K]')
-        ax.set_title(f'profile {p}')
-    axs[-1].set_xlabel(r'q = m(<r)/M$_\star$')
-    axs[-2].set_xlabel(r'q = m(<r)/M$_\star$')
-
-    plt.show(block=False)
-
-    return None
-
-# fe----- plot temperature profiles -----#
-
 
 # fs----- check energy conservation -----#
 
@@ -308,3 +304,204 @@ def plot_energy(hdf, title=''):
     return None
 
 # fe----- check energy conservation -----#
+
+
+# fs----- plot other history columns -----#
+def plot_burning_06(hdf_dict, title=''):
+    """
+    """
+    plt.figure()
+
+    for cb, hdf in hdf_dict.items():
+        plt.plot(hdf.star_age, hdf.pp, label=rf'$\Gamma_B = {cb}$, pp')
+        plt.plot(hdf.star_age, hdf.cno, label=rf'$\Gamma_B = {cb}$, cno')
+    plt.semilogx()
+    plt.xlabel('star age')
+    plt.ylabel(r'log burning [L$_\odot$]')
+    plt.legend()
+    plt.title(title)
+    plt.show(block=False)
+
+
+def plot_center_abundances(hdf_dict, title=''):
+    plt.figure()
+
+    for cb, hdf in hdf_dict.items():
+        plt.plot(hdf.star_age, hdf.center_nx, label=rf'$\Gamma_B = {cb}$, nx$_c$')
+        plt.plot(hdf.star_age, hdf.center_np, label=rf'$\Gamma_B = {cb}$, np$_c$')
+        # plt.plot(hdf.star_age, hdf.center_h1, label=rf'$\Gamma_B = {cb}$, h1$_c$')
+    plt.loglog()
+    plt.xlabel('star age')
+    plt.ylabel('fractional abundance')
+    plt.legend()
+    plt.title(title)
+    plt.show(block=False)
+
+
+# fe----- plot other history columns -----#
+
+# fs----- plot other profiles -----#
+def plot_nx_profiles(pdf, title=''):
+    gb = pdf.groupby('profile_number')
+
+    ncols = 2
+    nrows = int(np.ceil(len(gb)/2))
+    f, axs = plt.subplots(sharex=True, nrows=nrows,ncols=ncols, figsize=(14,8))
+    axs = axs.flatten()
+
+    for i, (p, df) in enumerate(gb):
+        ax = axs[i]
+        d = df.loc[df.q<1.5,:]
+        ax.plot(d.q, d.nx)
+        ax.plot(d.q, d.np)
+        ax.axhline(0, c='k',lw=0.5)
+
+        ax.grid()
+        if i==0: ax.legend()
+        ax.set_ylabel(r'number density [cm$^{-3}$]')
+        ax.set_title(f'profile {p}')
+    axs[-1].set_xlabel(r'q = m(<r)/M$_\star$')
+    axs[-2].set_xlabel(r'q = m(<r)/M$_\star$')
+
+    plt.suptitle(title)
+    plt.show(block=False)
+
+    return None
+
+def plot_abundance_profiles(pdf, title=''):
+    gb = pdf.groupby('profile_number')
+
+    ncols = 2
+    nrows = int(np.ceil(len(gb)/2))
+    f, axs = plt.subplots(sharex=True, nrows=nrows,ncols=ncols, figsize=(14,8))
+    axs = axs.flatten()
+
+    for i, (p, df) in enumerate(gb):
+        ax = axs[i]
+        d = df.loc[df.q<0.5,:]
+        ax.plot(d.q, d.x, label=r'H mass frac')
+        ax.plot(d.q, d.y, label=r'He mass frac')
+
+        ax.grid()
+        if i==0: ax.legend(loc=10)
+        ax.set_ylabel('mass fraction')
+        ax.set_title(f'profile {p}')
+    axs[-1].set_xlabel(r'q = m(<r)/M$_\star$')
+    axs[-2].set_xlabel(r'q = m(<r)/M$_\star$')
+
+    plt.suptitle(title)
+    plt.show(block=False)
+
+    return None
+
+def plot_epsnuc_profiles(pdf, title=''):
+    gb = pdf.groupby('profile_number')
+
+    ncols = 2
+    nrows = int(np.ceil(len(gb)/2))
+    f, axs = plt.subplots(sharex=True, nrows=nrows,ncols=ncols, figsize=(14,8))
+    axs = axs.flatten()
+
+    for i, (p, df) in enumerate(gb):
+        ax = axs[i]
+        d = df.loc[df.q<0.5,:]
+        ax.plot(d.q, d.eps_nuc, label=r'$\epsilon_{nuc}$')
+        if title=='c6':
+            ax.plot(d.q, d.extra_heat, label=r'$\epsilon_{DM}$')
+        ax.axhline(0, c='0.5', lw=0.5)
+
+        ax.grid()
+        if i==0: ax.legend(loc=10)
+        ax.set_ylabel('energy [erg/g/s]')
+        ax.set_title(f'profile {p}')
+    axs[-1].set_xlabel(r'q = m(<r)/M$_\star$')
+    axs[-2].set_xlabel(r'q = m(<r)/M$_\star$')
+
+    plt.suptitle(title)
+    plt.show(block=False)
+
+    return None
+
+def plot_rho_profiles(pdf, title=''):
+    gb = pdf.groupby('profile_number')
+
+    ncols = 2
+    nrows = int(np.ceil(len(gb)/2))
+    f, axs = plt.subplots(sharex=True, nrows=nrows,ncols=ncols, figsize=(14,8))
+    axs = axs.flatten()
+
+    for i, (p, df) in enumerate(gb):
+        ax = axs[i]
+        d = df.loc[df.q<1.15,:]
+        ax.plot(d.q, d.logRho, label=r'Rho')
+
+        if i==0: ax.legend(loc=10)
+        ax.set_ylabel('log Rho')
+        ax.set_title(f'profile {p}')
+    axs[-1].set_xlabel(r'q = m(<r)/M$_\star$')
+    axs[-2].set_xlabel(r'q = m(<r)/M$_\star$')
+
+    plt.suptitle(title)
+    plt.show(block=False)
+
+    return None
+
+def plot_T_profiles(pdf, title=''):
+    gb = pdf.groupby('profile_number')
+
+    ncols = 2
+    nrows = int(np.ceil(len(gb)/2))
+    f, axs = plt.subplots(sharex=True, nrows=nrows,ncols=ncols, figsize=(14,8))
+    axs = axs.flatten()
+
+    for i, (p, df) in enumerate(gb):
+        ax = axs[i]
+        d = df.loc[df.q<0.15,:]
+        ax.plot(d.q, d.logT, label=r'T')
+        if title=='c6':
+            ax.plot(d.q, np.log10(d.wimp_temp), label=r'T$_{DM}$')
+
+        if i==0: ax.legend(loc=10)
+        ax.set_ylabel('log temp [K]')
+        ax.set_title(f'profile {p}')
+    axs[-1].set_xlabel(r'q = m(<r)/M$_\star$')
+    axs[-2].set_xlabel(r'q = m(<r)/M$_\star$')
+
+    plt.suptitle(title)
+    plt.show(block=False)
+
+    return None
+
+def plot_Tx_minus_T_profiles(pdf):
+    gb = pdf.groupby('profile_number')
+
+    ncols = 2
+    nrows = int(np.ceil(len(gb)/2))
+    f, axs = plt.subplots(sharex=True, nrows=nrows,ncols=ncols, figsize=(14,8))
+    axs = axs.flatten()
+
+    for i, (p, df) in enumerate(gb):
+        ax = axs[i]
+        d = df.loc[df.q<0.05,:]
+
+        ax.plot(d.q, d.wimp_temp - 10**d.logT, label=r'T$_{DM}$ - T')
+        ax.axhline(0, c='k', lw=0.5)
+
+        if i==0: ax.legend(loc=10)
+        ax.set_ylabel('temp [K]')
+        ax.set_title(f'profile {p}')
+    axs[-1].set_xlabel(r'q = m(<r)/M$_\star$')
+    axs[-2].set_xlabel(r'q = m(<r)/M$_\star$')
+
+    plt.show(block=False)
+
+    return None
+
+def plot_convection(pdf):
+    plt.figure()
+    g = pdf.groupby('profile_number')
+    g.plot('q','mixing_type', ax=plt.gca(), kind='scatter')
+    plt.show(block=False)
+
+
+# fe----- plot other profiles -----#

@@ -21,7 +21,7 @@ pnums4df = [65,66,71,72,73,74,76,79] #***--- NEEDED TO PLOT LUMINOSITY PROFILES 
 plot_lums_history(dic, profiles=pnums4df, hdf=hdf)
 ```
 
-<img src="lum_v_age_with_profile_nums.png" alt="lum_v_age_with_profile_nums"/>
+<img src="plots_r10398/lum_v_age_with_profile_nums.png" alt="lum_v_age_with_profile_nums"/>
 
 <!-- fe which timesteps have profiles? -->
 
@@ -45,7 +45,7 @@ pdf = load_profiles_df(pnums4df)
 # plot
 d = plot_lums_profiles(pdf, hdf=hdf)
 ```
-<img src="lum_v_q_profiles.png" alt="lum_v_q_profiles.png"/>
+<img src="plots_r10398/lum_v_q_profiles.png" alt="lum_v_q_profiles.png"/>
 <!-- fe plot luminosity profiles -->
 
 ## plot temperatures
@@ -64,7 +64,7 @@ plot_lum_excess(hdf_dict)
 plot_energy_cons_error(hdf_dict, title='') # compare to Paxton19_Fig25.png
 ```
 
-<img src="Lexcess.png" alt="Lexcess.png" width="400"/><img src="rel_enery_error.png" alt="rel_enery_error.png" width="400"/>
+<img src="plots_r10398/Lexcess.png" alt="Lexcess.png" width="400"/><img src="plots_r10398/rel_enery_error.png" alt="rel_enery_error.png" width="400"/>
 
 Compare the Rel. Energy Error plot with Paxton19 Fig 25:
 
@@ -79,4 +79,123 @@ improves energy conservation) and run these again.__
 <!-- fe # Results from older MESA version (r10398) -->
 
 
+
 # Results from newest MESA version (r12115)
+<!-- fs -->
+
+## which timesteps have profiles? (and plot lum v age)
+<!-- fs  -->
+```python
+lums = ['age','L','Lnuc','Lgrav','Ltneu']
+lums = ['age', 'L','LH','Lnuc','Lneu','Lgrav','Ltneu','extra_L']
+dic = lums_dict(hdf, lums)
+plot_lums_history(dic, profiles='all', hdf=hdf)
+
+# profile numbers to load to df
+# pidf.loc[((pidf.star_age>3e8) & (pidf.star_age<4e8)),:]
+pnums4df = [8,10,2,1] #***--- NEEDED TO PLOT LUMINOSITY PROFILES ---***#
+plot_lums_history(dic, profiles=pnums4df, hdf=hdf, title='c6')
+
+p0nums4df = [30,32,34,36,41] #***--- NEEDED TO PLOT LUMINOSITY PROFILES ---***#
+dic0 = lums_dict(h0df, lums)
+plot_lums_history(dic0, profiles=p0nums4df, hdf=h0df, title='c0')
+
+```
+<img src="plots_r12115/lum_v_age_c0_with_profile_nums.png" alt="lum_v_age_c0_with_profile_nums"/>
+<img src="plots_r12115/lum_v_age_c6_with_profile_nums.png" alt="lum_v_age_c6_with_profile_nums"/>
+
+__Note Lgrav is now 0 throughout.__ Not sure what has changed in calculating Lgrav in this version of MESA. This uses history column 'eps_grav_integral'. There is also a column 'total_eps_grav' that I haven't saved here, but will save and check in future runs.
+
+<!-- fe which timesteps have profiles? -->
+
+
+## plot luminosities v age
+<!-- fs  -->
+```python
+lums = ['age','L','Lneu','Lnuc','Lgrav']
+dic = lums_dict(hdf, lums)
+plot_lums_history(dic)
+
+# plot both c0, c6 together
+lums = ['age','L','Lnuc','Lgrav']
+dic6 = lums_dict(hdf, lums)
+dic0 = lums_dict(h0df, lums)
+dic = {'0': dic0, '10^6': dic6}
+plot_lums_history_06(dic)
+
+```
+<!-- fe plot luminosities v age -->
+
+
+## plot luminosity profiles
+<!-- fs  -->
+```python
+# load profiles to df
+# get pnums4df from 'which timesteps have profiles?' section
+pdf = load_profiles_df(pnums4df, cb=6)
+d = plot_lums_profiles(pdf, hdf=hdf, title='c6')
+
+p0df = load_profiles_df(p0nums4df, cb=0)
+d0 = plot_lums_profiles(p0df, hdf=h0df, title='c0')
+```
+<img src="plots_r12115/lum_v_q_c0_profiles.png" alt="lum_v_q_c0_profiles"/>
+<img src="plots_r12115/lum_v_q_c6_profiles.png" alt="lum_v_q_c6_profiles"/>
+
+<!-- fe plot luminosity profiles -->
+
+
+## check conservation of energy
+<!-- fs  -->
+```python
+hdf_dict = {'0': h0df.loc[h0df.star_age>1e7,:], '10^6': hdf.loc[hdf.star_age>1e7,:]}
+plot_lum_excess(hdf_dict)
+plot_energy_cons_error(hdf_dict, title='') # compare to Paxton19_Fig25.png
+```
+
+<img src="plots_r12115/Lexcess.png" alt="Lexcess"/> <img src="plots_r12115/rel_enery_error.png" alt="rel_enery_error"/>
+
+__Physical energy does not seem to be conserved during pre-ZAMS since Lgrav is 0 (see above). Relative energy error is now acceptably low.__ (Compare to Paxton19_Fig25 above. I believe the relative energy error is _numerical_ energy error. This uses history column 'error_in_energy_conservation', see [this mailing list question](https://lists.mesastar.org/pipermail/mesa-users/2015-November/005921.html) and equation 57 in MESA paper 3 (Paxton 2015))
+
+<!-- fe check conservation of energy -->
+
+
+
+
+## plot other history columns
+<!-- fs  -->
+```python
+hdf_dict = {'0': h0df.loc[h0df.star_age>1e7,:], '10^6': hdf.loc[hdf.star_age>1e7,:]}
+
+plot_burning_06(hdf_dict)
+plot_center_abundances(hdf_dict)
+
+```
+<!-- fe ## plot other history columns -->
+
+## plot other profiles
+<!-- fs  -->
+```python
+# pnums4df = list(np.arange(1,21))
+# pnums4df = [8,10,16,5]
+# pdf = load_profiles_df(pnums4df)
+
+plot_Tx_minus_T_profiles(pdf)
+plot_convection(pdf)
+plot_T_profiles(pdf, title='c6')
+plot_T_profiles(p0df, title='c0')
+plot_epsnuc_profiles(pdf, title='c6')
+plot_epsnuc_profiles(p0df, title='c0')
+plot_abundance_profiles(pdf, title='c6')
+plot_abundance_profiles(p0df, title='c0')
+plot_nx_profiles(pdf, title='c6')
+plot_rho_profiles(pdf, title='c6')
+```
+
+<img src="plots_r12115/nx_np_profiles.png" alt="nx_np_profiles"/>
+
+__nx and np are negative... this doesn't make any sense.__ These are values I am calculating. I have looked at my code and I don't understand how this is happening. nx is a normalization factor (common to every cell) multiplied by an exponential, and should therefore always be positive (or at least all cells should be either positive or negative together). np is the hydrogen mass fraction times the density divided by the mass of a proton, and should therefore always be positive.
+
+<!-- fe plot other profiles -->
+
+
+<!-- fe # Results from newest MESA version (r12115) -->
