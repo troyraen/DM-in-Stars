@@ -57,6 +57,7 @@ In the process of making the above plot I realized that the luminosity goes comp
 <a name="r10398"></a>
 # Results from older MESA version (r10398)
 <!-- fs -->
+This is a closer investigation of the original problem:
 
 ```python
 path_dict = {'dr': dr_r10398, 'run_key': ''}
@@ -146,6 +147,7 @@ nohup nice ./re x250 &>> LOGS/STD.out &
 MESASDK has been updated since this run was started, but I don't think that should make any difference.
 
 ```python
+sd = 'plots_r12115/dedt_gold/' # dir to save plots
 path_dict = {'dr': dr_r12115, 'run_key': '_dedt_gold'}
 hdf, pidf, h0df, pi0df = load_main_data(**path_dict)
 ```
@@ -168,8 +170,8 @@ dic0 = lums_dict(h0df, lums)
 plot_lums_history(dic0, profiles=p0nums4df, hdf=h0df, title='c0')
 
 ```
-<img src="plots_r12115/lum_v_age_c0_with_profile_nums.png" alt="lum_v_age_c0_with_profile_nums"/>
-<img src="plots_r12115/lum_v_age_c6_with_profile_nums.png" alt="lum_v_age_c6_with_profile_nums"/>
+<img src="plots_r12115/dedt_gold/lum_v_age_c0_with_profile_nums.png" alt="lum_v_age_c0_with_profile_nums"/>
+<img src="plots_r12115/dedt_gold/lum_v_age_c6_with_profile_nums.png" alt="lum_v_age_c6_with_profile_nums"/>
 
 __Note Lgrav is now 0 throughout.__ Not sure what has changed in calculating Lgrav in this version of MESA. This uses history column `eps_grav_integral`. There is also a column `total_eps_grav` that I haven't saved here, but will save and check in future runs.
 
@@ -196,8 +198,8 @@ d = plot_lums_profiles(pdf, hdf=hdf, title='c6')
 p0df = load_profiles_df(p0nums4df, cb=0, **path_dict)
 d0 = plot_lums_profiles(p0df, hdf=h0df, title='c0')
 ```
-<img src="plots_r12115/lum_v_q_c0_profiles.png" alt="lum_v_q_c0_profiles"/>
-<img src="plots_r12115/lum_v_q_c6_profiles.png" alt="lum_v_q_c6_profiles"/>
+<img src="plots_r12115/dedt_gold/lum_v_q_c0_profiles.png" alt="lum_v_q_c0_profiles"/>
+<img src="plots_r12115/dedt_gold/lum_v_q_c6_profiles.png" alt="lum_v_q_c6_profiles"/>
 
 <!-- fe plot luminosity profiles -->
 
@@ -209,7 +211,7 @@ plot_lum_excess(hdf_dict)
 plot_energy_cons_error(hdf_dict, title='') # compare to Paxton19_Fig25.png
 ```
 
-<img src="plots_r12115/Lexcess.png" alt="Lexcess" width="400"/> <img src="plots_r12115/rel_enery_error.png" alt="rel_enery_error" width="400"/>
+<img src="plots_r12115/dedt_gold/Lexcess.png" alt="Lexcess" width="400"/> <img src="plots_r12115/dedt_gold/rel_enery_error.png" alt="rel_enery_error" width="400"/>
 
 __Physical energy does not seem to be conserved during pre-ZAMS since Lgrav is 0 (see above). Relative energy error is now acceptably low.__ (Compare to Paxton19_Fig25 above. I believe the relative energy error is _numerical_ energy error. This uses history column `error_in_energy_conservation`, see [this mailing list question](https://lists.mesastar.org/pipermail/mesa-users/2015-November/005921.html) and equation 57 in MESA paper 3 (Paxton 2015))
 
@@ -239,7 +241,7 @@ plot_nx_profiles(pdf, title='c6')
 plot_rho_profiles(pdf, title='c6')
 ```
 
-<img src="plots_r12115/nx_np_profiles.png" alt="nx_np_profiles"/>
+<img src="plots_r12115/dedt_gold/nx_np_profiles.png" alt="nx_np_profiles"/>
 
 __nx and np are negative... this doesn't make any sense.__ These are values I am calculating. I have looked at my code and I don't understand how this is happening. nx is a normalization factor (common to every cell) multiplied by an exponential, and should therefore always be positive (or at least all cells should be either positive or negative together). np is the hydrogen mass fraction times the density divided by the mass of a proton, and should therefore always be positive.
 
@@ -388,6 +390,8 @@ hdf_dict = {'0': h0df.loc[h0df.star_age>1e7,:], '10^6': hdf.loc[hdf.star_age>1e7
 plot_lum_excess(hdf_dict, save=sd+'Lexcess.png')
 plot_energy_cons_error(hdf_dict, title='', save=sd+'rel_energy_error.png') # compare to Paxton19_Fig25.png
 ```
+
+Energy is not well conserved:
 
 <img src="plots_r12115/gold_false/Lexcess.png" alt="Lexcess.png" width="400"/> <img src="plots_r12115/gold_false/rel_energy_error.png" alt="rel_energy_error.png" width="400"/>
 
