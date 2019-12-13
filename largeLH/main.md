@@ -1,12 +1,12 @@
-[Original Problem](op)
+[Original Problem](#op)
 
-[Results from MESA r10398](r10398)
+[Results from MESA r10398](#r10398)
 
-[Results from MESA r12115](r12115)
+[Results from MESA r12115](#r12115)
 
-[_dedt_gold](dedtgold)
+[_dedt_gold](#dedtgold)
 
-[_defaults](defaults)
+[_defaults](#defaults)
 
 
 # Questions
@@ -30,9 +30,9 @@ hdf, pidf, h0df, pi0df = load_main_data()
 ```
 -----------------------------------------------------------------------------
 
+<a name="op"></a>
 # Original Problem
 <!-- fs -->
-<a name="op"></a>
 __This branch is used to investigate why L < LH in the m1p0c6 model, as seen here:__
 ```python
 # hog_path = mesaruns + '/RUNS_2test_final/c6/m1p00/LOGS/history.data'
@@ -57,9 +57,9 @@ In the process of making the above plot I realized that the luminosity goes comp
 -----------------------------------------------------------------------------
 
 
+<a name="r10398"></a>
 # Results from older MESA version (r10398)
 <!-- fs -->
-<a name="r10398"></a>
 
 ```python
 path_dict = {'dr': dr_r10398, 'run_key': ''}
@@ -124,12 +124,12 @@ improves energy conservation) and run these again.__
 <!-- fe # Results from older MESA version (r10398) -->
 -----------------------------------------------------------------------------
 
+<a name="r12115"></a>
 # Results from newest MESA version (r12115)
 <!-- fs -->
-<a name="r12115"></a>
 
 <!-- fs run_key: _dedt_gold -->
-<a name="dedtgold"></a>
+<a name="dedtgold">_\_dedt_gold_</a>
 The following were done with inlist options:
 ```
 use_dedt_form_of_energy_eqn = .true.
@@ -250,7 +250,7 @@ __nx and np are negative... this doesn't make any sense.__ These are values I am
 
 ------------------------------------------------------------------------------
 <!-- fs run_key: _defaults -->
-<a name="defaults"></a>
+<a name="defaults">_\_defaults_</a>
 The following were done with the __new MESASDK__ and __default inlist options__:
 ```
 !use_dedt_form_of_energy_eqn = .true. (should use Eq 65 in Paper 4, Paxton18)
