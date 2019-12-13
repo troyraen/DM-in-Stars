@@ -11,15 +11,7 @@ import matplotlib as mpl
 mesaruns = '/Users/troyraen/Osiris/DMS/mesaruns'
 dr_r10398 = mesaruns + '/RUNS_largeLH'
 dr_r12115 = mesaruns + '/RUNS_largeLH_mesa-r12115' # using newest MESA release r12115
-
-dr = dr_r12115
-c6path = dr+ '/c6/m1p0/LOGS'
-hpath = c6path+ '/history.data'
-pipath = c6path+ '/profiles.index'
-
-c0path = dr+ '/c0/m1p0/LOGS'
-h0path = c0path+ '/history.data'
-pi0path = c0path+ '/profiles.index'
+run_keys = ['_dedt_gold','_defaults','_gold_false']
 
 Lsun = 3.8418e33 # erg/s
 Msun = 1.9892e33 # grams
@@ -45,7 +37,16 @@ except:
 # fe----- mount Osiris -----#
 
 # fs----- load data -----#
-def load_main_data():
+def load_main_data(dr=dr_r12115, run_key=''):
+
+    c6path = dr+ '/c6/m1p0' + run_key + '/LOGS'
+    hpath = c6path+ '/history.data'
+    pipath = c6path+ '/profiles.index'
+
+    c0path = dr+ '/c0/m1p0' + run_key + '/LOGS'
+    h0path = c0path+ '/history.data'
+    pi0path = c0path+ '/profiles.index'
+
     hdf = pd.read_csv(hpath, header=4, sep='\s+').set_index('model_number', drop=False)
     pidx_cols = ['model_number', 'priority', 'profile_number']
     pidf = pd.read_csv(pipath, names=pidx_cols, skiprows=1, header=None, sep='\s+')
@@ -346,6 +347,19 @@ def plot_center_abundances(hdf_dict, title=''):
     plt.title(title)
     plt.show(block=False)
 
+def plot_debug(hdf_dict, title=''):
+    """
+    """
+    cols = ['num_retries','num_backups',#'num_newton_iterations',
+            'log_dt','model_number']
+
+    for cb, hdf in hdf_dict.items():
+        hdf.plot('star_age',cols, subplots=True, logx=True, grid=True)
+
+        plt.xlabel('star age')
+        plt.legend()
+        plt.suptitle(rf'$\Gamma_B = {cb}$')
+        plt.show(block=False)
 
 # fe----- plot other history columns -----#
 
