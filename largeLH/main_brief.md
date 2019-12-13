@@ -8,7 +8,7 @@ Note L < LH and the oscillations:
 
 Energy is not well conserved:
 
-<img src="plots_r10398/rel_enery_error.png" alt="rel_enery_error.png" width="400"/>
+<img src="plots_r10398/rel_enery_error.png" alt="rel_enery_error.png"/>
 
 ---
 __With the new "gold tolerances":__
@@ -22,7 +22,7 @@ Energy conservation is much better:
 <img src="plots_r12115/dedt_gold/rel_enery_error.png" alt="rel_enery_error"/>
 
 ---
-The new models are taking a _long_ time to run. Gamma_B=10^6 originally took less than an hour, the new model has been running for about 60 hours when I made these plots. Despite having a higher luminosity than the Gamma_B=0 model, the central H1 fractions are very similar, so I don't think the MS lifetimes are going to end up being much different.
+The new models are taking a _long_ time to run. Gamma_B=10^6 originally took less than an hour, the new model has been running for about 60 hours when I made these plots. Despite having a higher luminosity than the Gamma_B=0 model, the central H1 fractions are very similar, so __I don't think the MS lifetimes are going to end up being much different__.
 
 Comparison with Gamma_B=0 model:
 
