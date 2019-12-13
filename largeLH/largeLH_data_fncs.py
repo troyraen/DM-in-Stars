@@ -37,15 +37,20 @@ except:
 # fe----- mount Osiris -----#
 
 # fs----- load data -----#
-def load_main_data(dr=dr_r12115, run_key=''):
-
-    c6path = dr+ '/c6/m1p0' + run_key + '/LOGS'
-    hpath = c6path+ '/history.data'
-    pipath = c6path+ '/profiles.index'
-
+def get_paths(dr=dr_r12115, run_key=''):
     c0path = dr+ '/c0/m1p0' + run_key + '/LOGS'
     h0path = c0path+ '/history.data'
     pi0path = c0path+ '/profiles.index'
+
+    c6path = dr+ '/c6/m1p0' + run_key + '/LOGS'
+    h6path = c6path+ '/history.data'
+    pi6path = c6path+ '/profiles.index'
+
+    return (c0path, h0path, pi0path, c6path, h6path, pi6path)
+
+def load_main_data(dr=dr_r12115, run_key=''):
+
+    __, h0path, pi0path, __, hpath, pipath = get_paths(dr=dr, run_key=run_key)
 
     hdf = pd.read_csv(hpath, header=4, sep='\s+').set_index('model_number', drop=False)
     pidx_cols = ['model_number', 'priority', 'profile_number']
@@ -59,7 +64,10 @@ def load_main_data(dr=dr_r12115, run_key=''):
 
     return (hdf, pidf, h0df, pi0df)
 
-def load_profiles_df(pnums4df, cb=6):
+def load_profiles_df(pnums4df, cb=6, dr=dr_r12115, run_key=''):
+
+    c0path, __, __, c6path, __, __ = get_paths(dr=dr, run_key=run_key)
+
     dfs = []
     for p in pnums4df:
         if cb==6: path = c6path
@@ -118,12 +126,12 @@ def lums_dict(hdf, lums, age_cut=1e7):
 
 
 # fs----- plot luminosity profiles -----#
-def plot_lums_profiles(pdf, hdf=None, title=''):
+def plot_lums_profiles(pdf, hdf=None, title='', save=None):
     gb = pdf.groupby('profile_number')
 
     ncols = 2
     nrows = int(np.ceil(len(gb)/2))
-    f, axs = plt.subplots(sharex=True, nrows=nrows,ncols=ncols, figsize=(14,8))
+    f, axs = plt.subplots(sharex=True, nrows=nrows,ncols=ncols, figsize=(10,6))
     axs = axs.flatten()
 
     for i, (p, df) in enumerate(gb):
@@ -159,6 +167,7 @@ def plot_lums_profiles(pdf, hdf=None, title=''):
     axs[-2].set_xlabel(r'q = m(<r)/M$_\star$')
 
     plt.suptitle(title)
+    if save is not None: plt.savefig(save)
     plt.show(block=False)
 
     return dic
@@ -182,14 +191,14 @@ def eps_to_lum(df):
 # fs----- plot luminosity histories -----#
 
 # plot all luminosities
-def plot_lums_history(lum_dict, profiles=None, hdf=None, title=''):
+def plot_lums_history(lum_dict, profiles=None, hdf=None, title='', save=None):
     """ lum_dict (dict): should include age (x-axis) and luminosities
                          as returned by lums_dict() fnc above.
         profiles (list): 'all' or list of profile numbers to plot axvline
     """
     dic = lum_dict.copy()
     age = dic.pop('age')
-    plt.figure(figsize=(14,8))
+    plt.figure(figsize=(10,6))
 
     # plot luminosities
     for i, (sl, tup) in enumerate(dic.items()):
@@ -218,16 +227,17 @@ def plot_lums_history(lum_dict, profiles=None, hdf=None, title=''):
     plt.ylabel(r'luminosity [L$_\odot$]')
     plt.title(title)
     plt.tight_layout()
+    if save is not None: plt.savefig(save)
     plt.show(block=False)
 
     return None
 
-def plot_lums_history_06(lum_dict):
+def plot_lums_history_06(lum_dict, save=None):
     """ lum_dict (dict): dict of dicts. Each individual dict
                          should include age (x-axis) and luminosities
                          as returned by lums_dict() fnc above.
     """
-    plt.figure(figsize=(14,8))
+    plt.figure(figsize=(10,6))
 
     for cb,d in lum_dict.items():
         dic = d.copy()
@@ -245,15 +255,16 @@ def plot_lums_history_06(lum_dict):
     plt.xlabel('star_age')
     plt.ylabel(r'luminosity [L$_\odot$]')
     plt.tight_layout()
+    if save is not None: plt.savefig(save)
     plt.show(block=False)
 
     return None
 
-# fe----- plot luminosities v age -----#
+# fe----- plot luminosities histories -----#
 
 # fs----- check energy conservation -----#
 
-def plot_energy_cons_error(hdf_dict, title=''):
+def plot_energy_cons_error(hdf_dict, title='', save=None):
     """ Compare to Paxton 19 Figure 25, middle panel
     """
     plt.figure()
@@ -267,10 +278,11 @@ def plot_energy_cons_error(hdf_dict, title=''):
     plt.ylabel('log |Rel. Energy Error|')
     plt.legend()
     plt.title(title)
+    if save is not None: plt.savefig(save)
     plt.show(block=False)
 
 # plot luminosity excess
-def plot_lum_excess(hdf_dict):
+def plot_lum_excess(hdf_dict, save=None):
     plt.figure()
 
     lums = ['age','L','Lnuc','Lgrav','Ltneu']
@@ -288,27 +300,18 @@ def plot_lum_excess(hdf_dict):
     plt.ylabel(r'L$_{excess}$ = L+L$_\nu$-L$_{nuc}$-L$_{grav}$ [L$_\odot$]')
     plt.legend()
     plt.tight_layout()
+    if save is not None: plt.savefig(save)
     plt.show(block=False)
 
     return None
 
-
-# def plot_lum_excess(age,L,Lnuc,Lgrav,Ltneu):
-#     plt.figure()
-#     plt.plot(age, L+Ltneu-Lnuc-Lgrav)
-#     plt.semilogx()
-#     plt.xlabel('star_age')
-#     plt.ylabel(r'L+L$_{\nu,therm}$-L$_{nuc}$-L$_{grav}$ [L$_\odot$]')
-#     plt.tight_layout()
-#     plt.show(block=False)
-
-
-def plot_energy(hdf, title=''):
+def plot_energy(hdf, title='', save=None):
     plt.figure()
     cols = ['total_extra_heating','total_energy_sources_and_sinks','extra_energy']
     hdf.plot('star_age',cols, subplots=True)
     plt.semilogx()
     plt.title(title)
+    if save is not None: plt.savefig(save)
     plt.show(block=False)
 
     return None
@@ -317,7 +320,7 @@ def plot_energy(hdf, title=''):
 
 
 # fs----- plot other history columns -----#
-def plot_burning_06(hdf_dict, title=''):
+def plot_burning_06(hdf_dict, title='', save=None):
     """
     """
     plt.figure()
@@ -330,9 +333,10 @@ def plot_burning_06(hdf_dict, title=''):
     plt.ylabel(r'log burning [L$_\odot$]')
     plt.legend()
     plt.title(title)
+    if save is not None: plt.savefig(save)
     plt.show(block=False)
 
-def plot_center_abundances(hdf_dict, title=''):
+def plot_center_abundances(hdf_dict, title='', save=None):
     plt.figure()
 
     for cb, hdf in hdf_dict.items():
@@ -345,10 +349,11 @@ def plot_center_abundances(hdf_dict, title=''):
     plt.ylabel('fractional abundance')
     plt.legend()
     plt.title(title)
+    if save is not None: plt.savefig(save)
     plt.show(block=False)
 
-def plot_debug(hdf_dict, title=''):
-    """
+def plot_debug(hdf_dict, title='', save=None):
+    """ save (dict) with keys same as hdf_dict
     """
     cols = ['num_retries','num_backups',#'num_newton_iterations',
             'log_dt','model_number']
@@ -359,17 +364,18 @@ def plot_debug(hdf_dict, title=''):
         plt.xlabel('star age')
         plt.legend()
         plt.suptitle(rf'$\Gamma_B = {cb}$')
+        if save is not None: plt.savefig(save[cb])
         plt.show(block=False)
 
 # fe----- plot other history columns -----#
 
 # fs----- plot other profiles -----#
-def plot_nx_profiles(pdf, log=False, title=''):
+def plot_nx_profiles(pdf, log=False, title='', save=None):
     gb = pdf.groupby('profile_number')
 
     ncols = 2
     nrows = int(np.ceil(len(gb)/2))
-    f, axs = plt.subplots(sharex=True, nrows=nrows,ncols=ncols, figsize=(14,8))
+    f, axs = plt.subplots(sharex=True, nrows=nrows,ncols=ncols, figsize=(10,6))
     axs = axs.flatten()
 
     for i, (p, df) in enumerate(gb):
@@ -389,16 +395,17 @@ def plot_nx_profiles(pdf, log=False, title=''):
     axs[-2].set_xlabel(r'q = m(<r)/M$_\star$')
 
     plt.suptitle(title)
+    if save is not None: plt.savefig(save)
     plt.show(block=False)
 
     return None
 
-def plot_abundance_profiles(pdf, title=''):
+def plot_abundance_profiles(pdf, title='', save=None):
     gb = pdf.groupby('profile_number')
 
     ncols = 2
     nrows = int(np.ceil(len(gb)/2))
-    f, axs = plt.subplots(sharex=True, nrows=nrows,ncols=ncols, figsize=(14,8))
+    f, axs = plt.subplots(sharex=True, nrows=nrows,ncols=ncols, figsize=(10,6))
     axs = axs.flatten()
 
     for i, (p, df) in enumerate(gb):
@@ -415,16 +422,17 @@ def plot_abundance_profiles(pdf, title=''):
     axs[-2].set_xlabel(r'q = m(<r)/M$_\star$')
 
     plt.suptitle(title)
+    if save is not None: plt.savefig(save)
     plt.show(block=False)
 
     return None
 
-def plot_eps_profiles(pdf, title=''):
+def plot_eps_profiles(pdf, title='', save=None):
     gb = pdf.groupby('profile_number')
 
     ncols = 2
     nrows = int(np.ceil(len(gb)/2))
-    f, axs = plt.subplots(sharex=True, nrows=nrows,ncols=ncols, figsize=(14,8))
+    f, axs = plt.subplots(sharex=True, nrows=nrows,ncols=ncols, figsize=(10,6))
     axs = axs.flatten()
 
     for i, (p, df) in enumerate(gb):
@@ -444,16 +452,17 @@ def plot_eps_profiles(pdf, title=''):
     axs[-2].set_xlabel(r'q = m(<r)/M$_\star$')
 
     plt.suptitle(title)
+    if save is not None: plt.savefig(save)
     plt.show(block=False)
 
     return None
 
-def plot_rho_profiles(pdf, title=''):
+def plot_rho_profiles(pdf, title='', save=None):
     gb = pdf.groupby('profile_number')
 
     ncols = 2
     nrows = int(np.ceil(len(gb)/2))
-    f, axs = plt.subplots(sharex=True, nrows=nrows,ncols=ncols, figsize=(14,8))
+    f, axs = plt.subplots(sharex=True, nrows=nrows,ncols=ncols, figsize=(10,6))
     axs = axs.flatten()
 
     for i, (p, df) in enumerate(gb):
@@ -468,16 +477,17 @@ def plot_rho_profiles(pdf, title=''):
     axs[-2].set_xlabel(r'q = m(<r)/M$_\star$')
 
     plt.suptitle(title)
+    if save is not None: plt.savefig(save)
     plt.show(block=False)
 
     return None
 
-def plot_T_profiles(pdf, title=''):
+def plot_T_profiles(pdf, title='', save=None):
     gb = pdf.groupby('profile_number')
 
     ncols = 2
     nrows = int(np.ceil(len(gb)/2))
-    f, axs = plt.subplots(sharex=True, nrows=nrows,ncols=ncols, figsize=(14,8))
+    f, axs = plt.subplots(sharex=True, nrows=nrows,ncols=ncols, figsize=(10,6))
     axs = axs.flatten()
 
     for i, (p, df) in enumerate(gb):
@@ -494,16 +504,17 @@ def plot_T_profiles(pdf, title=''):
     axs[-2].set_xlabel(r'q = m(<r)/M$_\star$')
 
     plt.suptitle(title)
+    if save is not None: plt.savefig(save)
     plt.show(block=False)
 
     return None
 
-def plot_Tx_minus_T_profiles(pdf):
+def plot_Tx_minus_T_profiles(pdf, save=None):
     gb = pdf.groupby('profile_number')
 
     ncols = 2
     nrows = int(np.ceil(len(gb)/2))
-    f, axs = plt.subplots(sharex=True, nrows=nrows,ncols=ncols, figsize=(14,8))
+    f, axs = plt.subplots(sharex=True, nrows=nrows,ncols=ncols, figsize=(10,6))
     axs = axs.flatten()
 
     for i, (p, df) in enumerate(gb):
@@ -519,14 +530,16 @@ def plot_Tx_minus_T_profiles(pdf):
     axs[-1].set_xlabel(r'q = m(<r)/M$_\star$')
     axs[-2].set_xlabel(r'q = m(<r)/M$_\star$')
 
+    if save is not None: plt.savefig(save)
     plt.show(block=False)
 
     return None
 
-def plot_convection(pdf):
+def plot_convection(pdf, save=None):
     plt.figure()
     g = pdf.groupby('profile_number')
     g.plot('q','mixing_type', ax=plt.gca(), kind='scatter')
+    if save is not None: plt.savefig(save)
     plt.show(block=False)
 
 
