@@ -268,13 +268,18 @@ lums = ['age', 'L','LH','Lnuc','Lneu','Lgrav','Ltneu','extra_L']
 dic = lums_dict(hdf, lums)
 plot_lums_history(dic, profiles='all', hdf=hdf)
 
-pnums4df = [15,20,8,14]
-plot_lums_history(dic, profiles=pnums4df, hdf=hdf, title='c6')
+pnums4df = [15,8,14,9]
+s = sd+'lum_v_age_c6_with_profile_nums.png'
+plot_lums_history(dic, profiles=pnums4df, hdf=hdf, title='c6', save=s)
 
 p0nums4df = [9,10,11,13]
 dic0 = lums_dict(h0df, lums)
-plot_lums_history(dic0, profiles=p0nums4df, hdf=h0df, title='c0')
+s = sd+'lum_v_age_c0_with_profile_nums.png'
+plot_lums_history(dic0, profiles=p0nums4df, hdf=h0df, title='c0', save=s)
 ```
+Physical energy seems to be conserved as Lgrav is no longer zero.
+<img src="plots_r12115/defaults/lum_v_age_c0_with_profile_nums.png" alt="lum_v_age_c0_with_profile_nums"/>
+<img src="plots_r12115/defaults/lum_v_age_c6_with_profile_nums.png" alt="lum_v_age_c6_with_profile_nums"/>
 <!-- fe #### which timesteps have profiles? (and plot lum v age) -->
 
 #### plot luminosities v age
@@ -307,10 +312,12 @@ d0 = plot_lums_profiles(p0df, hdf=h0df, title='c0')
 <!-- fs  -->
 ```python
 hdf_dict = {'0': h0df.loc[h0df.star_age>1e7,:], '10^6': hdf.loc[hdf.star_age>1e7,:]}
-plot_lum_excess(hdf_dict)
-plot_energy_cons_error(hdf_dict, title='') # compare to Paxton19_Fig25.png
+plot_lum_excess(hdf_dict, save=sd+'Lexcess.png')
+plot_energy_cons_error(hdf_dict, title='', save=sd+'rel_energy_error.png') # compare to Paxton19_Fig25.png
 ```
-Only problem so far is with c0 run. STD.out file contains several of these: `WARNING: rel_run_E_err`.
+Only problem so far is with c0 run. STD.out file contains several of these: `WARNING: rel_run_E_err`. I think gold tolerances are being relaxed automatically.
+
+<img src="plots_r12115/defaults/Lexcess.png" alt="Lexcess.png" width="400"/> <img src="plots_r12115/defaults/rel_energy_error.png" alt="rel_energy_error.png" width="400"/>
 
 <!-- fe check conservation of energy -->
 
@@ -318,7 +325,7 @@ Only problem so far is with c0 run. STD.out file contains several of these: `WAR
 <!-- fs -->
 ```python
 plot_nx_profiles(pdf, title='c6', log=False)
-plot_nx_profiles(pdf, title='c6', log=True)
+plot_nx_profiles(pdf, title='c6', log=True, save=sd+'nx_np_profiles.png')
 plot_Tx_minus_T_profiles(pdf)
 plot_convection(pdf)
 plot_T_profiles(pdf, title='c6')
@@ -331,6 +338,8 @@ plot_rho_profiles(pdf, title='c6')
 
 ```
 nx and np look normal again.
+
+<img src="plots_r12115/defaults/nx_np_profiles.png" alt="nx_np_profiles"/>
 <!-- fe plot other profiles -->
 
 <!-- fe run: _defaults -->
