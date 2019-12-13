@@ -438,6 +438,12 @@
          	s% save_profiles_model_priority = 50
          ENDIF
 
+         IF ( MOD(s% model_number, 100000) .EQ. 0) THEN
+         	s% need_to_update_history_now = .true.
+         	s% need_to_save_profiles_now = .true.
+         	s% save_profiles_model_priority = 75
+         ENDIF
+
          ! IF ( (ABS(s% xtra6_older).GT.0.085) .AND. (s% xtra(4).GT.0.2) ) THEN
          !     extras_finish_step = terminate
          ! ENDIF
