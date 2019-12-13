@@ -1,12 +1,8 @@
-[Original Problem](#op)
-
-[Results from MESA r10398](#r10398)
-
-[Results from MESA r12115](#r12115)
-
-[_dedt_gold](#dedtgold)
-
-[_defaults](#defaults)
+- [Original Problem](#op)
+- [Results from MESA r10398](#r10398)
+- [Results from MESA r12115](#r12115)
+    - [_dedt_gold](#dedtgold)
+    - [_defaults](#defaults)
 
 
 # Questions
@@ -129,7 +125,8 @@ improves energy conservation) and run these again.__
 <!-- fs -->
 
 <!-- fs run_key: _dedt_gold -->
-<a name="dedtgold">_\_dedt_gold_</a>
+<a name="dedtgold">__\_dedt_gold__</a>
+
 The following were done with inlist options:
 ```
 use_dedt_form_of_energy_eqn = .true.
@@ -250,7 +247,8 @@ __nx and np are negative... this doesn't make any sense.__ These are values I am
 
 ------------------------------------------------------------------------------
 <!-- fs run_key: _defaults -->
-<a name="defaults">_\_defaults_</a>
+<a name="defaults">__\_defaults__</a>
+
 The following were done with the __new MESASDK__ and __default inlist options__:
 ```
 !use_dedt_form_of_energy_eqn = .true. (should use Eq 65 in Paper 4, Paxton18)
