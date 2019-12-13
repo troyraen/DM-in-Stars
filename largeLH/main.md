@@ -1,8 +1,12 @@
-[op](Original Problem)
-[r10398](Results from MESA r10398)
-[r12115](Results from MESA r12115)
-[dedtgold](_dedt_gold)
-[defaults](_defaults)
+[Original Problem](op)
+
+[Results from MESA r10398](r10398)
+
+[Results from MESA r12115](r12115)
+
+[_dedt_gold](dedtgold)
+
+[_defaults](defaults)
 
 
 # Questions
@@ -58,7 +62,8 @@ In the process of making the above plot I realized that the luminosity goes comp
 <a name="r10398"></a>
 
 ```python
-hdf, pidf, h0df, pi0df = load_main_data(dr=dr_r10398)
+path_dict = {'dr': dr_r10398, 'run_key': ''}
+hdf, pidf, h0df, pi0df = load_main_data(**path_dict)
 ```
 #### which timesteps have profiles? (and plot lum v age)
 <!-- fs  -->
@@ -81,7 +86,7 @@ plot_lums_history(dic, profiles=pnums4df, hdf=hdf)
 #### plot luminosity profiles
 <!-- fs  -->
 ```python
-pdf = load_profiles_df(pnums4df)
+pdf = load_profiles_df(pnums4df, **path_dict)
 d = plot_lums_profiles(pdf, hdf=hdf)
 ```
 <img src="plots_r10398/lum_v_q_profiles.png" alt="lum_v_q_profiles.png"/>
@@ -124,7 +129,7 @@ improves energy conservation) and run these again.__
 <a name="r12115"></a>
 
 <!-- fs run_key: _dedt_gold -->
-<a name="">dedtgold</a>
+<a name="dedtgold"></a>
 The following were done with inlist options:
 ```
 use_dedt_form_of_energy_eqn = .true.
@@ -132,7 +137,7 @@ use_gold_tolerances = .true.
 !which_atm_option = 'simple_photosphere' (uses default, 'simple_photosphere' does not work in this version of MESA)
 ```
 I stopped the c6 run early to try other settings. It ran for about 60 hours.
-Restarting the model on __Osiris wnode3__ to let it finish:
+Now restarting the model on __Osiris wnode3__ to let it finish:
 ```bash
 cd DMS/mesaruns/RUNS_largeLH_mesa-r12115/c6/m1p0_dedt_gold
 # copy re file from mesaruns and alter path to star file
