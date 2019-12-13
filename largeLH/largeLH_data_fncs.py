@@ -349,6 +349,7 @@ def plot_center_abundances(hdf_dict, title='', save=None):
     plt.ylabel('fractional abundance')
     plt.legend()
     plt.title(title)
+    plt.tight_layout()
     if save is not None: plt.savefig(save)
     plt.show(block=False)
 

@@ -8,7 +8,7 @@
 
 # Questions
 
-- [ ]  Why is L < LH?
+- [x]  Why is L < LH?
     - Likely not conserving energy well enough. Runs using the new gold tolerances do not show this problem. Problem is reproduced in new MESA version with gold tolerances turned off, see [_gold_false](#goldfalse).
     - See MESA paper 5 (Paxton19) for a description of gold tolerances
 
@@ -17,6 +17,8 @@
 - [ ]  Why is eps_grav == 0 in run \_dedt_gold?
 
 - [ ]  Which energy scheme should I use?
+
+- [ ]  Given that MS lifetimes results are different and the runs are taking a lot longer, need to decide how many models to re-run.
 
 
 -----------------------------------------------------------------------------
@@ -136,7 +138,7 @@ use_gold_tolerances = .true.
 !which_atm_option = 'simple_photosphere' (uses default, 'simple_photosphere' does not work in this version of MESA)
 ```
 I stopped the c6 run early to try other settings. It ran for about 60 hours.
-Now restarting the model on __Osiris wnode3__ to let it finish:
+Now restarting the model (Friday 12/13 ~2pm) on __Osiris wnode3__ to let it finish:
 ```bash
 cd DMS/mesaruns/RUNS_largeLH_mesa-r12115/c6/m1p0_dedt_gold
 # copy re file from mesaruns and alter path to star file
@@ -185,9 +187,10 @@ lums = ['age','L','Lnuc','Lgrav']
 dic6 = lums_dict(hdf, lums)
 dic0 = lums_dict(h0df, lums)
 dic = {'0': dic0, '10^6': dic6}
-plot_lums_history_06(dic)
+plot_lums_history_06(dic, save=sd+'lum_v_age.png')
 
 ```
+<img src="plots_r12115/dedt_gold/lum_v_age.png" alt="lum_v_age" width="400"/>
 <!-- fe plot luminosities v age -->
 
 #### plot luminosity profiles
@@ -207,8 +210,8 @@ d0 = plot_lums_profiles(p0df, hdf=h0df, title='c0')
 <!-- fs  -->
 ```python
 hdf_dict = {'0': h0df.loc[h0df.star_age>1e7,:], '10^6': hdf.loc[hdf.star_age>1e7,:]}
-plot_lum_excess(hdf_dict)
-plot_energy_cons_error(hdf_dict, title='') # compare to Paxton19_Fig25.png
+plot_lum_excess(hdf_dict, save=sd+'Lexcess.png')
+plot_energy_cons_error(hdf_dict, save=sd+'rel_enery_error.png') # compare to Paxton19_Fig25.png
 ```
 
 <img src="plots_r12115/dedt_gold/Lexcess.png" alt="Lexcess" width="400"/> <img src="plots_r12115/dedt_gold/rel_enery_error.png" alt="rel_enery_error" width="400"/>
@@ -220,15 +223,20 @@ __Physical energy does not seem to be conserved during pre-ZAMS since Lgrav is 0
 #### plot other history columns
 <!-- fs  -->
 ```python
-hdf_dict = {'0': h0df.loc[h0df.star_age>1e7,:], '10^6': hdf.loc[hdf.star_age>1e7,:]}
+hdf_dict = {'0': h0df.loc[((h0df.star_age>1e7)&(h0df.star_age<3e9)),:], '10^6': hdf.loc[hdf.star_age>1e7,:]}
 plot_burning_06(hdf_dict)
-plot_center_abundances(hdf_dict)
+plot_center_abundances(hdf_dict, title='center H1', save=sd+'center_h1.png')
 ```
+<img src="plots_r12115/dedt_gold/center_h1.png" alt="center_h1"/>
 <!-- fe #### plot other history columns -->
 
 #### plot other profiles
 <!-- fs  -->
 ```python
+# pnums4df = [8,14]
+# p0nums4df = [30,32]
+# pdf = load_profiles_df(pnums4df, cb=6, **path_dict)
+# p0df = load_profiles_df(p0nums4df, cb=0, **path_dict)
 plot_Tx_minus_T_profiles(pdf)
 plot_convection(pdf)
 plot_T_profiles(pdf, title='c6')
