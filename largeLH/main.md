@@ -3,13 +3,14 @@
 - [Results from MESA r12115](#r12115)
     - [_dedt_gold](#dedtgold)
     - [_defaults](#defaults)
+    - [_gold_false](#goldfalse)
 
 
 # Questions
 
 - [ ]  Why is L < LH?
-    - likely not conserving energy well enough
-    - could also be due to the new gold tolerances
+    - Likely not conserving energy well enough. Runs using the new gold tolerances do not show this problem. Problem is reproduced in new MESA version with gold tolerances turned off, see [_gold_false](#goldfalse).
+    - See MESA paper 5 (Paxton19) for a description of gold tolerances
 
 - [ ]  Why are nx, np < 0 in run \_dedt_gold?
 
@@ -125,9 +126,9 @@ improves energy conservation) and run these again.__
 <!-- fs -->
 
 <!-- fs run_key: _dedt_gold -->
-<a name="dedtgold">__\_dedt_gold__</a>
+<a name="dedtgold">__run key: \_dedt_gold__</a>
 
-The following were done with inlist options:
+This run uses inlist options:
 ```
 use_dedt_form_of_energy_eqn = .true.
 use_gold_tolerances = .true.
@@ -247,9 +248,9 @@ __nx and np are negative... this doesn't make any sense.__ These are values I am
 
 ------------------------------------------------------------------------------
 <!-- fs run_key: _defaults -->
-<a name="defaults">__\_defaults__</a>
+<a name="defaults">__run key: \_defaults__</a>
 
-The following were done with the __new MESASDK__ and __default inlist options__:
+This run uses the __new MESASDK__ and __default inlist options__:
 ```
 !use_dedt_form_of_energy_eqn = .true. (should use Eq 65 in Paper 4, Paxton18)
 !use_gold_tolerances = .true. (still uses gold tolerances since this is default)
@@ -346,5 +347,53 @@ nx and np look normal again.
 <!-- fe plot other profiles -->
 
 <!-- fe run: _defaults -->
+
+------------------------------------------------------------------------------
+<!-- fs run_key: _gold_false -->
+<a name="goldfalse">__run key: \_gold\_false__</a>
+
+This run uses the __new MESASDK__ and __default energy equation and gold tolerances turned off__:
+```
+!use_dedt_form_of_energy_eqn = .true. (should use Eq 65 in Paper 4, Paxton18)
+use_gold_tolerances = .false.
+!which_atm_option = 'simple_photosphere' (uses default, 'simple_photosphere' does not work in this version of MESA)
+```
+
+```python
+sd = 'plots_r12115/gold_false/' # dir to save plots
+path_dict = {'dr': dr_r12115, 'run_key': '_gold_false'}
+hdf, pidf, h0df, pi0df = load_main_data(**path_dict)
+```
+
+#### plot luminosities v age
+<!-- fs  -->
+```python
+# plot both c0, c6 together
+lums = ['age','L','Lnuc','Lgrav']
+dic6 = lums_dict(hdf, lums)
+dic0 = lums_dict(h0df, lums)
+dic = {'0': dic0, '10^6': dic6}
+plot_lums_history_06(dic, save=sd+'lums_v_age.png')
+
+```
+__Original problem is reproduced (along with oscillations and a short lifetime):__
+
+<img src="plots_r12115/gold_false/lums_v_age.png" alt="lums_v_age"/>
+<!-- fe plot luminosities v age -->
+
+#### check conservation of energy
+<!-- fs  -->
+```python
+hdf_dict = {'0': h0df.loc[h0df.star_age>1e7,:], '10^6': hdf.loc[hdf.star_age>1e7,:]}
+plot_lum_excess(hdf_dict, save=sd+'Lexcess.png')
+plot_energy_cons_error(hdf_dict, title='', save=sd+'rel_energy_error.png') # compare to Paxton19_Fig25.png
+```
+
+<img src="plots_r12115/gold_false/Lexcess.png" alt="Lexcess.png" width="400"/> <img src="plots_r12115/gold_false/rel_energy_error.png" alt="rel_energy_error.png" width="400"/>
+
+<!-- fe check conservation of energy -->
+
+<!-- fe run: _gold_false -->
+
 
 <!-- fe # Results from newest MESA version (r12115) -->
