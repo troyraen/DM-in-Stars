@@ -143,7 +143,8 @@ nohup nice ./re x250 &>> LOGS/STD.out &
 MESASDK has been updated since this run was started, but I don't think that should make any difference.
 
 ```python
-hdf, pidf, h0df, pi0df = load_main_data(dr=dr_r12115, run_key='_dedt_gold')
+path_dict = {'dr': dr_r12115, 'run_key': '_dedt_gold'}
+hdf, pidf, h0df, pi0df = load_main_data(**path_dict)
 ```
 
 #### which timesteps have profiles? (and plot lum v age)
@@ -187,9 +188,9 @@ plot_lums_history_06(dic)
 #### plot luminosity profiles
 <!-- fs  -->
 ```python
-pdf = load_profiles_df(pnums4df, cb=6)
+pdf = load_profiles_df(pnums4df, cb=6, **path_dict)
 d = plot_lums_profiles(pdf, hdf=hdf, title='c6')
-p0df = load_profiles_df(p0nums4df, cb=0)
+p0df = load_profiles_df(p0nums4df, cb=0, **path_dict)
 d0 = plot_lums_profiles(p0df, hdf=h0df, title='c0')
 ```
 <img src="plots_r12115/lum_v_q_c0_profiles.png" alt="lum_v_q_c0_profiles"/>
@@ -254,7 +255,9 @@ The following were done with the __new MESASDK__ and __default inlist options__:
 I stopped the c6 run early to try other settings. It ran for about 24 hours.
 
 ```python
-hdf, pidf, h0df, pi0df = load_main_data(dr=dr_r12115, run_key='_defaults')
+sd = 'plots_r12115/defaults/' # dir to save plots
+path_dict = {'dr': dr_r12115, 'run_key': '_defaults'}
+hdf, pidf, h0df, pi0df = load_main_data(**path_dict)
 ```
 
 #### which timesteps have profiles? (and plot lum v age)
@@ -292,10 +295,10 @@ plot_lums_history_06(dic)
 ```python
 # load profiles to df
 # get pnums4df from 'which timesteps have profiles?' section
-pdf = load_profiles_df(pnums4df, cb=6)
+pdf = load_profiles_df(pnums4df, cb=6, **path_dict)
 d = plot_lums_profiles(pdf, hdf=hdf, title='c6')
 
-p0df = load_profiles_df(p0nums4df, cb=0)
+p0df = load_profiles_df(p0nums4df, cb=0, **path_dict)
 d0 = plot_lums_profiles(p0df, hdf=h0df, title='c0')
 ```
 <!-- fe #### plot luminosity profiles -->
