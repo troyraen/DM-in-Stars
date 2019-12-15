@@ -63,7 +63,7 @@
 
 
 ! new (2018,2019) options for energy conservation
-    !use_dedt_form_of_energy_eqn = .true.
+    use_dedt_form_of_energy_eqn = .true.
     use_gold_tolerances = .true.
 
 
