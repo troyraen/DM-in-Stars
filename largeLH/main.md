@@ -4,6 +4,7 @@
     - [_dedt_gold](#dedtgold)
     - [_defaults](#defaults)
     - [_gold_false](#goldfalse)
+    - [high mass](#highmass)
 
 
 # Questions
@@ -19,6 +20,9 @@
 - [ ]  Which energy scheme should I use?
 
 - [ ]  Given that MS lifetimes results are different and the runs are taking a lot longer, need to decide how many models to re-run.
+
+
+- [ ]  to do: Review inlist options. Currently set to match MIST as much as possible, but several things had to be removed and the remaining are still complicated and I don't understand them all.
 
 
 -----------------------------------------------------------------------------
@@ -223,7 +227,7 @@ __Physical energy does not seem to be conserved during pre-ZAMS since Lgrav is 0
 #### plot other history columns
 <!-- fs  -->
 ```python
-hdf_dict = {'0': h0df.loc[((h0df.star_age>1e7)&(h0df.star_age<3e9)),:], '10^6': hdf.loc[hdf.star_age>1e7,:]}
+hdf_dict = {'0': h0df.loc[h0df.star_age>1e7,:], '10^6': hdf.loc[hdf.star_age>1e7,:]}
 plot_burning_06(hdf_dict)
 plot_center_abundances(hdf_dict, title='center H1', save=sd+'center_h1.png')
 ```
@@ -407,5 +411,52 @@ Energy is not well conserved:
 
 <!-- fe run: _gold_false -->
 
+
+------------------------------------------------------------------------------
+<!-- fs run: high mass -->
+<a name="highmass">__run: high mass__</a>
+
+Running higher mass models on Osiris node3:
+```bash
+nohup nice ./bash_scripts/run_osiris.sh &>> STD_nohup.out &
+```
+
+Run first using
+```
+!use_dedt_form_of_energy_eqn = .true.
+use_gold_tolerances = .false.
+```
+whoops, now
+\_defaults
+```
+!use_dedt_form_of_energy_eqn = .true.
+use_gold_tolerances = .true.
+```
+finally
+\_dedt_gold
+```
+use_dedt_form_of_energy_eqn = .true.
+use_gold_tolerances = .true.
+```
+
+```python
+sd = 'plots_r12115/high_mass/' # dir to save plots
+
+hdfdef = load_all_history(dr=dr_r12115, run_key='_defaults')
+hdfdedt = load_all_history(dr=dr_r12115, run_key='_dedt_gold')
+
+for h,l in zip([hdfdef, hdfdedt],['_defaults','_dedt_gold']):
+    hdf_dict = {}
+    g = h.groupby(['run_key','cb','mass'])
+    for i,d in g:
+        hdf_dict[f'm{i[2]}, c{i[1]}'] = d
+    plot_energy_cons_error(hdf_dict, title=l, save=sd+'rel_energy_error'+l+'.png')
+    plot_lum_excess(hdf_dict, title=l, save=sd+'Lexcess'+l+'.png')
+    # plot_debug(hdf_dict, title=l)#, save=sd+'debug'+l+'.png')
+    plot_mstau(h, title=l, save=sd+'MStau'+l+'.png')
+
+```
+See plots in `plots_r12115/high_mass/`
+<!-- fe run: high mass -->
 
 <!-- fe # Results from newest MESA version (r12115) -->

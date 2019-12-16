@@ -80,6 +80,21 @@ def load_profiles_df(pnums4df, cb=6, dr=dr_r12115, run_key=''):
 
     return pdf
 
+def load_all_history(dr=dr_r12115, run_key=''):
+    hlist = []
+    for cb in os.listdir(dr):
+        for mdir in os.listdir(os.path.join(dr,cb)):
+            if run_key.split('_')[1:] == mdir.split('_')[1:]:
+                hpath = os.path.join(dr,cb,mdir,'LOGS/history.data')
+                h = pd.read_csv(hpath, header=4, sep='\s+')
+
+                m = float('.'.join(mdir.split('_')[0].strip('m').split('p')))
+                h['run_key'], h['cb'], h['mass'] = run_key, int(cb[-1]), m
+                hlist.append(h.set_index(['run_key','cb','mass']))
+    hdf = pd.concat(hlist, axis=0)
+
+    return hdf
+
 def lums_dict(hdf, lums, age_cut=1e7):
     h = hdf.loc[hdf.star_age>age_cut,:]
     age = h.star_age
@@ -282,7 +297,7 @@ def plot_energy_cons_error(hdf_dict, title='', save=None):
     plt.show(block=False)
 
 # plot luminosity excess
-def plot_lum_excess(hdf_dict, save=None):
+def plot_lum_excess(hdf_dict, title='', save=None):
     plt.figure()
 
     lums = ['age','L','Lnuc','Lgrav','Ltneu']
@@ -299,6 +314,7 @@ def plot_lum_excess(hdf_dict, save=None):
     plt.xlabel('star_age')
     plt.ylabel(r'L$_{excess}$ = L+L$_\nu$-L$_{nuc}$-L$_{grav}$ [L$_\odot$]')
     plt.legend()
+    plt.title(title)
     plt.tight_layout()
     if save is not None: plt.savefig(save)
     plt.show(block=False)
@@ -545,3 +561,59 @@ def plot_convection(pdf, save=None):
 
 
 # fe----- plot other profiles -----#
+
+
+
+# fs----- high masses -----#
+def plot_col(hdf, col='log_L'):
+    g = hdf.loc[hdf.star_age>1e7,:].groupby(['run_key','cb','mass'])
+    plt.figure(figsize=(10,6))
+    ax = plt.gca()
+    for i,d in g:
+        print(i[1])
+        d.plot('star_age',col, ax=ax, label=i, logx=True)
+    plt.show(block=False)
+    return None
+
+def plot_mstau(hdf, title='', save=None):
+    msdf = calc_MSlifetimes(hdf)
+
+    plt.figure()
+    ax = plt.gca()
+    g = msdf.groupby(['run_key','cb'])
+    for i,d in g:
+        cb = i[1]
+        d = d.reset_index('mass')
+        plt.scatter(d.mass,d.deltaMS, label=cb, lw=cb, zorder=-cb)
+
+    plt.ylim((-0.79,0.21))
+    plt.semilogx()
+    plt.xlabel(r'Star Mass [M$_\odot$]')
+    plt.ylabel(r'$\Delta \tau_{MS} / \tau_{MS,\ NoDM}$')
+    plt.legend()
+    plt.title(title)
+    plt.tight_layout()
+    if save is not None: plt.savefig(save)
+    plt.show(block=False)
+
+def calc_MSlifetimes(hdf):
+    msdf = pd.DataFrame(index=hdf.index.unique(), columns=['MStau', 'deltaMS'])
+    g = hdf.groupby(['run_key','cb','mass'])
+    for i,d in g:
+        d = d.sort_values('star_age')
+        enter = d.loc[d.center_h1<(d.center_h1.iloc[0]-0.0015),'star_age'].iloc[0]
+        try:
+            leave = d.loc[d.center_h1<0.001,'star_age'].iloc[0]
+        except:
+            continue
+        msdf.loc[i,'MStau'] = leave-enter
+        if i[1] == 0:
+            msdf.loc[i,'deltaMS'] = 0
+        else:
+            ms0 = msdf.loc[(i[0],0,i[2]),'MStau']
+            msdf.loc[i,'deltaMS'] = (msdf.loc[i,'MStau'] - ms0)/ms0
+
+    return msdf
+
+
+# fe----- high masses -----#
