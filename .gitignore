@@ -4,3 +4,6 @@ png/
 photos/
 **/.DS_Store
 MIST_files/
+
+**/.ipynb_checkpoints
+**__pycache__
