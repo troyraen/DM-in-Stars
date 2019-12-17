@@ -57,6 +57,7 @@
       write_header_frequency = 10
 
       max_years_for_timestep = 1d9
+      report_why_dt_limits = .true.
 
       read_extra_controls_inlist1 = .true.
       extra_controls_inlist1_name = 'inlist_options'
