@@ -13,14 +13,17 @@
     - Likely not conserving energy well enough. Runs using the new gold tolerances do not show this problem. Problem is reproduced in new MESA version with gold tolerances turned off, see [_gold_false](#goldfalse).
     - See MESA paper 5 (Paxton19) for a description of gold tolerances
 
-- [ ]  Why are nx, np < 0 in run \_dedt_gold?
-
-- [ ]  Why is eps_grav == 0 in run \_dedt_gold?
-
 - [ ]  Which energy scheme should I use?
 
-- [ ]  Given that MS lifetimes results are different and the runs are taking a lot longer, need to decide how many models to re-run.
+    - [ ]  Why are nx, np < 0 in run \_dedt_gold?
 
+    - [ ]  Why is eps_grav == 0 in run \_dedt_gold?
+
+    - energy conserved less well in default scheme, but this may be acceptable
+
+    - [ ]  Is there a time difference?
+
+- [ ]  Given that MS lifetimes results are different and the runs are taking a lot longer, need to decide how many models to re-run.
 
 - [ ]  to do: Review inlist options. Currently set to match MIST as much as possible, but several things had to be removed and the remaining are still complicated and I don't understand them all.
 
@@ -191,7 +194,7 @@ lums = ['age','L','Lnuc','Lgrav']
 dic6 = lums_dict(hdf, lums)
 dic0 = lums_dict(h0df, lums)
 dic = {'0': dic0, '10^6': dic6}
-plot_lums_history_06(dic, save=sd+'lum_v_age.png')
+plot_lums_history_06(dic)#, save=sd+'lum_v_age.png')
 
 ```
 <img src="plots_r12115/dedt_gold/lum_v_age.png" alt="lum_v_age" width="400"/>
@@ -460,3 +463,25 @@ See plots in `plots_r12115/high_mass/`
 <!-- fe run: high mass -->
 
 <!-- fe # Results from newest MESA version (r12115) -->
+
+
+# Start new Main Runs
+<!-- fs  -->
+On Osiris node3, using
+```
+# inlist:
+use_dedt_form_of_energy_eqn = .true. # first runs had this commented out but m4p5 c0 failed
+use_gold_tolerances = .true.
+# Runs dir from run_osiris#.sh:
+RUNS="RUNS_3test_final"
+```
+_m4p5 still did not finish... check MIST inlist stuff_
+
+```bash
+./clean
+./mk
+
+nohup nice ./bash_scripts/run_osiris1.sh &>> STD1_nohup.out &
+nohup nice ./bash_scripts/run_osiris2.sh &>> STD2_nohup.out &
+```
+<!-- fe # Start new Main Runs -->
