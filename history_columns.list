@@ -74,10 +74,12 @@
     center_Rho ! density
     center_P ! pressure
     center_degeneracy ! the electron chemical potential in units of k*T
+    center_gamma ! plasma interaction parameter, needed for MIST isochrones
 
 ! individual central & surface mass fractions (as many as desired)
     center h1
     center he4
+    center c12 ! needed for MIST isochrones
     surface h1
     surface he4
 
