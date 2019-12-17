@@ -317,7 +317,7 @@
          names(6) = 'extra_energy'
          vals(6) = calc_xenergy(id, id_extra) ! ergs
          names(7) = 'xL/Lnuc'
-         vals(7) = s% xtra6
+         vals(7) = s% xtra(6)
 
       end subroutine data_for_extra_history_columns
 
@@ -391,6 +391,7 @@
          integer, intent(in) :: id, id_extra
          integer :: ierr, num_dt_low = 0
          LOGICAL :: exist, flg1=.FALSE., flg2=.FALSE., flg3=.FALSE., flg4=.FALSE.
+         LOGICAL :: flg5=.FALSE., flg6=.FALSE., flg7=.FALSE., flg8=.FALSE.
          type (star_info), pointer :: s
          ierr = 0
          call star_ptr(id, s, ierr)
@@ -399,7 +400,7 @@
          extras_finish_step = keep_going
          call store_extra_info(s)
 
-         s% xtra1 = s% xtra2  !! = Nx (so wimps are not collected when step is not accepted)
+         s% xtra(1) = s% xtra(2)  !! = Nx (so wimps are not collected when step is not accepted)
 
          IF ( (.NOT. flg1) .AND. (s% center_h1 .LT. 0.71D0) ) THEN
          	flg1 = .TRUE.
@@ -407,23 +408,47 @@
          	s% need_to_save_profiles_now = .true.
          	s% save_profiles_model_priority = 99	!! ENTER MS
          ENDIF
-         IF ( (.NOT. flg2) .AND. (s% center_h1 .LT. 1.D-2) ) THEN
+         IF ( (.NOT. flg2) .AND. (s% center_h1 .LT. 0.3D0) ) THEN
          	flg2 = .TRUE.
          	s% need_to_update_history_now = .true.
          	s% need_to_save_profiles_now = .true.
-         	s% save_profiles_model_priority = 98	!! LEAVE MS
+         	s% save_profiles_model_priority = 98	!! INTERMEDIATE MS
          ENDIF
-         IF ( (.NOT. flg3) .AND. (s% power_he_burn .GT. 1.D6) ) THEN
+         IF ( (.NOT. flg3) .AND. (s% center_h1 .LT. 1.D-1) ) THEN
          	flg3 = .TRUE.
          	s% need_to_update_history_now = .true.
          	s% need_to_save_profiles_now = .true.
-         	s% save_profiles_model_priority = 97	!! He IGNITION
+         	s% save_profiles_model_priority = 97
          ENDIF
-         IF ( (.NOT. flg4) .AND. (s% center_he4 .LT. 1.D-2) ) THEN
+         IF ( (.NOT. flg4) .AND. (s% center_h1 .LT. 1.D-2) ) THEN
          	flg4 = .TRUE.
          	s% need_to_update_history_now = .true.
          	s% need_to_save_profiles_now = .true.
-         	s% save_profiles_model_priority = 96	!! He EXHAUSTED
+         	s% save_profiles_model_priority = 96
+         ENDIF
+         IF ( (.NOT. flg5) .AND. (s% center_h1 .LT. 1.D-3) ) THEN
+         	flg5 = .TRUE.
+         	s% need_to_update_history_now = .true.
+         	s% need_to_save_profiles_now = .true.
+         	s% save_profiles_model_priority = 95	!! LEAVE MS
+         ENDIF
+         IF ( (.NOT. flg6) .AND. (s% center_h1 .LT. 1.D-12) ) THEN
+         	flg6 = .TRUE.
+         	s% need_to_update_history_now = .true.
+         	s% need_to_save_profiles_now = .true.
+         	s% save_profiles_model_priority = 94	!! TAMS
+         ENDIF
+         IF ( (.NOT. flg7) .AND. (s% power_he_burn .GT. 1.D6) ) THEN
+         	flg7 = .TRUE.
+         	s% need_to_update_history_now = .true.
+         	s% need_to_save_profiles_now = .true.
+         	s% save_profiles_model_priority = 93	!! He IGNITION
+         ENDIF
+         IF ( (.NOT. flg8) .AND. (s% center_he4 .LT. 1.D-2) ) THEN
+         	flg8 = .TRUE.
+         	s% need_to_update_history_now = .true.
+         	s% need_to_save_profiles_now = .true.
+         	s% save_profiles_model_priority = 92	!! He EXHAUSTED
          ENDIF
 
          IF ( MOD(s% model_number, 1000) .EQ. 0) THEN
@@ -432,7 +457,19 @@
          	s% save_profiles_model_priority = 10
          ENDIF
 
-         ! IF ( (ABS(s% xtra6_older).GT.0.085) .AND. (s% xtra4.GT.0.2) ) THEN
+         IF ( MOD(s% model_number, 10000) .EQ. 0) THEN
+         	s% need_to_update_history_now = .true.
+         	s% need_to_save_profiles_now = .true.
+         	s% save_profiles_model_priority = 50
+         ENDIF
+
+         IF ( MOD(s% model_number, 100000) .EQ. 0) THEN
+         	s% need_to_update_history_now = .true.
+         	s% need_to_save_profiles_now = .true.
+         	s% save_profiles_model_priority = 75
+         ENDIF
+
+         ! IF ( (ABS(s% xtra6_older).GT.0.085) .AND. (s% xtra(4).GT.0.2) ) THEN
          !     extras_finish_step = terminate
          ! ENDIF
          ! IF ( s% model_number .GT. 2973) THEN
