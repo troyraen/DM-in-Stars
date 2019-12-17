@@ -1,6 +1,9 @@
+- [new Main Runs](#mainruns)
+
+
 # Questions
 
-- [ ]  Why do some runs not finish? e.g. m4p5c0 and many others
+- [ ]  Why do some runs not finish? e.g. m4p5c0 (and many others)
     - [ ]  Need to review inlist options. Currently set to match MIST as much as possible, but several things had to be removed and the remaining are still complicated and I don't understand them all.
 
 - [ ]  Runtimes
@@ -11,8 +14,8 @@
 
 
 
-
-# Start new Main Runs
+<a name="mainruns"></a>
+# Start new Main Runs in dir `RUNS_3test_final`
 <!-- fs  -->
 On Osiris node3, using
 ```
