@@ -1,0 +1,2 @@
+#Table Version   6
+#[Z/Z_SOLAR]=-5.00 [A/Fe]= 0.0 A09     | VALID RANGE:   25  25  25  25  25  25  25  25  25  25  25

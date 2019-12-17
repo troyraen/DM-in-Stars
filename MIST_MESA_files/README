@@ -1,0 +1,41 @@
+|---------------------------------------------------|
+|   .............BEFORE PROCEEDING...............   |
+| Download and install MESA v7503 by following the  |
+| instructions on                                   |
+| http://mesa.sourceforge.net/prereqs.html#toc-1-6  |
+|---------------------------------------------------|
+
+|---------------------------------------------------|
+|   ...........HOW TO USE THESE FILES............   |
+| The contents of MESA_files/mesa_source directory  |
+| should replace the following files in the user's  |
+| copy of MESA v7503.                               |
+|---------------------------------------------------|
+
+  mesa/atm/public/atm_def.f90
+  mesa/atm/private/table_atm.f90
+
+  mesa/const/public/const_def.f90
+
+  mesa/data/net_data/nets/mesa_49.net
+  mesa/data/atm_data/*
+
+  mesa/star/private/init.f90
+  mesa/star/public/star_lib.f90
+  
+|---------------------------------------------------|
+| Next, cd into mesa/atm, mesa/const, and mesa/star |
+| individually and do ./clean, ./mk, and ./export   |
+|---------------------------------------------------|
+
+|---------------------------------------------------|
+|   ..............HOW TO RUN MODELS..............   |
+| To run MESA models using the included inlists and |
+| run_star_extras.f, the user must place            |
+| run_star_extars.f in work/src, then do ./clean    |
+| and ./mk in the work directory to recompile.      |
+| In the inlists, the following input fields need   |
+| to be replaced with the desired values:           |
+| <<H1>> <<H2>> <<He3>> <<He4>>                     |   
+| <<MASS>> <<BC_TABLE>> <<HISTORY_NAME>>            |
+|---------------------------------------------------|
