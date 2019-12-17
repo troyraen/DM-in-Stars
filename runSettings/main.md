@@ -3,7 +3,7 @@
 
 # Questions
 
-- [ ]  Why do some runs not finish? e.g. m4p5c0 (and many others)
+- [ ]  __Why do some runs not finish?__ e.g. m4p5c0 (and many others)
     - [ ]  Need to review inlist options. Currently set to match MIST as much as possible, but several things had to be removed and the remaining are still complicated and I don't understand them all.
 
 - [ ]  Runtimes
@@ -34,6 +34,13 @@ nohup nice ./bash_scripts/run_osiris1.sh &>> STD1_nohup.out &
 nohup nice ./bash_scripts/run_osiris2.sh &>> STD2_nohup.out &
 ```
 
-__m4p5c0 (and several others) still did not finish... check MIST inlist stuff__
+__m4p5c0 (and several others) still did not finish.__ Terminate with errors:.
+```
+stopping because of problems dt < min_timestep_limit
+terminated evolution: cannot find acceptable model
+termination code: min_timestep_limit
+```
+__Check MIST inlist stuff.__
+
 
 <!-- fe # Start new Main Runs -->
