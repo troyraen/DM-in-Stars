@@ -10,7 +10,7 @@
 # Questions
 
 - [x]  Why is L < LH?
-    - Likely not conserving energy well enough. Runs using the new gold tolerances do not show this problem. Problem is reproduced in new MESA version with gold tolerances turned off, see [_gold_false](#goldfalse).
+    - Likely not conserving energy well enough. __Runs using the new gold tolerances do not show this problem (see [_dedt_gold](#dedtgold) and [_defaults](#defaults)). Problem is reproduced in new MESA version with gold tolerances turned off (see [_gold_false](#goldfalse))__.
     - See MESA paper 5 (Paxton19) for a description of gold tolerances
 
 - [ ]  Which energy scheme should I use?
@@ -23,9 +23,6 @@
 
     - [ ]  Is there a time difference?
 
-- [ ]  Given that MS lifetimes results are different and the runs are taking a lot longer, need to decide how many models to re-run.
-
-- [ ]  to do: Review inlist options. Currently set to match MIST as much as possible, but several things had to be removed and the remaining are still complicated and I don't understand them all.
 
 
 -----------------------------------------------------------------------------
@@ -145,12 +142,13 @@ use_gold_tolerances = .true.
 !which_atm_option = 'simple_photosphere' (uses default, 'simple_photosphere' does not work in this version of MESA)
 ```
 I stopped the c6 run early to try other settings. It ran for about 60 hours.
-Now restarting the model (Friday 12/13 ~2pm) on __Osiris wnode3__ to let it finish:
+Now restarting the model (Friday 12/13 ~2pm) on __Osiris wnode3__ to let it finish.
+Stopped again to let other models run. Ran for about 90 hours. Age is 4.85e9.
 ```bash
 cd DMS/mesaruns/RUNS_largeLH_mesa-r12115/c6/m1p0_dedt_gold
 # copy re file from mesaruns and alter path to star file
-# revert history_columns.list and profile_columns.list to version from 7 days ago
-# (get from github) and update inlist to read them
+# revert history_columns.list and profile_columns.list to version from beginning
+# of run (get from github) and update inlist to read them
 nohup nice ./re x250 &>> LOGS/STD.out &
 ```
 MESASDK has been updated since this run was started, but I don't think that should make any difference.
@@ -194,7 +192,7 @@ lums = ['age','L','Lnuc','Lgrav']
 dic6 = lums_dict(hdf, lums)
 dic0 = lums_dict(h0df, lums)
 dic = {'0': dic0, '10^6': dic6}
-plot_lums_history_06(dic)#, save=sd+'lum_v_age.png')
+plot_lums_history_06(dic, save=sd+'lum_v_age.png')
 
 ```
 <img src="plots_r12115/dedt_gold/lum_v_age.png" alt="lum_v_age" width="400"/>
@@ -230,7 +228,8 @@ __Physical energy does not seem to be conserved during pre-ZAMS since Lgrav is 0
 #### plot other history columns
 <!-- fs  -->
 ```python
-hdf_dict = {'0': h0df.loc[h0df.star_age>1e7,:], '10^6': hdf.loc[hdf.star_age>1e7,:]}
+hdf_dict = {'0': h0df.loc[((h0df.star_age>1e7)&(h0df.star_age<hdf.star_age.max())),:],
+            '10^6': hdf.loc[hdf.star_age>1e7,:]}
 plot_burning_06(hdf_dict)
 plot_center_abundances(hdf_dict, title='center H1', save=sd+'center_h1.png')
 ```
@@ -463,25 +462,3 @@ See plots in `plots_r12115/high_mass/`
 <!-- fe run: high mass -->
 
 <!-- fe # Results from newest MESA version (r12115) -->
-
-
-# Start new Main Runs
-<!-- fs  -->
-On Osiris node3, using
-```
-# inlist:
-use_dedt_form_of_energy_eqn = .true. # first runs had this commented out but m4p5 c0 failed
-use_gold_tolerances = .true.
-# Runs dir from run_osiris#.sh:
-RUNS="RUNS_3test_final"
-```
-_m4p5 still did not finish... check MIST inlist stuff_
-
-```bash
-./clean
-./mk
-
-nohup nice ./bash_scripts/run_osiris1.sh &>> STD1_nohup.out &
-nohup nice ./bash_scripts/run_osiris2.sh &>> STD2_nohup.out &
-```
-<!-- fe # Start new Main Runs -->
