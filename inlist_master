@@ -1,14 +1,22 @@
 
 &star_job
 
+    history_columns_file = '/home/tjr63/DMS/mesaruns/history_columns.list'
+    profile_columns_file = '/home/tjr63/DMS/mesaruns/profile_columns.list'
+
+    read_extra_star_job_inlist1 = .true.
+    extra_star_job_inlist1_name = 'inlist_options'
+
       show_log_description_at_start = .false.
 
-      load_saved_model = .true.
-      saved_model_name = 'start.mod'
+      create_pre_main_sequence_model = .true.
+      pre_ms_relax_num_steps = 50
 
       save_model_when_terminate = .true.
-      save_model_filename = 'end_agb.mod'
-      required_termination_code_string = 'envelope_mass_limit'
+      save_model_filename = 'final.mod'
+      save_photo_when_terminate = .true.
+      write_profile_when_terminate = .true.
+      filename_for_profile_when_terminate = 'LOGS/profile0.data'
 
       kappa_file_prefix = 'gs98'
 
@@ -24,20 +32,29 @@
       change_D_omega_flag = .true.
       new_D_omega_flag = .true.
 
-      set_initial_cumulative_energy_error = .true.
-      new_cumulative_energy_error = 0d0
-
-      set_initial_age = .true.
-      initial_age = 0
-
-      set_initial_model_number = .true.
-      initial_model_number = 0
-
-      !pgstar_flag = .true.
-
 / ! end of star_job namelist
 
 &controls
+
+!	STOPPING CONDITIONS
+      log_L_lower_limit = -1.0
+	  stop_at_TP = .TRUE.
+
+
+!   SAVE DATA
+      photo_interval = 50
+      profile_interval = 1000
+	  max_num_profile_models = 10
+	  write_controls_info_with_profile = .true.
+      history_interval = 1
+      terminal_interval = 100
+      write_header_frequency = 10
+
+!     MY OPTIONS
+      read_extra_controls_inlist1 = .true.
+      extra_controls_inlist1_name = 'inlist_options'
+      report_why_dt_limits = .true.
+
 
       use_gold_tolerances = .true.
       use_eosELM = .true.
@@ -53,14 +70,8 @@
       trace_history_value_name(1) = 'rel_E_err'
       trace_history_value_name(2) = 'log_rel_run_E_err'
 
-      ! check for retries and backups as part of test_suite
-         max_number_backups = 10
-         max_number_retries = 160
-         max_model_number = 6500
-
       backup_hold = 3
 
-      initial_mass = 1.0
       initial_z = 0.02d0
 
       use_Type2_opacities = .true.
@@ -88,71 +99,7 @@
       Reimers_scaling_factor = 0.8d0
       Blocker_scaling_factor = 0.7d0 ! 0.8d0
 
-      photo_interval = 50
-      profile_interval = 50
-      history_interval = 10
-      terminal_interval = 10
-      write_header_frequency = 10
 
-      !photo_interval = 1
-      !profile_interval = 1
-      !terminal_interval = 1
-      !history_interval = 1
-
-! FOR DEBUGGING
-
-      !report_hydro_solver_progress = .true. ! set true to see info about newton iterations
-      !report_ierr = .true. ! if true, produce terminal output when have some internal error
-      !hydro_show_correction_info = .true.
-
-      ! hydro debugging
-      !hydro_check_everything = .true.
-      !hydro_inspectB_flag = .true.
-      !hydro_sizequ_flag = .true.
-
-      !hydro_get_a_numerical_partial = 1d-4
-      !hydro_test_partials_k = 1
-      !hydro_numerical_jacobian = .true.
-      !hydro_save_numjac_plot_data = .true.
-      !hydro_dump_call_number = 3447
-      !hydro_dump_iter_number = 7
-      !hydro_epsder_struct = 1d-6
-      !hydro_epsder_chem = 1d-6
-
-      !fill_arrays_with_NaNs = .true.
-      !stop_for_NaNs = .true.
-
-      !max_years_for_timestep = 3.67628942044319d-05
-
-      !report_why_dt_limits = .true.
-      !report_all_dt_limits = .true.
-      !report_hydro_dt_info = .true.
-
-      !show_mesh_changes = .true.
-      !mesh_dump_call_number = 5189
-      !okay_to_remesh = .false.
-
-      !trace_evolve = .true.
-
-      !trace_newton_bcyclic_solve_input = .true. ! input is "B" j k iter B(j,k)
-      !trace_newton_bcyclic_solve_output = .true. ! output is "X" j k iter X(j,k)
-
-      !trace_newton_bcyclic_matrix_input = .true.
-      !trace_newton_bcyclic_matrix_output = .true.
-
-      !trace_newton_bcyclic_steplo = 1 ! 1st model number to trace
-      !trace_newton_bcyclic_stephi = 1 ! last model number to trace
-
-      !trace_newton_bcyclic_iterlo = 2 ! 1st newton iter to trace
-      !trace_newton_bcyclic_iterhi = 2 ! last newton iter to trace
-
-      !trace_newton_bcyclic_nzlo = 1 ! 1st cell to trace
-      !trace_newton_bcyclic_nzhi = 10000 ! last cell to trace; if < 0, then use nz as nzhi
-
-      !trace_newton_bcyclic_jlo = 1 ! 1st var to trace
-      !trace_newton_bcyclic_jhi = 100 ! last var to trace; if < 0, then use nvar as jhi
-
-      !trace_k = 0
 
 
 / ! end of controls namelist
@@ -161,39 +108,7 @@
 
 &pgstar
 
-
-
-
-      Grid6_win_flag = .true.
-      Grid6_win_width = 11
-
-      !Grid6_file_flag = .true.
-      Grid6_file_dir = 'png'
-      Grid6_file_prefix = 'grid6_'
-      Grid6_file_interval = 5 ! output when mod(model_number,Grid6_file_interval)==0
-      Grid6_file_width = -1 ! (inches) negative means use same value as for window
-      Grid6_file_aspect_ratio = -1 ! negative means use same value as for window
-
-      Summary_Burn_xaxis_name = 'mass'
-      Summary_Burn_xaxis_reversed = .false.
-      Summary_Burn_xmin = 0.00 ! -101d0 ! only used if /= -101d0
-      Summary_Burn_xmax = 2.1  ! only used if /= -101d0
-
-      Abundance_xaxis_name = 'mass'
-      Abundance_xaxis_reversed = .false.
-      ! power xaxis limits -- to override system default selections
-      Abundance_xmin = 0.00 ! -101d0 ! only used if /= -101d0
-      Abundance_xmax = -101d0 ! only used if /= -101d0
-      Abundance_log_mass_frac_min = -6 ! only used if < 0
-
-      !Profile_Panels4_win_flag = .true.
-      !Profile_Panels4_win_width = 6
-
-      ! Abundance window -- current model abundance profiles
-
-         !Abundance_win_flag = .true.
-
-         Abundance_win_width = 9
-         Abundance_win_aspect_ratio = 0.75 ! aspect_ratio = height/width
+    read_extra_pgstar_inlist1 = .true.
+    extra_pgstar_inlist1_name = 'inlist_options'
 
 / ! end of pgstar namelist
