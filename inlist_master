@@ -47,15 +47,17 @@
 !CHANGE SOLAR ABUNDANCES
 
       set_uniform_initial_composition = .true.
-      !initial_h1 = <<H1>>
-      !initial_h2 = <<H2>>
-      !initial_he3 = <<He3>>
-      !initial_he4 = <<He4>>
+      initial_h1 = 7.155D-1
+      initial_h2 = 1.431D-5
+      initial_he3 = 4.48698D-5
+      initial_he4 = 2.703D-1
       !!for initial Z = <<Z>>
-  ! NOT SURE WHAT TO SET FOR initial_h1, etc., INSTEAD USING initial_z IN controls
-  ! BUT THESE AREN'T EQUIVALENT, SO NOT SURE WHAT WILL HAPPEN
-  ! THESE ARE PROBABLY NEEDED FOR run_star_extras.
-  ! COMMENTING THESE OUT USES DEFAULTS, WHICH I THINK IS FINE.
+      ! CALCULATED AS FOLLOWS:
+        ! These two are set below: initial_z = 0.0142, initial_y = 0.2703
+        ! Therefore initial_x = 1-initial_y-initial_z = 0.7155
+        ! Use ratios from MIST1 (Choi16) and set
+        ! initial_h1 = initial_x, initial_h2 = 2D-5*initial_h1
+        ! initial_he4 = initial_y, initial_he3 = 1.66D-4*initial_he4
 
       initial_zfracs = 6 ! AGSS09_zfracs
 
