@@ -167,7 +167,7 @@
       radiation_turbulence_coeff = 1.0
 
       !to help with breathing pulses
-      include_dmu_dt_in_eps_grav = .true.
+      !include_dmu_dt_in_eps_grav = .true. ! does not exist in mesa-r12115
 
 !CORE MASS DEFINITION
 
