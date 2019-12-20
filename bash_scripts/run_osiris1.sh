@@ -3,7 +3,7 @@
 ### runs mesa models with specified params
 maindir="/home/tjr63/DMS/mesaruns"
 cd ${maindir}
-RUNS="RUNS_runSettings/fullMIST"
+RUNS="RUNS_runSettings/basicMIST"
 
 # Ask user, run make/clean?
 echo

@@ -9,31 +9,30 @@
 
       show_log_description_at_start = .false.
 
+      create_pre_main_sequence_model = .true.
+      pre_ms_relax_num_steps = 50
+
       save_model_when_terminate = .true.
       save_model_filename = 'final.mod'
       save_photo_when_terminate = .true.
       write_profile_when_terminate = .true.
       filename_for_profile_when_terminate = 'LOGS/profile0.data'
 
+      kappa_file_prefix = 'gs98'
+
+      change_initial_net = .true.
+      new_net_name = 'o18_and_ne22.net'
+
+      new_surface_rotation_v = 2 ! solar (km sec^1)
+      set_near_zams_surface_rotation_v_steps = 10 ! to turn on rotation when near zams
+         ! if rotation_flag is false and L_nuc_burn_total >= L_phot and this control > 0
+         ! then turn on rotation and set set_surf_rotation_v_step_limit to
+         ! the current model_number plus this control
+
+      change_D_omega_flag = .true.
+      new_D_omega_flag = .true.
+
 !!! MIST
-      create_pre_main_sequence_model = .true.
-      pre_ms_T_c = 5d5
-      pre_ms_relax_num_steps = 50 ! not MIST
-
-! ROTATION
-      !parameters to be used for mass on/off for rotation
-      extras_lrpar = 3
-      extras_rpar(1) = 1.2 !full off
-      extras_rpar(2) = 1.8 !full on
-      extras_rpar(3) = 0.4 !omega_div_omega_crit
-
-!OPACITY, NETWORK, RATE, etc.
-      !network
-      change_net = .true.
-      new_net_name = 'mesa_49.net'
-
-!      extras_lcpar = 1
-!      extras_cpar(1) = 'photosphere_tables' ! NEED TO CALL THIS SOME OTHER WAY
 
       !opacities with AGSS09 abundances
       kappa_file_prefix = 'a09'
@@ -61,7 +60,7 @@
 
       initial_zfracs = 6 ! AGSS09_zfracs
 
-!!!! END MIST
+!!! END MIST
 
 / ! end of star_job namelist
 
@@ -88,119 +87,21 @@
       extra_controls_inlist1_name = 'inlist_options'
       report_why_dt_limits = .true.
 
-      initial_z = 0.0142
-      initial_y = 0.2703
-
-!     TRYING TO USE MIST photosphere_tables OPTION
-        atm_option = 'table'
-        atm_table = 'photosphere'
+    initial_z = 0.0142
+    initial_y = 0.2703
 
 !!! MIST
-      use_Ledoux_criterion = .true.
-      alpha_semiconvection = 0.1
-      thermohaline_coeff = 666.0
-
-      mixing_length_alpha = 1.82
-      mlt_option = 'Henyey'
-
-      !to help with convergence
-      okay_to_reduce_gradT_excess = .true.
-      Pextra_factor = 2.0
-
-      !H core overshoot calibrated to M67
-      overshoot_f_above_nonburn_core = 0.016
-      overshoot_f_above_burn_h_core  = 0.016
-      overshoot_f_above_burn_he_core = 0.016
-      overshoot_f_above_burn_z_core  = 0.016
-      overshoot_f0_above_nonburn_core = 0.008
-      overshoot_f0_above_burn_h_core  = 0.008
-      overshoot_f0_above_burn_he_core = 0.008
-      overshoot_f0_above_burn_z_core  = 0.008
-
-      !envelope overshoot calibrated to the sun
-      overshoot_f_above_nonburn_shell = 0.0174
-      overshoot_f_below_nonburn_shell = 0.0174
-      overshoot_f_above_burn_h_shell  = 0.0174
-      overshoot_f_below_burn_h_shell  = 0.0174
-      overshoot_f_above_burn_he_shell = 0.0174
-      overshoot_f_below_burn_he_shell = 0.0174
-      overshoot_f_above_burn_z_shell  = 0.0174
-      overshoot_f_below_burn_z_shell  = 0.0174
-      overshoot_f0_above_nonburn_shell = 0.0087
-      overshoot_f0_below_nonburn_shell = 0.0087
-      overshoot_f0_above_burn_h_shell  = 0.0087
-      overshoot_f0_below_burn_h_shell  = 0.0087
-      overshoot_f0_above_burn_he_shell = 0.0087
-      overshoot_f0_below_burn_he_shell = 0.0087
-      overshoot_f0_below_burn_z_shell  = 0.0087
-      overshoot_f0_above_burn_z_shell  = 0.0087
-
-      !enhance `overshoot_f_below_nonburn_shell` by this factor during 3DUP in TPAGB
-      overshoot_below_noburn_shell_factor = 10
 
       !CO enhanced opacities
       use_Type2_opacities = .true.
       kap_Type2_full_off_X = 1d-3
       kap_Type2_full_on_X = 1d-6
-      Zbase = 0.00 ! this is set to Z of the star in run_star_extras.f
-
-      !rotational mixing if applicable
-      D_SH_factor =  1.0
-      D_SSI_factor = 1.0
-      D_ES_factor =  1.0
-      D_GSF_factor = 1.0
-      D_DSI_factor = 1.0
-      D_ST_factor = 0.0
-      am_D_mix_factor = 0.033
-      am_gradmu_factor = 0.05
-
-      use_other_wind = .true.
-      cool_wind_RGB_scheme = 'Reimers'
-      cool_wind_AGB_scheme = 'Blocker'
-      RGB_to_AGB_wind_switch = 1d-4
-      Reimers_scaling_factor = 0.1
-      Blocker_scaling_factor = 0.2
-      max_wind = 1d-3
-
-      do_element_diffusion = .true.
-      diffusion_dt_limit = 3.15e13
-      diffusion_min_T_at_surface = 1d3
+      !Zbase = 0.00 ! this is set to Z of the star in run_star_extras.f ! NO, set below
 
       radiation_turbulence_coeff = 1.0
 
-      !to help with breathing pulses
-      !include_dmu_dt_in_eps_grav = .true. ! does not exist in mesa-r12115
-
-!CORE MASS DEFINITION
-
-      he_core_boundary_h1_fraction = 1d-4
-      c_core_boundary_he4_fraction = 1d-4
-      o_core_boundary_c12_fraction = 1d-4
-
-!MESH AND TIMESTEP PARAMETERS
-
-      mesh_delta_coeff = 1.0
-      varcontrol_target = 1d-4
-      max_allowed_nz = 50000
-
-      !better resolution of the Henyey hook
-      delta_lg_XH_cntr_max = -1
-
-      ! limit for magnitude of max change
-      delta_lgTeff_limit = 0.005
-      delta_lgTeff_hard_limit = 0.01
-      delta_lgL_limit = 0.02
-      delta_lgL_hard_limit = 0.05
-
-      !multiply mesh_delta_coeff in overshooting regions by this factor
-      xtra_coef_os_above_nonburn = 0.5
-      xtra_coef_os_below_nonburn = 0.5
-      xtra_coef_os_above_burn_h = 0.5
-      xtra_coef_os_below_burn_h = 0.5
-      xtra_coef_os_above_burn_he = 0.5
-      xtra_coef_os_below_burn_he = 0.5
-      xtra_coef_os_above_burn_z = 0.5
-      xtra_coef_os_below_burn_z = 0.5
+      Reimers_scaling_factor = 0.1
+      Blocker_scaling_factor = 0.2      
 
 !!! END MIST
 
@@ -220,25 +121,31 @@
 
       backup_hold = 3
 
-      am_nu_visc_factor = 0
-      !am_D_mix_factor = 0.0333333333333333d0
-      !D_DSI_factor = 0
-      !D_SH_factor = 1
-      !D_SSI_factor = 1
-      !D_ES_factor = 1
-      !D_GSF_factor = 1
-      !D_ST_factor = 1
+      initial_z = 0.0142
+      initial_y = 0.2703
 
-      !varcontrol_target = 1d-3
+      !use_Type2_opacities = .true.
+      Zbase = 0.0142
+
+      am_nu_visc_factor = 0
+      am_D_mix_factor = 0.0333333333333333d0
+      D_DSI_factor = 0
+      D_SH_factor = 1
+      D_SSI_factor = 1
+      D_ES_factor = 1
+      D_GSF_factor = 1
+      D_ST_factor = 1
+
+      varcontrol_target = 1d-3
       delta_lgL_He_limit = 0.01d0
 
       !envelope_mass_limit = 1d-2 ! Msun
 
-      !cool_wind_full_on_T = 9.99d9
-      !hot_wind_full_on_T = 1d10
-      !cool_wind_RGB_scheme = 'Reimers'
-      !cool_wind_AGB_scheme = 'Blocker'
-      !RGB_to_AGB_wind_switch = 1d-4
+      cool_wind_full_on_T = 9.99d9
+      hot_wind_full_on_T = 1d10
+      cool_wind_RGB_scheme = 'Reimers'
+      cool_wind_AGB_scheme = 'Blocker'
+      RGB_to_AGB_wind_switch = 1d-4
       !Reimers_scaling_factor = 0.8d0
       !Blocker_scaling_factor = 0.7d0 ! 0.8d0
 
