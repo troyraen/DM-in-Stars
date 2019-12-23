@@ -25,6 +25,7 @@
       use star_lib
       use star_def
       use const_def
+      use crlibm_lib !MIST
       use wimp_module   ! necessary to point towards the other_energy hook
 
       implicit none
