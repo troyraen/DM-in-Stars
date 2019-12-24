@@ -25,7 +25,6 @@
       use star_lib
       use star_def
       use const_def
-      use crlibm_lib !MIST
       use wimp_module   ! necessary to point towards the other_energy hook
 
       implicit none
@@ -54,7 +53,6 @@
          s% data_for_extra_profile_columns => data_for_extra_profile_columns
 
          s% other_energy_implicit => wimp_energy_transport ! subroutine where extra_heat is defined inside of module wimp_module
-
       end subroutine extras_controls
 
 
@@ -95,53 +93,12 @@
       ! returns either keep_going, retry, backup, or terminate.
       integer function extras_check_model(id, id_extra)
          integer, intent(in) :: id, id_extra
-         integer :: ierr, r, burn_category
-         real(dp) :: envelope_mass_fraction, min_center_h1_for_diff, critmass, feh
-         real(dp) :: category_factors(num_categories)
-         real(dp), parameter :: huge_dt_limit = 3.15d16 ! ~1 Gyr
-         real(dp), parameter :: new_varcontrol_target = 1d-3
-         real(dp), parameter :: Zsol = 0.0142
+         integer :: ierr
          type (star_info), pointer :: s
          ierr = 0
          call star_ptr(id, s, ierr)
          if (ierr /= 0) return
          extras_check_model = keep_going
-
-!     increase VARCONTROL and MDOT: increase varcontrol and Mdot when the model hits the TPAGB phase
-      if ((s% initial_mass < 10) .and. (s% center_h1 < 1d-4) .and. (s% center_he4 < 1d-4)) then
-         !try turning up Mdot
-         feh = log10_cr((1.0 - (s% job% initial_h1 + s% job% initial_h2 + s% job% initial_he3 + s% job% initial_he4))/Zsol)
-         if (feh < -0.3) then
-            critmass = pow_cr(feh,2d0)*0.3618377 + feh*1.47045658 + 5.69083898
-            if (feh < -2.15) then
-               critmass = pow_cr(-2.15d0,2d0)*0.3618377 -2.15*1.47045658 + 5.69083898
-            end if
-         else if ((feh >= -0.3) .and. (feh <= -0.22)) then
-            critmass = feh*18.75 + 10.925
-         else
-            critmass = feh*1.09595794 + 7.0660861
-         end if
-         if ((s% initial_mass > critmass) .and. (s% have_done_TP)) then
-            if (s% Blocker_scaling_factor < 1.0) then
-               write(*,*) '+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++'
-               write(*,*) 'turning up Blocker'
-               write(*,*) '+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++'
-            end if
-            s% Blocker_scaling_factor = 3.0
-         end if
-
-         if ((s% have_done_TP) .and. (s% varcontrol_target < new_varcontrol_target)) then !only print the first time
-            s% varcontrol_target = new_varcontrol_target
-
-!     CONVERGENCE TEST CHANGING C
-     s% varcontrol_target = s% varcontrol_target * 1.0
-
-            write(*,*) '+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++'
-            write(*,*) 'increasing varcontrol to ', s% varcontrol_target
-            write(*,*) '+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++'
-         end if
-      end if
-
       end function extras_check_model
 
 
