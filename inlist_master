@@ -100,13 +100,30 @@
 
       radiation_turbulence_coeff = 1.0
 
-      use_other_wind = .true.
-      cool_wind_RGB_scheme = 'Reimers'
-      cool_wind_AGB_scheme = 'Blocker'
-      RGB_to_AGB_wind_switch = 1d-4
-      Reimers_scaling_factor = 0.1
-      Blocker_scaling_factor = 0.2
-      max_wind = 1d-3
+!MESH AND TIMESTEP PARAMETERS
+
+      mesh_delta_coeff = 1.0
+      varcontrol_target = 1d-4
+      max_allowed_nz = 50000
+
+      !better resolution of the Henyey hook
+      delta_lg_XH_cntr_max = -1
+
+      ! limit for magnitude of max change
+      delta_lgTeff_limit = 0.005
+      delta_lgTeff_hard_limit = 0.01
+      delta_lgL_limit = 0.02
+      delta_lgL_hard_limit = 0.05
+
+      !multiply mesh_delta_coeff in overshooting regions by this factor
+      xtra_coef_os_above_nonburn = 0.5
+      xtra_coef_os_below_nonburn = 0.5
+      xtra_coef_os_above_burn_h = 0.5
+      xtra_coef_os_below_burn_h = 0.5
+      xtra_coef_os_above_burn_he = 0.5
+      xtra_coef_os_below_burn_he = 0.5
+      xtra_coef_os_above_burn_z = 0.5
+      xtra_coef_os_below_burn_z = 0.5
 
 !!! END MIST
 
@@ -141,18 +158,18 @@
       D_GSF_factor = 1
       D_ST_factor = 1
 
-      varcontrol_target = 1d-3
+      !varcontrol_target = 1d-3
       delta_lgL_He_limit = 0.01d0
 
       !envelope_mass_limit = 1d-2 ! Msun
 
-      !cool_wind_full_on_T = 9.99d9
-      !hot_wind_full_on_T = 1d10
-      !cool_wind_RGB_scheme = 'Reimers'
-      !cool_wind_AGB_scheme = 'Blocker'
-      !RGB_to_AGB_wind_switch = 1d-4
-      !Reimers_scaling_factor = 0.8d0
-      !Blocker_scaling_factor = 0.7d0 ! 0.8d0
+      cool_wind_full_on_T = 9.99d9
+      hot_wind_full_on_T = 1d10
+      cool_wind_RGB_scheme = 'Reimers'
+      cool_wind_AGB_scheme = 'Blocker'
+      RGB_to_AGB_wind_switch = 1d-4
+      Reimers_scaling_factor = 0.8d0
+      Blocker_scaling_factor = 0.7d0 ! 0.8d0
 
 
 

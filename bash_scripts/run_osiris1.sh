@@ -3,7 +3,7 @@
 ### runs mesa models with specified params
 maindir="/home/tjr63/DMS/mesaruns"
 cd ${maindir}
-RUNS="RUNS_runSettings/mist0w"
+RUNS="RUNS_runSettings/mist01m9"
 
 # Ask user, run make/clean?
 echo

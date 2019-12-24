@@ -25,7 +25,6 @@
       use star_lib
       use star_def
       use const_def
-      use crlibm_lib !MIST
       use wimp_module   ! necessary to point towards the other_energy hook
 
       implicit none
@@ -54,7 +53,6 @@
          s% data_for_extra_profile_columns => data_for_extra_profile_columns
 
          s% other_energy_implicit => wimp_energy_transport ! subroutine where extra_heat is defined inside of module wimp_module
-         s% other_wind => Reimers_then_Blocker !MIST
 
       end subroutine extras_controls
 
@@ -96,12 +94,53 @@
       ! returns either keep_going, retry, backup, or terminate.
       integer function extras_check_model(id, id_extra)
          integer, intent(in) :: id, id_extra
-         integer :: ierr
+         integer :: ierr, r, burn_category
+         real(dp) :: envelope_mass_fraction, min_center_h1_for_diff, critmass, feh
+         real(dp) :: category_factors(num_categories)
+         real(dp), parameter :: huge_dt_limit = 3.15d16 ! ~1 Gyr
+         real(dp), parameter :: new_varcontrol_target = 1d-3
+         real(dp), parameter :: Zsol = 0.0142
          type (star_info), pointer :: s
          ierr = 0
          call star_ptr(id, s, ierr)
          if (ierr /= 0) return
          extras_check_model = keep_going
+
+!     increase VARCONTROL and MDOT: increase varcontrol and Mdot when the model hits the TPAGB phase
+      if ((s% initial_mass < 10) .and. (s% center_h1 < 1d-4) .and. (s% center_he4 < 1d-4)) then
+         !try turning up Mdot
+         feh = log10_cr((1.0 - (s% job% initial_h1 + s% job% initial_h2 + s% job% initial_he3 + s% job% initial_he4))/Zsol)
+         if (feh < -0.3) then
+            critmass = pow_cr(feh,2d0)*0.3618377 + feh*1.47045658 + 5.69083898
+            if (feh < -2.15) then
+               critmass = pow_cr(-2.15d0,2d0)*0.3618377 -2.15*1.47045658 + 5.69083898
+            end if
+         else if ((feh >= -0.3) .and. (feh <= -0.22)) then
+            critmass = feh*18.75 + 10.925
+         else
+            critmass = feh*1.09595794 + 7.0660861
+         end if
+         if ((s% initial_mass > critmass) .and. (s% have_done_TP)) then
+            if (s% Blocker_scaling_factor < 1.0) then
+               write(*,*) '+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++'
+               write(*,*) 'turning up Blocker'
+               write(*,*) '+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++'
+            end if
+            s% Blocker_scaling_factor = 3.0
+         end if
+
+         if ((s% have_done_TP) .and. (s% varcontrol_target < new_varcontrol_target)) then !only print the first time
+            s% varcontrol_target = new_varcontrol_target
+
+!     CONVERGENCE TEST CHANGING C
+     s% varcontrol_target = s% varcontrol_target * 1.0
+
+            write(*,*) '+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++'
+            write(*,*) 'increasing varcontrol to ', s% varcontrol_target
+            write(*,*) '+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++'
+         end if
+      end if
+
       end function extras_check_model
 
 
@@ -292,45 +331,6 @@
 
       end function extras_finish_step
 
-
-	  subroutine Reimers_then_Blocker(id, Lsurf, Msurf, Rsurf, Tsurf, w, ierr)
-      use star_def
-      use chem_def, only: ih1, ihe4
-      integer, intent(in) :: id
-      real(dp), intent(in) :: Lsurf, Msurf, Rsurf, Tsurf ! surface values (cgs)
-!     NOTE: surface is outermost cell. not necessarily at photosphere.
-!     NOTE: don't assume that vars are set at this point.
-!     so if you want values other than those given as args,
-!     you should use values from s% xh(:,:) and s% xa(:,:) only.
-!     rather than things like s% Teff or s% lnT(:) which have not been set yet.
-      real(dp), intent(out) :: w ! wind in units of Msun/year (value is >= 0)
-      integer, intent(out) :: ierr
-      integer :: h1, he4
-      real(dp) :: plain_reimers, reimers_w, blocker_w, center_h1, center_he4
-	  type (star_info), pointer :: s
-	  ierr = 0
-      call star_ptr(id, s, ierr)
-      if (ierr /= 0) return
-
-	  plain_reimers = 4d-13*(Lsurf*Rsurf/Msurf)/(Lsun*Rsun/Msun)
-
-	  reimers_w = plain_reimers * s% Reimers_scaling_factor
-	  blocker_w = plain_reimers * s% Blocker_scaling_factor * &
-               4.83d-9 * pow_cr(Msurf/Msun,-2.1d0) * pow_cr(Lsurf/Lsun,2.7d0)
-
-          h1 = s% net_iso(ih1)
-          he4 = s% net_iso(ihe4)
-          center_h1 = s% xa(h1,s% nz)
-          center_he4 = s% xa(he4,s% nz)
-
-          !prevent the low mass RGBs from using Blocker
-          if (center_h1 < 0.01d0 .and. center_he4 > 0.1d0) then
-             w = reimers_w
-          else
-             w = max(reimers_w, blocker_w)
-          end if
-
-	  end subroutine Reimers_then_Blocker
 
       ! routines for saving and restoring extra data so can do restarts
 
