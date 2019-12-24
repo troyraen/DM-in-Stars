@@ -1,0 +1,173 @@
+
+&star_job
+
+    history_columns_file = '/home/tjr63/DMS/mesaruns/history_columns.list'
+    profile_columns_file = '/home/tjr63/DMS/mesaruns/profile_columns.list'
+
+    read_extra_star_job_inlist1 = .true.
+    extra_star_job_inlist1_name = 'inlist_options'
+
+      show_log_description_at_start = .false.
+
+      create_pre_main_sequence_model = .true.
+      pre_ms_relax_num_steps = 50
+
+      save_model_when_terminate = .true.
+      save_model_filename = 'final.mod'
+      save_photo_when_terminate = .true.
+      write_profile_when_terminate = .true.
+      filename_for_profile_when_terminate = 'LOGS/profile0.data'
+
+      !kappa_file_prefix = 'gs98'
+
+      change_initial_net = .true.
+      new_net_name = 'o18_and_ne22.net'
+
+      new_surface_rotation_v = 2 ! solar (km sec^1)
+      set_near_zams_surface_rotation_v_steps = 10 ! to turn on rotation when near zams
+         ! if rotation_flag is false and L_nuc_burn_total >= L_phot and this control > 0
+         ! then turn on rotation and set set_surf_rotation_v_step_limit to
+         ! the current model_number plus this control
+
+      change_D_omega_flag = .true.
+      new_D_omega_flag = .true.
+
+!!! MIST
+
+      !opacities with AGSS09 abundances
+      kappa_file_prefix = 'a09'
+      kappa_lowT_prefix = 'lowT_fa05_a09p'
+      kappa_CO_prefix = 'a09_co'
+
+      !use jina
+      set_rates_preference = .true.
+      new_rates_preference = 2
+
+!CHANGE SOLAR ABUNDANCES
+
+      set_uniform_initial_composition = .true.
+      initial_h1 = 7.155D-1
+      initial_h2 = 1.431D-5
+      initial_he3 = 4.48698D-5
+      initial_he4 = 2.703D-1
+      !!for initial Z = <<Z>>
+      ! CALCULATED AS FOLLOWS:
+        ! These two are set below: initial_z = 0.0142, initial_y = 0.2703
+        ! Therefore initial_x = 1-initial_y-initial_z = 0.7155
+        ! Use ratios from MIST1 (Choi16) and set
+        ! initial_h1 = initial_x, initial_h2 = 2D-5*initial_h1
+        ! initial_he4 = initial_y, initial_he3 = 1.66D-4*initial_he4
+
+      initial_zfracs = 6 ! AGSS09_zfracs
+
+!!! END MIST
+
+/ ! end of star_job namelist
+
+&controls
+
+!	STOPPING CONDITIONS
+      log_L_lower_limit = -1.0
+	  stop_at_TP = .TRUE.
+      HB_limit = 1d-12 ! stop when central mass frac of He4 drops below this
+                        ! (for models without a thermal pulse)
+
+
+!   SAVE DATA
+      photo_interval = 50
+      profile_interval = 1000
+	  max_num_profile_models = 10
+	  write_controls_info_with_profile = .true.
+      history_interval = 1
+      terminal_interval = 100
+      write_header_frequency = 10
+
+!     MY OPTIONS
+      read_extra_controls_inlist1 = .true.
+      extra_controls_inlist1_name = 'inlist_options'
+      report_why_dt_limits = .true.
+
+    initial_z = 0.0142
+    initial_y = 0.2703
+
+!!! MIST
+
+      !CO enhanced opacities
+      use_Type2_opacities = .true.
+      kap_Type2_full_off_X = 1d-3
+      kap_Type2_full_on_X = 1d-6
+      !Zbase = 0.00 ! this is set to Z of the star in run_star_extras.f ! NO, set below
+
+      radiation_turbulence_coeff = 1.0
+
+      do_element_diffusion = .true.
+      diffusion_dt_limit = 3.15e13
+      diffusion_min_T_at_surface = 1d3
+
+      use_other_wind = .true.
+      cool_wind_RGB_scheme = 'Reimers'
+      cool_wind_AGB_scheme = 'Blocker'
+      RGB_to_AGB_wind_switch = 1d-4
+      Reimers_scaling_factor = 0.1
+      Blocker_scaling_factor = 0.2
+      max_wind = 1d-3
+
+!!! END MIST
+
+      use_gold_tolerances = .true.
+      use_eosELM = .true.
+      use_eosDT2 = .true.
+
+      use_eps_mdot = .true.
+
+      use_dedt_form_of_energy_eqn = .true.
+      min_cell_energy_fraction_for_dedt_form = 0
+      use_eps_correction_for_KE_plus_PE_in_dLdm_eqn = .true.
+
+      num_trace_history_values = 2
+      trace_history_value_name(1) = 'rel_E_err'
+      trace_history_value_name(2) = 'log_rel_run_E_err'
+
+      backup_hold = 3
+
+      initial_z = 0.0142
+      initial_y = 0.2703
+
+      !use_Type2_opacities = .true.
+      Zbase = 0.0142
+
+      am_nu_visc_factor = 0
+      am_D_mix_factor = 0.0333333333333333d0
+      D_DSI_factor = 0
+      D_SH_factor = 1
+      D_SSI_factor = 1
+      D_ES_factor = 1
+      D_GSF_factor = 1
+      D_ST_factor = 1
+
+      varcontrol_target = 1d-3
+      delta_lgL_He_limit = 0.01d0
+
+      !envelope_mass_limit = 1d-2 ! Msun
+
+      !cool_wind_full_on_T = 9.99d9
+      !hot_wind_full_on_T = 1d10
+      !cool_wind_RGB_scheme = 'Reimers'
+      !cool_wind_AGB_scheme = 'Blocker'
+      !RGB_to_AGB_wind_switch = 1d-4
+      !Reimers_scaling_factor = 0.8d0
+      !Blocker_scaling_factor = 0.7d0 ! 0.8d0
+
+
+
+
+/ ! end of controls namelist
+
+
+
+&pgstar
+
+    read_extra_pgstar_inlist1 = .true.
+    extra_pgstar_inlist1_name = 'inlist_options'
+
+/ ! end of pgstar namelist
