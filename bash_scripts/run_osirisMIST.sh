@@ -1,7 +1,7 @@
 #!/bin/bash
 
 ### runs mesa models with specified params
-run_key="_mist0m9"
+run_key=$1
 maindir="/home/tjr63/DMS/mesaruns"
 cd ${maindir}
 RUNS="RUNS_runSettings/${run_key}"
