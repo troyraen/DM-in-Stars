@@ -92,51 +92,6 @@
 
 !!! MIST
 
-      use_Ledoux_criterion = .true.
-      alpha_semiconvection = 0.1
-      thermohaline_coeff = 666.0
-
-      mixing_length_alpha = 1.82
-      mlt_option = 'Henyey'
-
-      !to help with convergence
-      okay_to_reduce_gradT_excess = .true.
-      Pextra_factor = 2.0 ! from controls defaults webpage:
-                            ! Note that Pextra_factor is only applied when
-                            ! atm_option = 'T_tau' and
-                            ! atm_T_tau_opacity = 'fixed' or ‘iterated'.
-
-      !H core overshoot calibrated to M67
-      overshoot_f_above_nonburn_core = 0.016
-      overshoot_f_above_burn_h_core  = 0.016
-      overshoot_f_above_burn_he_core = 0.016
-      overshoot_f_above_burn_z_core  = 0.016
-      overshoot_f0_above_nonburn_core = 0.008
-      overshoot_f0_above_burn_h_core  = 0.008
-      overshoot_f0_above_burn_he_core = 0.008
-      overshoot_f0_above_burn_z_core  = 0.008
-
-      !envelope overshoot calibrated to the sun
-      overshoot_f_above_nonburn_shell = 0.0174
-      overshoot_f_below_nonburn_shell = 0.0174
-      overshoot_f_above_burn_h_shell  = 0.0174
-      overshoot_f_below_burn_h_shell  = 0.0174
-      overshoot_f_above_burn_he_shell = 0.0174
-      overshoot_f_below_burn_he_shell = 0.0174
-      overshoot_f_above_burn_z_shell  = 0.0174
-      overshoot_f_below_burn_z_shell  = 0.0174
-      overshoot_f0_above_nonburn_shell = 0.0087
-      overshoot_f0_below_nonburn_shell = 0.0087
-      overshoot_f0_above_burn_h_shell  = 0.0087
-      overshoot_f0_below_burn_h_shell  = 0.0087
-      overshoot_f0_above_burn_he_shell = 0.0087
-      overshoot_f0_below_burn_he_shell = 0.0087
-      overshoot_f0_below_burn_z_shell  = 0.0087
-      overshoot_f0_above_burn_z_shell  = 0.0087
-
-      !enhance `overshoot_f_below_nonburn_shell` by this factor during 3DUP in TPAGB
-      overshoot_below_noburn_shell_factor = 10
-
       !CO enhanced opacities
       use_Type2_opacities = .true.
       kap_Type2_full_off_X = 1d-3
@@ -144,6 +99,9 @@
       !Zbase = 0.00 ! this is set to Z of the star in run_star_extras.f ! NO, set below
 
       radiation_turbulence_coeff = 1.0
+
+      !Reimers_scaling_factor = 0.1
+      !Blocker_scaling_factor = 0.2
 
 !!! END MIST
 
