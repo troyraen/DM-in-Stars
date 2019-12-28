@@ -15,6 +15,8 @@ run_keys = []
 Lsun = 3.8418e33 # erg/s
 Msun = 1.9892e33 # grams
 
+figsize = (10,6)
+
 # fe----- imports, paths, constants -----#
 
 # fs----- mount Osiris -----#
@@ -36,104 +38,161 @@ except:
 # fe----- mount Osiris -----#
 
 # fs----- load data -----#
-def get_paths(dr=dr, run_key=''):
-    c0path = dr+ '/c0/m1p0' + run_key + '/LOGS'
-    h0path = c0path+ '/history.data'
-    pi0path = c0path+ '/profiles.index'
-
-    c6path = dr+ '/c6/m1p0' + run_key + '/LOGS'
-    h6path = c6path+ '/history.data'
-    pi6path = c6path+ '/profiles.index'
-
-    return (c0path, h0path, pi0path, c6path, h6path, pi6path)
-
-def load_main_data(dr=dr, run_key=''):
-
-    __, h0path, pi0path, __, hpath, pipath = get_paths(dr=dr, run_key=run_key)
-
-    hdf = pd.read_csv(hpath, header=4, sep='\s+').set_index('model_number', drop=False)
+def load_pidf(pipath):
     pidx_cols = ['model_number', 'priority', 'profile_number']
     pidf = pd.read_csv(pipath, names=pidx_cols, skiprows=1, header=None, sep='\s+')
-    # add profile numbers to hdf
-    hdf['profile_number'] = pidf.set_index('model_number').profile_number
+    return pidf
 
-    h0df = pd.read_csv(h0path, header=4, sep='\s+').set_index('model_number', drop=False)
-    pi0df = pd.read_csv(pi0path, names=pidx_cols, skiprows=1, header=None, sep='\s+')
-    h0df['profile_number'] = pi0df.set_index('model_number').profile_number
-
-    return (hdf, pidf, h0df, pi0df)
-
-def load_profiles_df(pnums4df, cb=6, dr=dr, run_key=''):
-
-    c0path, __, __, c6path, __, __ = get_paths(dr=dr, run_key=run_key)
-
-    dfs = []
-    for p in pnums4df:
-        if cb==6: path = c6path
-        elif cb==0: path = c0path
-        ppath = path+ f'/profile{p}.data'
-        pdf = pd.read_csv(ppath, header=4, sep='\s+')
-        pdf['profile_number'] = p
-        dfs.append(pdf.set_index(['profile_number','zone']))
-    pdf = pd.concat(dfs, axis=0)
-
-    return pdf
-
-def load_all_history(dr=dr, run_key=''):
-    hlist, rcdict = [], {}
+def load_all_data(dr=dr, run_key=['all']):
+    """ run_key 'all' or list of strings (without _ prefix)
+    """
+    hlist, pilist, rcdict = [], [], {}
     for cb in os.listdir(dr):
         if cb[0] != 'c': continue
         for mdir in os.listdir(os.path.join(dr,cb)):
-            # use only dirs matching run_key
-            if run_key.split('_')[1:] == mdir.split('_')[1:]:
-                dir = os.path.join(dr,cb,mdir)
-                hpath = os.path.join(dir,'LOGS/history.data')
-                h = pd.read_csv(hpath, header=4, sep='\s+')
+            rk = mdir.split('_',1)[-1]
 
-                m = float('.'.join(mdir.split('_')[0].strip('m').split('p')))
-                h['run_key'], h['cb'], h['mass'] = run_key, int(cb[-1]), m
-                # save the history dataframe
-                hlist.append(h.set_index(['run_key','cb','mass']))
+            # use only dirs in run_key
+            if (rk not in run_key) and (run_key!=['all']): continue
+            if rk.split('_')[0] == 'ow': continue # skip 'ow' dirs
 
-                # Get Series with run characteristics
-                # get runtime, etc. from STD.out
-                finished = False
-                with open(os.path.join(dir,'LOGS/STD.out')) as fin:
-                    for line in reversed(fin.readlines()):
-                        try:
-                            if line.split()[0] == 'runtime':
-                                cols,vals = line.strip().replace('steps','steps:').split(':')
-                                cols = cols.strip().split(',')
-                                vals = vals.split()
-                                rcs = pd.Series(data=vals,index=cols)
-                                finished = True
-                                break
-                        except:
-                            pass
-                if not finished:
-                    rcs = pd.Series(data=(False),index=['finished'])
-                else:
-                    rcs['finished'] = True
-                rcs['num_iters_tot'] = h.num_iters.sum()
-                rcs['log_dt_avg'] = np.log10((10**h.log_dt).mean())
-                rcs['hottest_logTeff'] = h.log_Teff.max()
-                try:
-                    rcs['MStau'], __, mod_leave = get_MStau(h)
-                    rcs['logL_leaveMS'] = h.loc[h.model_number==mod_leave,'log_L'].iloc[0]
-                except:
-                    pass
-                # save the series
-                rcdict[(run_key, int(cb[-1]), m)] = rcs
+            dir = os.path.join(dr,cb,mdir)
+            m = float('.'.join(mdir.split('_')[0].strip('m').split('p')))
+            dfkey = (rk, int(cb[-1]), m)
+
+            # Get Series with run characteristics
+            # get runtime, etc. from STD.out
+            with open(os.path.join(dir,'LOGS/STD.out')) as fin:
+                have_runtime, have_termcode = False, False
+                cols, vals = [], []
+                for line in reversed(fin.readlines()):
+                    try: # get runtime, etc.
+                        if line.split()[0] == 'runtime':
+                            have_runtime = True
+                            cl,vl = line.strip().replace('steps','steps:').split(':')
+                            cols = cols + cl.split(',')
+                            cols = [c.strip() for c in cols]
+                            vals = vals + vl.split()
+                            rcs = pd.Series(data=vals,index=cols)
+                    except:
+                        pass
+                    try: # get termination code
+                        ln = line.strip().split(':',1)
+                        if ln[0] == 'termination code':
+                            have_termcode = True
+                            cols = cols + ['termCode']
+                            vals = vals + [ln[1]]
+                    except:
+                        pass
+                    if have_runtime and have_termcode:
+                        break
+
+                if len(cols)>0:
+                    rcs = pd.Series(data=vals,index=cols)
+                    rcs['finished'] = True if have_runtime else False
+            # if the run didn't finish properly, skip the rest
+            try:
+                rcs
+            except:
+                print('rcs failed:', dfkey)
+                rcdict[dfkey] = pd.Series(data=(False),index=['finished'])
+            if not have_runtime:
+                continue
+
+            # Get profiles.index data
+            pidf = load_pidf(os.path.join(dir,'LOGS/profiles.index'))
+            pidf['run_key'], pidf['cb'], pidf['mass'] = dfkey
+            pilist.append(pidf.set_index(['run_key','cb','mass']))
+
+            # Get history.data
+            hpath = os.path.join(dir,'LOGS/history.data')
+            h = pd.read_csv(hpath, header=4, sep='\s+')
+            h.set_index('model_number', inplace=True)
+            h['profile_number'] = pidf.set_index('model_number').profile_number
+            # save the history dataframe
+            h['run_key'], h['cb'], h['mass'] = dfkey
+            hlist.append(h.set_index(['run_key','cb','mass']))
+
+            # Set the rest of the run characteristics
+            rcs['priorities'] = pidf.priority
+            rcs['end_priority'] = pidf.loc[pidf.priority>90,'priority'].min()
+            rcs['num_iters_tot'] = h.num_iters.sum()
+            rcs['log_max_rel_energy_error'] = \
+                    np.log10(h.rel_error_in_energy_conservation.abs().max())
+            rcs['log_cum_rel_energy_error'] = \
+                    np.log10(np.abs(h.error_in_energy_conservation.sum() \
+                              /h.sort_values('star_age').total_energy.iloc[-1]))
+            rcs['log_dt_avg'] = np.log10((10**h.log_dt).mean())
+            rcs['log_dt_min'] = h.log_dt.min()
+            rcs['log_dt_max'] = h.log_dt.max()
+            rcs['hottest_logTeff'] = h.log_Teff.max()
+            rcs['center_h1_end'] = h.sort_values('star_age').center_h1.iloc[-1]
+            rcs['center_he4_end'] = h.sort_values('star_age').center_he4.iloc[-1]
+            try:
+                rcs['MStau'], __, mod_leave = get_MStau(h)
+                rcs['logL_leaveMS'] = h.loc[h.model_number==mod_leave,'log_L'].iloc[0]
+            except:
+                print('MStau failed:', dfkey)
+                pass
+            # save the series
+            rcdict[dfkey] = rcs
+            del rcs # so that the try statement above works properly
 
     hdf = pd.concat(hlist, axis=0)
+    pi_df = pd.concat(pilist, axis=0)
     rcdf = pd.DataFrame.from_dict(rcdict, orient='index')
     rcdf.index.names = ('run_key','cb','mass')
+    rcdf.rename(columns={'runtime (minutes)':'runtime'}, inplace=True)
+    rcdf.fillna(value=-1, inplace=True)
+    rcdf = rcdf.astype({'runtime':'float32', 'retries':'int32',
+                        'backups':'int32', 'steps':'int32'})
 
-    return hdf, rcdf
+    return hdf, pi_df, rcdf
 
-# def get_runChar_df(dir):
-
-def lums_dict(hdf, lums, age_cut=1e7):
+# def get_paths(dr=dr, run_key=''):
+#     c0path = dr+ '/c0/m1p0' + run_key + '/LOGS'
+#     h0path = c0path+ '/history.data'
+#     pi0path = c0path+ '/profiles.index'
+#
+#     c6path = dr+ '/c6/m1p0' + run_key + '/LOGS'
+#     h6path = c6path+ '/history.data'
+#     pi6path = c6path+ '/profiles.index'
+#
+#     return (c0path, h0path, pi0path, c6path, h6path, pi6path)
+#
+# def load_main_data(dr=dr, run_key=''):
+#
+#     __, h0path, pi0path, __, hpath, pipath = get_paths(dr=dr, run_key=run_key)
+#
+#     hdf = pd.read_csv(hpath, header=4, sep='\s+').set_index('model_number', drop=False)
+#     pidx_cols = ['model_number', 'priority', 'profile_number']
+#     pidf = pd.read_csv(pipath, names=pidx_cols, skiprows=1, header=None, sep='\s+')
+#     # add profile numbers to hdf
+#     hdf['profile_number'] = pidf.set_index('model_number').profile_number
+#
+#     h0df = pd.read_csv(h0path, header=4, sep='\s+').set_index('model_number', drop=False)
+#     pi0df = pd.read_csv(pi0path, names=pidx_cols, skiprows=1, header=None, sep='\s+')
+#     h0df['profile_number'] = pi0df.set_index('model_number').profile_number
+#
+#     return (hdf, pidf, h0df, pi0df)
+#
+# def load_profiles_df(pnums4df, cb=6, dr=dr, run_key=''):
+#
+#     c0path, __, __, c6path, __, __ = get_paths(dr=dr, run_key=run_key)
+#
+#     dfs = []
+#     for p in pnums4df:
+#         if cb==6: path = c6path
+#         elif cb==0: path = c0path
+#         ppath = path+ f'/profile{p}.data'
+#         pdf = pd.read_csv(ppath, header=4, sep='\s+')
+#         pdf['profile_number'] = p
+#         dfs.append(pdf.set_index(['profile_number','zone']))
+#     pdf = pd.concat(dfs, axis=0)
+#
+#     return pdf
+#
+# def lums_dict(hdf, lums, age_cut=1e7):
     h = hdf.loc[hdf.star_age>age_cut,:]
     age = h.star_age
     try:
@@ -173,18 +232,86 @@ def lums_dict(hdf, lums, age_cut=1e7):
 
     return d
 
-
-
 # fe----- load data -----#
 
+# fs----- plot run characteristics -----#
+def plot_pidf(pidf, save=None):
+    plt.figure()
 
+    for k,df in pidf.groupby(level=['run_key','cb','mass']):
+        dfm = df.model_number
+        p = df.loc[((df.priority>90)|(dfm==dfm.max())),:].sort_values('model_number')
+        p.loc[p.priority<90,'priority'] = 80
+        plt.plot(p.model_number,p.priority, label=k)
+
+    plt.legend()
+    plt.xlabel('model number')
+    plt.ylabel('priority')
+    plt.tight_layout()
+    if save is not None: plt.savefig(save)
+    plt.show(block=False)
+
+    return None
+
+def plot_rcdf(rcdf, cols=None, save=None):
+
+    if cols is None:
+        cols = ['runtime', 'retries', 'backups', 'steps', 'log_dt_min',
+                'end_priority', 'center_h1_end', 'center_he4_end',
+                'log_max_rel_energy_error', 'log_cum_rel_energy_error']
+    f, axs = plt.subplots(sharex=True, nrows=len(cols),ncols=1, figsize=figsize)
+    for i, c in enumerate(cols):
+        for k, df in rcdf.reset_index(level='mass').groupby(level=['run_key','cb']):
+            d = df.loc[df.finished==True,:]
+            axs[i].scatter(d['mass'],d[c], label=k)
+
+            d = df.loc[df.finished==False,:]
+            axs[i].scatter(list(d['mass']),list(d[c]), edgecolors='k')
+
+            ls = ':' if k[1]==0 else '-'
+            axs[i].plot(list(df['mass']),list(df[c]), ls=ls)
+
+        axs[i].set_ylabel(c)
+
+    axs[0].legend()
+    axs[-1].set_xlabel('mass')
+    if save is not None: plt.savefig(save)
+    plt.show(block=False)
+
+def plot_rcdf_finished(rcdf, save=None):
+
+    df = rcdf.reset_index()
+    kwg = {'size': d.cb*10+100, 'alpha':0.5, 'edgecolors':'0.5'}
+
+    plt.figure()
+
+    d = df.loc[df.finished==True,:]
+    plt.scatter(d.mass,d.run_key, **kwg)
+
+    d = df.loc[df.finished==False,:]
+    kwg['edgecolors'] = 'k'
+    plt.scatter(d.mass,d.run_key, **kwg)
+    l = f'{d.log_dt_min:0.2f}'
+    plt.annotate((d.mass,d.run_key), l)
+
+    plt.xlabel('mass')
+    plt.ylabel('run_key')
+
+    plt.legend()
+    plt.tight_layout()
+    if save is not None: plt.savefig(save)
+    plt.show(block=False)
+
+# fe----- plot run characteristics -----#
+
+###----------- OLD from branch largeLH -----------###
 # fs----- plot luminosity profiles -----#
 def plot_lums_profiles(pdf, hdf=None, title='', save=None):
     gb = pdf.groupby('profile_number')
 
     ncols = 2
     nrows = int(np.ceil(len(gb)/2))
-    f, axs = plt.subplots(sharex=True, nrows=nrows,ncols=ncols, figsize=(10,6))
+    f, axs = plt.subplots(sharex=True, nrows=nrows,ncols=ncols, figsize=figsize)
     axs = axs.flatten()
 
     for i, (p, df) in enumerate(gb):
@@ -251,7 +378,7 @@ def plot_lums_history(lum_dict, profiles=None, hdf=None, title='', save=None):
     """
     dic = lum_dict.copy()
     age = dic.pop('age')
-    plt.figure(figsize=(10,6))
+    plt.figure(figsize=figsize)
 
     # plot luminosities
     for i, (sl, tup) in enumerate(dic.items()):
@@ -290,7 +417,7 @@ def plot_lums_history_06(lum_dict, save=None):
                          should include age (x-axis) and luminosities
                          as returned by lums_dict() fnc above.
     """
-    plt.figure(figsize=(10,6))
+    plt.figure(figsize=figsize)
 
     for cb,d in lum_dict.items():
         dic = d.copy()
@@ -430,7 +557,7 @@ def plot_nx_profiles(pdf, log=False, title='', save=None):
 
     ncols = 2
     nrows = int(np.ceil(len(gb)/2))
-    f, axs = plt.subplots(sharex=True, nrows=nrows,ncols=ncols, figsize=(10,6))
+    f, axs = plt.subplots(sharex=True, nrows=nrows,ncols=ncols, figsize=figsize)
     axs = axs.flatten()
 
     for i, (p, df) in enumerate(gb):
@@ -460,7 +587,7 @@ def plot_abundance_profiles(pdf, title='', save=None):
 
     ncols = 2
     nrows = int(np.ceil(len(gb)/2))
-    f, axs = plt.subplots(sharex=True, nrows=nrows,ncols=ncols, figsize=(10,6))
+    f, axs = plt.subplots(sharex=True, nrows=nrows,ncols=ncols, figsize=figsize)
     axs = axs.flatten()
 
     for i, (p, df) in enumerate(gb):
@@ -487,7 +614,7 @@ def plot_eps_profiles(pdf, title='', save=None):
 
     ncols = 2
     nrows = int(np.ceil(len(gb)/2))
-    f, axs = plt.subplots(sharex=True, nrows=nrows,ncols=ncols, figsize=(10,6))
+    f, axs = plt.subplots(sharex=True, nrows=nrows,ncols=ncols, figsize=figsize)
     axs = axs.flatten()
 
     for i, (p, df) in enumerate(gb):
@@ -517,7 +644,7 @@ def plot_rho_profiles(pdf, title='', save=None):
 
     ncols = 2
     nrows = int(np.ceil(len(gb)/2))
-    f, axs = plt.subplots(sharex=True, nrows=nrows,ncols=ncols, figsize=(10,6))
+    f, axs = plt.subplots(sharex=True, nrows=nrows,ncols=ncols, figsize=figsize)
     axs = axs.flatten()
 
     for i, (p, df) in enumerate(gb):
@@ -542,7 +669,7 @@ def plot_T_profiles(pdf, title='', save=None):
 
     ncols = 2
     nrows = int(np.ceil(len(gb)/2))
-    f, axs = plt.subplots(sharex=True, nrows=nrows,ncols=ncols, figsize=(10,6))
+    f, axs = plt.subplots(sharex=True, nrows=nrows,ncols=ncols, figsize=figsize)
     axs = axs.flatten()
 
     for i, (p, df) in enumerate(gb):
@@ -569,7 +696,7 @@ def plot_Tx_minus_T_profiles(pdf, save=None):
 
     ncols = 2
     nrows = int(np.ceil(len(gb)/2))
-    f, axs = plt.subplots(sharex=True, nrows=nrows,ncols=ncols, figsize=(10,6))
+    f, axs = plt.subplots(sharex=True, nrows=nrows,ncols=ncols, figsize=figsize)
     axs = axs.flatten()
 
     for i, (p, df) in enumerate(gb):
@@ -605,7 +732,7 @@ def plot_convection(pdf, save=None):
 # fs----- high masses -----#
 def plot_col(hdf, col='log_L'):
     g = hdf.loc[hdf.star_age>1e7,:].groupby(['run_key','cb','mass'])
-    plt.figure(figsize=(10,6))
+    plt.figure(figsize=figsize)
     ax = plt.gca()
     for i,d in g:
         print(i[1])
