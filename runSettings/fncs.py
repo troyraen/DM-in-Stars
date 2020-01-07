@@ -231,10 +231,10 @@ def load_all_data(dr=dr, run_key=['all'], get_history=True, load_h_no_runtime=Fa
             rcdict[dfkey] = rcs
             # del rcs # so that the try statement above works properly
 
-    hdf = pd.concat(hlist, axis=0) if get_history else []
-    pi_df = pd.concat(pilist, axis=0)
-    c_df = pd.concat(clist, axis=0)
-    rcdf = pd.DataFrame.from_dict(rcdict, orient='index')
+    hdf = pd.concat(hlist, axis=0).sort_index() if get_history else []
+    pi_df = pd.concat(pilist, axis=0).sort_index()
+    c_df = pd.concat(clist, axis=0).sort_index()
+    rcdf = pd.DataFrame.from_dict(rcdict, orient='index').sort_index()
     rcdf.index.names = ('run_key','cb','mass')
     rcdf.rename(columns={'runtime (minutes)':'runtime'}, inplace=True)
     rcdf.fillna(value=-1, inplace=True)
