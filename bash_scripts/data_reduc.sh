@@ -4,12 +4,12 @@
 
 
 ######
-#   This function takes a directory as input
+#   This function takes a directory as input (and optionally, keep_mod)
 #   generates a new file dir/history_reduc.data from dir/history.data
 #   keeping only:
 #       model_number == 1
 #       model has profile saved
-#       model_number % 5 == 0 from MS
+#       model_number % $keep_mod == 0 from MS
 #       num_keep total models from post-MS
 #
 #   for loop at bottom runs function on list of LOGS dirs
@@ -24,6 +24,7 @@ function data_reduc {
 
     num_keep=500 # number of models to keep from postMS (not exact since rounding happens later)
     dir=$1
+    keep_mod=${2:-5} # keep MS models where model_number % $keep_mod == 0
     pdat=$dir/profiles.index
     hdat=$dir/history.data
     hreduc=$dir/history_reduc.data
@@ -48,13 +49,13 @@ function data_reduc {
     BEGIN { nth=0; split(pmod,pm," "); for (i in pm) mod[pm[i]]=pm[i] }
     { if ($mcol == 1) { print $0 }
     else if ($mcol in mod) { print $0 }
-    else if ($h1col > 0.001) { if ($mcol % 5 == 0) { print $0; } }
+    else if ($h1col > 0.001) { if ($mcol % $keep_mod == 0) { print $0; } }
     else {
         if (nth == 0) {
             lnpostMS = lnct - NR
             nth = int(lnpostMS / nk)
         }
-        if (nth < 3) { if ($mcol % 5 == 0) { print $0 } }
+        if (nth < 3) { if ($mcol % $keep_mod == 0) { print $0 } }
         else if (NR % nth == 0) { print $0 }
     }
     }' < $hdata >> $hreduc
