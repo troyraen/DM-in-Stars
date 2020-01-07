@@ -7,14 +7,24 @@
 
 # Questions
 
-- [ ]  __Why do some runs not finish?__ e.g. m4p5c0 (and many others)
-    - [ ]  Need to review inlist options. Currently set to match MIST as much as possible, but several things had to be removed and the remaining are still complicated and I don't understand them all.
+- [x]  __Why do some runs not finish?__ e.g. m4p5c0 (and many others). Need to review inlist options. Currently set to match MIST as much as possible, but several things had to be removed and the remaining are still complicated and I don't understand them all. _Updated to incorporate MESA-r12115 inlists and run_star_extras.f_
 
 - [ ]  Runtimes
     - [ ]  Given that MS lifetimes results are different and the runs are taking a lot longer, need to decide how many models to re-run.
 
     - [ ]  check/fix MIST stuff first. Once models are finishing, try to reduce run time
         - [ ]  possibly alter mesh, see options [here](https://lists.mesastar.org/pipermail/mesa-users/2011-September/000526.html)
+
+- [ ]  Check long run that just finished...
+    - [ ]  which settings did it use?
+    - [ ]  what was the runtime?
+    - [ ]  what is delta tau_MS?
+
+- [ ]  Which settings to use?
+    - [ ]  can I get mist02m9 to complete runs?
+    - [ ]  what is min log dt limit set to?
+    - [ ]  what are the differences between mist02m9 and defDM?
+        - [ ]  do they make a difference in evolution (tau_MS, convection stuff) or runtime?
 
 
 -----------------------------------------------------------------------------
@@ -95,7 +105,7 @@ __These models ran fine, though m1p0c6 model is taking a long time (currently ~2
         - __Unable to get these files into compatibility with mesa-r12115. Trying without these files.__ Most have to do with `atm` (boundary conditions), will just use MESA photosphere table option. `mesa_49.net` adds some isos and reactions that I don't _think_ will be important.
 
 
-### <a name="fullMISTmf">__run key: \_fullMISTmf (mf: minus files, does not include MIST `MESA_files`)__</a>
+### <a name="fullMISTmf">__run key: \_fullMISTmf (mf: minus files, does not include MIST `MESA_files/mesa_source` files)__</a>
 LOGS in dir `RUNS_runSettings/fullMIST` since `_defDM m1p0c6` still running.
 On Osiris node2.
 
@@ -111,10 +121,11 @@ __These models are not running well. C0 models taking a _very_ long time and m2p
 __Next, start with the most basic/simple MIST inlist and run_star_extras options and then add options one at a time.__
 <!-- fe fullMISTmf -->
 
+
 ### <a name="MISToptions">__MIST options__</a>
 The following runs will have run keys coded with `\_mist#` where `#` in:
 
-0.  Basic options: run_star_extras_default_plus_DM and inlist_master_default_plus_DM + solar abundances, eos, opacity, jina reaction rates, radiation turbulence, mass loss (AGB, RGB scaling factors)
+0.  Basic options: run_star_extras_default_plus_DM and inlist_master_default_plus_DM + solar abundances, eos, opacity, jina reaction rates, radiation turbulence, mass loss (AGB, RGB scaling factors). _run_key = _basicMIST == _mist0_
 0.  `0w`: everything in 0 plus winds section, also add `other_wind` to `run_star_extras`.
 1.  mesh and timestep params: varcontrol_target and mesh_delta_coeff options
 2.  convection, mlt, semiconvection, thermohaline, and overshoot
@@ -129,7 +140,7 @@ Did not do postAGB burning (run_star_extras)
 
 ### <a name="basicMIST">__run key: \_basicMIST__</a>
 
-\_basicMIST m1p5c0 would not finish, `log_dt_yr` down to -11 after MS. Tried subtracting 7, 8, 9 from 0. Only `m9` would finish m1p5c0. Adding winds controls to inlist and run_star_extras (`0w`)... This did not work (m1p5c0 does not finish). Now start with `m9` and add 1-6 one at a time.
+\_basicMIST m1p5c0 would not finish, `log_dt_yr` down to -11 after MS. Tried subtracting 7, 8, 9 from 0. Only `m9` would finish m1p5c0. Adding winds controls to inlist and run_star_extras (`0w`) and testing... This did not work (m1p5c0 does not finish). Now start with `m9` and add 1-6 one at a time.
 
 `\_mist01m9` ran overnight. m1p5c0 finished but m1p0c0 did not.
 
@@ -150,18 +161,6 @@ Trying 0m9 again to make sure it's running right... looks fine. Checked that mis
 ```bash
 nohup nice ./bash_scripts/run_osirisMIST.sh "_mist08m9" &>> STD1_nohup_MIST.out &
 ```
-<!-- fs basicMIST -->
-This is just \_mist1 (1. from above)
-LOGS in dir `RUNS_runSettings/basicMIST` since `_defDM m1p0c6` still running.
-On Osiris node3.
-
-```bash
-./clean
-./mk
-
-nohup nice ./bash_scripts/run_osiris1.sh &>> STD1_nohup_MIST.out &
-```
-<!-- fe basicMIST -->
 
 
 ## Compare runs
@@ -169,18 +168,99 @@ nohup nice ./bash_scripts/run_osiris1.sh &>> STD1_nohup_MIST.out &
 %run fncs
 rk = ['defDM','mist0m9','mist01m9','mist02m9','mist03m9','mist04m9','mist05m9'
         ,'mist06m9','mist07m9']
-hdf, pidf, rcdf = load_all_data(dr=dr, run_key=rk)
+hdf, pidf, rcdf = load_all_data(dr=dr, run_key=rk, get_history=False)
+
+rk = ['defDM','mist0m9','mist02m9','mist06m9','mist07m9']
+hdf, pidf, rcdf = load_all_data(dr=dr, run_key=rk, get_history=True)
 # pd.options.display.max_columns = len(rcdf.columns)
 # this one hasn't finished yet so can't change dir name directly:
 # rcdf.drop(index=('',6,1.0), inplace=True)
 plot_pidf(pidf, save=None)
 plot_rcdf_finished(rcdf, save=None)
+cols = ['runtime', 'steps', 'log_dt_min', 'end_priority', ]
+plot_rcdf(rcdf, save=None, cols=cols)
 cols = ['runtime', 'retries', 'backups', 'steps', 'log_dt_min']
 plot_rcdf(rcdf, save=None, cols=cols)
 cols = ['log_max_rel_energy_error', 'log_cum_rel_energy_error']
 plot_rcdf(rcdf, save=None, cols=cols)
 cols = ['end_priority', 'center_h1_end', 'center_he4_end',]
 plot_rcdf(rcdf, save=None, cols=cols)
+
+# look at different slices
+h = hdf.loc[(),:]
+hunfin = hdf.loc[hdf.finished==False,:]
+# punfin = pidf.loc[pidf.finished==False,:]
+runfin = rcdf.loc[rcdf.finished==False,:]
+# idx = pd.IndexSlice
+r2 = rcdf.loc[idx['mist02m9',0:6,0:5],:]
+h2 = hdf.loc[idx['mist02m9',0:6,0:5],:]
+
+plot_rcdf_finished(rcdf, save=None)
+cols = ['runtime', 'steps', 'log_dt_min', 'end_priority', 'termCode', ]
+plot_rcdf(r2, save=None, cols=cols)
+cols = ['center_h1_end','center_he4_end']
+plot_rcdf(r2, save=None, cols=cols)
+r2.plot('star_age','log_dt', logx=True)
+
+# sand: get controls file
+dir = os.path.join(dr,'c6','m2p5_defDM')
+cpath = os.path.join(dir,'LOGS/controls1.data')
+cs = load_controls(cpath)
+
+%run fncs
+rk = ['defDM','mist0m9','mist02m9']
+hdf, pidf, cdf, rcdf = load_all_data(dr=dr, run_key=rk, get_history=True)
+rk = ['test']
+hdf0, pidf0, cdf0, rcdf0 = load_all_data(dr=dr, run_key=rk, get_history=True)
+
+cdf = pd.concat([cdf,cdf0])
+c = control_diff(cdf.loc[idx[['test','defDM'],6,1.0],:])
+
+############ sand
+drop_cols = ['TRACE_HISTORY_VALUE_NAME', 'STAR_HISTORY_DBL_FORMAT',
+             'STAR_HISTORY_INT_FORMAT', 'STAR_HISTORY_TXT_FORMAT',
+             'PROFILE_INT_FORMAT', 'PROFILE_TXT_FORMAT', 'PROFILE_DBL_FORMAT',
+             'FORMAT_FOR_FGONG_DATA', 'FORMAT_FOR_OSC_DATA'
+            ]
+parse_cols = ['MESH_LOGX_MIN_FOR_EXTRA', 'MESH_DLOGX_DLOGP_EXTRA',
+              'MESH_DLOGX_DLOGP_FULL_ON', 'MESH_DLOGX_DLOGP_FULL_OFF',
+              'XA_FUNCTION_SPECIES', 'XA_FUNCTION_WEIGHT', 'XA_FUNCTION_PARAM',
+              'DIFFUSION_CLASS_REPRESENTATIVE', 'DIFFUSION_CLASS_A_MAX'
+              ]
+c = cdf.copy()
+for col in c.columns:
+    c[col] = c[col].apply(lambda x: ','.join(x) if type(x)==list else x)
+    # print(col)
+    unq = len(c[col].unique())
+    if unq!=1:
+        print(unq)
+        print()
+
+def tlist(itm):
+    if type(itm)==list:
+        itm = ','.join(itm)
+
+for col in c.columns:
+    if col in drop_cols: continue
+    if col in parse_cols:
+        c[col] = c[col].apply(lambda x: ','.join(x))
+        # print('joined')
+    print(col)
+    unq = len(c[col].unique())
+    if unq!=1:
+        print(col)
+        print(unq)
+        print()
+
+for col in c.columns:
+    if col in drop_cols: continue
+    if col in parse_cols:
+        c[col] = c[col].apply(lambda x: ','.join(x))
+        print('joined')
+        print(col)
+        print(len(c[col].unique()))
+        print()
+
 
 ```
 

@@ -2,9 +2,11 @@
 
 # fs----- imports, paths, constants -----#
 import os
+from os.path import join as pjoin
 from collections import OrderedDict as OD
 import numpy as np
 import pandas as pd
+from pandas import IndexSlice as idx
 import matplotlib.pyplot as plt
 import matplotlib as mpl
 
@@ -39,107 +41,199 @@ except:
 
 # fs----- load data -----#
 def load_pidf(pipath):
+    """ Loads single profiles.index file. """
     pidx_cols = ['model_number', 'priority', 'profile_number']
     pidf = pd.read_csv(pipath, names=pidx_cols, skiprows=1, header=None, sep='\s+')
     return pidf
 
-def load_all_data(dr=dr, run_key=['all']):
+def load_controls(cpath):
+    """ Loads a single controls#.data file to a Series """
+
+    lines_with_known_probs = [
+                                'DIFFUSION_CLASS_REPRESENTATIVE',
+                                'DIFFUSION_CLASS_A_MAX',
+                                'DIFFUSION_CLASS_TYPICAL_CHARGE',
+                                ]
+
+    cs = pd.Series()
+    with open(cpath) as fin:
+        for l, line in enumerate(fin.readlines()):
+            # print(line, len(line))
+            if line.strip() == '&CONTROLS': continue # skip first line
+            try:
+                name, val = line.split('=',1)
+            except:
+                if line.strip() == '/':
+                    continue
+                else: # add to val of previous line
+                    newval = line.split(',')
+                    val = val + newval
+                    if name not in lines_with_known_probs:
+                        print(f'added new line values: {newval} \nto previous line #{l}: {name} \n')
+            else:
+                name = name.strip()
+                val = val.split(',')
+
+            if val[-1] == '\n': del val[-1]
+            if len(val) == 1: val = val[0].strip()
+
+            cs[name] = val
+
+    return cs
+
+def load_be_controls(Lpath, pidf, dfkey):
+    """ Loads 2 controls#.data files (beginning and ending controls):
+            1. priofile priority == 99 (enter MS)
+            2. profiles model number == max
+
+        Lpath = path to LOGS dir
+        pidf = DF of profiles.index, as returned by load_pidf()
+        dfkey = (multi-)index for this run (for the DataFrame)
+    """
+
+    cdic = {}
+
+    n = pidf.loc[pidf.priority==99,'profile_number']
+    if len(n)>1: print(f'\n*** Multiple priority 99 controls files in {Lpath} ***\n')
+    cpath = pjoin(Lpath,f'controls{n.iloc[0]}.data')
+    cdic[tuple(list(dfkey)+[99])] = load_controls(cpath)
+
+    n = pidf.loc[pidf.model_number==pidf.model_number.max(),'profile_number']
+    if len(n)>1: print(f'\n*** Multiple max model_number controls files in {Lpath} ***\n')
+    cpath = pjoin(Lpath,f'controls{n.iloc[0]}.data')
+    cdic[tuple(list(dfkey)+['max_mod'])] = load_controls(cpath)
+
+    cdf = pd.DataFrame.from_dict(cdic, orient='index')
+    return cdf
+
+def load_history(hpath):
+    """ Loads single history.data file. """
+    return pd.read_csv(hpath, header=4, sep='\s+')
+
+def get_STDout_run_characteristics(STDpath):
+    with open(STDpath) as fin:
+        have_runtime, have_termcode = False, False
+        cols, vals = [], []
+        for l, line in enumerate(reversed(fin.readlines())):
+            try: # get runtime, etc.
+                if line.split()[0] == 'runtime':
+                    have_runtime = True
+                    cl,vl = line.strip().replace('steps','steps:').split(':')
+                    cols = cols + cl.split(',')
+                    cols = [c.strip() for c in cols]
+                    vals = vals + vl.split()
+                    # rcs = pd.Series(data=vals,index=cols)
+            except:
+                pass
+            try: # get termination code
+                ln = line.strip().split(':',1)
+                if ln[0] == 'termination code':
+                    have_termcode = True
+                    cols = cols + ['termCode']
+                    vals = vals + [ln[1].strip()]
+            except:
+                pass
+            if have_runtime and have_termcode:
+                print('have runtime and termcode')
+                break
+            if l > 100:
+                print('l > 100, leaving STD.out')
+                break
+
+    if len(cols)>0:
+        rcs = pd.Series(data=vals,index=cols)
+        rcs['finished'] = True if have_runtime else False
+        # rcdict[dfkey] = rcs
+    else:
+        print('rcs failed')
+        rcs = pd.Series(data=(False),index=['finished'])
+
+    return rcs
+
+def get_history_run_characteristics(rcs, h):
+    """ rcs = Series, as returned by get_STDout_run_characteristics()
+        h = history DataFrame (single run)
+    """
+    rcs['num_iters_tot'] = h.num_iters.sum()
+    rcs['log_max_rel_energy_error'] = \
+            np.log10(h.rel_error_in_energy_conservation.abs().max())
+    rcs['log_cum_rel_energy_error'] = \
+            np.log10(np.abs(h.error_in_energy_conservation.sum() \
+                      /h.sort_values('star_age').total_energy.iloc[-1]))
+    rcs['log_dt_avg'] = np.log10((10**h.log_dt).mean())
+    rcs['log_dt_min'] = h.log_dt.min()
+    rcs['log_dt_max'] = h.log_dt.max()
+    rcs['hottest_logTeff'] = h.log_Teff.max()
+    rcs['center_h1_end'] = h.sort_values('star_age').center_h1.iloc[-1]
+    rcs['center_he4_end'] = h.sort_values('star_age').center_he4.iloc[-1]
+    try:
+        rcs['MStau'], __, mod_leave = get_MStau(h)
+        rcs['logL_leaveMS'] = h.loc[h.model_number==mod_leave,'log_L'].iloc[0]
+    except:
+        print('MStau failed')
+        pass
+
+    return rcs
+
+def load_all_data(dr=dr, run_key=['all'], get_history=True, load_h_no_runtime=False):
     """ run_key 'all' or list of strings (without _ prefix)
     """
-    hlist, pilist, rcdict = [], [], {}
+    hlist, pilist, clist, rcdict = [], [], [], {}
     for cb in os.listdir(dr):
         if cb[0] != 'c': continue
-        for mdir in os.listdir(os.path.join(dr,cb)):
+        for mdir in os.listdir(pjoin(dr,cb)):
             rk = mdir.split('_',1)[-1]
 
             # use only dirs in run_key
             if (rk not in run_key) and (run_key!=['all']): continue
             if rk.split('_')[0] == 'ow': continue # skip 'ow' dirs
 
-            dir = os.path.join(dr,cb,mdir)
+            dir = pjoin(dr,cb,mdir)
             m = float('.'.join(mdir.split('_')[0].strip('m').split('p')))
             dfkey = (rk, int(cb[-1]), m)
+            print()
+            print(f'doing {dfkey}')
 
-            # Get Series with run characteristics
-            # get runtime, etc. from STD.out
-            with open(os.path.join(dir,'LOGS/STD.out')) as fin:
-                have_runtime, have_termcode = False, False
-                cols, vals = [], []
-                for line in reversed(fin.readlines()):
-                    try: # get runtime, etc.
-                        if line.split()[0] == 'runtime':
-                            have_runtime = True
-                            cl,vl = line.strip().replace('steps','steps:').split(':')
-                            cols = cols + cl.split(',')
-                            cols = [c.strip() for c in cols]
-                            vals = vals + vl.split()
-                            rcs = pd.Series(data=vals,index=cols)
-                    except:
-                        pass
-                    try: # get termination code
-                        ln = line.strip().split(':',1)
-                        if ln[0] == 'termination code':
-                            have_termcode = True
-                            cols = cols + ['termCode']
-                            vals = vals + [ln[1]]
-                    except:
-                        pass
-                    if have_runtime and have_termcode:
-                        break
-
-                if len(cols)>0:
-                    rcs = pd.Series(data=vals,index=cols)
-                    rcs['finished'] = True if have_runtime else False
-            # if the run didn't finish properly, skip the rest
-            try:
-                rcs
-            except:
-                print('rcs failed:', dfkey)
-                rcdict[dfkey] = pd.Series(data=(False),index=['finished'])
-            if not have_runtime:
-                continue
+            # get runtime, etc. from STD.out as Series
+            sd = pjoin(dir,'LOGS/STD.out')
+            srd = pjoin(dir,'LOGS/STD_reduc.out') # use if exists
+            spath = srd if os.path.exists(srd) else sd
+            rcs = get_STDout_run_characteristics(spath)
 
             # Get profiles.index data
-            pidf = load_pidf(os.path.join(dir,'LOGS/profiles.index'))
+            pidf = load_pidf(pjoin(dir,'LOGS/profiles.index'))
             pidf['run_key'], pidf['cb'], pidf['mass'] = dfkey
             pilist.append(pidf.set_index(['run_key','cb','mass']))
-
-            # Get history.data
-            hpath = os.path.join(dir,'LOGS/history.data')
-            h = pd.read_csv(hpath, header=4, sep='\s+')
-            h.set_index('model_number', inplace=True)
-            h['profile_number'] = pidf.set_index('model_number').profile_number
-            # save the history dataframe
-            h['run_key'], h['cb'], h['mass'] = dfkey
-            hlist.append(h.set_index(['run_key','cb','mass']))
-
-            # Set the rest of the run characteristics
+            # Set more run characteristics
             rcs['priorities'] = pidf.priority
             rcs['end_priority'] = pidf.loc[pidf.priority>90,'priority'].min()
-            rcs['num_iters_tot'] = h.num_iters.sum()
-            rcs['log_max_rel_energy_error'] = \
-                    np.log10(h.rel_error_in_energy_conservation.abs().max())
-            rcs['log_cum_rel_energy_error'] = \
-                    np.log10(np.abs(h.error_in_energy_conservation.sum() \
-                              /h.sort_values('star_age').total_energy.iloc[-1]))
-            rcs['log_dt_avg'] = np.log10((10**h.log_dt).mean())
-            rcs['log_dt_min'] = h.log_dt.min()
-            rcs['log_dt_max'] = h.log_dt.max()
-            rcs['hottest_logTeff'] = h.log_Teff.max()
-            rcs['center_h1_end'] = h.sort_values('star_age').center_h1.iloc[-1]
-            rcs['center_he4_end'] = h.sort_values('star_age').center_he4.iloc[-1]
-            try:
-                rcs['MStau'], __, mod_leave = get_MStau(h)
-                rcs['logL_leaveMS'] = h.loc[h.model_number==mod_leave,'log_L'].iloc[0]
-            except:
-                print('MStau failed:', dfkey)
-                pass
+
+            # Get controls#.data as DataFrame
+            cdf = load_be_controls(pjoin(dir,'LOGS'), pidf, dfkey)
+            clist.append(cdf)
+
+            # Get history.data
+            if get_history:
+                hd = pjoin(dir,'LOGS/history.data')
+                hrd = pjoin(dir,'LOGS/history_reduc.data') # use if exists
+                hpath = hrd if os.path.exists(hrd) else hd
+                h = load_history(hpath)
+                h.set_index('model_number', inplace=True)
+                h['profile_number'] = pidf.set_index('model_number').profile_number
+                # save the history dataframe
+                h['run_key'], h['cb'], h['mass'] = dfkey
+                h = h.reset_index().set_index(['run_key','cb','mass'])
+                hlist.append(h)
+                # Set more run characteristics
+                rcs = get_history_run_characteristics(rcs, h)
+
             # save the series
             rcdict[dfkey] = rcs
-            del rcs # so that the try statement above works properly
+            # del rcs # so that the try statement above works properly
 
-    hdf = pd.concat(hlist, axis=0)
+    hdf = pd.concat(hlist, axis=0) if get_history else []
     pi_df = pd.concat(pilist, axis=0)
+    c_df = pd.concat(clist, axis=0)
     rcdf = pd.DataFrame.from_dict(rcdict, orient='index')
     rcdf.index.names = ('run_key','cb','mass')
     rcdf.rename(columns={'runtime (minutes)':'runtime'}, inplace=True)
@@ -147,8 +241,9 @@ def load_all_data(dr=dr, run_key=['all']):
     rcdf = rcdf.astype({'runtime':'float32', 'retries':'int32',
                         'backups':'int32', 'steps':'int32'})
 
-    return hdf, pi_df, rcdf
+    return hdf, pi_df, c_df, rcdf
 
+# fs
 # def get_paths(dr=dr, run_key=''):
 #     c0path = dr+ '/c0/m1p0' + run_key + '/LOGS'
 #     h0path = c0path+ '/history.data'
@@ -193,44 +288,72 @@ def load_all_data(dr=dr, run_key=['all']):
 #     return pdf
 #
 # def lums_dict(hdf, lums, age_cut=1e7):
-    h = hdf.loc[hdf.star_age>age_cut,:]
-    age = h.star_age
-    try:
-        L = h.luminosity
-    except:
-        L = 10**h.log_L
-    LH = 10**h.log_LH
-    LHe = 10**h.log_LHe
-    Lnuc = 10**h.log_Lnuc # excludes neutrinos [Lsun]
-    Lneu = 10**h.log_Lneu # power emitted in neutrinos, nuclear and thermal [Lsun]
+    # h = hdf.loc[hdf.star_age>age_cut,:]
+    # age = h.star_age
     # try:
-    Lgrav = h.eps_grav_integral # [Lsun]
-    Ltneu = 10**h.log_Lneu_nonnuc # power emitted in neutrinos, thermal sources only [Lsun]
+    #     L = h.luminosity
     # except:
-    #     Lgrav = 0
-    #     Ltneu = 0
-    extra_L = h.extra_L # [Lsun]
-    # LTgrav = h.total_eps_grav/Lsun # DON'T KNOW THE UNITS. probably erg/g/s
+    #     L = 10**h.log_L
+    # LH = 10**h.log_LH
+    # LHe = 10**h.log_LHe
+    # Lnuc = 10**h.log_Lnuc # excludes neutrinos [Lsun]
+    # Lneu = 10**h.log_Lneu # power emitted in neutrinos, nuclear and thermal [Lsun]
+    # # try:
+    # Lgrav = h.eps_grav_integral # [Lsun]
+    # Ltneu = 10**h.log_Lneu_nonnuc # power emitted in neutrinos, thermal sources only [Lsun]
+    # # except:
+    # #     Lgrav = 0
+    # #     Ltneu = 0
+    # extra_L = h.extra_L # [Lsun]
+    # # LTgrav = h.total_eps_grav/Lsun # DON'T KNOW THE UNITS. probably erg/g/s
+    #
+    # dic = OD([
+    #         ('age', age),
+    #         ('L', (L, ':')),
+    #         ('LH', (LH, '-.')),
+    #         ('LHe', (LHe, ':')),
+    #         ('extra_L', (extra_L, '-')),
+    #         ('Lneu', (Lneu, ':')),
+    #         ('Lnuc', (Lnuc, '-')),
+    #         ('Lgrav', (Lgrav, '-')),
+    #         ('Ltneu', (Ltneu, '-')),
+    #         # ('LTgrav', (LTgrav, '-')),
+    #       ])
+    #
+    # d = OD([])
+    # for key,val in dic.items():
+    #     if key in lums:
+    #         d[key] = dic[key]
+    #
+    # return d
+# fe
 
-    dic = OD([
-            ('age', age),
-            ('L', (L, ':')),
-            ('LH', (LH, '-.')),
-            ('LHe', (LHe, ':')),
-            ('extra_L', (extra_L, '-')),
-            ('Lneu', (Lneu, ':')),
-            ('Lnuc', (Lnuc, '-')),
-            ('Lgrav', (Lgrav, '-')),
-            ('Ltneu', (Ltneu, '-')),
-            # ('LTgrav', (LTgrav, '-')),
-          ])
+def get_MStau(hdf):
+    """ hdf is DataFrame of single star
+    """
+    d = hdf.reset_index().sort_values('star_age')
 
-    d = OD([])
-    for key,val in dic.items():
-        if key in lums:
-            d[key] = dic[key]
+    mod_enter = d.loc[d.center_h1<(d.center_h1.iloc[0]-0.0015),'model_number'].iloc[0]
+    enter = d.loc[d.model_number==mod_enter,'star_age'].iloc[0]
+    # print(f'mod enter {mod_enter}, enter {enter}')
 
-    return d
+    mod_leave = d.loc[d.center_h1<0.001,'model_number'].iloc[0]
+    leave = d.loc[d.model_number==mod_leave,'star_age'].iloc[0]
+    # print(f'mod leave {mod_leave}, leave {leave}')
+
+    MStau = leave-enter
+    # print(f'MStau {MStau}')
+
+    return MStau, mod_enter, mod_leave
+
+def control_diff(cdf):
+    c = cdf.copy()
+    for col in c.columns:
+        # transform lists to strings
+        c[col] = c[col].apply(lambda x: ','.join(x) if type(x)==list else x)
+        if len(c[col].unique()) == 1:
+            c.drop(col,inplace=True,axis=1)
+    return c
 
 # fe----- load data -----#
 
@@ -241,13 +364,15 @@ def plot_pidf(pidf, save=None):
     for k,df in pidf.groupby(level=['run_key','cb','mass']):
         dfm = df.model_number
         p = df.loc[((df.priority>90)|(dfm==dfm.max())),:].sort_values('model_number')
-        p.loc[p.priority<90,'priority'] = 80
+        p.loc[p.priority<90,'priority'] = 90
         plt.plot(p.model_number,p.priority, label=k)
+        plt.scatter(p.model_number,p.priority, s=50)
+        # p = p.loc[df.priority==]
 
     plt.legend()
     plt.xlabel('model number')
     plt.ylabel('priority')
-    plt.tight_layout()
+    # plt.tight_layout()
     if save is not None: plt.savefig(save)
     plt.show(block=False)
 
@@ -255,21 +380,31 @@ def plot_pidf(pidf, save=None):
 
 def plot_rcdf(rcdf, cols=None, save=None):
 
+    rcg = rcdf.reset_index(level='mass').groupby(level=['run_key','cb'])
+
     if cols is None:
         cols = ['runtime', 'retries', 'backups', 'steps', 'log_dt_min',
                 'end_priority', 'center_h1_end', 'center_he4_end',
                 'log_max_rel_energy_error', 'log_cum_rel_energy_error']
+
+    cmap = mpl.cm.get_cmap('tab20')
+
     f, axs = plt.subplots(sharex=True, nrows=len(cols),ncols=1, figsize=figsize)
     for i, c in enumerate(cols):
-        for k, df in rcdf.reset_index(level='mass').groupby(level=['run_key','cb']):
+        for j, (k, df) in enumerate(rcg):
+            clr = cmap(j/len(rcg))
+
             d = df.loc[df.finished==True,:]
-            axs[i].scatter(d['mass'],d[c], label=k)
+            y = d[c] if c!='termCode' else map_termCodes(d.termCode)
+            axs[i].scatter(d['mass'],y, label=k, c=clr)
 
             d = df.loc[df.finished==False,:]
-            axs[i].scatter(list(d['mass']),list(d[c]), edgecolors='k')
+            y = d[c] if c!='termCode' else map_termCodes(d.termCode)
+            axs[i].scatter(list(d['mass']),list(y), c=clr, edgecolors='k')
 
             ls = ':' if k[1]==0 else '-'
-            axs[i].plot(list(df['mass']),list(df[c]), ls=ls)
+            y = df[c] if c!='termCode' else map_termCodes(df.termCode)
+            axs[i].plot(list(df['mass']),list(y), c=clr, ls=ls)
 
         axs[i].set_ylabel(c)
 
@@ -278,29 +413,59 @@ def plot_rcdf(rcdf, cols=None, save=None):
     if save is not None: plt.savefig(save)
     plt.show(block=False)
 
+def map_termCodes(termCodes):
+    dic = {
+            ' HB_limit':2,
+            'HB_limit':2,
+            ' stop_at_TP':1,
+            'stop_at_TP':1,
+            -1:-1,
+            ' min_timestep_limit':-2,
+            'min_timestep_limit':-2,
+        }
+
+    return termCodes.map(dic)
+
 def plot_rcdf_finished(rcdf, save=None):
 
     df = rcdf.reset_index()
-    kwg = {'size': d.cb*10+100, 'alpha':0.5, 'edgecolors':'0.5'}
+    kwg = {#'s': df.cb*10+100,# 'alpha':0.25,
+           'edgecolors':'0.5', 'facecolors':'none'}
 
     plt.figure()
 
     d = df.loc[df.finished==True,:]
-    plt.scatter(d.mass,d.run_key, **kwg)
+    # kwg['c'] = d.cb
+    kwg['s'] = d.cb*10+10
+    k = d.run_key.apply(convert_runkey)
+    plt.scatter(d.mass,k, **kwg)
 
     d = df.loc[df.finished==False,:]
-    kwg['edgecolors'] = 'k'
-    plt.scatter(d.mass,d.run_key, **kwg)
-    l = f'{d.log_dt_min:0.2f}'
-    plt.annotate((d.mass,d.run_key), l)
+    kwg['edgecolors'], kwg['linewidths'] = 'k', 3
+    kwg['c'], kwg['s'] = d.cb, d.cb*50+10
+    k = d.run_key.apply(convert_runkey)
+    plt.scatter(d.mass,k, **kwg)
+    try:
+        l = f'{d.log_dt_min:0.2f}'
+        plt.annotate((d.mass,k), l)
+    except:
+        pass
 
     plt.xlabel('mass')
     plt.ylabel('run_key')
 
-    plt.legend()
+    # plt.legend()
     plt.tight_layout()
     if save is not None: plt.savefig(save)
     plt.show(block=False)
+
+def convert_runkey(run_key):
+    """ run_key is a string
+    """
+    rk = run_key.split('mist',1)
+    k = -1 if (len(rk) == 1) else int(rk[-1].split('m')[0])
+
+    return k
 
 # fe----- plot run characteristics -----#
 
@@ -775,21 +940,6 @@ def calc_MSlifetimes(hdf):
             msdf.loc[i,'deltaMS'] = (msdf.loc[i,'MStau'] - ms0)/ms0
 
     return msdf
-
-def get_MStau(hdf):
-    """ hdf is DataFrame of single star
-    """
-    d = hdf.sort_values('star_age')
-
-    mod_enter = d.loc[d.center_h1<(d.center_h1.iloc[0]-0.0015),'model_number'].iloc[0]
-    enter = d.loc[d.model_number==mod_enter,'star_age'].iloc[0]
-
-    mod_leave = d.loc[d.center_h1<0.001,'model_number'].iloc[0]
-    leave = d.loc[d.model_number==mod_leave,'star_age'].iloc[0]
-
-    MStau = leave-enter
-
-    return MStau, mod_enter, mod_leave
 
 
 
