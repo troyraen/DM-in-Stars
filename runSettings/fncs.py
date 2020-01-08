@@ -175,7 +175,7 @@ def get_history_run_characteristics(rcs, h):
 
     return rcs
 
-def load_all_data(dr=dr, run_key=['all'], get_history=True, load_h_no_runtime=False):
+def load_all_data(dr=dr, run_key=['all'], get_history=True):
     """ run_key 'all' or list of strings (without _ prefix)
     """
     hlist, pilist, clist, rcdict = [], [], [], {}
@@ -345,6 +345,33 @@ def get_MStau(hdf):
     # print(f'MStau {MStau}')
 
     return MStau, mod_enter, mod_leave
+
+def calc_delta_MStau(rcdf, c0_ref_key=None):
+    """ rcdf as returned by load_all_data()
+        c0_ref_key: delta_MStau for c0 models calculated w.r.t. this run_key
+
+        Returns rcdf with delta_MStau column added
+    """
+
+    rcdf['delta_MStau'] = np.nan
+    for rk, df in rcdf.groupby(level=['run_key','mass']):
+        # print(rk)
+        for cb, d in df.groupby(level='cb'):
+            # print(d)
+            # break
+            print((rk[0],0,rk[1]))
+            MStau0 = d.loc[idx[rk[0],0,rk[1]],'MStau']
+            # print(MStau0)
+            # print(d.MStau)
+            # print((d.MStau - MStau0)/MStau0)
+            # print(rk[0])
+            cbkey = (rk[0],cb,rk[1])
+            rcdf.loc[cbkey,'delta_MStau'] = (d.loc[cbkey,'MStau'] - MStau0)/MStau0
+
+    return rcdf
+
+
+
 
 def control_diff(cdf):
     c = cdf.copy()

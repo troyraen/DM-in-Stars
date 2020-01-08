@@ -3,11 +3,13 @@
 - [Cleanup/fix inlist and run_star_extras to better match MIST](#fixMIST)
     - [Baseline run using MESA m1p0 inlist plus settings needed for DM](#defDM)
     - [Run with full MIST options](#fullMISTmf)
+    - [Separate MIST options](#MISToptions)
 
+- [Comparing Runs](#compareRuns)
 
 # Questions
 
-- [x]  __Why do some runs not finish?__ e.g. m4p5c0 (and many others). Need to review inlist options. Currently set to match MIST as much as possible, but several things had to be removed and the remaining are still complicated and I don't understand them all. _Updated to incorporate MESA-r12115 inlists and run_star_extras.f_
+- [x]  __Why do some runs not finish?__ e.g. m4p5c0 (and many others). Need to review inlist options. Currently set to match MIST as much as possible, but several things had to be removed and the remaining are still complicated and I don't understand them all. _Fixed (mostly) by update to incorporate new MESA-r12115 inlists and run_star_extras.f in [Cleanup/fix inlist and run_star_extras to better match MIST](#fixMIST)_
 
 - [ ]  Runtimes
     - [ ]  Given that MS lifetimes results are different and the runs are taking a lot longer, need to decide how many models to re-run.
@@ -66,6 +68,8 @@ __Check MIST inlist stuff.__
 <!-- fs -->
 
 <!-- fs defDM -->
+### <a name="defDM">__run key: \_defDM__</a>
+
 Starting with newest default files for `MESA-r12115`, `test_suite/1M_pre_ms_to_wd`:
 `inlist_to_end_agb` (using some necessary settings from `inlist_start`) and `src/run_star_extras.f`.
 
@@ -74,10 +78,6 @@ Starting with newest default files for `MESA-r12115`, `test_suite/1M_pre_ms_to_w
 - [x]  Update defaults to match my needs for added DMS stuff and my preferences fo non-physics settings (e.g., saving history columns, profiles, etc.)
 - [x]  Test these settings (before incorporating MIST) to establish a baseline and see if c0 models will finish. Using file versions `inlist_master_default_plus_DM` and `run_star_extras_default_plus_DM`:
 
-### <a name="defDM">__run key: \_defDM__</a>
-LOGS in dir `RUNS_runSettings`
-On Osiris node3
-
 ```bash
 ./clean
 ./mk
@@ -85,10 +85,20 @@ On Osiris node3
 nohup nice ./bash_scripts/run_osiris1.sh &>> STD1_nohup.out &
 ```
 
-__These models ran fine, though m1p0c6 model is taking a long time (currently ~2 days and has not yet hit IAMS)__
+__These models ran fine. I let m1p0c6 run all the way through, took 19 days__
+
+```bash
+# do data_reduc on m1p0c6, keeping only every model_number%1000==0 during MS
+cd bash_scripts
+nano data_reduc.sh # then change $mcol % 5 -> $mcol % 1000 (2 places)
+./data_reduc.sh /home/tjr63/DMS/mesaruns/RUNS_runSettings/c6/m1p0_defDM
+```
+
 <!-- fe defDM -->
 
 <!-- fs fullMISTmf -->
+### <a name="fullMISTmf">__run key: \_fullMISTmf (mf: minus files, does not include MIST `MESA_files/mesa_source` files)__</a>
+
 - [x]  Update to MIST settings (see Table 1 of MIST1 paper (Choi16) and dir `MIST_MESA_files`)
     - [x]  Update both files (everything except high mass stars (>10Msun) options)
         - [x]  Wind schemes have changed in new MESA version. See [controls defaults](http://mesa.sourceforge.net/controls_defaults.html) under `cool_wind_AGB_scheme` for info/instructions. Amounts to changing `Reimers_wind_eta -> Reimers_scaling_factor` and `Blocker_wind_eta -> Blocker_scaling_factor` in both files.
@@ -105,10 +115,6 @@ __These models ran fine, though m1p0c6 model is taking a long time (currently ~2
         - __Unable to get these files into compatibility with mesa-r12115. Trying without these files.__ Most have to do with `atm` (boundary conditions), will just use MESA photosphere table option. `mesa_49.net` adds some isos and reactions that I don't _think_ will be important.
 
 
-### <a name="fullMISTmf">__run key: \_fullMISTmf (mf: minus files, does not include MIST `MESA_files/mesa_source` files)__</a>
-LOGS in dir `RUNS_runSettings/fullMIST` since `_defDM m1p0c6` still running.
-On Osiris node2.
-
 ```bash
 ./clean
 ./mk
@@ -121,8 +127,8 @@ __These models are not running well. C0 models taking a _very_ long time and m2p
 __Next, start with the most basic/simple MIST inlist and run_star_extras options and then add options one at a time.__
 <!-- fe fullMISTmf -->
 
-
-### <a name="MISToptions">__MIST options__</a>
+<!-- fs seperate mist options -->
+### <a name="MISToptions">__Separate MIST options__</a>
 The following runs will have run keys coded with `\_mist#` where `#` in:
 
 0.  Basic options: run_star_extras_default_plus_DM and inlist_master_default_plus_DM + solar abundances, eos, opacity, jina reaction rates, radiation turbulence, mass loss (AGB, RGB scaling factors). _run_key = _basicMIST == _mist0_
@@ -138,9 +144,7 @@ The following runs will have run keys coded with `\_mist#` where `#` in:
 9.  `m9`: mass loss (subtract from basic)
 Did not do postAGB burning (run_star_extras)
 
-### <a name="basicMIST">__run key: \_basicMIST__</a>
-
-\_basicMIST m1p5c0 would not finish, `log_dt_yr` down to -11 after MS. Tried subtracting 7, 8, 9 from 0. Only `m9` would finish m1p5c0. Adding winds controls to inlist and run_star_extras (`0w`) and testing... This did not work (m1p5c0 does not finish). Now start with `m9` and add 1-6 one at a time.
+`\_mist0 = \_basicMIST` m1p5c0 would not finish, `log_dt_yr` down to -11 after MS. Tried subtracting 7, 8, 9 from 0. Only `m9` would finish m1p5c0. Adding winds controls to inlist and run_star_extras (`0w`) and testing... This did not work (m1p5c0 does not finish). Now start with `m9` and add 1-6 one at a time.
 
 `\_mist01m9` ran overnight. m1p5c0 finished but m1p0c0 did not.
 
@@ -159,12 +163,32 @@ Trying 0m9 again to make sure it's running right... looks fine. Checked that mis
 `_mist07m9/` I stopped it at m1p5c6... no such inlist file. this run had `inlist_master_mist06m9` and `run_star_extras_default_plus_DM.f`
 
 ```bash
-nohup nice ./bash_scripts/run_osirisMIST.sh "_mist08m9" &>> STD1_nohup_MIST.out &
+nohup nice ./bash_scripts/run_osirisMIST.sh "_mist07m9" &>> STD1_nohup_MIST.out &
 ```
 
+<!-- fe seperate mist options -->
 
+<!-- fe # Cleanup/fix inlist and run_star_extras to better match MIST -->
+
+
+-----------------------------------------------------------------------------
+<a name="compareRuns"></a>
 ## Compare runs
+<!-- fs -->
+Would like to use `mist02m9` if possible, but m1p0c0 and m1p5c0 terminate early due to `dt < min_timestep_limit`. Most dt reductions of these two runs were due to `reduce dt because of Lnuc_He` which refers to the control `delta_lgL_He_limit`, but this has the same setting for all runs (see `rcdf.delta_lgL_He_limit.unique()`).
+
 ```python
+%run fncs
+rk = ['defDM','mist0m9','mist02m9']
+hdf, pidf, cdf, rcdf = load_all_data(dr=dr, run_key=rk, get_history=True)
+
+# c = control_diff(cdf.sort_index().loc[idx[['mist0m9','mist02m9'],0,1.0,:],:])
+# c.drop(['INITIAL_MASS','X_CTRL','USE_OTHER_ENERGY_IMPLICIT'],inplace=True,axis=1)
+c = control_diff(cdf.sort_index().loc[idx[:,0,1.0,'max_mod'],:])
+```
+
+```python
+################
 %run fncs
 rk = ['defDM','mist0m9','mist01m9','mist02m9','mist03m9','mist04m9','mist05m9'
         ,'mist06m9','mist07m9']
@@ -202,21 +226,17 @@ cols = ['center_h1_end','center_he4_end']
 plot_rcdf(r2, save=None, cols=cols)
 r2.plot('star_age','log_dt', logx=True)
 
-# sand: get controls file
+# with controls files
 dir = os.path.join(dr,'c6','m2p5_defDM')
 cpath = os.path.join(dir,'LOGS/controls1.data')
 cs = load_controls(cpath)
 
-%run fncs
-rk = ['defDM','mist0m9','mist02m9']
-hdf, pidf, cdf, rcdf = load_all_data(dr=dr, run_key=rk, get_history=True)
+
+############ sand
 rk = ['test']
 hdf0, pidf0, cdf0, rcdf0 = load_all_data(dr=dr, run_key=rk, get_history=True)
 
 cdf = pd.concat([cdf,cdf0])
-c = control_diff(cdf.loc[idx[['test','defDM'],6,1.0],:])
-
-############ sand
 drop_cols = ['TRACE_HISTORY_VALUE_NAME', 'STAR_HISTORY_DBL_FORMAT',
              'STAR_HISTORY_INT_FORMAT', 'STAR_HISTORY_TXT_FORMAT',
              'PROFILE_INT_FORMAT', 'PROFILE_TXT_FORMAT', 'PROFILE_DBL_FORMAT',
@@ -264,6 +284,7 @@ for col in c.columns:
 
 ```
 
+<!-- fe Compare Runs -->
 
 ## To do next:
 - [ ]  Check:
@@ -276,8 +297,6 @@ for col in c.columns:
 
 - [ ]  Try with:
     - [ ]  default energy scheme
-
-<!-- fe # Cleanup/fix inlist and run_star_extras to better match MIST -->
 
 
 ## Sand:
