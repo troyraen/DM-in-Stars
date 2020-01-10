@@ -355,12 +355,19 @@ def calc_delta_MStau(rcdf, c0_ref_key=None):
 
     rcdf['delta_MStau'] = np.nan
     for rk, df in rcdf.groupby(level=['run_key','mass']):
-        # print(rk)
+        print(rk)
         for cb, d in df.groupby(level='cb'):
             # print(d)
             # break
-            print((rk[0],0,rk[1]))
-            MStau0 = d.loc[idx[rk[0],0,rk[1]],'MStau']
+            # print((rk[0],0,rk[1]))
+            if cb==0 and c0_ref_key is not None:
+                print((c0_ref_key,0,rk[1]))
+                try:
+                    MStau0 = rcdf.loc[(c0_ref_key,0,rk[1]),'MStau']
+                except:
+                    MStau0 = df.loc[(rk[0],0,rk[1]),'MStau']
+            else:
+                MStau0 = df.loc[(rk[0],0,rk[1]),'MStau']
             # print(MStau0)
             # print(d.MStau)
             # print((d.MStau - MStau0)/MStau0)
@@ -493,6 +500,26 @@ def convert_runkey(run_key):
     k = -1 if (len(rk) == 1) else int(rk[-1].split('m')[0])
 
     return k
+
+def plot_delta_MStau(rcdf, title='', save=None):
+
+    plt.figure()
+
+    for rk, df in rcdf.reset_index('mass').groupby(level=['run_key','cb']):
+        ls = ':' if rk[1]==0 else '-'
+        plt.plot(df.mass,df.delta_MStau,label=rk, ls=ls)
+        plt.scatter(list(df.mass),list(df.delta_MStau))
+
+    plt.xlabel('Stellar Mass')
+    plt.ylabel('delta MStau')
+    plt.title(title)
+    plt.legend()
+    plt.semilogx()
+    plt.grid()
+    plt.show(block=False)
+    if save is not None: plt.savefig(save)
+
+    return None
 
 # fe----- plot run characteristics -----#
 

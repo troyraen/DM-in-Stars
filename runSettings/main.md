@@ -9,24 +9,15 @@
 
 # Questions
 
-- [x]  __Why do some runs not finish?__ e.g. m4p5c0 (and many others). Need to review inlist options. Currently set to match MIST as much as possible, but several things had to be removed and the remaining are still complicated and I don't understand them all. _Fixed (mostly) by update to incorporate new MESA-r12115 inlists and run_star_extras.f in [Cleanup/fix inlist and run_star_extras to better match MIST](#fixMIST)_
+- [x]  __Which settings to use and which masses to re-run?__
+    -  Checked a MESA defaults + DM set, a set with the full MIST settings (minus extra files because I could not get MESA to compile when they were included -- MIST was written for an older version of MESA), and several sets with partial MIST settings. Many/most MIST runs failed for one or more c0 models.
+    -  In __higher mass range__ (convective cores), delta_MStau results are qualitatively similar to my original results. Need to check that energy was sufficiently conserved for these models, then just __use original results__.
+    -  In __lower mass range__ (radiative cores), __delta_MStau ~ 0__ (__`defDM` settings__, MS lifetimes very similar to no DM models. See MStau plots below). Need to check some stellar structures, then __run sparse mass grid to find the mass at which results start to diverge from original results__.
+        -  Combining MIST with new version of MESA (sec [fixMIST](#fixMIST)) was difficult. None of my tests ([full](#fullMISTmf) and [separating options](#MISToptions)) successfully completed the c0 models. Would need to change too many things to do a fair comparison with MIST paper, so might as well just use `defDM` settings.
 
-- [ ]  Runtimes
-    - [ ]  Given that MS lifetimes results are different and the runs are taking a lot longer, need to decide how many models to re-run.
-
-    - [ ]  check/fix MIST stuff first. Once models are finishing, try to reduce run time
-        - [ ]  possibly alter mesh, see options [here](https://lists.mesastar.org/pipermail/mesa-users/2011-September/000526.html)
-
-- [ ]  Check long run that just finished...
-    - [ ]  which settings did it use?
-    - [ ]  what was the runtime?
-    - [ ]  what is delta tau_MS?
-
-- [ ]  Which settings to use?
-    - [ ]  can I get mist02m9 to complete runs?
-    - [ ]  what is min log dt limit set to?
-    - [ ]  what are the differences between mist02m9 and defDM?
-        - [ ]  do they make a difference in evolution (tau_MS, convection stuff) or runtime?
+- [ ]  Try to reduce run time (see plot below)
+    - [ ]  possibly alter mesh, see options [here](https://lists.mesastar.org/pipermail/mesa-users/2011-September/000526.html)
+    - [ ]  Michael suggests writing my own differential equations solver (look into stiff equations). See Ch 8, 9 of Computational Physics book. He thinks the addition of DM is causing the equations to be different enough that what MESA does no longer works well.
 
 
 -----------------------------------------------------------------------------
@@ -34,7 +25,7 @@
 # new Main Runs after resolving largeLH problem/branch
 <!-- fs  -->
 LOGS in dir `RUNS_3test_final`.
-On Osiris node3, using
+On Osiris node3, using same inlist as before with the following added:
 ```
 # inlist:
 use_dedt_form_of_energy_eqn = .true. # very first runs had this commented out but m4p5c0 failed
@@ -132,7 +123,7 @@ __Next, start with the most basic/simple MIST inlist and run_star_extras options
 The following runs will have run keys coded with `\_mist#` where `#` in:
 
 0.  Basic options: run_star_extras_default_plus_DM and inlist_master_default_plus_DM + solar abundances, eos, opacity, jina reaction rates, radiation turbulence, mass loss (AGB, RGB scaling factors). _run_key = _basicMIST == _mist0_
-0.  `0w`: everything in 0 plus winds section, also add `other_wind` to `run_star_extras`.
+    0.  `0w`: everything in 0 plus winds section, also add `other_wind` to `run_star_extras`.
 1.  mesh and timestep params: varcontrol_target and mesh_delta_coeff options
 2.  convection, mlt, semiconvection, thermohaline, and overshoot
 3.  rotation
@@ -175,19 +166,68 @@ nohup nice ./bash_scripts/run_osirisMIST.sh "_mist07m9" &>> STD1_nohup_MIST.out 
 <a name="compareRuns"></a>
 ## Compare runs
 <!-- fs -->
-Would like to use `mist02m9` if possible, but m1p0c0 and m1p5c0 terminate early due to `dt < min_timestep_limit`. Most dt reductions of these two runs were due to `reduce dt because of Lnuc_He` which refers to the control `delta_lgL_He_limit`, but this has the same setting for all runs (see `rcdf.delta_lgL_He_limit.unique()`).
+Would like to use `mist02m9` if possible (includes convection which is important to my results), but m1p0c0 and m1p5c0 terminate early due to `dt < min_timestep_limit`. Most dt reductions of these two runs were due to `reduce dt because of Lnuc_He` which refers to the control `delta_lgL_He_limit`, but this has the same setting for all runs (see `cdf.DELTA_LGL_HE_LIMIT.unique()`).
 
 ```python
 %run fncs
 rk = ['defDM','mist0m9','mist02m9']
 hdf, pidf, cdf, rcdf = load_all_data(dr=dr, run_key=rk, get_history=True)
 
+# Look at differences in settings using controls#.data files:
 # c = control_diff(cdf.sort_index().loc[idx[['mist0m9','mist02m9'],0,1.0,:],:])
 # c.drop(['INITIAL_MASS','X_CTRL','USE_OTHER_ENERGY_IMPLICIT'],inplace=True,axis=1)
 c = control_diff(cdf.sort_index().loc[idx[:,0,1.0,'max_mod'],:])
+
+# delta MStau
+rc = rcdf.copy()
+rc = calc_delta_MStau(rc, c0_ref_key='defDM') # for c0, calculate w.r.t. defDM
+rc.delta_MStau.replace(-1.0,np.nan) # get rid of runs that did not finish
+rc.loc[rc.delta_MStau.round(1)==-1.0,'delta_MStau'] = np.nan
+plot_delta_MStau(rc, save='MStau.png', title='Note: c0 is w.r.t. defDM')
+
+# c6 runtimes
+dd6 = rcdf.loc[idx['defDM',6,:],:].copy()
+dd6.loc[idx['defDM',6,1.0],'runtime'] = 19*24*60 # this is a negative number in STD.out
+dd6.reset_index('mass').plot('mass','runtime',loglog=True,grid=True,kind='scatter')
+plt.xlim(0.7,5.0)
+plt.ylim(0.9,1e6)
+plt.title('c6, defDM runtime (minutes)')
+plt.savefig('runtime.png')
+plt.show(block=False)
+
+```
+__MStau:__
+
+<img src="MStau.png" alt="MStau"/>
+
+Compare to original runs:
+
+<img src="../DMS-Paper/plots/mstau.png" alt="OG MStau"/>
+
+__Runtimes:__
+
+<img src="runtimes.png" alt="runtimes"/>
+
+
+```bash
+nohup nice ./bash_scripts/run_osirisMIST1.sh "_default_plus_DM" &>> STD_nohup_MIST1.out &
+nohup nice ./bash_scripts/run_osirisMIST2.sh "_default_plus_DM" &>> STD_nohup_MIST2.out &
+nohup nice ./bash_scripts/run_osirisMIST3.sh "_default_plus_DM" &>> STD_nohup_MIST3.out &
 ```
 
+
+-----------------------------------------------------------------------------
+## Sand
+Everything below here is unorganized.. keeping it in case need to reproduce some tests.
+
 ```python
+# ALL
+rk = ['defDM','mist0m9','mist01m9','mist02m9','mist03m9','mist04m9','mist05m9'
+        ,'mist06m9','mist07m9']
+hdfa, pidfa, cdfa, rcdfa = load_all_data(dr=dr, run_key=rk, get_history=False)
+
+# pd.options.display.max_columns = len(rcdf.columns)
+
 ################
 %run fncs
 rk = ['defDM','mist0m9','mist01m9','mist02m9','mist03m9','mist04m9','mist05m9'
@@ -232,7 +272,7 @@ cpath = os.path.join(dir,'LOGS/controls1.data')
 cs = load_controls(cpath)
 
 
-############ sand
+############
 rk = ['test']
 hdf0, pidf0, cdf0, rcdf0 = load_all_data(dr=dr, run_key=rk, get_history=True)
 
@@ -297,28 +337,3 @@ for col in c.columns:
 
 - [ ]  Try with:
     - [ ]  default energy scheme
-
-
-## Sand:
-<!-- fs Sand -->
-creating debug_df:
-```python
-%run fncs
-dir = os.path.join(dr,'c6','m4p5')
-with open(os.path.join(dir,'LOGS/STD.out')) as fin:
-    for line in reversed(fin.readlines()):
-        try:
-            if line.split()[0] == 'runtime':
-                cols,vals = line.strip().replace('steps','steps:').split(':')
-                cols = cols.strip().split(',')
-                vals = vals.split()
-                dbs = pd.Series(data=vals,index=cols)
-                print(dbs)
-                break
-        except:
-            pass
-
-
-hdf, rcdf = load_all_history(dr=dr+'/fullMIST', run_key='')
-```
-<!-- fe Sand -->
