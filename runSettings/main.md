@@ -13,8 +13,9 @@
 - [x]  __Which settings to use and which masses to re-run?__
     -  Checked a MESA defaults + DM set, a set with the full MIST settings (minus extra files because I could not get MESA to compile when they were included -- MIST was written for an older version of MESA), and several sets with partial MIST settings. Many/most MIST runs failed for one or more c0 models.
     -  In __higher mass range__ (convective cores), delta_MStau results are qualitatively similar to my original results. Need to check that energy was sufficiently conserved for these models, then just __use original results__. Differences likely smaller than existing uncertainties due to stellar physics and settings.
-    -  In __lower mass range__ (radiative cores), __delta_MStau ~ 0__ (__`defDM` settings__, MS lifetimes very similar to no DM models. See MStau plots below). Need to check some stellar structures, then __run sparse mass grid to find the mass at which results start to diverge from original results__.
+    -  In __lower mass range__ (radiative cores), __delta_MStau ~ 0__ (__`defDM` settings__, MS lifetimes very similar to no DM models. See MStau plots below). Stellar structures seem fine. __Run sparse mass grid to find the mass at which results start to diverge from original results. Don't run fine mass grid; skip isochrones.__
         -  Combining MIST with new version of MESA (sec [fixMIST](#fixMIST)) was difficult. None of my tests ([full](#fullMISTmf) and [separating options](#MISToptions)) successfully completed the c0 models. Would need to change too many things to do a fair comparison with MIST paper, so might as well just use `defDM` settings.
+    - [ ]  ___What to do about intermediate region where results are different and deltaTau != 0?___
 
 - [ ]  Try to reduce run time (see plot below)
     - [ ]  possibly alter mesh, see options [here](https://lists.mesastar.org/pipermail/mesa-users/2011-September/000526.html)
@@ -196,6 +197,24 @@ plt.title('c6, defDM runtime (minutes)')
 plt.savefig('runtime.png')
 plt.show(block=False)
 
+
+# m1p0 profiles
+# compare defDM m1p0 c0->c6
+dirs = [ pjoin(dr,f'c{cb}','m1p0_defDM/LOGS') for cb in [0,6] ]
+pdf, pidf = load_profiles(dirs)
+
+plot_profile(pdf, 'temperature', qlim=0.95)
+qlim = 1.0
+plot_profile(pdf, 'logRho', qlim=qlim)
+plot_profile(pdf, 'logP', qlim=qlim)
+plot_profile(pdf, 'logL', qlim=qlim)
+plot_profile(pdf, 'x', qlim=qlim)
+plot_profile(pdf, 'y', qlim=qlim)
+plot_profile(pdf, 'mixing_type', qlim=qlim) # c0 has rotational mixing, c6 does not
+plot_profile(pdf, 'np', qlim=qlim) # runs with use_dedt_form_of_energy_eqn=True do not write out np properly... this is meaningless
+qlim=0.5
+plot_profile(pdf, 'pp', qlim=qlim)
+plot_profile(pdf, 'cno', qlim=qlim)
 ```
 __MStau:__
 

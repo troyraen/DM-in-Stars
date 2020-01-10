@@ -1,6 +1,7 @@
 # paths assume this is being run on Roy
 
 # fs----- imports, paths, constants -----#
+from warnings import warn as _warn
 import os
 from os.path import join as pjoin
 from collections import OrderedDict as OD
@@ -18,6 +19,16 @@ Lsun = 3.8418e33 # erg/s
 Msun = 1.9892e33 # grams
 
 figsize = (10,6)
+
+priority_dict = {   99: 'ZAMS',
+                    98: 'IAMS',
+                    97: f'log h1$_c$ < -1',
+                    96: f'log h1$_c$ < -2',
+                    95: f'log h1$_c$ < -3',
+                    94: 'TAMS',
+                    93: 'He ignition',
+                    92: f'log he4$_c$ < -3',
+                }
 
 # fe----- imports, paths, constants -----#
 
@@ -40,6 +51,41 @@ except:
 # fe----- mount Osiris -----#
 
 # fs----- load data -----#
+def load_profiles(dirs):
+    """ Returns df of all profile#.data files in dirs
+                df of all profiles.index files in dirs
+
+        Args    dirs (list): LOGS directory paths
+    """
+
+    pilst, plst = [], []
+
+    for d in dirs:
+        pidf = load_pidf(pjoin(d,'profiles.index'))
+        pikey = {'mass_rk':d.split('/')[-2], 'cb':d.split('/')[-3]}
+        for k,val in pikey.items():
+            pidf[k] = val
+        pidf.set_index([k for k in pikey.keys()]+['priority'], inplace=True)
+        pilst.append(pidf)
+
+        if not pidf.reset_index().priority.is_unique:
+            _warn(f'\npriorities not unique in {pikey.values()}.'
+                    '\npdf will have duplicate keys.\n')
+
+        for pn, prior in zip(pidf.profile_number, pidf.reset_index().priority):
+            pdf = pd.read_csv(pjoin(d,f'profile{pn}.data'), header=4, sep='\s+')
+            pkey = pikey.copy()
+            pkey['priority'] = prior
+            for k,val in pkey.items():
+                pdf[k] = val
+            pdf.set_index([k for k in pkey.keys()]+['zone'], inplace=True)
+            plst.append(pdf)
+
+    pi_df = pd.concat(pilst, axis=0)
+    p_df = pd.concat(plst, axis=0)
+
+    return p_df, pi_df
+
 def load_pidf(pipath):
     """ Loads single profiles.index file. """
     pidx_cols = ['model_number', 'priority', 'profile_number']
@@ -378,8 +424,6 @@ def calc_delta_MStau(rcdf, c0_ref_key=None):
     return rcdf
 
 
-
-
 def control_diff(cdf):
     c = cdf.copy()
     for col in c.columns:
@@ -391,7 +435,7 @@ def control_diff(cdf):
 
 # fe----- load data -----#
 
-# fs----- plot run characteristics -----#
+# fs----- plots -----#
 def plot_pidf(pidf, save=None):
     plt.figure()
 
@@ -521,9 +565,40 @@ def plot_delta_MStau(rcdf, title='', save=None):
 
     return None
 
-# fe----- plot run characteristics -----#
 
-###----------- OLD from branch largeLH -----------###
+def plot_profile(pdf, col, qlim=1.0):
+
+    nrows = 99-91 # number of priorities we care about
+    ncols = 1
+    f, axs = plt.subplots(nrows=nrows,ncols=ncols, sharex=True, sharey=True,
+                            figsize=(10,8))
+    # plt.subplots_adjust(hspace=0.75)
+
+    p = pdf.loc[pdf.q<qlim,:].sort_index().loc[idx[:,:,92:99,:],:]
+    for a, (prior, df) in enumerate(p.groupby(level='priority')):
+        ax = axs[a]
+        ax.set_title(priority_dict[prior])
+        ax.set_ylabel(col)
+
+        for cb, d in df.groupby(level='cb'):
+            if col == 'np' and cb=='c0': continue
+
+            kwgs = {'ax':ax, 'legend':True if a==0 else None}
+            # if col == 'np': kwgs['logy'] = True
+            # if col == 'mixing_type': kwgs['kind'] = 'scatter'
+            d.plot('q',col, label=cb, **kwgs)
+
+            if col == 'temperature' and cb!='c0':
+                d.plot('q','wimp_temp', label=f'{cb} DM', **kwgs)
+                ax.semilogy()
+
+
+    plt.show(block=False)
+
+
+# fe----- plots -----#
+
+###------------------ OLD from branch largeLH ------------------###
 # fs----- plot luminosity profiles -----#
 def plot_lums_profiles(pdf, hdf=None, title='', save=None):
     gb = pdf.groupby('profile_number')
