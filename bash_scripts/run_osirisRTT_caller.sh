@@ -22,6 +22,6 @@ fi
 
 export OMP_NUM_THREADS=${ont}
 
-nohup nice ./bash_scripts/run_osirisRTT.sh ${run_key} "1" &>> STD1_nohup_RTT.out &
-nohup nice ./bash_scripts/run_osirisRTT.sh ${run_key} "2" &>> STD2_nohup_RTT.out &
-nohup nice ./bash_scripts/run_osirisRTT.sh ${run_key} "3" &>> STD3_nohup_RTT.out &
+nohup nice ./bash_scripts/run_osirisRTT.sh ${run_key} ${ont} "1" &>> STD1_nohup_RTT.out &
+nohup nice ./bash_scripts/run_osirisRTT.sh ${run_key} ${ont} "2" &>> STD2_nohup_RTT.out &
+nohup nice ./bash_scripts/run_osirisRTT.sh ${run_key} ${ont} "3" &>> STD3_nohup_RTT.out &
