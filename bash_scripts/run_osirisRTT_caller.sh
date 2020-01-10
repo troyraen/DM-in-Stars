@@ -2,7 +2,10 @@
 
 run_key=$1
 ont=$2 # OMP_NUM_THREADS
+maindir="/home/tjr63/DMS/mesaruns"
+# bashdir="${maindir}/bash_scripts"
 
+cd ${maindir}
 cp "inlist_master${run_key}" "inlist_master"
 echo "copied inlist_master${run_key} to inlist_master"
 if [[ "${run_key}" =~ ^(_mist01m9|_mist03m9|_mist06m9)$ ]]; then
