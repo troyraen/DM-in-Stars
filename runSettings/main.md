@@ -11,7 +11,7 @@
 
 - [x]  __Which settings to use and which masses to re-run?__
     -  Checked a MESA defaults + DM set, a set with the full MIST settings (minus extra files because I could not get MESA to compile when they were included -- MIST was written for an older version of MESA), and several sets with partial MIST settings. Many/most MIST runs failed for one or more c0 models.
-    -  In __higher mass range__ (convective cores), delta_MStau results are qualitatively similar to my original results. Need to check that energy was sufficiently conserved for these models, then just __use original results__.
+    -  In __higher mass range__ (convective cores), delta_MStau results are qualitatively similar to my original results. Need to check that energy was sufficiently conserved for these models, then just __use original results__. Differences likely smaller than existing uncertainties due to stellar physics and settings.
     -  In __lower mass range__ (radiative cores), __delta_MStau ~ 0__ (__`defDM` settings__, MS lifetimes very similar to no DM models. See MStau plots below). Need to check some stellar structures, then __run sparse mass grid to find the mass at which results start to diverge from original results__.
         -  Combining MIST with new version of MESA (sec [fixMIST](#fixMIST)) was difficult. None of my tests ([full](#fullMISTmf) and [separating options](#MISToptions)) successfully completed the c0 models. Would need to change too many things to do a fair comparison with MIST paper, so might as well just use `defDM` settings.
 
