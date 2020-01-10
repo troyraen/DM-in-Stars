@@ -7,6 +7,8 @@
 
 - [Comparing Runs](#compareRuns)
 
+- [Sand](#sand)
+
 # Questions
 
 - [x]  __Which settings to use and which masses to re-run?__
@@ -123,7 +125,7 @@ __Next, start with the most basic/simple MIST inlist and run_star_extras options
 The following runs will have run keys coded with `\_mist#` where `#` in:
 
 0.  Basic options: run_star_extras_default_plus_DM and inlist_master_default_plus_DM + solar abundances, eos, opacity, jina reaction rates, radiation turbulence, mass loss (AGB, RGB scaling factors). _run_key = _basicMIST == _mist0_
-    0.  `0w`: everything in 0 plus winds section, also add `other_wind` to `run_star_extras`.
+    -  `0w`: everything in 0 plus winds section, also add `other_wind` to `run_star_extras`.
 1.  mesh and timestep params: varcontrol_target and mesh_delta_coeff options
 2.  convection, mlt, semiconvection, thermohaline, and overshoot
 3.  rotation
@@ -201,13 +203,13 @@ __MStau:__
 <img src="MStau.png" alt="MStau"/>
 
 Compare to original runs:
-
-<img src="../DMS-Paper/plots/mstau.png" alt="OG MStau"/>
+<img src="mstauOG.png" alt="OG MStau"/>
 
 __Runtimes:__
 
-<img src="runtimes.png" alt="runtimes"/>
+<img src="runtime.png" alt="c6 defDM runtimes"/>
 
+<!-- fe Compare Runs -->
 
 ```bash
 nohup nice ./bash_scripts/run_osirisMIST1.sh "_default_plus_DM" &>> STD_nohup_MIST1.out &
@@ -215,9 +217,9 @@ nohup nice ./bash_scripts/run_osirisMIST2.sh "_default_plus_DM" &>> STD_nohup_MI
 nohup nice ./bash_scripts/run_osirisMIST3.sh "_default_plus_DM" &>> STD_nohup_MIST3.out &
 ```
 
-
 -----------------------------------------------------------------------------
-## Sand
+## <a name="sand">__Sand__</a>
+<!-- fs -->
 Everything below here is unorganized.. keeping it in case need to reproduce some tests.
 
 ```python
@@ -323,8 +325,7 @@ for col in c.columns:
 
 
 ```
-
-<!-- fe Compare Runs -->
+<!-- fe sand -->
 
 ## To do next:
 - [ ]  Check:
