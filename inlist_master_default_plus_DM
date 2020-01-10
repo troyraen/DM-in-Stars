@@ -57,7 +57,7 @@
 !     MY OPTIONS
       read_extra_controls_inlist1 = .true.
       extra_controls_inlist1_name = 'inlist_options'
-      report_why_dt_limits = .true.
+!      report_why_dt_limits = .true.
 
 
       use_gold_tolerances = .true.
@@ -70,9 +70,9 @@
       min_cell_energy_fraction_for_dedt_form = 0
       use_eps_correction_for_KE_plus_PE_in_dLdm_eqn = .true.
 
-      num_trace_history_values = 2
-      trace_history_value_name(1) = 'rel_E_err'
-      trace_history_value_name(2) = 'log_rel_run_E_err'
+!      num_trace_history_values = 2
+!      trace_history_value_name(1) = 'rel_E_err'
+!      trace_history_value_name(2) = 'log_rel_run_E_err'
 
       backup_hold = 3
 
