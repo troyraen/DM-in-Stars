@@ -8,6 +8,7 @@
 - [Sand](#sand)
 
 # Questions
+<!-- fs -->
 
 - [x]  __Which settings to use and which masses to re-run?__
     -  Checked a MESA defaults + DM set, a set with the full MIST settings (minus extra files because I could not get MESA to compile when they were included -- MIST was written for an older version of MESA), and several sets with partial MIST settings. Many/most MIST runs failed for one or more c0 models.
@@ -18,7 +19,7 @@
 - [ ]  Try to reduce run time (see plot below)
     - [ ]  possibly alter mesh, see options [here](https://lists.mesastar.org/pipermail/mesa-users/2011-September/000526.html)
     - [ ]  Michael suggests writing my own differential equations solver (look into stiff equations). See Ch 8, 9 of Computational Physics book. He thinks the addition of DM is causing the equations to be different enough that what MESA does no longer works well.
-
+<!-- fe Questions -->
 
 -----------------------------------------------------------------------------
 <a name="firstruns"></a>
