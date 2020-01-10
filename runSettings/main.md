@@ -164,7 +164,7 @@ nohup nice ./bash_scripts/run_osirisMIST.sh "_mist07m9" &>> STD1_nohup_MIST.out 
 
 -----------------------------------------------------------------------------
 <a name="compareRuns"></a>
-## Compare runs
+# Compare runs
 <!-- fs -->
 Would like to use `mist02m9` if possible (includes convection which is important to my results), but m1p0c0 and m1p5c0 terminate early due to `dt < min_timestep_limit`. Most dt reductions of these two runs were due to `reduce dt because of Lnuc_He` which refers to the control `delta_lgL_He_limit`, but this has the same setting for all runs (see `cdf.DELTA_LGL_HE_LIMIT.unique()`).
 
@@ -210,15 +210,18 @@ __Runtimes:__
 <!-- fe Compare Runs -->
 
 
-## <a name="more_defDM">__Run more defDM models__</a>
+# <a name="more_defDM">__Run more defDM models__</a>
+<!-- fs -->
 ```bash
 nohup nice ./bash_scripts/run_osirisMIST1.sh "_default_plus_DM" &>> STD_nohup_MIST1.out &
 nohup nice ./bash_scripts/run_osirisMIST2.sh "_default_plus_DM" &>> STD_nohup_MIST2.out &
 nohup nice ./bash_scripts/run_osirisMIST3.sh "_default_plus_DM" &>> STD_nohup_MIST3.out &
 ```
+<!-- fe -->
+
 
 -----------------------------------------------------------------------------
-## <a name="sand">__Sand__</a>
+# <a name="sand">__Sand__</a>
 <!-- fs -->
 Everything below here is unorganized.. keeping it in case need to reproduce some tests.
 
@@ -325,7 +328,6 @@ for col in c.columns:
 
 
 ```
-<!-- fe sand -->
 
 ## To do next:
 - [ ]  Check:
@@ -338,3 +340,5 @@ for col in c.columns:
 
 - [ ]  Try with:
     - [ ]  default energy scheme
+
+<!-- fe sand -->
