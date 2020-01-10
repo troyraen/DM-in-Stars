@@ -1,12 +1,10 @@
 - [new Main Runs after resolving largeLH problem/branch](#firstruns)
-
 - [Cleanup/fix inlist and run_star_extras to better match MIST](#fixMIST)
     - [Baseline run using MESA m1p0 inlist plus settings needed for DM](#defDM)
     - [Run with full MIST options](#fullMISTmf)
     - [Separate MIST options](#MISToptions)
-
 - [Comparing Runs](#compareRuns)
-
+- [Run more defDM models](#more_defDM)
 - [Sand](#sand)
 
 # Questions
@@ -211,6 +209,8 @@ __Runtimes:__
 
 <!-- fe Compare Runs -->
 
+
+## <a name="more_defDM">__Run more defDM models__</a>
 ```bash
 nohup nice ./bash_scripts/run_osirisMIST1.sh "_default_plus_DM" &>> STD_nohup_MIST1.out &
 nohup nice ./bash_scripts/run_osirisMIST2.sh "_default_plus_DM" &>> STD_nohup_MIST2.out &
