@@ -198,8 +198,8 @@ plt.savefig('runtime.png')
 plt.show(block=False)
 
 
-# m1p0 profiles
 # compare defDM m1p0 c0->c6
+# profiles
 dirs = [ pjoin(dr,f'c{cb}','m1p0_defDM/LOGS') for cb in [0,6] ]
 pdf, pidf = load_profiles(dirs)
 
@@ -215,6 +215,9 @@ plot_profile(pdf, 'np', qlim=qlim) # runs with use_dedt_form_of_energy_eqn=True 
 qlim=0.5
 plot_profile(pdf, 'pp', qlim=qlim)
 plot_profile(pdf, 'cno', qlim=qlim)
+
+# history
+h1 = hdf.loc[idx['defDM',0:6,1.0],:]
 ```
 __MStau:__
 
