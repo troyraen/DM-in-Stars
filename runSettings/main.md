@@ -266,6 +266,10 @@ These all look as expected.
 nohup nice ./bash_scripts/run_osirisMIST1.sh "_default_plus_DM" &>> STD_nohup_MIST1.out &
 nohup nice ./bash_scripts/run_osirisMIST2.sh "_default_plus_DM" &>> STD_nohup_MIST2.out &
 nohup nice ./bash_scripts/run_osirisMIST3.sh "_default_plus_DM" &>> STD_nohup_MIST3.out &
+
+# Later: run m0p8c5:6 with 8 threads each
+nohup nice ./bash_scripts/run_osirisMIST5.sh "_default_plus_DM" &>> STD_nohup_MIST5.out &
+nohup nice ./bash_scripts/run_osirisMIST6.sh "_default_plus_DM" &>> STD_nohup_MIST6.out &
 ```
 
 _On Osiris: reduce large file sizes:_
@@ -282,8 +286,7 @@ hdf, pidf, cdf, rcdf = load_all_data(dr=dr, run_key=rk, get_history=True, use_re
 # delta MStau
 rc = rcdf.copy()
 rc = calc_delta_MStau(rc, c0_ref_key='defDM') # for c0, calculate w.r.t. defDM
-# rc.delta_MStau.replace(-1.0,np.nan) # get rid of runs that did not finish
-rc.loc[rc.delta_MStau.round(1)==-1.0,'delta_MStau'] = np.nan
+# rc.loc[rc.delta_MStau.round(1)==-1.0,'delta_MStau'] = np.nan # remove unfinished runs
 plot_delta_MStau(rc, save='MStau_defDM.png', title='MStau_defDM')
 
 ```
