@@ -222,14 +222,14 @@ def get_history_run_characteristics(rcs, h):
 
     return rcs
 
-def check_for_reduc(LOGSpath, max_fsize=5.0):
+def check_for_reduc(LOGSpath, max_fsize=500.0):
     """ Checks the following files in LOGSpath dir and creates a reduced
         version if file size > max_fsize [MB] (and does not already exist):
             STD.out
             history.data
     """
 
-    smax = max_fsize/(1024*1024) # [bytes]
+    smax = max_fsize*1024*1024 # [bytes]
     z = zip(['STD.out', 'history.data'],['STD_reduc.out', 'history_reduc.data'])
     for fil, rfil in z:
         typ = fil.split('.')[0]
@@ -246,8 +246,9 @@ def check_for_reduc(LOGSpath, max_fsize=5.0):
 
     return None
 
-def load_all_data(dr=dr, run_key=['all'], get_history=True):
+def load_all_data(dr=dr, run_key=['all'], get_history=True, use_reduc=True):
     """ run_key 'all' or list of strings (without _ prefix)
+        use_reduc (bool): whether to use `_reduc` files (reduced file sizes)
     """
     hlist, pilist, clist, rcdict = [], [], [], {}
     for cb in os.listdir(dr):
@@ -266,12 +267,12 @@ def load_all_data(dr=dr, run_key=['all'], get_history=True):
             print(f'doing {dfkey}')
 
             # reduce STD and history file sizes if needed
-            check_for_reduc(pjoin(dir,'LOGS'), max_fsize=5.0)
+            if use_reduc: check_for_reduc(pjoin(dir,'LOGS'), max_fsize=500.0)
 
             # get runtime, etc. from STD.out as Series
             sd = pjoin(dir,'LOGS/STD.out')
             srd = pjoin(dir,'LOGS/STD_reduc.out') # use if exists
-            spath = srd if os.path.exists(srd) else sd
+            spath = srd if (os.path.exists(srd) and use_reduc) else sd
             rcs = get_STDout_run_characteristics(spath)
 
             # Get profiles.index data
@@ -290,7 +291,7 @@ def load_all_data(dr=dr, run_key=['all'], get_history=True):
             if get_history:
                 hd = pjoin(dir,'LOGS/history.data')
                 hrd = pjoin(dir,'LOGS/history_reduc.data') # use if exists
-                hpath = hrd if os.path.exists(hrd) else hd
+                hpath = hrd if (os.path.exists(hrd) and use_reduc) else hd
                 h = load_history(hpath)
                 h.set_index('model_number', inplace=True)
                 h['profile_number'] = pidf.set_index('model_number').profile_number
