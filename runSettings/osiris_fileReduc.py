@@ -43,10 +43,10 @@ def check_for_reduc(dr=dr, run_key=['all'], max_fsize=500.0):
                 if os.path.exists(rp): continue
 
                 if os.path.getsize(OGp) > smax:
-                    print(f'Reducing {typ} at {OGp}')
+                    print('Reducing {typ} at {OGp}'.format(typ,OGp))
                     if typ == 'STD':
-                        os.system(f"tail -n 100 '{OGp}' > '{rp}'")
+                        os.system("tail -n 100 '{OGp}' > '{rp}'".format(OGp,rp))
                     elif typ == 'history':
-                        os.system(f'../bash_scripts/data_reduc.sh {LOGSpath}')
+                        os.system('../bash_scripts/data_reduc.sh {LOGSpath}'.format(LOGSpath))
 
     return None
