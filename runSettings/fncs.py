@@ -3,6 +3,7 @@
 # fs----- imports, paths, constants -----#
 from warnings import warn as _warn
 import os
+# import subprocess as subp
 from os.path import join as pjoin
 from collections import OrderedDict as OD
 import numpy as np
@@ -221,6 +222,30 @@ def get_history_run_characteristics(rcs, h):
 
     return rcs
 
+def check_for_reduc(LOGSpath, max_fsize=5.0):
+    """ Checks the following files in LOGSpath dir and creates a reduced
+        version if file size > max_fsize [MB] (and does not already exist):
+            STD.out
+            history.data
+    """
+
+    smax = max_fsize/(1024*1024) # [bytes]
+    z = zip(['STD.out', 'history.data'],['STD_reduc.out', 'history_reduc.data'])
+    for fil, rfil in z:
+        typ = fil.split('.')[0]
+
+        OGp, rp = pjoin(LOGSpath,fil), pjoin(LOGSpath,rfil)
+        if os.path.exists(rp): continue
+
+        if os.path.getsize(OGp) > smax:
+            print(f'Reducing {typ} at {OGp}')
+            if typ == 'STD':
+                os.system(f"tail -n 100 '{OGp}' > '{rp}'")
+            elif typ == 'history':
+                os.system(f'../bash_scripts/data_reduc.sh {LOGSpath}')
+
+    return None
+
 def load_all_data(dr=dr, run_key=['all'], get_history=True):
     """ run_key 'all' or list of strings (without _ prefix)
     """
@@ -239,6 +264,9 @@ def load_all_data(dr=dr, run_key=['all'], get_history=True):
             dfkey = (rk, int(cb[-1]), m)
             print()
             print(f'doing {dfkey}')
+
+            # reduce STD and history file sizes if needed
+            check_for_reduc(pjoin(dir,'LOGS'), max_fsize=5.0)
 
             # get runtime, etc. from STD.out as Series
             sd = pjoin(dir,'LOGS/STD.out')
@@ -333,46 +361,47 @@ def load_all_data(dr=dr, run_key=['all'], get_history=True):
 #
 #     return pdf
 #
-# def lums_dict(hdf, lums, age_cut=1e7):
-    # h = hdf.loc[hdf.star_age>age_cut,:]
-    # age = h.star_age
-    # try:
-    #     L = h.luminosity
-    # except:
-    #     L = 10**h.log_L
-    # LH = 10**h.log_LH
-    # LHe = 10**h.log_LHe
-    # Lnuc = 10**h.log_Lnuc # excludes neutrinos [Lsun]
-    # Lneu = 10**h.log_Lneu # power emitted in neutrinos, nuclear and thermal [Lsun]
-    # # try:
-    # Lgrav = h.eps_grav_integral # [Lsun]
-    # Ltneu = 10**h.log_Lneu_nonnuc # power emitted in neutrinos, thermal sources only [Lsun]
-    # # except:
-    # #     Lgrav = 0
-    # #     Ltneu = 0
-    # extra_L = h.extra_L # [Lsun]
-    # # LTgrav = h.total_eps_grav/Lsun # DON'T KNOW THE UNITS. probably erg/g/s
-    #
-    # dic = OD([
-    #         ('age', age),
-    #         ('L', (L, ':')),
-    #         ('LH', (LH, '-.')),
-    #         ('LHe', (LHe, ':')),
-    #         ('extra_L', (extra_L, '-')),
-    #         ('Lneu', (Lneu, ':')),
-    #         ('Lnuc', (Lnuc, '-')),
-    #         ('Lgrav', (Lgrav, '-')),
-    #         ('Ltneu', (Ltneu, '-')),
-    #         # ('LTgrav', (LTgrav, '-')),
-    #       ])
-    #
-    # d = OD([])
-    # for key,val in dic.items():
-    #     if key in lums:
-    #         d[key] = dic[key]
-    #
-    # return d
 # fe
+
+def lums_dict(hdf, lums, age_cut=1e7):
+    h = hdf.loc[hdf.star_age>age_cut,:]
+    age = h.star_age
+    try:
+        L = h.luminosity
+    except:
+        L = 10**h.log_L
+    LH = 10**h.log_LH
+    LHe = 10**h.log_LHe
+    Lnuc = 10**h.log_Lnuc # excludes neutrinos [Lsun]
+    Lneu = 10**h.log_Lneu # power emitted in neutrinos, nuclear and thermal [Lsun]
+    # try:
+    Lgrav = h.eps_grav_integral # [Lsun]
+    Ltneu = 10**h.log_Lneu_nonnuc # power emitted in neutrinos, thermal sources only [Lsun]
+    # except:
+    #     Lgrav = 0
+    #     Ltneu = 0
+    extra_L = h.extra_L # [Lsun]
+    # LTgrav = h.total_eps_grav/Lsun # DON'T KNOW THE UNITS. probably erg/g/s
+
+    dic = OD([
+            ('age', age),
+            ('L', (L, ':')),
+            ('LH', (LH, '-.')),
+            ('LHe', (LHe, ':')),
+            ('extra_L', (extra_L, '-')),
+            ('Lneu', (Lneu, ':')),
+            ('Lnuc', (Lnuc, '-')),
+            ('Lgrav', (Lgrav, '-')),
+            ('Ltneu', (Ltneu, '-')),
+            # ('LTgrav', (LTgrav, '-')),
+          ])
+
+    d = OD([])
+    for key,val in dic.items():
+        if key in lums:
+            d[key] = dic[key]
+
+    return d
 
 def get_MStau(hdf):
     """ hdf is DataFrame of single star
@@ -725,6 +754,7 @@ def plot_lums_history_06(lum_dict, save=None):
     plt.axhline(0, c='0.5', lw=0.5)
 
     plt.semilogx()
+    # plt.ylim(-1.1,5.0)
     plt.legend()
     plt.xlabel('star_age')
     plt.ylabel(r'luminosity [L$_\odot$]')
@@ -795,6 +825,27 @@ def plot_energy(hdf, title='', save=None):
 
 
 # fs----- plot other history columns -----#
+def plot_history(hdf,cols):
+    nrows = len(cols)
+    ncols = 1
+    f, axs = plt.subplots(sharex=True, nrows=nrows,ncols=ncols, figsize=figsize)
+
+    for i, (ax, col) in enumerate(zip(axs,cols)):
+        for rk, df in hdf.groupby(level=['run_key','cb','mass']):
+            c = rk[1]/6.
+            ax.plot(df.star_age,df[col], label=rk)#, c=c)
+
+            if col=='log_center_T' and c==1:
+                ax.plot(df.star_age,np.log10(df.wimp_temp),ls=':')
+
+        if i==0: ax.legend()
+        ax.set_ylabel(col)
+
+    ax.set_xlabel('star_age')
+    plt.semilogx()
+    plt.show(block=False)
+    return None
+
 def plot_burning_06(hdf_dict, title='', save=None):
     """
     """

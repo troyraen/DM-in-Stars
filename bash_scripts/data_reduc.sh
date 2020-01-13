@@ -48,13 +48,13 @@ function data_reduc {
     BEGIN { nth=0; split(pmod,pm," "); for (i in pm) mod[pm[i]]=pm[i] }
     { if ($mcol == 1) { print $0 }
     else if ($mcol in mod) { print $0 }
-    else if ($h1col > 0.001) { if ($mcol % 5 == 0) { print $0; } }
+    else if ($h1col > 0.001) { if ($mcol % 500 == 0) { print $0; } }
     else {
         if (nth == 0) {
             lnpostMS = lnct - NR
             nth = int(lnpostMS / nk)
         }
-        if (nth < 3) { if ($mcol % 5 == 0) { print $0 } }
+        if (nth < 3) { if ($mcol % 500 == 0) { print $0 } }
         else if (NR % nth == 0) { print $0 }
     }
     }' < $hdata >> $hreduc
@@ -66,7 +66,7 @@ function data_reduc {
     echo
 }
 
-data_reduc $1/LOGS
+data_reduc $1
 
 
 ############
