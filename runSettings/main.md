@@ -13,11 +13,12 @@
 - [x]  __Which settings to use and which masses to re-run?__
     -  Checked a MESA defaults + DM set, a set with the full MIST settings (minus extra files because I could not get MESA to compile when they were included -- MIST was written for an older version of MESA), and several sets with partial MIST settings. Many/most MIST runs failed for one or more c0 models.
     -  In __higher mass range__ (convective cores), delta_MStau results are qualitatively similar to my original results. Need to check that energy was sufficiently conserved for these models, then just __use original results__. Differences likely smaller than existing uncertainties due to stellar physics and settings.
-    -  In __lower mass range__ (radiative cores), __delta_MStau ~ 0__ (__`defDM` settings__, MS lifetimes very similar to no DM models. See MStau plots below). Stellar structures seem fine. __Run sparse mass grid to find the mass at which results start to diverge from original results. Don't run fine mass grid; skip isochrones.__
+    -  In __lower mass range__ (radiative cores), __delta_MStau ~ 0__ (__`defDM` settings__, MS lifetimes very similar to no DM models. See `defDM` MStau plots [here](#more_defDM)). Stellar structures seem fine. __Run sparse mass grid to find the mass at which results start to diverge from original results. Don't run fine mass grid; skip isochrones.__
         -  Combining MIST with new version of MESA (sec [fixMIST](#fixMIST)) was difficult. None of my tests ([full](#fullMISTmf) and [separating options](#MISToptions)) successfully completed the c0 models. Would need to change too many things to do a fair comparison with MIST paper, so might as well just use `defDM` settings.
-    - [ ]  ___What to do about intermediate region where results are different and deltaTau != 0?___
+    - [ ]  _What to do about intermediate region where results are different and deltaTau != 0?_ ___I think I need to rerun all models except very lowest (e.g. < m1p0). Otherwise I think I'll have to drop all data < ~m1p6___
 
 - [ ]  Try to reduce run time (see plot below)
+    - [x]  using lower number of threads seems to help. See branch `runtimeTests`.
     - [ ]  possibly alter mesh, see options [here](https://lists.mesastar.org/pipermail/mesa-users/2011-September/000526.html)
     - [ ]  Michael suggests writing my own differential equations solver (look into stiff equations). See Ch 8, 9 of Computational Physics book. He thinks the addition of DM is causing the equations to be different enough that what MESA does no longer works well.
 <!-- fe Questions -->
@@ -218,6 +219,27 @@ plot_profile(pdf, 'cno', qlim=qlim)
 
 # history
 h1 = hdf.loc[idx['defDM',0:6,1.0],:]
+cols = ['mass_conv_core',
+        'pp',
+        'cno',
+        'log_Teff',
+        'log_center_T',
+        # 'wimp_temp', # plotted with log_center_P
+        'log_center_Rho',
+        'log_center_P',
+        'he_core_mass',
+        'center_h1',
+        'center_degeneracy',
+        'rel_error_in_energy_conservation',
+]
+plot_history(h1.loc[((h1.star_age>1e7)&(h1.star_age<9e9)),:],cols[0:5])
+plot_history(h1.loc[((h1.star_age>1e8)&(h1.star_age<7e9)),:],cols[5:])
+# luminosity
+ac, lums = 0, ['age','L','LH','Lgrav','extra_L']
+lum_dict = {0: lums_dict(hdf.loc[idx['defDM',0,1.0],:], lums, age_cut=ac),
+            6: lums_dict(hdf.loc[idx['defDM',6,1.0],:], lums, age_cut=ac)}
+plot_lums_history_06(lum_dict)
+
 ```
 __MStau:__
 
@@ -230,6 +252,10 @@ __Runtimes:__
 
 <img src="runtime.png" alt="c6 defDM runtimes"/>
 
+__Compare defDM m1p0 c0 -> c6__
+
+These all look as expected.
+
 <!-- fe Compare Runs -->
 
 
@@ -241,6 +267,34 @@ nohup nice ./bash_scripts/run_osirisMIST1.sh "_default_plus_DM" &>> STD_nohup_MI
 nohup nice ./bash_scripts/run_osirisMIST2.sh "_default_plus_DM" &>> STD_nohup_MIST2.out &
 nohup nice ./bash_scripts/run_osirisMIST3.sh "_default_plus_DM" &>> STD_nohup_MIST3.out &
 ```
+
+_On Osiris: reduce large file sizes:_
+```python
+import osiris_fileReduc as ofr
+ofr.check_for_reduc(dr=ofr.dr, run_key=['defDM'], max_fsize=500.0)
+```
+
+_On Roy, look at data:_
+```python
+rk = ['defDM']
+hdf, pidf, cdf, rcdf = load_all_data(dr=dr, run_key=rk, get_history=True, use_reduc=True)
+
+# delta MStau
+rc = rcdf.copy()
+rc = calc_delta_MStau(rc, c0_ref_key='defDM') # for c0, calculate w.r.t. defDM
+# rc.delta_MStau.replace(-1.0,np.nan) # get rid of runs that did not finish
+rc.loc[rc.delta_MStau.round(1)==-1.0,'delta_MStau'] = np.nan
+plot_delta_MStau(rc, save='MStau_defDM.png', title='MStau_defDM')
+
+```
+
+__MStau:__
+
+<img src="MStau_defDM.png" alt="MStau_defDM"/>
+
+Compare to original runs:
+<img src="mstauOG.png" alt="OG MStau"/>
+
 <!-- fe -->
 
 

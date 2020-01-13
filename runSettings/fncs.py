@@ -222,6 +222,7 @@ def get_history_run_characteristics(rcs, h):
 
     return rcs
 
+# check_for_reduc() is too slow to use on Roy
 def check_for_reduc(LOGSpath, max_fsize=500.0):
     """ Checks the following files in LOGSpath dir and creates a reduced
         version if file size > max_fsize [MB] (and does not already exist):
@@ -267,7 +268,8 @@ def load_all_data(dr=dr, run_key=['all'], get_history=True, use_reduc=True):
             print(f'doing {dfkey}')
 
             # reduce STD and history file sizes if needed
-            if use_reduc: check_for_reduc(pjoin(dir,'LOGS'), max_fsize=500.0)
+            ## too slow to use on Roy
+            # if use_reduc: check_for_reduc(pjoin(dir,'LOGS'), max_fsize=500.0)
 
             # get runtime, etc. from STD.out as Series
             sd = pjoin(dir,'LOGS/STD.out')
@@ -577,13 +579,15 @@ def convert_runkey(run_key):
 
 def plot_delta_MStau(rcdf, title='', save=None):
 
-    plt.figure()
+    plt.figure(figsize=figsize)
 
     for rk, df in rcdf.reset_index('mass').groupby(level=['run_key','cb']):
         ls = ':' if rk[1]==0 else '-'
         plt.plot(df.mass,df.delta_MStau,label=rk, ls=ls)
         plt.scatter(list(df.mass),list(df.delta_MStau))
 
+    plt.xlim(0.7,5.5)
+    # plt.ylim(-0.65,0.22)
     plt.xlabel('Stellar Mass')
     plt.ylabel('delta MStau')
     plt.title(title)
