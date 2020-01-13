@@ -44,12 +44,12 @@ def load_all_data(dr=dr, rk='_default_plus_DM'):
     """ rk: run_key
     """
     rcdict, pilist = {}, []
-    for threads in os.listdir(pjoin(dr,rk,threads)):
+    for threads in os.listdir(pjoin(dr,rk)):
         t = int(threads.strip('threads'))
         for sim in os.listdir(pjoin(dr,rk,threads)):
             for cb in os.listdir(pjoin(dr,rk,threads,sim)):
                 if cb[0] != 'c': continue
-                for mdir in os.listdir(pjoin(dr,,threads,sim,cb)):
+                for mdir in os.listdir(pjoin(dr,rk,threads,sim,cb)):
                     dir = pjoin(dr,rk,threads,sim,cb,mdir)
                     m = float('.'.join(mdir.strip('m').split('p')))
                     dfkey = (rk, t, int(sim[-1]))
@@ -58,7 +58,7 @@ def load_all_data(dr=dr, rk='_default_plus_DM'):
 
                     # get runtime, etc. from STD.out as Series
                     rcs = get_STDout_run_characteristics(pjoin(dir,'LOGS/STD.out'))
-                    rcs['cb'], rcd['mass'] = int(cb[-1]), m
+                    rcs['cb'], rcs['mass'] = int(cb[-1]), m
 
                     # Get profiles.index data
                     pidf = load_pidf(pjoin(dir,'LOGS/profiles.index'))
@@ -82,6 +82,14 @@ def load_all_data(dr=dr, rk='_default_plus_DM'):
                         'backups':'int32', 'steps':'int32'})
 
     return rcdf, pi_df
+
+
+def load_pidf(pipath):
+    """ Loads single profiles.index file. """
+    pidx_cols = ['model_number', 'priority', 'profile_number']
+    pidf = pd.read_csv(pipath, names=pidx_cols, skiprows=1, header=None, sep='\s+')
+    return pidf
+
 
 def get_STDout_run_characteristics(STDpath):
     with open(STDpath) as fin:

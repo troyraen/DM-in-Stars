@@ -7,10 +7,12 @@
 - [x]  Add stopping condition to `defDM` inlist: `xa_central_lower_limit_species(1) = 'h1', xa_central_lower_limit(1) = 0.65`
 
 ```bash
-# test 12, 9, 6 for OMP_NUM_THREADS
+# test 12, 9, 8, 6, 3 for OMP_NUM_THREADS
 cd bash_scripts
-nohup nice ./run_osirisRTT_caller.sh "_default_plus_DM" 12
+nohup nice ./run_osirisRTT_caller.sh "_default_plus_DM" 8
 ```
+
+All of these ran on Osiris wnode3 with 3 other ./star running (from runSettings branch) using 12 threads each, except `threads8` had only 2 other .star's running.
 
 
 # Look at data
