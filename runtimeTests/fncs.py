@@ -136,11 +136,11 @@ def get_STDout_run_characteristics(STDpath):
 
 # fs----- plots -----#
 def plot_avg_runtimes(rcdf, save=None):
-    ('run_key','threads','sim')
 
     mean = rcdf.groupby(level='threads').mean()
-    mean.reset_index().plot('threads','runtime')
+    mean.reset_index().plot('threads','runtime', kind='scatter', grid=True)
 
+    plt.ylabel('runtime [min]')
     if save is not None: plt.savefig(save)
     plt.show(block=False)
 

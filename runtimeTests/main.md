@@ -1,4 +1,4 @@
-
+__Looks like ~8 threads is ideal. Have set `OMP_NUM_THREADS=8` in bash profile.__
 
 # Test varying OMP_NUM_THREADS
 
@@ -19,13 +19,9 @@ All of these ran on Osiris wnode3 with 3 other ./star running (from runSettings 
 
 ```python
 %run fncs
-
 rcdf, pidf = load_all_data(dr=dr, rk='_default_plus_DM')
-
-plot_avg_runtimes(rcdf, save=None)
-
-### SAND
-
-
+plot_avg_runtimes(rcdf, save='runtimes.png')
 
 ```
+
+<img src="runtimes.png" alt="runtimes"/>
