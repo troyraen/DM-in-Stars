@@ -1,8 +1,9 @@
 # paths assume this is being run on Roy
 
-# fs----- imports, paths, constants -----#
+# fs----- imports, paths, constants, cbcmap -----#
 from warnings import warn as _warn
 import os
+from matplotlib.colors import ListedColormap
 # import subprocess as subp
 from os.path import join as pjoin
 from collections import OrderedDict as OD
@@ -30,6 +31,28 @@ priority_dict = {   99: 'ZAMS',
                     93: 'He ignition',
                     92: f'log he4$_c$ < -3',
                 }
+
+def normalize_RGB(rgb_tuple):
+    """ rgb_tuple assumed to be of length 3, values in range [0,255]
+        Returns tuple with rgb_tuple values divided by 255,
+            with 1 appended to end of tuple (needed for alpha in colormaps)
+    """
+
+    rbgnorm = 255.0
+    rgb_scaled = [ c/rbgnorm for c in rgb_tuple ]
+    rgb_scaled.append(1.0)
+    return tuple(rgb_scaled)
+
+c0c = normalize_RGB((169,169,169))
+c1c = normalize_RGB((127,205,187))
+c2c = normalize_RGB((65,182,196))
+c3c = normalize_RGB((29,145,192))
+c4c = normalize_RGB((34,94,168))
+c5c = normalize_RGB((37,52,148))
+c6c = normalize_RGB((8,29,88))
+carr = (c0c,c1c,c2c,c3c,c4c,c5c,c6c)
+cbcmap = ListedColormap(carr)
+
 
 # fe----- imports, paths, constants -----#
 
@@ -251,6 +274,10 @@ def load_all_data(dr=dr, run_key=['all'], get_history=True, use_reduc=True):
     """ run_key 'all' or list of strings (without _ prefix)
         use_reduc (bool): whether to use `_reduc` files (reduced file sizes)
     """
+    if use_reduc:
+        _warn(  '\nUsing reduced files when available.'
+                '\nThings like Tau_MS will not be precise.\n')
+
     hlist, pilist, clist, rcdict = [], [], [], {}
     for cb in os.listdir(dr):
         if cb[0] != 'c': continue

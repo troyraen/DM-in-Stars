@@ -20,7 +20,15 @@
 - [ ]  Try to reduce run time (see plot below)
     - [x]  using lower number of threads seems to help. See branch `runtimeTests`.
     - [ ]  possibly alter mesh, see options [here](https://lists.mesastar.org/pipermail/mesa-users/2011-September/000526.html)
-    - [ ]  Michael suggests writing my own differential equations solver (look into stiff equations). See Ch 8, 9 of Computational Physics book. He thinks the addition of DM is causing the equations to be different enough that what MESA does no longer works well.
+    - [-]  Michael suggests writing my own differential equations solver (look into stiff equations). See Ch 8, 9 of Computational Physics book. He thinks the addition of DM is causing the equations to be different enough that what MESA does no longer works well.
+        - not doing this... I had not explained very well all the different inlist (and rse) combinations I was testing and which were having problems (`MIST` runs not finishing c0 runs but `defDM` did). Have decided (in consult with Andrew) to just use `defDM`.
+
+
+## Questions/things to consider from Michael and Brett:
+- [ ]  Why is delta_MStau higher for m1p0c3 than for m1p0c6? (e.g. maybe related to CNO)
+- [ ]  Check total energy output over MS lifetimes, is it interesting?
+- [ ]  Normally, Tau_MS /propto M_star^-3... why does increasing DM by factor of 10 move plot feature by ~1 Msun? Also, why is that feature so sharp (i.e. why does effect drop off so quickly as mass increases)?
+
 <!-- fe Questions -->
 
 -----------------------------------------------------------------------------
@@ -174,7 +182,7 @@ Would like to use `mist02m9` if possible (includes convection which is important
 ```python
 %run fncs
 rk = ['defDM','mist0m9','mist02m9']
-hdf, pidf, cdf, rcdf = load_all_data(dr=dr, run_key=rk, get_history=True)
+hdf, pidf, cdf, rcdf = load_all_data(dr=dr, run_key=rk, get_history=True, use_reduc=True)
 
 # Look at differences in settings using controls#.data files:
 # c = control_diff(cdf.sort_index().loc[idx[['mist0m9','mist02m9'],0,1.0,:],:])
@@ -197,6 +205,18 @@ plt.ylim(0.9,1e6)
 plt.title('c6, defDM runtime (minutes)')
 plt.savefig('runtime.png')
 plt.show(block=False)
+
+# all runtimes
+rc = rcdf.copy()
+rc.loc[idx['defDM',6,1.0],'runtime'] = 19*24*60 # this is a negative number in STD.out
+plt.figure()
+ax = plt.gca()
+for cb, df in rc.reset_index('mass').groupby(level='cb'):
+    clr = cbcmap(cb)
+    df.plot('mass','runtime',loglog=True,grid=True,ax=ax,label=cb,c=clr)
+plt.savefig('runtimeAll.png')
+plt.show(block=False)
+
 
 
 # compare defDM m1p0 c0->c6
@@ -252,6 +272,8 @@ __Runtimes:__
 
 <img src="runtime.png" alt="c6 defDM runtimes"/>
 
+<img src="runtimeAll.png" alt="defDM runtimes"/>
+
 __Compare defDM m1p0 c0 -> c6__
 
 These all look as expected.
@@ -298,6 +320,23 @@ __MStau:__
 Compare to original runs:
 <img src="mstauOG.png" alt="OG MStau"/>
 
+
+
+___Copy defDM runs to new dir in prep for filling in mass grid for final runs.___
+```bash
+maindir="/home/tjr63/DMS/mesaruns"
+cd ${maindir}
+fromd="RUNS_runSettings"
+tod="RUNS_defDM"
+
+for c in $(seq 0 6); do
+    todir="${tod}/c${c}"
+    mkdir ${todir}
+    for dir in $(ls -d ${fromd}/c${c}/*_defDM/); do
+        cp -r ${dir} ${todir}/.
+    done
+done
+```
 <!-- fe -->
 
 
@@ -307,6 +346,13 @@ Compare to original runs:
 Everything below here is unorganized.. keeping it in case need to reproduce some tests.
 
 ```python
+h8 = hdf.loc[idx[:,:,0.8],:]
+h8 = h8.loc[h8.star_age>1e7,:]
+plt.figure()
+ax = plt.gca()
+h8.groupby(level='cb').plot('log_Teff','log_L',ax=ax,logx=False, rever)
+plt.show(block=False)
+
 # ALL
 rk = ['defDM','mist0m9','mist01m9','mist02m9','mist03m9','mist04m9','mist05m9'
         ,'mist06m9','mist07m9']
@@ -406,9 +452,8 @@ for col in c.columns:
         print(col)
         print(len(c[col].unique()))
         print()
-
-
 ```
+
 
 ## To do next:
 - [ ]  Check:
