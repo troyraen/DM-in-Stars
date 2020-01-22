@@ -5,4 +5,5 @@ photos/
 **/.DS_Store
 MIST_files/
 *.pyc
-*.ipynb_checkpoints/
+**/.ipynb_checkpoints
+**__pycache__
