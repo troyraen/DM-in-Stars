@@ -1,6 +1,6 @@
 - [new Main Runs after resolving largeLH problem/branch](#firstruns)
 - [Cleanup/fix inlist and run_star_extras to better match MIST](#fixMIST)
-    - [Baseline run using MESA m1p0 inlist plus settings needed for DM](#defDM)
+    - [`defDM` Baseline run using MESA m1p0 inlist plus settings needed for DM](#defDM)
     - [Run with full MIST options](#fullMISTmf)
     - [Separate MIST options](#MISToptions)
 - [Comparing Runs](#compareRuns)
