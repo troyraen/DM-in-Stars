@@ -1,6 +1,7 @@
 # Final runs using `defDM` settings
 See [runSettings branch](https://github.com/troyraen/DM-in-Stars/blob/runSettings/runSettings/main.md) for details.
 
+<!-- fs -->
 ## Branch cleanup
 - [x]  copy `run_star_extras_default_plus_DM.f` -> `run_star_extras.f`
 - [x]  copy `inlist_master_default_plus_DM` -> `inlist_master`
@@ -32,10 +33,11 @@ for c in $(seq 0 6); do
     done
 done
 ```
+<!-- fe -->
 
 ## Generate bash scripts and do the runs
-- [x]  create run_osiris.sh script that cylces through mass and cboost
-- [ ]  start the runs
+- [x]  Create run_osiris.sh script that cylces through mass and cboost
+- [x]  Start the runs
 
 ```bash
 # do 2 on Osiris wnode3 and 1 on wnode2
