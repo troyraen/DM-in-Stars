@@ -25,6 +25,7 @@ function do_mesa_run () {
             else # move what's already here
                 tm=$(date +"%m%d%y_%H%M")
                 mv ${RUN} ${RUN}_ow_${tm}
+            fi
         else
             rm -r ${RUN} # no previous history.data file exists. delete the folder
         fi
