@@ -36,6 +36,7 @@ done
 <!-- fe -->
 
 ## Generate bash scripts and do the runs
+<!-- fs -->
 - [x]  Create run_osiris.sh script that cylces through mass and cboost
 - [x]  Start the runs
 
@@ -60,3 +61,18 @@ nohup nice ./bash_scripts/run_osiris.sh 3 &>> STD_nohup_defDM3.out & # start wit
 # check that the first run started
 exit
 ```
+<!-- fe ## Generate bash scripts and do the runs -->
+
+
+## Check runtimes
+```python
+hdf, pi_df, c_df, rcdf = load_all_data(dr=dr, get_history=False)
+plot_runtimes(rcdf, save='runtimes_Feb11.png')
+```
+
+<img src="runtimes_Feb11.png" alt="runtimes_Feb11" width=""/>
+
+__Currently running models:__
+<img src="unfinished_models_021120.png" alt="unfinished_models_021120" width=""/>
+
+I think the three with `termCode = -1` are stuck in very small timesteps. Should check again in a few days and cancel them if they're still running.
