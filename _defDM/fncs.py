@@ -58,11 +58,16 @@ try: # mount Osiris dir if not already
     assert os.path.isdir(mesaruns)
     print('Osiris dir is already mounted.')
 except:
-    mounto = int(input('Do you want to mount Osiris? (default 1 = yes)') or 1)
-    if mounto == 1:
+    msg = 'Do you want to mount Osiris? \
+            \n\t1 = yes (Roy) \
+            \n\t2 = yes (Korriban)) \
+            \n\telse no'
+    mounto = int(input(msg) or 1)
+    if mounto is in [1,2]:
+        localpath = '/Users/troyraen/Osiris/' if mounto == 1 else '/home/tjr63/Osiris/'
         try:
             print('Mounting Osiris.')
-            os.system("sshfs tjr63@osiris-inode01.phyast.pitt.edu:/home/tjr63 /Users/troyraen/Osiris/")
+            os.system(f"sshfs tjr63@osiris-inode01.phyast.pitt.edu:/home/tjr63 {localpath}")
             assert os.path.isdir(mesaruns)
         except:
             print('Osiris remote mount failed.')
