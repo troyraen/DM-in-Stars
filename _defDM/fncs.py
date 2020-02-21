@@ -60,11 +60,10 @@ try: # mount Osiris dir if not already
 except:
     msg = 'Do you want to mount Osiris? \
             \n\t1 = yes (Roy) \
-            \n\t2 = yes (Korriban)) \
-            \n\telse no'
+            \n\telse no\n'
     mounto = int(input(msg) or 1)
-    if mounto is in [1,2]:
-        localpath = '/Users/troyraen/Osiris/' if mounto == 1 else '/home/tjr63/Osiris/'
+    if mounto in [1]:
+        localpath = '/Users/troyraen/Osiris/' # if mounto == 1 else '/home/tjr63/Osiris/'
         try:
             print('Mounting Osiris.')
             os.system(f"sshfs tjr63@osiris-inode01.phyast.pitt.edu:/home/tjr63 {localpath}")
@@ -77,6 +76,17 @@ except:
 # fe----- mount Osiris -----#
 
 # fs----- load data -----#
+def reduc_all_LOGS(RUNSdir=None):
+    """ runs check_for_reduc() on all dirs in mesaruns/dr (defined above)
+    """
+    if RUNSdir is None: RUNSdir = pjoin(mesaruns,dr)
+    for cbdir in os.listdir(RUNSdir):
+        for mdir in os.listdir(pjoin(RUNSdir,cbdir)):
+            dir = pjoin(RUNSdir,cbdir,mdir,'LOGS')
+            check_for_reduc(dir)
+
+    return None
+
 # check_for_reduc() is too slow to use on Roy
 def check_for_reduc(LOGSpath, max_fsize=500.0):
     """ Checks the following files in LOGSpath dir and creates a reduced
