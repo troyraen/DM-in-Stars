@@ -72,6 +72,31 @@ except:
 # fe----- mount Osiris -----#
 
 # fs----- load data -----#
+# check_for_reduc() is too slow to use on Roy
+def check_for_reduc(LOGSpath, max_fsize=500.0):
+    """ Checks the following files in LOGSpath dir and creates a reduced
+        version if file size > max_fsize [MB] (and does not already exist):
+            STD.out
+            history.data
+    """
+
+    smax = max_fsize*1024*1024 # [bytes]
+    z = zip(['STD.out', 'history.data'],['STD_reduc.out', 'history_reduc.data'])
+    for fil, rfil in z:
+        typ = fil.split('.')[0]
+
+        OGp, rp = pjoin(LOGSpath,fil), pjoin(LOGSpath,rfil)
+        if os.path.exists(rp): continue
+
+        if os.path.getsize(OGp) > smax:
+            print(f'Reducing {typ} at {OGp}')
+            if typ == 'STD':
+                os.system(f"tail -n 100 '{OGp}' > '{rp}'")
+            elif typ == 'history':
+                os.system(f'../bash_scripts/data_reduc.sh {LOGSpath}')
+
+    return None
+
 def load_pidf(pipath):
     """ Loads single profiles.index file. """
     pidx_cols = ['model_number', 'priority', 'profile_number']
