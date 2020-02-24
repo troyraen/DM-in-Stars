@@ -247,6 +247,24 @@ def get_history_run_characteristics(rcs, h):
 
     return rcs
 
+def get_MStau(hdf):
+    """ hdf is DataFrame of single star
+    """
+    d = hdf.reset_index().sort_values('star_age')
+
+    mod_enter = d.loc[d.center_h1<(d.center_h1.iloc[0]-0.0015),'model_number'].iloc[0]
+    enter = d.loc[d.model_number==mod_enter,'star_age'].iloc[0]
+    # print(f'mod enter {mod_enter}, enter {enter}')
+
+    mod_leave = d.loc[d.center_h1<0.001,'model_number'].iloc[0]
+    leave = d.loc[d.model_number==mod_leave,'star_age'].iloc[0]
+    # print(f'mod leave {mod_leave}, leave {leave}')
+
+    MStau = leave-enter
+    # print(f'MStau {MStau}')
+
+    return MStau, mod_enter, mod_leave
+
 def load_all_data(dr=dr, get_history=True):
     """
     """
@@ -274,7 +292,7 @@ def load_all_data(dr=dr, get_history=True):
             pidf['cb'], pidf['mass'] = dfkey
             pilist.append(pidf.set_index(['cb','mass']))
             # Set more run characteristics
-            rcs['priorities'] = pidf.priority
+            # rcs['priorities'] = pidf.priority
             rcs['end_priority'] = pidf.loc[pidf.priority>90,'priority'].min()
 
             # Get controls#.data as DataFrame
@@ -338,5 +356,45 @@ def plot_runtimes(rcdf, save=None):
     plt.show(block=False)
 
     return None
+
+def plot_log_dt(hdf, save=None):
+
+    plt.figure()
+    ax = plt.gca()
+    kwargs = {  'ax': ax,
+                'logx': True,
+                }
+    for (cb,mass), df in hdf.groupby(level=['cb','mass']):
+        lbl = f'm{mass} c{cb}'
+        df.loc[df.star_age>1e6,:].plot('star_age','log_dt', label=lbl, **kwargs)
+
+    plt.legend()
+
+    if save is not None: plt.savefig(save)
+    plt.show(block=False)
+    return None
+
+def plot_HR(hdf, title=None, save=None):
+
+    plt.figure()
+    ax = plt.gca()
+    kwargs = {  'ax': ax
+                }
+
+    for (cb,mass), df in hdf.groupby(level=['cb','mass']):
+        df = df.loc[df.star_age>1e6,:]
+        lbl = f'm{mass} c{cb}'
+        df.plot('log_Teff','log_L', label=lbl, **kwargs)
+
+    ax.invert_xaxis()
+    plt.xlabel(r'log T$_{eff}$ / K')
+    plt.ylabel(r'log L / L$_\odot$')
+    plt.legend()
+    if title is not None: plt.title(title)
+
+    if save is not None: plt.savefig(save)
+    plt.show(block=False)
+    return None
+
 
 # fe------ plots ------#

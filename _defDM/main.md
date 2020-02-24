@@ -65,6 +65,7 @@ exit
 
 
 ## Check runtimes
+<!-- fs -->
 ```python
 hdf, pi_df, c_df, rcdf = load_all_data(dr=dr, get_history=False)
 plot_runtimes(rcdf, save='runtimes_Feb11.png')
@@ -76,3 +77,73 @@ __Currently running models:__
 <img src="unfinished_models_021120.png" alt="unfinished_models_021120" width=""/>
 
 I think the three with `termCode = -1` are stuck in very small timesteps. Should check again in a few days and cancel them if they're still running.
+<!-- fe ## Check runtimes -->
+
+## Investigate models stuck in small timesteps
+<!-- fs -->
+Need to reduc history file sizes so can load reasonably.
+This takes too long on Roy.
+I could not install python3 on Osiris, check_for_reduc will not run with python2.
+I could not log into Osiris from Korriban (don't have password).
+Doing this manually in bash:
+
+On Osiris:
+```bash
+cd DMS/mesaruns/bash_scripts/
+./data_reduc.sh /home/tjr63/DMS/mesaruns/RUNS_defDM/c1/m1p15/LOGS
+./data_reduc.sh /home/tjr63/DMS/mesaruns/RUNS_defDM/c1/m1p20/LOGS
+./data_reduc.sh /home/tjr63/DMS/mesaruns/RUNS_defDM/c2/m1p10/LOGS
+```
+
+```python
+hdf, pi_df, c_df, rcdf = load_all_data(dr=dr, get_history=True)
+del rcdf['priorities']
+# see what's done
+rcdf.reset_index().plot('mass','cb',kind='scatter')
+
+# Models that quit early due to `min_timestep_limit`
+mintlim = rcdf.loc[rcdf.termCode=='min_timestep_limit',:]
+mtlh = hdf.loc[mintlim.index,:]
+title = 'models that quit due to min_timestep_limit'
+plot_HR(mtlh, title=title, save='HR_mintlim.png')
+mintlim[cols]
+
+#
+# plt.figure(figsize=(6,10))
+# # ax = plt.gca()
+# cols = ['end_priority','log_dt_min','center_h1_end','center_he4_end']
+# mintlim.plot(y=cols,kind='bar',subplots=True)
+# plt.xticks(rotation=45)
+# plt.tight_layout()
+# plt.show(block=False)
+#
+#
+# notdone = rcdf.loc[rcdf.finished==False,:]
+# ndh = hdf.loc[notdone.index,:]
+#
+# slow = rcdf.loc[rcdf.log_dt_min<-5,:]
+# slh = hdf.loc[slow.index,:]
+# plot_log_dt(slh)
+#
+# ndsl = hdf.loc[notdone.index.intersection(slow.index),:] # not done + low min timestep
+#
+current = rcdf.loc[rcdf.termCode==-1,:]
+crh = hdf.loc[current.index,:]
+title = 'currently running models 2/21/20'
+plot_HR(crh, title=title, save='HR_current_022120.png')
+current[cols]
+#
+# plot_HR(ndsl, save=None)
+
+
+rcdf.log_max_rel_energy_error.sort_values()
+```
+
+<img src="HR_mintlim.png" alt="HR_mintlim" width=""/>
+<img src="rcdf_mintlim_Feb21.png" alt="rcdf_mintlim_Feb21" width=""/>
+
+<img src="HR_current_022120.png" alt="HR_current_022120" width=""/>
+<img src="rcdf_current_Feb21.png" alt="rcdf_current_Feb21" width=""/>
+Note m1p1c2 model HR looks funny because using history_reduc.data.
+
+<!-- fe ## Investigate models stuck in small timesteps -->
