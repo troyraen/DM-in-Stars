@@ -88,6 +88,7 @@ def reduc_all_LOGS(RUNSdir=None):
     return None
 
 # check_for_reduc() is too slow to use on Roy
+# instead, use bash script manually on Osiris
 def check_for_reduc(LOGSpath, max_fsize=500.0):
     """ Checks the following files in LOGSpath dir and creates a reduced
         version if file size > max_fsize [MB] (and does not already exist):
@@ -238,6 +239,7 @@ def get_history_run_characteristics(rcs, h):
     rcs['hottest_logTeff'] = h.log_Teff.max()
     rcs['center_h1_end'] = h.sort_values('star_age').center_h1.iloc[-1]
     rcs['center_he4_end'] = h.sort_values('star_age').center_he4.iloc[-1]
+    rcs['model_max'] = h.model_number.max()
     try:
         rcs['MStau'], __, mod_leave = get_MStau(h)
         rcs['logL_leaveMS'] = h.loc[h.model_number==mod_leave,'log_L'].iloc[0]
@@ -265,8 +267,10 @@ def get_MStau(hdf):
 
     return MStau, mod_enter, mod_leave
 
-def load_all_data(dr=dr, get_history=True):
+def load_all_data(dr=dr, get_history=True, mods=None, skip=None):
     """
+        mods = list of strings, ['m1p0c6']. Models NOT IN this list will be skipped.
+        skip = list of strings, ['m1p0c6']. Models IN this list will be skipped.
     """
     hlist, pilist, clist, rcdict = [], [], [], {}
     for cb in os.listdir(dr):
@@ -274,6 +278,11 @@ def load_all_data(dr=dr, get_history=True):
         for mdir in os.listdir(pjoin(dr,cb)):
             rk = mdir.split('_',1)[-1]
             if rk.split('_')[0] == 'ow': continue # skip 'ow' dirs
+            # skip dirs not in mods
+            if mods is not None:
+                if ''.join([mdir,cb]) not in mods: continue
+            if skip is not None:
+                if ''.join([mdir,cb]) in mods: continue
 
             dir = pjoin(dr,cb,mdir)
             m = float('.'.join(mdir.split('_')[0].strip('m').split('p')))
@@ -324,10 +333,68 @@ def load_all_data(dr=dr, get_history=True):
     rcdf.index.names = ('cb','mass')
     rcdf.rename(columns={'runtime (minutes)':'runtime'}, inplace=True)
     rcdf.fillna(value=-1, inplace=True)
-    rcdf = rcdf.astype({'runtime':'float32', 'retries':'int32',
-                        'backups':'int32', 'steps':'int32'})
+    try:
+        rcdf = rcdf.astype({'runtime':'float32', 'retries':'int32',
+                            'backups':'int32', 'steps':'int32',
+                            'model_max':'int32'})
+    except: pass
 
     return hdf, pi_df, c_df, rcdf
+
+def load_dt_root_errors(dr=dr, mods=[]):
+    """ mods = list of strings, e.g. 'm1p0c6'. Models not in this list will be skipped.
+
+    Returns:
+        reddtdf:    codes and model numbers where dt was reduced
+        probTxdf:   models where STD.out says 'Tx set to center_T'
+                    if this is not an empty dataframe, this is a PROBLEM
+    """
+    reddt_list, probTx_list = [], []
+    for cb in os.listdir(dr):
+        if cb[0] != 'c': continue
+        for mdir in os.listdir(pjoin(dr,cb)):
+            rk = mdir.split('_',1)[-1]
+            if rk.split('_')[0] == 'ow': continue # skip 'ow' dirs
+            if ''.join([mdir,cb]) not in mods: continue # skip dirs not in mods
+
+            m = float('.'.join(mdir.strip('m').split('p')))
+            dir = pjoin(dr,cb,mdir)
+
+            reddtdf, probTxdf = get_STDout_dt_root_warnings(pjoin(dir,'LOGS/STD.out'))
+            reddtdf['cb'], probTxdf['cb'] = int(cb[1]), int(cb[1])
+            reddtdf['mass'], probTxdf['mass'] = m, m
+
+            reddt_list.append(reddtdf), probTx_list.append(probTxdf)
+
+    reddtdf, probTxdf = pd.concat(reddt_list), pd.concat(probTx_list)
+    reddtdf.set_index(['cb','mass'], inplace=True)
+    probTxdf.set_index(['cb','mass'], inplace=True)
+
+    return reddtdf, probTxdf
+
+def get_STDout_dt_root_warnings(STDpath):
+    dtcodes, dtmods = [], []
+    TxeqTc = []
+    with open(STDpath) as fin:
+        for l, line in enumerate(fin.readlines()):
+            if line[:21] == 'reduce dt because of ':
+                ln = line[21:].split()
+                # set code to all words, set mod to first int
+                code = ln.pop(0)
+                while not ln[0].isnumeric():
+                    code = ' '.join([code,ln.pop(0)])
+                dtcodes.append(str(code)), dtmods.append(float(ln[0]))
+            elif line[:28] == '**** Tx set to center_T ****':
+                TxeqTc.append(line.split('problem model ')[1])
+
+    reddtdf = pd.DataFrame({'code':dtcodes, 'model':dtmods})
+    # reddtdf.astype({'model':})
+    if len(TxeqTc)>0:
+        probTxdf = pd.DataFrame({'model':TxeqTc})
+    else:
+        probTxdf = pd.DataFrame({'model':(np.nan)}, index=['idx'])
+
+    return reddtdf, probTxdf
 
 # fe----- load data -----#
 
@@ -374,17 +441,28 @@ def plot_log_dt(hdf, save=None):
     plt.show(block=False)
     return None
 
-def plot_HR(hdf, title=None, save=None):
+def plot_HR(hdf, color=None, title=None, save=None):
+    """ if color == 'dt', will make scatter plot and color using dt
+    """
 
     plt.figure()
     ax = plt.gca()
-    kwargs = {  'ax': ax
+    kwargs = {  #'ax': ax
                 }
+
+    if color == 'dt':
+        kwargs['cmap'] = plt.get_cmap('afmhot')
+        kwargs['vmin'], kwargs['vmax'] = -12, 9
 
     for (cb,mass), df in hdf.groupby(level=['cb','mass']):
         df = df.loc[df.star_age>1e6,:]
         lbl = f'm{mass} c{cb}'
-        df.plot('log_Teff','log_L', label=lbl, **kwargs)
+
+        if color == 'dt':
+            c = df.log_dt
+            plt.scatter(df.log_Teff, df.log_L, label=lbl, c=c, **kwargs)
+        else:
+            df.plot('log_Teff','log_L', label=lbl, **kwargs)
 
     ax.invert_xaxis()
     plt.xlabel(r'log T$_{eff}$ / K')
@@ -394,6 +472,30 @@ def plot_HR(hdf, title=None, save=None):
 
     if save is not None: plt.savefig(save)
     plt.show(block=False)
+    return None
+
+def plot_reddt(reddtdf, title=None, save=None):
+
+    codemap = dict(list(enumerate(reddtdf.code.unique()))) # int: code
+    inv_codemap = {v: k for k, v in codemap.items()} # code: int
+    df = reddtdf.copy()
+    df['code_idx'] = df.code.map(inv_codemap)
+
+    gb = df.groupby(level=['cb','mass'])
+    fig, axs = plt.subplots(nrows=len(gb), ncols=1, sharex=True)
+    # ax = plt.gca()
+    # kwargs = {  'ax': ax,
+    #             'logx': True,
+    #             }
+    for a, ((cb,mass), d) in enumerate(gb):
+        lbl = f'm{mass} c{cb}'
+        axs[a].scatter(d.model, d.code_idx, label=lbl)
+
+        axs[a].legend()
+
+    if save is not None: plt.savefig(save)
+    plt.show(block=False)
+
     return None
 
 

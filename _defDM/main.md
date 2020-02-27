@@ -95,18 +95,65 @@ cd DMS/mesaruns/bash_scripts/
 ./data_reduc.sh /home/tjr63/DMS/mesaruns/RUNS_defDM/c2/m1p10/LOGS
 ```
 
+Clone new version of repo on Osiris for analyzing `mesaruns` data:
+```bash
+cd DMS
+git clone git@github.com:troyraen/DM-in-Stars.git mesaruns_analysis
+```
+
+__Load data and see what's done:__
+Doing this on Osiris in `mesaruns_analysis` dir.
 ```python
-hdf, pi_df, c_df, rcdf = load_all_data(dr=dr, get_history=True)
-del rcdf['priorities']
+# Problem models
+mods = ['m0p90c0','m2p55c1','m1p60c2','m2p65c2', # stopped due to `min_timestep_limit`
+        'm1p05c1'] # still running 2/25
+# Load data
+hdf, pidf, cdf, rcdf = load_all_data(dr=dr, get_history=True, skip=mods)
 # see what's done
 rcdf.reset_index().plot('mass','cb',kind='scatter')
+plt.show(block=False)
+plot_runtimes(rcdf, save='runtimes_Feb25.png')
 
+# Get problem models
+mods = ['m0p90c0','m2p55c1','m1p60c2','m2p65c2', # stopped due to `min_timestep_limit`
+        'm1p05c1'] # still running 2/25
+hdfm, pidfm, cdfm, rcdfm = load_all_data(dr=dr, get_history=True, mods=mods)
+reddtdf, probTxdf = load_dt_root_errors(dr=dr, mods=mods)
+
+# histograms of log_dt
+hdf.hist(by=['cb','mass'], column='log_dt', bins=25)
+plt.savefig('plots/probmods_logdt_hist.png')
+plt.show(block=False)
+
+# histograms of reduce dt codes
+reddtdf.code.apply(pd.value_counts).plot(kind='bar',by=['cb','mass'],subplots=True)
+plt.savefig('plots/probmods_reddt_hist.png')
+plt.show(block=False)
+
+title = 'models that quit due to min_timestep_limit', color='dt'
+plot_HR(mtlhdf, color='dt', title=title, save='plots/probmods_HR.png')
+
+```
+
+<img src="runtimes_Feb25.png" alt="runtimes_Feb25" width="400"/>
+
+<img src="plots/probmods_logdt_hist.png" alt="plots/probmods_logdt_hist" width="400"/><img src="plots/probmods_reddt_hist.png" alt="plots/probmods_reddt_hist" width="400"/>
+
+<img src="plots/probmods_HR.png" alt="plots/probmods_HR" width="400"/>
+
+
+
+
+
+__Models that stopped early due to `min_timestep_limit`__
+```python
 # Models that quit early due to `min_timestep_limit`
 mintlim = rcdf.loc[rcdf.termCode=='min_timestep_limit',:]
-mtlh = hdf.loc[mintlim.index,:]
-title = 'models that quit due to min_timestep_limit'
-plot_HR(mtlh, title=title, save='HR_mintlim.png')
-mintlim[cols]
+mods = ['m0p90c0','m2p55c1','m1p60c2','m2p65c2']
+mtlhdf, __, __, __ = load_all_data(dr=dr, get_history=True, mods=mods)
+# mtlh = hdf.loc[mintlim.index,:]
+title = 'models that quit due to min_timestep_limit', color='dt'
+plot_HR(mtlhdf, color='dt', title=title, save='HR_mintlim.png')
 
 #
 # plt.figure(figsize=(6,10))
@@ -145,5 +192,15 @@ rcdf.log_max_rel_energy_error.sort_values()
 <img src="HR_current_022120.png" alt="HR_current_022120" width=""/>
 <img src="rcdf_current_Feb21.png" alt="rcdf_current_Feb21" width=""/>
 Note m1p1c2 model HR looks funny because using history_reduc.data.
+
+STD.out warnings (reduce dt and Tx set to Tcenter)
+```python
+mods = ['m0p90c0','m2p55c1','m1p60c2','m2p65c2', # mintlim
+        'm1p05c1','m1p10c2','m0p85c4'] # current
+reddtdf, probTxdf = load_dt_root_errors(dr=dr, mods=mods)
+plot_reddt(reddtdf, title=None, save=None)
+
+hdf, pi_df, c_df, rcdf = load_all_data(dr=dr, get_history=True, mods=mods)
+```
 
 <!-- fe ## Investigate models stuck in small timesteps -->
