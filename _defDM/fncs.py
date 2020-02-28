@@ -435,10 +435,8 @@ def get_mods_not_done(cmidx):
 
 
 def plot_runtimes(rcdf, save=None):
-    # all runtimes
+
     rc = rcdf.loc[rcdf.runtime>0,:].copy()
-    # rc.loc[idx[6,1.0],'runtime'] = 19*24*60 # this is a negative number in STD.out
-    #                                         # actual time calculated from file timestamps
     plt.figure(figsize=figsize)
     ax = plt.gca()
     kwargs = {  'ax':ax,

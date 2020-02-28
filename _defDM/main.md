@@ -118,68 +118,77 @@ export DISPLAY=:11.0
 ``` -->
 ```python
 %run fncs
-# Problem models
-mods = ['m0p90c0','m2p55c1','m1p60c2','m2p65c2', # stopped due to `min_timestep_limit`
-        'm1p05c1'] # still running 2/25
 # Load data
 hdf, pidf, cdf, rcdf = load_all_data(dr=drO, get_history=True, use_reduc=False)
-# rcdf.loc[idx[6,1.0],'runtime'] = 19*24*60 # this is a negative number in STD.out
-#                                         # actual time calculated from file timestamps
+
+# fix runtimes with negative number in STD.out
+# actual time calculated from file timestamps
+minday = 24*60
+rtfix = {   idx[6,1.0]: 19*minday,
+            idx[1,1.15]: 17*minday,
+            idx[1,1.2]: 18.3*minday,
+            idx[2,1.1]: 22.5*minday
+        }
+for i,val in rtfix.items(): rcdf.loc[i,'runtime'] = val
+
+hcols = ['model_number', 'star_age', 'star_mass', 'log_dt','log_LH', 'log_Teff',
+            'log_L', 'center_h1', ]
+h = hdf[hcols]
+
 # see what's done
-plot_runtimes(rcdf, save='runtimes_Feb27.png')
-
-# Get problem models
-# hdfm, pidfm, cdfm, rcdfm = load_all_data(dr=drO, get_history=True, use_reduc=False, mods=mods)
-# reddtdf, probTxdf = load_dt_root_errors(dr=drO, mods=mods)
-
-# combine dfs
-rc = pd.concat([rcdf,rcdfm],sort=True).sort_index()
-h = pd.concat([hdf,hdfm]).sort_index()
-hcols = ['model_number', 'star_age', 'star_mass', 'log_dt','log_LH', 'log_Teff', 'log_L']
-h = h[hcols]
+plot_runtimes(rcdf, save='plots/runtimes_Feb27.png')
 
 # Num models in MS
-MSmods = hdf.groupby(level=['cb','mass']).apply(MSmodels) # df of enter, leave
-MSmodsm = hdfm.groupby(level=['cb','mass']).apply(MSmodels)
-msm = pd.concat([MSmods,MSmodsm]).sort_index() # all models that have run
-msm['numinMS'] = MSmods.leave - MSmods.enter
+MSmods = h.groupby(level=['cb','mass']).apply(MSmodels) # df of enter, leave
+MSmods['numinMS'] = MSmods.leave - MSmods.enter
 pvt = {'index':'mass','columns':'cb','values':'numinMS'}
-args = {'logy':True,'marker':'o'}
-msm.reset_index().pivot(**pvt).plot(**args)
+args = {'logy':True,'marker':'o','color':[cbcmap(cb) for cb in range(7)]}
+MSmods.reset_index().pivot(**pvt).plot(**args)
 plt.ylabel('# Models in MS')
 plt.savefig('plots/numinMS.png')
 
 # Ratio of numinMS/final model_number
-msm['inMS_final'] = MSmods.numinMS/MSmods.final
+MSmods['inMS_final'] = MSmods.numinMS/MSmods.final
 pvt['values'] = 'inMS_final'
-msm.reset_index().pivot(**pvt).plot(**args)
+MSmods.reset_index().pivot(**pvt).plot(**args)
 plt.gca().xaxis.set_minor_locator(AutoMinorLocator())
 plt.grid(True,which='both')
 plt.ylabel('# models in MS / # models Total')
 plt.savefig('plots/inMS_final.png')
 
 # models where either:
-#   runtime < -1
+#   runtime > 1e4
 #   inMS_final < 1e-4
 #   termCode == 'min_timestep_limit'
-probidx = list(rc.loc[rc.runtime<-1,:].index) + \
-        list(rc.loc[rc.termCode=='min_timestep_limit',:].index) + \
-        list(msm.loc[msm.inMS_final<1e-4,:].index).sort()
+probidx =   list(rcdf.loc[rcdf.runtime>1e4,:].index) + \
+            list(rcdf.loc[rcdf.termCode=='min_timestep_limit',:].index) + \
+            list(MSmods.loc[MSmods.inMS_final<1e-4,:].index)
+probidx.sort()
 hprob = h.loc[probidx,:]
-plot_HR(hprob, color='dt', title='problem models', save='plots/probmods_HR2.png')
+plot_HR(hprob, color='dt', title='problem models', save='plots/probmods_HR.png')
 
-# histograms of log_dt
+# histograms of log_dt for problem models
 hdfm.hist(by=['cb','mass'], column='log_dt', bins=25)
 plt.savefig('plots/probmods_logdt_hist.png')
 plt.show(block=False)
 
-# histograms of reduce dt codes
-reddtdf.code.apply(pd.value_counts).plot(kind='bar',by=['cb','mass'],subplots=True)
-plt.savefig('plots/probmods_reddt_hist.png')
-plt.show(block=False)
+# Get problem models STD errors and reduce dt codes
+mods = []
+for (c,m) in probidx:
+    mstr = f'm{int(m)}p{int((m%1)*10)}'
+    if len(mstr) == 4: mstr = f'{mstr}0'
+    mods.append(f'{mstr}c{c}')
+reddtdf, probTxdf = load_dt_root_errors(dr=drO, mods=mods)
 
-title = 'models that quit due to min_timestep_limit', color='dt'
-plot_HR(mtlhdf, color='dt', title=title, save='plots/probmods_HR.png')
+# bar charts of reduce dt codes
+plt.figure(figsize=(6,10))
+pvt = {'index':'code','columns':('cb','mass'),'aggfunc':{'code':len},'fill_value':0}
+reddtdf.pivot_table(**pvt).plot.bar(subplots=True,rot=45,ax=plt.gca(),sharex=True)
+plt.tight_layout()
+plt.savefig('plots/probmods_reddt_codes.png')
+
+# title = 'models that quit due to min_timestep_limit', color='dt'
+# plot_HR(mtlhdf, color='dt', title=title, save='plots/probmods_HR.png')
 
 ```
 
@@ -187,6 +196,9 @@ plot_HR(mtlhdf, color='dt', title=title, save='plots/probmods_HR.png')
 
 <img src="plots/inMS_final.png" alt="plots/inMS_final" width=""/>
 
+<img src="plots/probmods_HR.png" alt="plots/probmods_HR" width="400"/>
+
+<img src="plots/probmods_reddt_codes.png" alt="plots/probmods_reddt_codes" width=""/>
 
 
 
