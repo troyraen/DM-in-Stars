@@ -192,7 +192,7 @@ plt.savefig('plots/probmods_reddt_codes.png')
 
 ```
 
-<img src="runtimes_Feb27.png" alt="runtimes_Feb27" width=""/>
+<img src="plots/runtimes_Feb27.png" alt="plots/runtimes_Feb27" width=""/>
 
 <img src="plots/inMS_final.png" alt="plots/inMS_final" width=""/>
 
