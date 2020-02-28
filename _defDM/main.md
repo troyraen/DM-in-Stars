@@ -181,11 +181,18 @@ for (c,m) in probidx:
 reddtdf, probTxdf = load_dt_root_errors(dr=drO, mods=mods)
 
 # bar charts of reduce dt codes
-plt.figure(figsize=(6,10))
+# plt.figure(figsize=(6,10))
+# pvt = {'index':'code','columns':('cb','mass'),'aggfunc':{'code':len},'fill_value':0}
+# reddtdf.pivot_table(**pvt).plot.bar(subplots=True,rot=45,ax=plt.gca(),sharex=True)
+# plt.tight_layout()
+# plt.savefig('plots/probmods_reddt_codes.png')
+
+# heatmap of reduce dt codes
+plt.figure()
 pvt = {'index':'code','columns':('cb','mass'),'aggfunc':{'code':len},'fill_value':0}
-reddtdf.pivot_table(**pvt).plot.bar(subplots=True,rot=45,ax=plt.gca(),sharex=True)
+sns.heatmap(reddtdf.pivot_table(**pvt),cmap='YlGnBu',linewidths=.5)#,annot=True)
 plt.tight_layout()
-plt.savefig('plots/probmods_reddt_codes.png')
+plt.savefig('plots/probmods_reddt_codes_heat.png')
 
 # title = 'models that quit due to min_timestep_limit', color='dt'
 # plot_HR(mtlhdf, color='dt', title=title, save='plots/probmods_HR.png')
@@ -198,7 +205,7 @@ plt.savefig('plots/probmods_reddt_codes.png')
 
 <img src="plots/probmods_HR.png" alt="plots/probmods_HR" width="400"/>
 
-<img src="plots/probmods_reddt_codes.png" alt="plots/probmods_reddt_codes" width=""/>
+<img src="plots/probmods_reddt_codes_heat.png" alt="plots/probmods_reddt_codes_heat" width=""/>
 
 
 

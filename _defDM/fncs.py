@@ -12,6 +12,7 @@ import matplotlib.pyplot as plt
 import matplotlib as mpl
 from matplotlib.colors import ListedColormap
 from matplotlib.ticker import AutoMinorLocator
+import seaborn as sns
 
 # Use if running on Roy
 mesaruns = '/Users/troyraen/Osiris/DMS/mesaruns'
