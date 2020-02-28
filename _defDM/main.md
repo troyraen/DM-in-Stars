@@ -1,3 +1,10 @@
+# Installing Anaconda, python3, etc. on Osiris
+```bash
+wget https://repo.anaconda.com/archive/Anaconda3-2019.10-Linux-x86_64.sh
+chmod 744 Anaconda3-2019.10-Linux-x86_64.sh
+./Anaconda3-2019.10-Linux-x86_64.sh
+```
+
 # Final runs using `defDM` settings
 See [runSettings branch](https://github.com/troyraen/DM-in-Stars/blob/runSettings/runSettings/main.md) for details.
 
@@ -103,25 +110,66 @@ git clone git@github.com:troyraen/DM-in-Stars.git mesaruns_analysis
 
 __Load data and see what's done:__
 Doing this on Osiris in `mesaruns_analysis` dir.
+
+<!-- ```bash
+echo $DISPLAY
+screen
+export DISPLAY=:11.0
+``` -->
 ```python
+%run fncs
 # Problem models
 mods = ['m0p90c0','m2p55c1','m1p60c2','m2p65c2', # stopped due to `min_timestep_limit`
         'm1p05c1'] # still running 2/25
 # Load data
-hdf, pidf, cdf, rcdf = load_all_data(dr=dr, get_history=True, skip=mods)
+hdf, pidf, cdf, rcdf = load_all_data(dr=drO, get_history=True, use_reduc=False)
+# rcdf.loc[idx[6,1.0],'runtime'] = 19*24*60 # this is a negative number in STD.out
+#                                         # actual time calculated from file timestamps
 # see what's done
-rcdf.reset_index().plot('mass','cb',kind='scatter')
-plt.show(block=False)
-plot_runtimes(rcdf, save='runtimes_Feb25.png')
+plot_runtimes(rcdf, save='runtimes_Feb27.png')
 
 # Get problem models
-mods = ['m0p90c0','m2p55c1','m1p60c2','m2p65c2', # stopped due to `min_timestep_limit`
-        'm1p05c1'] # still running 2/25
-hdfm, pidfm, cdfm, rcdfm = load_all_data(dr=dr, get_history=True, mods=mods)
-reddtdf, probTxdf = load_dt_root_errors(dr=dr, mods=mods)
+# hdfm, pidfm, cdfm, rcdfm = load_all_data(dr=drO, get_history=True, use_reduc=False, mods=mods)
+# reddtdf, probTxdf = load_dt_root_errors(dr=drO, mods=mods)
+
+# combine dfs
+rc = pd.concat([rcdf,rcdfm],sort=True).sort_index()
+h = pd.concat([hdf,hdfm]).sort_index()
+hcols = ['model_number', 'star_age', 'star_mass', 'log_dt','log_LH', 'log_Teff', 'log_L']
+h = h[hcols]
+
+# Num models in MS
+MSmods = hdf.groupby(level=['cb','mass']).apply(MSmodels) # df of enter, leave
+MSmodsm = hdfm.groupby(level=['cb','mass']).apply(MSmodels)
+msm = pd.concat([MSmods,MSmodsm]).sort_index() # all models that have run
+msm['numinMS'] = MSmods.leave - MSmods.enter
+pvt = {'index':'mass','columns':'cb','values':'numinMS'}
+args = {'logy':True,'marker':'o'}
+msm.reset_index().pivot(**pvt).plot(**args)
+plt.ylabel('# Models in MS')
+plt.savefig('plots/numinMS.png')
+
+# Ratio of numinMS/final model_number
+msm['inMS_final'] = MSmods.numinMS/MSmods.final
+pvt['values'] = 'inMS_final'
+msm.reset_index().pivot(**pvt).plot(**args)
+plt.gca().xaxis.set_minor_locator(AutoMinorLocator())
+plt.grid(True,which='both')
+plt.ylabel('# models in MS / # models Total')
+plt.savefig('plots/inMS_final.png')
+
+# models where either:
+#   runtime < -1
+#   inMS_final < 1e-4
+#   termCode == 'min_timestep_limit'
+probidx = list(rc.loc[rc.runtime<-1,:].index) + \
+        list(rc.loc[rc.termCode=='min_timestep_limit',:].index) + \
+        list(msm.loc[msm.inMS_final<1e-4,:].index).sort()
+hprob = h.loc[probidx,:]
+plot_HR(hprob, color='dt', title='problem models', save='plots/probmods_HR2.png')
 
 # histograms of log_dt
-hdf.hist(by=['cb','mass'], column='log_dt', bins=25)
+hdfm.hist(by=['cb','mass'], column='log_dt', bins=25)
 plt.savefig('plots/probmods_logdt_hist.png')
 plt.show(block=False)
 
@@ -135,11 +183,9 @@ plot_HR(mtlhdf, color='dt', title=title, save='plots/probmods_HR.png')
 
 ```
 
-<img src="runtimes_Feb25.png" alt="runtimes_Feb25" width="400"/>
+<img src="runtimes_Feb27.png" alt="runtimes_Feb27" width=""/>
 
-<img src="plots/probmods_logdt_hist.png" alt="plots/probmods_logdt_hist" width="400"/><img src="plots/probmods_reddt_hist.png" alt="plots/probmods_reddt_hist" width="400"/>
-
-<img src="plots/probmods_HR.png" alt="plots/probmods_HR" width="400"/>
+<img src="plots/inMS_final.png" alt="plots/inMS_final" width=""/>
 
 
 

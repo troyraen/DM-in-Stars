@@ -7,19 +7,25 @@ from collections import OrderedDict as OD
 import numpy as np
 import pandas as pd
 from pandas import IndexSlice as idx
+import itertools
 import matplotlib.pyplot as plt
 import matplotlib as mpl
 from matplotlib.colors import ListedColormap
+from matplotlib.ticker import AutoMinorLocator
 
+# Use if running on Roy
 mesaruns = '/Users/troyraen/Osiris/DMS/mesaruns'
 dr = mesaruns + '/RUNS_defDM'
-run_keys = []
+# Use if running on Osiris
+mesarunsO = '/home/tjr63/DMS/mesaruns'
+drO = mesarunsO + '/RUNS_defDM'
 
 Lsun = 3.8418e33 # erg/s
 Msun = 1.9892e33 # grams
 
 figsize = (10,6)
 
+masses_scheduled = [0.85,0.9,0.95] + list(np.round(np.arange(1.0,5.05,0.05),2))
 priority_dict = {   99: 'ZAMS',
                     98: 'IAMS',
                     97: f'log h1$_c$ < -1',
@@ -29,6 +35,15 @@ priority_dict = {   99: 'ZAMS',
                     93: 'He ignition',
                     92: f'log he4$_c$ < -3',
                 }
+start_center_h1 = 0.7155
+h1cuts = OD([('ZAMS',start_center_h1 - 0.0015),
+             ('IAMS',0.3),
+             ('H-1',1e-1),
+             ('H-2',1e-2),
+             ('H-3',1e-3),
+             ('H-4',1e-4),
+             ('H-6',1e-6),
+             ('TAMS',1e-12)])
 
 def normalize_RGB(rgb_tuple):
     """ rgb_tuple assumed to be of length 3, values in range [0,255]
@@ -50,7 +65,6 @@ c5c = normalize_RGB((37,52,148))
 c6c = normalize_RGB((8,29,88))
 carr = (c0c,c1c,c2c,c3c,c4c,c5c,c6c)
 cbcmap = ListedColormap(carr)
-
 # fe----- imports, paths, constants, cmaps -----#
 
 # fs----- mount Osiris -----#
@@ -59,7 +73,7 @@ try: # mount Osiris dir if not already
     print('Osiris dir is already mounted.')
 except:
     msg = 'Do you want to mount Osiris? \
-            \n\t1 = yes (Roy) \
+            \n\t1 = yes (Roy), default \
             \n\telse no\n'
     mounto = int(input(msg) or 1)
     if mounto in [1]:
@@ -267,10 +281,11 @@ def get_MStau(hdf):
 
     return MStau, mod_enter, mod_leave
 
-def load_all_data(dr=dr, get_history=True, mods=None, skip=None):
+def load_all_data(dr=dr, get_history=True, use_reduc=True, mods=None, skip=None):
     """
         mods = list of strings, ['m1p0c6']. Models NOT IN this list will be skipped.
         skip = list of strings, ['m1p0c6']. Models IN this list will be skipped.
+        use_reduc == False will NOT use the __history.data__ reduced version
     """
     hlist, pilist, clist, rcdict = [], [], [], {}
     for cb in os.listdir(dr):
@@ -281,8 +296,9 @@ def load_all_data(dr=dr, get_history=True, mods=None, skip=None):
             # skip dirs not in mods
             if mods is not None:
                 if ''.join([mdir,cb]) not in mods: continue
+            # skip dirs in skip
             if skip is not None:
-                if ''.join([mdir,cb]) in mods: continue
+                if ''.join([mdir,cb]) in skip: continue
 
             dir = pjoin(dr,cb,mdir)
             m = float('.'.join(mdir.split('_')[0].strip('m').split('p')))
@@ -312,7 +328,7 @@ def load_all_data(dr=dr, get_history=True, mods=None, skip=None):
             if get_history:
                 hd = pjoin(dir,'LOGS/history.data')
                 hrd = pjoin(dir,'LOGS/history_reduc.data') # use if exists
-                hpath = hrd if os.path.exists(hrd) else hd
+                hpath = hrd if (os.path.exists(hrd) and use_reduc) else hd
                 h = load_history(hpath)
                 h.set_index('model_number', inplace=True)
                 h['profile_number'] = pidf.set_index('model_number').profile_number
@@ -398,26 +414,59 @@ def get_STDout_dt_root_warnings(STDpath):
 
 # fe----- load data -----#
 
-# fs------ plots ------#
+# fs------ plots and functions ------#
+def MSmodels(hdf):
+    """ hdf should be of a single mass and cb
+        can use in hdf.groupby().apply()
+    """
+    ch1 = hdf.center_h1
+    mods = hdf.loc[((ch1<h1cuts['ZAMS'])&(ch1>h1cuts['TAMS'])),'model_number']
+    enter, leave = mods.min(), mods.max()
+    final = hdf.model_number.max()
+    return pd.Series({'enter':enter, 'leave':leave, 'final':final})
+
+def get_mods_not_done(cmidx):
+    """ cmidx = a multi-index (cb,  mass) from any of the dfs
+        returns models that are queued, waiting to be run
+    """
+    schd = set(itertools.product([i for i in range(7)],masses_scheduled))
+    not_done = schd - set(cmidx)
+    return not_done
+
+
 def plot_runtimes(rcdf, save=None):
     # all runtimes
     rc = rcdf.loc[rcdf.runtime>0,:].copy()
-    rc.loc[idx[6,1.0],'runtime'] = 19*24*60 # this is a negative number in STD.out
-                                            # actual time calculated from file timestamps
+    # rc.loc[idx[6,1.0],'runtime'] = 19*24*60 # this is a negative number in STD.out
+    #                                         # actual time calculated from file timestamps
     plt.figure(figsize=figsize)
     ax = plt.gca()
-    kwargs = {  'loglog':True,
-                'grid':True,
-                'ax':ax,
-                # 'kind':'scatter'
+    kwargs = {  'ax':ax,
+                'marker':'o'
                 }
     for cb, df in rc.reset_index('mass').groupby(level='cb'):
         d = df.sort_values('mass')
         clr = cbcmap(cb)
         d.plot('mass','runtime',label=cb,c=clr, **kwargs)
 
+    # add dots repping models not yet run
+    not_done = get_mods_not_done(rcdf.index)
+    dfr = pd.DataFrame({'runtime':1e6}, index=not_done)
+    dfr.index.rename(['cb','mass'], inplace=True)
+    dfr['runtime'] = dfr.runtime * (dfr.reset_index().cb.values + 1)
+    for cb, df in dfr.reset_index('mass').groupby(level='cb'):
+        d = df.sort_values('mass')
+        clr = cbcmap(cb)
+        plt.plot(d.mass,d.runtime, 'o-', c=clr)
+
+    # pvt = {'index':'mass','columns':'cb','values':'runtime'}
+    # clr = [cbcmap(i) for i in range(7)]
+    # df.reset_index().pivot(**pvt).plot(**kwargs,color=clr)
+
     plt.xlabel('Mass')
     plt.ylabel('Runtime [min]')
+    plt.loglog()
+    plt.grid(True)
     plt.tight_layout()
     if save is not None: plt.savefig(save)
     plt.show(block=False)
@@ -452,7 +501,7 @@ def plot_HR(hdf, color=None, title=None, save=None):
 
     if color == 'dt':
         kwargs['cmap'] = plt.get_cmap('afmhot')
-        kwargs['vmin'], kwargs['vmax'] = -12, 9
+        kwargs['vmin'], kwargs['vmax'] = -12, 15
 
     for (cb,mass), df in hdf.groupby(level=['cb','mass']):
         df = df.loc[df.star_age>1e6,:]
@@ -499,4 +548,4 @@ def plot_reddt(reddtdf, title=None, save=None):
     return None
 
 
-# fe------ plots ------#
+# fe------ plots and functions ------#
