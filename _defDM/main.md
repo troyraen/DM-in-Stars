@@ -71,9 +71,9 @@ exit
 <!-- fe ## Generate bash scripts and do the runs -->
 
 
-## Check runtimes
+<!-- ## Check runtimes -->
 <!-- fs -->
-```python
+<!-- ```python
 hdf, pi_df, c_df, rcdf = load_all_data(dr=dr, get_history=False)
 plot_runtimes(rcdf, save='runtimes_Feb11.png')
 ```
@@ -83,7 +83,7 @@ plot_runtimes(rcdf, save='runtimes_Feb11.png')
 __Currently running models:__
 <img src="unfinished_models_021120.png" alt="unfinished_models_021120" width=""/>
 
-I think the three with `termCode = -1` are stuck in very small timesteps. Should check again in a few days and cancel them if they're still running.
+I think the three with `termCode = -1` are stuck in very small timesteps. Should check again in a few days and cancel them if they're still running. -->
 <!-- fe ## Check runtimes -->
 
 ## Investigate models stuck in small timesteps
@@ -118,10 +118,17 @@ export DISPLAY=:11.0
 ``` -->
 ```python
 %run fncs
-# Load data
-hdf, pidf, cdf, rcdf = load_all_data(dr=drO, get_history=True, use_reduc=False)
 
+## LOAD DATA
+hdf, pidf, cdf, rcdf = load_all_data(dr=drO, get_history=True, use_reduc=False)
+# get a smaller df
+hcols = ['model_number', 'star_age', 'star_mass', 'log_dt','log_LH', 'log_Teff',
+            'log_L', 'center_h1', ]
+h = hdf[hcols]
+
+## RUNTIMES
 # fix runtimes with negative number in STD.out
+rcdf.loc[rcdf.runtime<0,'runtime']
 # actual time calculated from file timestamps
 minday = 24*60
 rtfix = {   idx[6,1.0]: 19*minday,
@@ -130,15 +137,15 @@ rtfix = {   idx[6,1.0]: 19*minday,
             idx[2,1.1]: 22.5*minday
         }
 for i,val in rtfix.items(): rcdf.loc[i,'runtime'] = val
+# plot runtimes
+plot_runtimes(rcdf, save='plots/runtimes_Mar6.png')
+```
 
-hcols = ['model_number', 'star_age', 'star_mass', 'log_dt','log_LH', 'log_Teff',
-            'log_L', 'center_h1', ]
-h = hdf[hcols]
+<img src="plots/runtimes_Mar6.png" alt="plots/runtimes_Mar6" width=""/>
 
-# see what's done
-plot_runtimes(rcdf, save='plots/runtimes_Feb27.png')
 
-# Num models in MS
+```python
+## Num models in MS
 MSmods = h.groupby(level=['cb','mass']).apply(MSmodels) # df of enter, leave
 MSmods['numinMS'] = MSmods.leave - MSmods.enter
 pvt = {'index':'mass','columns':'cb','values':'numinMS'}
@@ -147,7 +154,7 @@ MSmods.reset_index().pivot(**pvt).plot(**args)
 plt.ylabel('# Models in MS')
 plt.savefig('plots/numinMS.png')
 
-# Ratio of numinMS/final model_number
+## Ratio of numinMS/final model_number
 MSmods['inMS_final'] = MSmods.numinMS/MSmods.final
 pvt['values'] = 'inMS_final'
 MSmods.reset_index().pivot(**pvt).plot(**args)
@@ -155,7 +162,13 @@ plt.gca().xaxis.set_minor_locator(AutoMinorLocator())
 plt.grid(True,which='both')
 plt.ylabel('# models in MS / # models Total')
 plt.savefig('plots/inMS_final.png')
+```
 
+<img src="plots/inMS_final.png" alt="plots/inMS_final" width=""/>
+
+
+```python
+## PROBLEM MODELS
 # models where either:
 #   runtime > 1e4
 #   inMS_final < 1e-4
@@ -166,13 +179,18 @@ probidx =   list(rcdf.loc[rcdf.runtime>1e4,:].index) + \
 probidx.sort()
 hprob = h.loc[probidx,:]
 plot_HR(hprob, color='dt', title='problem models', save='plots/probmods_HR.png')
+```
 
+<img src="plots/probmods_HR.png" alt="plots/probmods_HR" width="400"/>
+
+
+```python
 # histograms of log_dt for problem models
 hdfm.hist(by=['cb','mass'], column='log_dt', bins=25)
 plt.savefig('plots/probmods_logdt_hist.png')
 plt.show(block=False)
 
-# Get problem models STD errors and reduce dt codes
+# Get STD errors and reduce dt codes for problem models
 mods = []
 for (c,m) in probidx:
     mstr = f'm{int(m)}p{int((m%1)*10)}'
@@ -199,16 +217,20 @@ plt.savefig('plots/probmods_reddt_codes_heat.png')
 
 ```
 
-<img src="plots/runtimes_Feb27.png" alt="plots/runtimes_Feb27" width=""/>
-
-<img src="plots/inMS_final.png" alt="plots/inMS_final" width=""/>
-
-<img src="plots/probmods_HR.png" alt="plots/probmods_HR" width="400"/>
-
 <img src="plots/probmods_reddt_codes_heat.png" alt="plots/probmods_reddt_codes_heat" width=""/>
 
 
+```python
+# groupby cb, plot final He vs mass, hline at 10^-6 (part of TP-AGB def) to see what models do not get this far
 
+# for those that don't, how close are they?
+# plot HR with color by dt
+
+```
+
+
+
+# Sand
 
 __Models that stopped early due to `min_timestep_limit`__
 ```python

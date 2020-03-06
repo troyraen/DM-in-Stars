@@ -14,12 +14,13 @@ from matplotlib.colors import ListedColormap
 from matplotlib.ticker import AutoMinorLocator
 import seaborn as sns
 
+runsdir = '/RUNS_defDM'
 # Use if running on Roy
 mesaruns = '/Users/troyraen/Osiris/DMS/mesaruns'
-dr = mesaruns + '/RUNS_defDM'
+dr = mesaruns + runsdir
 # Use if running on Osiris
 mesarunsO = '/home/tjr63/DMS/mesaruns'
-drO = mesarunsO + '/RUNS_defDM'
+drO = mesarunsO + runsdir
 
 Lsun = 3.8418e33 # erg/s
 Msun = 1.9892e33 # grams
@@ -493,16 +494,19 @@ def plot_HR(hdf, color=None, title=None, save=None):
     """ if color == 'dt', will make scatter plot and color using dt
     """
 
-    plt.figure()
-    ax = plt.gca()
-    kwargs = {  #'ax': ax
-                }
+    kwargs = {}
 
     if color == 'dt':
         kwargs['cmap'] = plt.get_cmap('afmhot')
         kwargs['vmin'], kwargs['vmax'] = -12, 15
 
-    for (cb,mass), df in hdf.groupby(level=['cb','mass']):
+    gb = hdf.groupby(level=['cb','mass'])
+    nrows, ncols = ceil(len(gb)/3), 3
+    fig, axs = plt.subplots(nrows=nrows,ncols=ncols, sharex=True,sharey=True)
+    axs = axs.flatten() if nrows!=1 else [axs]
+
+    for a, ((cb,mass), df) in enumerate(gb):
+        kwargs['ax'] = axs[a]
         df = df.loc[df.star_age>1e6,:]
         lbl = f'm{mass} c{cb}'
 
