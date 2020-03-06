@@ -138,25 +138,33 @@ rcdf.loc[((rcdf.termCode==-1)&(~rcdf.index.isin(idx_currently_running))),'center
 
 ```python
 # Final center He4 values
-pvt = {'index':'mass','columns':'cb','values':'center_he4_end'}
-args = {'logy':True,'marker':'o','color':[cbcmap(cb) for cb in range(7)]}
-plt.figure(figsize=figsize)
-rcdf.reset_index().pivot(**pvt).plot(**args)
-plt.axhline(1e-6,c='k',lw=1) # _part_ of MIST EEP TP-AGB
-plt.axhline(1e-4,c='k',lw=1) # MIST EEP terminal age core He burning (TACHeB)
-plt.ylabel('center_he4 (final)')
+def plot_he4end(rcdf):
+    pvt = {'index':'mass','columns':'cb','values':'center_he4_end'}
+    args = {'logy':True,'marker':'o','color':[cbcmap(cb) for cb in range(7)]}
+    plt.figure(figsize=figsize)
+    rcdf.reset_index().pivot(**pvt).plot(**args)
+    plt.axhline(1e-6,c='k',lw=1) # _part_ of MIST EEP TP-AGB
+    plt.axhline(1e-4,c='k',lw=1) # MIST EEP terminal age core He burning (TACHeB)
+    plt.ylabel('center_he4 (final)')
+plot_he4end(rcdf)
 plt.savefig('plots/he4end.png')
 
 # Models with final center_he4 > 1e-4
 rhe4 = rcdf.loc[rcdf.center_he4_end>1e-4,:]
 hhe4 = hdf.loc[rhe4.index,:]
 plot_HR(hhe4, color='dt', title='final He4 > 1e-4', save='plots/HR_he4_all.png')
-# Models with max age > 10Gyr (all < 1Msun) are not a problem, get rid of them
+# Get rid of models with max age > 10Gyr (all < 1Msun), they are not a problem
 max_age = hhe4.star_age.groupby(level=['cb','mass']).max()
 rhe4 = rhe4.loc[max_age<1e10,:] # max age < 10 Gyr
 hhe4 = hhe4.loc[rhe4.index,:]
+# Get rid of models currently running
+rhe4 = rhe4.loc[~rhe4.index.isin(idx_currently_running),:]
+hhe4 = hhe4.loc[rhe4.index,:]
 plot_HR(hhe4, color='dt', title='final He4 > 1e-4', save='plots/HR_he4.png')
 rhe4.center_he4_end
+plot_he4end(rhe4)
+plt.savefig('tp/he4end_rhe4.png')
+
 
 
 # for those that don't, how close are they?
