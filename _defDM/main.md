@@ -5,11 +5,12 @@ chmod 744 Anaconda3-2019.10-Linux-x86_64.sh
 ./Anaconda3-2019.10-Linux-x86_64.sh
 ```
 
-# Final runs using `defDM` settings
+# Start final runs using `defDM` settings
+<!-- fs -->
 See [runSettings branch](https://github.com/troyraen/DM-in-Stars/blob/runSettings/runSettings/main.md) for details.
 
-<!-- fs -->
 ## Branch cleanup
+<!-- fs -->
 - [x]  copy `run_star_extras_default_plus_DM.f` -> `run_star_extras.f`
 - [x]  copy `inlist_master_default_plus_DM` -> `inlist_master`
 - [x]  delete the unneeded versions of these files (copied from `runSettings` branch)
@@ -40,7 +41,7 @@ for c in $(seq 0 6); do
     done
 done
 ```
-<!-- fe -->
+<!-- fe branch cleanup -->
 
 ## Generate bash scripts and do the runs
 <!-- fs -->
@@ -70,10 +71,126 @@ exit
 ```
 <!-- fe ## Generate bash scripts and do the runs -->
 
+<!-- fe # Start final runs using `defDM` settings -->
 
-<!-- ## Check runtimes -->
+
+# Investigate Possible problem models
 <!-- fs -->
-<!-- ```python
+Clone new version of repo on Osiris for analyzing `mesaruns` data:
+```bash
+cd DMS
+git clone git@github.com:troyraen/DM-in-Stars.git mesaruns_analysis
+```
+
+## Possible problem models
+
+- [ ]  Quit for an unknown reason (termCode==-1 and not currently running)
+    - [ ]  m1p55c4:
+
+- [ ]  Quit due to `min_timestep_limit`
+    - [ ]  not a problem if age < 10Gyr and log_dt.min() > -5
+
+- [ ]  Did not reach center_he4 < 1e-6 (this is _part_ of MIST EEP TP-AGB). Alternately, did not reach center_he4 < 1e-4 (MIST EEP terminal age core He burning (TACHeB)). (Not a problem if max age > 10Gyr)
+    - [ ]  mc:
+
+- [ ]  Models with cb < 4 and runtime > 1e3 min
+
+- [ ]  Currently running models are taking longer than they should. check them
+
+```python
+%run fncs
+hdf, pidf, cdf, rcdf = load_all_data(dr=drO, get_history=True, use_reduc=False)
+rcdf.loc[rcdf.runtime<0,'runtime'] # check for negative runtimes
+rcdf = fix_negative_runtimes(rcdf)
+# currently running models
+idx_currently_running = [(4, 1.25), (2, 1.20), (5, 1.90)] # as of __Mar 6, 11am__
+startime_currently_running = ['2/25/20, 9pm', '3/4/20, 5am', '2/24/20, 7:30pm']
+rtfix_currently_running = { idx_currently_running[0]: 9.6,
+                            idx_currently_running[1]: 2.3,
+                            idx_currently_running[2]: 10.7,
+                            }
+rcdf = fix_negative_runtimes(rcdf, rtfix=rtfix_currently_running)    
+
+# Runtimes
+plot_runtimes(rcdf, save='plots/runtimes_Mar6.png')
+
+
+# heatmap of termCodes
+r = rcdf.loc[~rcdf.index.isin(idx_currently_running),:]
+plt.figure()
+pvt = {'index':'termCode','columns':'mass','aggfunc':{'termCode':len}}
+sns.heatmap(r.pivot_table(**pvt),cmap='Accent',linewidths=.5)
+plt.tight_layout()
+plt.savefig('plots/termCodes_heatmap.png')
+
+# there is one model that quit for an unknown reason:
+rcdf.loc[((rcdf.termCode==-1)&(~rcdf.index.isin(idx_currently_running))),'center_he4_end']
+
+```
+
+<img src="plots/runtimes_Mar6.png" alt="plots/runtimes_Mar6" width=""/>
+
+<img src="plots/termCodes_heatmap.png" alt="plots/termCodes_heatmap" width=""/>
+
+
+## Models that did not complete He burning
+<!-- fs -->
+
+```python
+# Final center He4 values
+pvt = {'index':'mass','columns':'cb','values':'center_he4_end'}
+args = {'logy':True,'marker':'o','color':[cbcmap(cb) for cb in range(7)]}
+plt.figure(figsize=figsize)
+rcdf.reset_index().pivot(**pvt).plot(**args)
+plt.axhline(1e-6,c='k',lw=1) # _part_ of MIST EEP TP-AGB
+plt.axhline(1e-4,c='k',lw=1) # MIST EEP terminal age core He burning (TACHeB)
+plt.ylabel('center_he4 (final)')
+plt.savefig('plots/he4end.png')
+
+# Models with final center_he4 > 1e-4
+rhe4 = rcdf.loc[rcdf.center_he4_end>1e-4,:]
+hhe4 = hdf.loc[rhe4.index,:]
+plot_HR(hhe4, color='dt', title='final He4 > 1e-4', save='plots/HR_he4_all.png')
+# Models with max age > 10Gyr (all < 1Msun) are not a problem, get rid of them
+max_age = hhe4.star_age.groupby(level=['cb','mass']).max()
+rhe4 = rhe4.loc[max_age<1e10,:] # max age < 10 Gyr
+hhe4 = hhe4.loc[rhe4.index,:]
+plot_HR(hhe4, color='dt', title='final He4 > 1e-4', save='plots/HR_he4.png')
+rhe4.center_he4_end
+
+
+# for those that don't, how close are they?
+# plot HR with color by dt
+# find number of years it took model of same mass, previous cb to get from where this star is to He<10^-6
+
+
+```
+
+<img src="plots/he4end.png" alt="plots/he4end" width=""/>
+
+<img src="plots/HR_he4_all.png" alt="plots/HR_he4_all" width="400"/>
+
+<img src="plots/HR_he4.png" alt="plots/HR_he4" width=""/>
+
+
+
+__Possible Options:__
+
+- [ ]  set max age
+- [ ]  set max log_Teff = 4.25 (to catch those with no TP)
+
+<!-- fe ## Models that did not complete He burning -->
+
+<!-- fe # Investigate Possible problem models -->
+
+
+
+# Sand
+<!-- fs -->
+
+## Check runtimes
+<!-- fs -->
+```python
 hdf, pi_df, c_df, rcdf = load_all_data(dr=dr, get_history=False)
 plot_runtimes(rcdf, save='runtimes_Feb11.png')
 ```
@@ -83,7 +200,7 @@ plot_runtimes(rcdf, save='runtimes_Feb11.png')
 __Currently running models:__
 <img src="unfinished_models_021120.png" alt="unfinished_models_021120" width=""/>
 
-I think the three with `termCode = -1` are stuck in very small timesteps. Should check again in a few days and cancel them if they're still running. -->
+I think the three with `termCode = -1` are stuck in very small timesteps. Should check again in a few days and cancel them if they're still running.
 <!-- fe ## Check runtimes -->
 
 ## Investigate models stuck in small timesteps
@@ -102,12 +219,6 @@ cd DMS/mesaruns/bash_scripts/
 ./data_reduc.sh /home/tjr63/DMS/mesaruns/RUNS_defDM/c2/m1p10/LOGS
 ```
 
-Clone new version of repo on Osiris for analyzing `mesaruns` data:
-```bash
-cd DMS
-git clone git@github.com:troyraen/DM-in-Stars.git mesaruns_analysis
-```
-
 __Load data and see what's done:__
 Doing this on Osiris in `mesaruns_analysis` dir.
 
@@ -121,23 +232,10 @@ export DISPLAY=:11.0
 
 ## LOAD DATA
 hdf, pidf, cdf, rcdf = load_all_data(dr=drO, get_history=True, use_reduc=False)
-# get a smaller df
-hcols = ['model_number', 'star_age', 'star_mass', 'log_dt','log_LH', 'log_Teff',
-            'log_L', 'center_h1', ]
-h = hdf[hcols]
 
 ## RUNTIMES
-# fix runtimes with negative number in STD.out
-rcdf.loc[rcdf.runtime<0,'runtime']
-# actual time calculated from file timestamps
-minday = 24*60
-rtfix = {   idx[6,1.0]: 19*minday,
-            idx[1,1.15]: 17*minday,
-            idx[1,1.2]: 18.3*minday,
-            idx[2,1.1]: 22.5*minday
-        }
-for i,val in rtfix.items(): rcdf.loc[i,'runtime'] = val
-# plot runtimes
+rcdf.loc[rcdf.runtime<0,'runtime'] # check for negative runtimes
+rcdf = fix_negative_runtimes(rcdf)
 plot_runtimes(rcdf, save='plots/runtimes_Mar6.png')
 ```
 
@@ -166,9 +264,12 @@ plt.savefig('plots/inMS_final.png')
 
 <img src="plots/inMS_final.png" alt="plots/inMS_final" width=""/>
 
+<!-- fe ## Investigate models stuck in small timesteps -->
 
+
+## "Problem" models
+<!-- fs -->
 ```python
-## PROBLEM MODELS
 # models where either:
 #   runtime > 1e4
 #   inMS_final < 1e-4
@@ -219,18 +320,8 @@ plt.savefig('plots/probmods_reddt_codes_heat.png')
 
 <img src="plots/probmods_reddt_codes_heat.png" alt="plots/probmods_reddt_codes_heat" width=""/>
 
+<!-- fe ## "Problem" models -->
 
-```python
-# groupby cb, plot final He vs mass, hline at 10^-6 (part of TP-AGB def) to see what models do not get this far
-
-# for those that don't, how close are they?
-# plot HR with color by dt
-
-```
-
-
-
-# Sand
 
 __Models that stopped early due to `min_timestep_limit`__
 ```python
@@ -290,4 +381,4 @@ plot_reddt(reddtdf, title=None, save=None)
 hdf, pi_df, c_df, rcdf = load_all_data(dr=dr, get_history=True, mods=mods)
 ```
 
-<!-- fe ## Investigate models stuck in small timesteps -->
+<!-- fe ## Sand -->

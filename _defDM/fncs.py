@@ -46,6 +46,12 @@ h1cuts = OD([('ZAMS',start_center_h1 - 0.0015),
              ('H-4',1e-4),
              ('H-6',1e-6),
              ('TAMS',1e-12)])
+use_hcols = ['model_number', 'star_age', 'star_mass', 'log_dt',
+            'log_LH', 'log_Teff','log_L',
+            'center_h1', 'center_he4', 'log_center_T','log_center_Rho','wimp_temp',
+            'rel_error_in_energy_conservation','error_in_energy_conservation',
+            'num_iters','total_energy']
+
 
 def normalize_RGB(rgb_tuple):
     """ rgb_tuple assumed to be of length 3, values in range [0,255]
@@ -197,7 +203,7 @@ def load_be_controls(Lpath, pidf, dfkey):
 
 def load_history(hpath):
     """ Loads single history.data file. """
-    return pd.read_csv(hpath, header=4, sep='\s+')
+    return pd.read_csv(hpath, header=4, sep='\s+', usecols=use_hcols)
 
 def get_STDout_run_characteristics(STDpath):
     with open(STDpath) as fin:
@@ -414,6 +420,29 @@ def get_STDout_dt_root_warnings(STDpath):
 
     return reddtdf, probTxdf
 
+def fix_negative_runtimes(rcdf, rtfix=None):
+    """ Fix runtimes with negative number in STD.out
+        Actual time calculated from file timestamps
+
+        rtfix = {index: runtime in days (gets converted to minutes)}
+    """
+
+    minday = 24*60
+
+    if rtfix is None:
+        rtfix = {   idx[6,1.0]: 19,
+                    idx[1,1.15]: 17,
+                    idx[1,1.2]: 18.3,
+                    idx[2,1.1]: 22.5
+                }
+
+    for i, val in rtfix.items():
+        rcdf.loc[i,'runtime'] = val*minday
+        print(f'fixed {i}')
+
+    return rcdf
+
+
 # fe----- load data -----#
 
 # fs------ plots and functions ------#
@@ -434,7 +463,6 @@ def get_mods_not_done(cmidx):
     schd = set(itertools.product([i for i in range(7)],masses_scheduled))
     not_done = schd - set(cmidx)
     return not_done
-
 
 def plot_runtimes(rcdf, save=None):
 
@@ -499,29 +527,47 @@ def plot_HR(hdf, color=None, title=None, save=None):
     if color == 'dt':
         kwargs['cmap'] = plt.get_cmap('afmhot')
         kwargs['vmin'], kwargs['vmax'] = -12, 15
+        kwargs['s'] = 3
 
     gb = hdf.groupby(level=['cb','mass'])
-    nrows, ncols = ceil(len(gb)/3), 3
-    fig, axs = plt.subplots(nrows=nrows,ncols=ncols, sharex=True,sharey=True)
-    axs = axs.flatten() if nrows!=1 else [axs]
+    nrows, ncols = int(np.ceil(len(gb)/3)), 3
+    fig, axs = plt.subplots(nrows=nrows,ncols=ncols,
+                            # sharex=True,sharey=True,
+                            figsize=(8,3*nrows))
+    if nrows!=1: axs = axs.flatten()
+
 
     for a, ((cb,mass), df) in enumerate(gb):
-        kwargs['ax'] = axs[a]
+        ax = axs[a]
         df = df.loc[df.star_age>1e6,:]
         lbl = f'm{mass} c{cb}'
 
         if color == 'dt':
             c = df.log_dt
-            plt.scatter(df.log_Teff, df.log_L, label=lbl, c=c, **kwargs)
+            ax.scatter(df.log_Teff, df.log_L, label=lbl, c=c, **kwargs)
         else:
+            kwargs['ax'] = ax
+            # print(kwargs)
             df.plot('log_Teff','log_L', label=lbl, **kwargs)
 
-    ax.invert_xaxis()
-    plt.xlabel(r'log T$_{eff}$ / K')
-    plt.ylabel(r'log L / L$_\odot$')
-    plt.legend()
-    if title is not None: plt.title(title)
+        # indicate where age > 10 and 13 Gyr
+        df = df.reset_index().set_index(['cb','mass','model_number'])
+        sa = df.star_age
+        for t,m in zip([10e9, 13e9],['s','X']):
+            ags = {'marker':m, 's':100, 'c':'k', 'label':f'{t/1e9:.0f}Gyr'}
+            try:
+                i = df[sa.gt(t)].sort_values('star_age').index[0]
+                ax.scatter(df.loc[i,'log_Teff'],df.loc[i,'log_L'], **ags)
+            except:
+                pass
 
+        ax.invert_xaxis()
+        ax.set_xlabel(r'log T$_{eff}$ / K')
+        ax.legend(loc=3)
+    axs[0].set_ylabel(r'log L / L$_\odot$')
+    if title is not None: plt.suptitle(title)
+
+    plt.tight_layout()
     if save is not None: plt.savefig(save)
     plt.show(block=False)
     return None
