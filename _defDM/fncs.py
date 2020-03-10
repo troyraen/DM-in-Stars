@@ -662,18 +662,22 @@ def plot_profiles(pdf,ax):
     """
     p = pdf.copy()
     p['nuc_H'] = p.pp + p.cno
+    p.rename(columns={'extra_heat':'xheat'}, inplace=True)
 
-    cols = ['x', ]#'y',]
-    for c in [  'extra_heat',
+    cols = []
+    for c in [  'xheat', 'nuc_H',
                 # 'eps_nuc',
-                'nuc_H']:
+                ]:
         mx = p[c].abs().max()
         nam = '/'.join([c,f'{mx:.1}'])
         cols.append(nam)
         p[nam] = p[c]/mx
 
-    args = {'ax':ax, 'alpha':0.5}
+    cols.append('x')
+    args = {'ax':ax, 'alpha':1}
     p.plot(x='mass_coord', y=cols, **args)
+    p.plot(x='mass_coord', y=cols[0], kind='scatter', ax=ax)
+    ax.set_ylabel('')
 
     return None
 
@@ -687,7 +691,7 @@ def plot_profiles_all(pdf):
     for a, (k, p) in enumerate(gb):
         ax = axs[a]
         plot_profiles(p,ax)
-        eep = priority_dict[k[2]] if k[2] in priority_dict.keys() else f'maxm{k[2]}'
+        eep = priority_dict[k[2]] if k[2] in priority_dict.keys() else f'maxmodel(p{k[2]})'
         ax.set_title(f'm{k[1]}c{k[0]} {eep}')
     ax.set_xlim(-0.01,0.6)
 

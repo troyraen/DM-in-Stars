@@ -214,6 +214,10 @@ ppms = load_profiles(pipms,[mass],cboosts,priorities,max_mod=True)
 plot_profiles_all(ppms)
 plt.savefig(f'plots/xheat_m{mass}.png')
 
+# ppms50 = load_profiles(pipms,[mass],[2],[50])
+# plt.figure()
+# plot_profiles(ppms50,plt.gca())
+# plt.savefig('tp/xheat50.png')
 ```
 
 <img src="plots/xheat_m1.6.png" alt="plots/xheat_m1.6" width=""/>
