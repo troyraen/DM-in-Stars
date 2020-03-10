@@ -141,6 +141,51 @@ def load_pidf(pipath):
     pidf = pd.read_csv(pipath, names=pidx_cols, skiprows=1, header=None, sep='\s+')
     return pidf
 
+def load_profile(ppath):
+
+    pdf = pd.read_csv(ppath, header=4, sep='\s+')
+
+    return pdf
+
+def load_profiles(pidf,masses,cboosts,priorities,max_mod=False):
+    """ Calls load_profile() for all combinations of
+        masses, cboosts, priorities
+        max_mod == True will load the max model number if a priority doesn't
+                    exist for a given mass+cb
+    """
+    pi = pidf.reset_index()
+    pdf_lst = []
+    pnum = 'profile_number'
+    for mass in masses:
+        mstr = mass_encode(mass,'str')
+        for cb in cboosts:
+            for EEP in priorities:
+                try:
+                    icols = ['cb','mass','priority']
+                    i = idx[cb,mass,EEP]
+                    p = pi.set_index(icols).sort_index().loc[i,pnum].iloc[0]
+                    ppath = pjoin(drO,f'c{cb}',mstr,'LOGS',f'profile{p}.data')
+
+                    pdf = load_profile(ppath)
+                    pdf.rename(columns={'mass':'mass_coord'}, inplace=True)
+                    pdf['cb'], pdf['mass'], pdf['EEP'] = cb, mass, EEP
+                    pdf_lst.append(pdf.set_index(['cb','mass','EEP']))
+
+                except:
+                    if not max_mod: pass # else load the profile with max model number
+                    icols = ['cb','mass','model_number']
+                    i = idx[cb,mass,:] # index with max model number with iloc[-1]
+                    p = pi.set_index(icols).sort_index().loc[i,pnum].iloc[-1]
+                    ppath = pjoin(drO,f'c{cb}',mstr,'LOGS',f'profile{p}.data')
+
+                    pdf = load_profile(ppath)
+                    pdf.rename(columns={'mass':'mass_coord'}, inplace=True)
+                    pdf['cb'], pdf['mass'], pdf['EEP'] = cb, mass, p
+                    pdf_lst.append(pdf.set_index(['cb','mass','EEP']))
+
+    pdf = pd.concat(pdf_lst, axis=0).sort_index()
+    return pdf
+
 def load_controls(cpath):
     """ Loads a single controls#.data file to a Series """
 
@@ -309,7 +354,8 @@ def load_all_data(dr=dr, get_history=True, use_reduc=True, mods=None, skip=None)
                 if ''.join([mdir,cb]) in skip: continue
 
             dir = pjoin(dr,cb,mdir)
-            m = float('.'.join(mdir.split('_')[0].strip('m').split('p')))
+            m = mass_encode(mdir,'float')
+            # m = float('.'.join(mdir.split('_')[0].strip('m').split('p')))
             dfkey = (int(cb[-1]), m)
             print()
             print(f'doing {dfkey}')
@@ -381,7 +427,8 @@ def load_dt_root_errors(dr=dr, mods=[]):
             if rk.split('_')[0] == 'ow': continue # skip 'ow' dirs
             if ''.join([mdir,cb]) not in mods: continue # skip dirs not in mods
 
-            m = float('.'.join(mdir.strip('m').split('p')))
+            m = mass_encode(mdir,'float')
+            # m = float('.'.join(mdir.strip('m').split('p')))
             dir = pjoin(dr,cb,mdir)
 
             reddtdf, probTxdf = get_STDout_dt_root_warnings(pjoin(dir,'LOGS/STD.out'))
@@ -446,6 +493,19 @@ def fix_negative_runtimes(rcdf, rtfix=None):
 # fe----- load data -----#
 
 # fs------ plots and functions ------#
+def mass_encode(mass,get):
+    """ get == 'str':   converts mass (float) to a string (e.g. m1p00)
+        get == 'float': converts mass (string) to a float (e.g. 1.0)
+    """
+    if get == 'str':
+        mstr = f'm{int(mass)}p{int((mass%1)*10)}'
+        if len(mstr) == 4: mstr = f'{mstr}0'
+        return mstr
+
+    elif get == 'float':
+        m = float('.'.join(mass.strip('m').split('p')))
+        return m
+
 def MSmodels(hdf):
     """ hdf should be of a single mass and cb
         can use in hdf.groupby().apply()
@@ -540,6 +600,7 @@ def plot_HR(hdf, color=None, title=None, save=None):
     for a, ((cb,mass), df) in enumerate(gb):
         ax = axs[a]
         df = df.loc[df.star_age>1e6,:]
+        # he4 = df.sort_values('star_age').center_he4.iloc[-1]
         lbl = f'm{mass} c{cb}'
 
         if color == 'dt':
@@ -593,6 +654,42 @@ def plot_reddt(reddtdf, title=None, save=None):
 
     if save is not None: plt.savefig(save)
     plt.show(block=False)
+
+    return None
+
+def plot_profiles(pdf,ax):
+    """ pdf is single mass, cb, profile number
+    """
+    p = pdf.copy()
+    p['nuc_H'] = p.pp + p.cno
+
+    cols = ['x', ]#'y',]
+    for c in [  'extra_heat',
+                # 'eps_nuc',
+                'nuc_H']:
+        mx = p[c].abs().max()
+        nam = '/'.join([c,f'{mx:.1}'])
+        cols.append(nam)
+        p[nam] = p[c]/mx
+
+    args = {'ax':ax, 'alpha':0.5}
+    p.plot(x='mass_coord', y=cols, **args)
+
+    return None
+
+def plot_profiles_all(pdf):
+
+    gb = pdf.groupby(level=['cb','mass','EEP'])
+    l = len(gb)
+    nr, nc = int(np.ceil(l/3)), 3
+    fig, axs = plt.subplots(nrows=nr,ncols=nc, figsize=(10,3*nr),sharex=True)
+    axs = axs.flatten()
+    for a, (k, p) in enumerate(gb):
+        ax = axs[a]
+        plot_profiles(p,ax)
+        eep = priority_dict[k[2]] if k[2] in priority_dict.keys() else f'maxm{k[2]}'
+        ax.set_title(f'm{k[1]}c{k[0]} {eep}')
+    ax.set_xlim(-0.01,0.6)
 
     return None
 

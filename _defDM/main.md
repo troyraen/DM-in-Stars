@@ -85,13 +85,15 @@ git clone git@github.com:troyraen/DM-in-Stars.git mesaruns_analysis
 ## Possible problem models
 
 - [ ]  Quit for an unknown reason (termCode==-1 and not currently running)
-    - [ ]  m1p55c4:
+    - [ ]  m1p55c4: STD.out => segfault. Try re-running this model.
 
 - [ ]  Quit due to `min_timestep_limit`
     - [ ]  not a problem if age < 10Gyr and log_dt.min() > -5
 
 - [ ]  Did not reach center_he4 < 1e-6 (this is _part_ of MIST EEP TP-AGB). Alternately, did not reach center_he4 < 1e-4 (MIST EEP terminal age core He burning (TACHeB)). (Not a problem if max age > 10Gyr)
-    - [ ]  mc:
+    - [ ]  m1p05c1:
+    - [ ]  m1p60c2:
+    - [ ]  m1p55c4: (segfault problems, see above)
 
 - [ ]  Models with cb < 4 and runtime > 1e3 min
 
@@ -164,14 +166,15 @@ plot_HR(hhe4, color='dt', title='final He4 > 1e-4', save='plots/HR_he4.png')
 rhe4.center_he4_end
 plot_he4end(rhe4)
 plt.savefig('tp/he4end_rhe4.png')
-
+# There are 3 models with final center_he4 ~ 1e-4...
+# Deciding these are ok and getting rid of them
+rhe4 = rhe4.loc[rhe4.center_he4_end>1e-3,:]
+hhe4 = hhe4.loc[rhe4.index,:]
 
 
 # for those that don't, how close are they?
 # plot HR with color by dt
 # find number of years it took model of same mass, previous cb to get from where this star is to He<10^-6
-
-
 ```
 
 <img src="plots/he4end.png" alt="plots/he4end" width=""/>
@@ -180,14 +183,42 @@ plt.savefig('tp/he4end_rhe4.png')
 
 <img src="plots/HR_he4.png" alt="plots/HR_he4" width=""/>
 
-
+__There are 3 models that did not get close to completing core He burning: m1p05c1, m1p60c2, m1p55c4__
 
 __Possible Options:__
 
 - [ ]  set max age
-- [ ]  set max log_Teff = 4.25 (to catch those with no TP)
+
 
 <!-- fe ## Models that did not complete He burning -->
+
+
+## Check post-MS DM effects
+<!-- fs -->
+Check the following in post-MS models:
+- [ ]  Core: DM should not affect the core
+- [ ]  H burning shell
+
+Focusing on problem model m1p60c2 since there are both higher and lower cboosts at this mass the terminated normally.
+
+```python
+mass = 1.60
+cboosts = [0,1,2,3,4] # these are done for m=1.60
+priorities = [94,93,92] # TAMS and He ignition
+
+pipms = pidf.loc[idx[:,mass],:]
+# hpms = hdf.loc[pipms.index,:]
+
+ppms = load_profiles(pipms,[mass],cboosts,priorities,max_mod=True)
+# Plot extra_heat
+plot_profiles_all(ppms)
+plt.savefig(f'plots/xheat_m{mass}.png')
+
+```
+
+<img src="plots/xheat_m1.6.png" alt="plots/xheat_m1.6" width=""/>
+
+<!-- fe ## Check that DM affects after the MS -->
 
 <!-- fe # Investigate Possible problem models -->
 
@@ -302,8 +333,9 @@ plt.show(block=False)
 # Get STD errors and reduce dt codes for problem models
 mods = []
 for (c,m) in probidx:
-    mstr = f'm{int(m)}p{int((m%1)*10)}'
-    if len(mstr) == 4: mstr = f'{mstr}0'
+    mstr = mass_encode(m,'str')
+    # f'm{int(m)}p{int((m%1)*10)}'
+    # if len(mstr) == 4: mstr = f'{mstr}0'
     mods.append(f'{mstr}c{c}')
 reddtdf, probTxdf = load_dt_root_errors(dr=drO, mods=mods)
 
