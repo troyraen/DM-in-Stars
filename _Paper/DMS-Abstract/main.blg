@@ -1,0 +1,49 @@
+This is BibTeX, Version 0.99d (TeX Live 2018)
+Capacity: max_strings=100000, hash_size=100000, hash_prime=85009
+The top-level auxiliary file: main.aux
+The style file: unsrt.bst
+Database file #1: references.bib
+Warning--empty journal in lsst
+Warning--there's a number but no volume in lsst
+You've used 5 entries,
+            1791 wiz_defined-function locations,
+            482 strings with 5230 characters,
+and the built_in function-call counts, 1768 in all, are:
+= -- 82
+> -- 227
+< -- 0
++ -- 78
+- -- 73
+* -- 197
+:= -- 354
+add.period$ -- 15
+call.type$ -- 5
+change.case$ -- 5
+chr.to.int$ -- 0
+cite$ -- 7
+duplicate$ -- 43
+empty$ -- 94
+format.name$ -- 73
+if$ -- 326
+int.to.chr$ -- 0
+int.to.str$ -- 5
+missing$ -- 5
+newline$ -- 28
+num.names$ -- 5
+pop$ -- 8
+preamble$ -- 1
+purify$ -- 0
+quote$ -- 0
+skip$ -- 15
+stack$ -- 0
+substring$ -- 44
+swap$ -- 4
+text.length$ -- 0
+text.prefix$ -- 0
+top$ -- 0
+type$ -- 0
+warning$ -- 2
+while$ -- 10
+width$ -- 6
+write$ -- 56
+(There were 2 warnings)
