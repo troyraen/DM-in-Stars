@@ -2,7 +2,8 @@
 # Results
 <!-- fs -->
 
-Where does the description of standard (no DM) stellar evolution go (e.g. paragraph 3 of current results section)?
+Paragraph 18. Standard stellar evolution. Qualitative difference between high and low mass stars.
+
 
 ## Low Mass
 <!-- fs -->
@@ -14,11 +15,7 @@ Low mass stars (Mstar < 1.3 Msun)
 - burning rates change similarly
 - since burning rate in shell increases, these stars burn more total fuel (need to check that this is true).
 
-Lifetimes (refer to delta Tau figure even though the high mass star profiles will come first?)
-- stars with gammaB = 10^2-4 live slightly longer. is this because burning rate in center is reduced?
-- stars with gammaB = 10^6 (not sure yet about 5) show almost no change in MS lifetime. why does the effect go away? maybe because temperature is so low the central burning shuts off earlier?
-
-Maybe the following goes in the appendix?
+Put the following in the appendix?
 - previous paper (Iocco, fig 3) saw signifiant oscillations in L, Teff and noted that they may be numerical artifacts.
 - when we ran MESA models using old energy conservation scheme we saw similar oscillations. they were a result of the DM temperature falling below the central temp -> DM moves energy back to the center -> temp increases -> DM move energy away from the center. This resulted in large fluctuations in the burning rate profiles which propagated to the surface and manifested in oscillations in the size of the star (radius) -> Teff and L.
 - DM temperature falling below the central temp turned out to be caused by numerical artifacts and resulted in poor energy conservation. Should I mention that the lifetimes were greatly reduced?
@@ -30,16 +27,26 @@ Maybe the following goes in the appendix?
 <!-- fs -->
 - keep paragraph 1? Move to a different section?
 - keep paragraph 2: effects of DM on convection -> MS lifetimes
-- add mass scaling relations to the end. capture rate scales linearly with stellar mass, MS lifetimes scale as M^-2.5 (check exact number) -> effects drop off rapidly with increasing mass.
+- walk a DM person through profiles figure
+    - eps dm negative values indicate that DM is removing energy from this region
+    - describe the _features_ in the plot that a DM person should identify (shell burning: eps_nuc zero at center and larger a little farther out)
+    - annotate panels: 'zero age main sequence', 'intermediate MS'
+    - in caption, panels are numbered, also include the y variable name
 
 <!-- fe ## High Mass -->
 
-## MS Lifetimes and Isochrones
-<!-- fs -->
-- We find that MS lifetimes ... (delta Tau figure)
-- This may be observable in stellar population isochrones (isochrones figures)
+## MS Lifetimes
 
-<!-- fe ## MS Lifetimes and Isochrones -->
+- We find that MS lifetimes ... (delta Tau figure)
+    - high mass stars
+    - add mass scaling relations to the end. capture rate scales linearly with stellar mass, MS lifetimes scale as M^-2.5 (check exact number) -> effects drop off rapidly with increasing mass.
+    - __low mass stars__ with gammaB = 10^2-4 live slightly longer. is this because burning rate in center is reduced?
+    - __low mass stars__ with gammaB = 10^6 (not sure yet about 5) show almost no change in MS lifetime. why does the effect go away? maybe because temperature is so low the central burning shuts off earlier?
+
+
+## Isochrones
+- isochrones look older primarily because they are at a lower luminosity at fixed age
+- then show plot of hottest Teff and L vs isochrone age
 
 <!-- fe # Results -->
 
