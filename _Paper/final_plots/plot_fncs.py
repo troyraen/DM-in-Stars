@@ -2885,6 +2885,8 @@ def plot_m1p0c6_kipp(plot_times=None, from_file=False, time_lines=True, save=Non
     # burn_type_# = int(sign(val)*log10(max(1,abs(val))))
     #    where val = ergs/gm/sec nuclear energy minus all neutrino losses.
     # burn_qtop_# = the q location of the top of the region
+# SOLUTION: MESA documentation in history_columns.list must be wrong
+    # I think int() -> ceil()
 def check_burn_types(hdf=None):
     # calc eps_nuc limits for each burn_type
     lst = []

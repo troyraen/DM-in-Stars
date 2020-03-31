@@ -1,136 +1,31 @@
 #!/bin/bash
 
-###... MOVED TO EXTERNAL FILE ...###
-# ### copies $1/inlist_options_tmplt to $2/inlist_options
-# ### then changes options according to $3, $4, and $5
-# function write_inlists () {
-#     maindir=$1 # main mesa_wimps dir (e.g. mesaruns)
-#     RUN=$2 # specific directory for log files
-#     mass=$3 # floating point number
-#     cboost=$4 # = integer 0..6
-#     pgstar=${5:-0} # = 1 generates a movie, default 0
-#     inlist_master=${6:-"master"} # inlist_$6 will be used as base inlist
-#     stop_TAMS=${7:-0} # = 1 stops the run when h1 frac < 1.e-12
-#
-#     # INLISTS
-#     fopts="${RUN}/inlist_options"
-#     cp ${maindir}/inlist_options_tmplt ${fopts} # copy template
-#     cp ${maindir}/inlist_${inlist_master} ${RUN}/inlist # copy main inlist
-#
-#     ### Change inlist_options properties:
-#
-#     # MASS
-#     sed -i 's/_MASS_/'${mass}'/g' ${fopts}
-#     mint=$(echo $mass*10 | bc ); mint=$( printf "%.0f" $mint ) # int(mass*10)
-#     declare -A ma=( [8]=30.E9 [9]=23.E9 )
-#     if [[ ${ma[$mint]} ]]; then # if mass in ma use value higher than default
-#         sed -i 's/_MAXAGE_/'${ma[$mint]}'/g' ${fopts}
-#     else # use default
-#         sed -i 's/_MAXAGE_/13.E9/g' ${fopts}
-#     fi
-#
-#     # CBOOST
-#     if (( ${cboost} != 0 )); then
-#         sed -i 's/use_other_energy_implicit = .false./use_other_energy_implicit = .true./g' ${fopts}
-#         sed -i 's/X_CTRL(1) = 0.E0/X_CTRL(1) = 1.E'${cboost}'/g' ${fopts}
-#     fi
-#
-#     # PGSTAR options
-#     if [ "${pgstar}" = 1 ]; then # save png files
-#         sed -i 's/pgstar_flag = .false./pgstar_flag = .true./g' ${fopts} # save png files
-#         cp ${maindir}/inlist_pgstar_my ${RUN}/. # cp custom pgstar inlist
-#         sed -i 's/read_extra_pgstar_inlist2 = .false./read_extra_pgstar_inlist2 = .true./g' ${fopts} # read it
-#     fi
-#
-#     # stop after leave MS
-#     if [ "${stop_TAMS}" = 1 ]; then
-#         sed -i 's/! xa_central_lower_limit/xa_central_lower_limit/g' ${fopts} # uncomment these 2 lines
-#     fi
-#
-#     echo "Wrote inlists (${fopts})"
-# }
+####
+# this script does a run for every __3rd__ element in a reversed mord array,
+# starting with index i
+    # where i is an argument passed to this script
+####
 
-
-###... MOVED TO EXTERNAL FILE do_mesa_run.sh ...###
-# function rnmesa () {
-#     maindir=$1 # main mesa_wimps dir (e.g. mesaruns)
-#     RUN=${maindir}/$2 # specific directory for log files (e.g. RUNS_/SD/C0/m1p4)
-#     mass=$3 # floating point number
-#     cboost=$4 # = integer 0..6
-#     pgstar=${5:-0} # = 1 generates a movie, default 0
-#     inlist_master=${6:-"master"} # inlist_$6 will be used as base inlist
-#     stop_TAMS=${7:-0} # = 1 stops the run when h1 frac < 1.e-12
-#
-#     ### PREP
-#     echo
-#     if [ -d "${RUN}" ]; then
-#         if [ -f "${RUN}/LOGS/history.data" ]; then
-#             tm=$(date +"%m%d%y_%H%M")
-#             mv ${RUN} ${RUN}_ow_${tm}  # move what's already here
-#         else
-#             rm -r ${RUN} # no previous history.data file exists. delete the folder
-#         fi
-#     fi
-#     mkdir -p ${RUN}/LOGS ${RUN}/png ${RUN}/photos
-#     stdout=${RUN}/LOGS/STD.out
-#     # cp $maindir/$RUNS/$xphoto $maindir/photos/.
-#     write_inlists ${maindir} ${RUN} ${mass} ${cboost} ${pgstar} ${inlist_master} ${stop_TAMS}
-#
-#     ### RUN
-#     echo "Running MESA ..."
-#     cd ${RUN}
-#     ${maindir}/star &>> ${stdout}
-#     # $maindir/re $xphoto &>> LOGS/STD.out
-#     ${maindir}/bash_scripts/del_dup_mods.sh ${RUN}/LOGS &>> ${stdout}
-#     # ${maindir}/bash_scripts/data_reduc.sh ${RUN}/LOGS &>> ${stdout}
-#
-#     ### Finish pgstar movies
-#     if [ "${pgstar}" = 1 ]; then
-#         images_to_movie.sh "png/grid1*.png" ./LOGS/grid1_${mass}c${cb}.mp4 # make movies
-#         images_to_movie.sh "png/grid2*.png" ./LOGS/grid2_${mass}c${cb}.mp4
-#         if [ -f ./LOGS/grid2_${mass}c${cb}.mp4 ]; then
-#             echo "Pgstar movies created." &>> ${stdout}
-#             sed -i "/\.png\/png/d" ${stdout} # strip png lines from stdout
-#             rm -r ${RUN}/png # del png files
-#         else
-#             echo "Something went wrong making pgstar movies!" &>> ${stdout}
-#         fi
-#     fi
-#
-#     ### CLEANUP
-#     cd ${maindir}
-#     echo "Finished ${mass}M_sun cb${cboost}"
-#     echo
-# }
-
-
-
-### MAIN PROGRAM
 ### runs mesa models with specified params
-# mkcln="${1:-1}" #  = 1 will execute ./mk and ./clean
-maindir="/home/tjr63/mesaruns"
+maindir="/home/tjr63/DMS/mesaruns"
 cd ${maindir}
-RUNS="RUNS_pgstarGrid2"
+RUNS="RUNS_defDM"
+i=${1} # where in reversed(mord array) to start (1 => start with last element)
 
-# Ask user, run make/clean?
-echo
-echo "Run clean and make in dir ${maindir}?"
-echo "  0 = no; 1 = yes"
-read mkcln
-if [ "${mkcln}" = 1 ]; then
-        ./clean
-        ./mk
-fi
+./clean
+./mk
 
-# declare -A mvals=( [m0p8]=0.8 [m1p0]=1.0 [m1p1]=1.1 [m1p2]=1.2 [m1p3]=1.3 [m1p4]=1.4 [m1p6]=1.6 [m2p0]=2.0 [m3p0]=3.0 [m4p0]=4.0 )
-# declare -a mord=( m0p8 m1p0 m1p1 m1p2 m1p3 m1p4 m1p6 m2p0 m3p0 m4p0 )
-declare -A mvals=( [m0p8]=0.8 [m1p0]=1.0 [m1p3]=1.3 [m2p5]=2.5 [m3p5]=3.5 [m4p5]=4.5 )
-declare -a mord=( m3p5 m1p3 )
-
-# source ${maindir}/bash_scripts/write_inlists.sh # now sourced in do_mesa_run.sh
 source ${maindir}/bash_scripts/do_mesa_run.sh
-for cb in 0 6; do
-    for mass in "${mord[@]}"; do
-        do_mesa_run "${maindir}" "${RUNS}/c${cb}/${mass}" "${mvals[${mass}]}" "${cb}" 1 "master" 0
+
+
+declare -A mvals=( [m0p85]=0.85 [m0p90]=0.90 [m0p95]=0.95 [m1p00]=1.00 [m1p05]=1.05 [m1p10]=1.10 [m1p15]=1.15 [m1p20]=1.20 [m1p25]=1.25 [m1p30]=1.30 [m1p35]=1.35 [m1p40]=1.40 [m1p45]=1.45 [m1p50]=1.50 [m1p55]=1.55 [m1p60]=1.60 [m1p65]=1.65 [m1p70]=1.70 [m1p75]=1.75 [m1p80]=1.80 [m1p85]=1.85 [m1p90]=1.90 [m1p95]=1.95 [m2p00]=2.00 [m2p05]=2.05 [m2p10]=2.10 [m2p15]=2.15 [m2p20]=2.20 [m2p25]=2.25 [m2p30]=2.30 [m2p35]=2.35 [m2p40]=2.40 [m2p45]=2.45 [m2p50]=2.50 [m2p55]=2.55 [m2p60]=2.60 [m2p65]=2.65 [m2p70]=2.70 [m2p75]=2.75 [m2p80]=2.80 [m2p85]=2.85 [m2p90]=2.90 [m2p95]=2.95 [m3p00]=3.00 [m3p05]=3.05 [m3p10]=3.10 [m3p15]=3.15 [m3p20]=3.20 [m3p25]=3.25 [m3p30]=3.30 [m3p35]=3.35 [m3p40]=3.40 [m3p45]=3.45 [m3p50]=3.50 [m3p55]=3.55 [m3p60]=3.60 [m3p65]=3.65 [m3p70]=3.70 [m3p75]=3.75 [m3p80]=3.80 [m3p85]=3.85 [m3p90]=3.90 [m3p95]=3.95 [m4p00]=4.00 [m4p05]=4.05 [m4p10]=4.10 [m4p15]=4.15 [m4p20]=4.20 [m4p25]=4.25 [m4p30]=4.30 [m4p35]=4.35 [m4p40]=4.40 [m4p45]=4.45 [m4p50]=4.50 [m4p55]=4.55 [m4p60]=4.60 [m4p65]=4.65 [m4p70]=4.70 [m4p75]=4.75 [m4p80]=4.80 [m4p85]=4.85 [m4p90]=4.90 [m4p95]=4.95 [m5p00]=5.00 )
+declare -a mord=( m0p85 m0p90 m0p95 m1p00 m1p05 m1p10 m1p15 m1p20 m1p25 m1p30 m1p35 m1p40 m1p45 m1p50 m1p55 m1p60 m1p65 m1p70 m1p75 m1p80 m1p85 m1p90 m1p95 m2p00 m2p05 m2p10 m2p15 m2p20 m2p25 m2p30 m2p35 m2p40 m2p45 m2p50 m2p55 m2p60 m2p65 m2p70 m2p75 m2p80 m2p85 m2p90 m2p95 m3p00 m3p05 m3p10 m3p15 m3p20 m3p25 m3p30 m3p35 m3p40 m3p45 m3p50 m3p55 m3p60 m3p65 m3p70 m3p75 m3p80 m3p85 m3p90 m3p95 m4p00 m4p05 m4p10 m4p15 m4p20 m4p25 m4p30 m4p35 m4p40 m4p45 m4p50 m4p55 m4p60 m4p65 m4p70 m4p75 m4p80 m4p85 m4p90 m4p95 m5p00)
+
+
+# do the runs and skip any where `history.data` exists
+for cb in $(seq 0 6); do
+    for (( idx=${#mord[@]}-${i} ; idx>=0 ; idx=idx-3 )) ; do
+        mass="${mord[idx]}"
+        do_mesa_run "${maindir}" "${RUNS}/c${cb}/${mass}" "${mvals[${mass}]}" "${cb}" 0 "master" 0 1
     done
 done
