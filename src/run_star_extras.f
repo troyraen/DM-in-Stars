@@ -25,7 +25,7 @@
       use star_lib
       use star_def
       use const_def
-      use DM_module   ! necessary to point towards the other_energy hook
+      use DM_module   ! needed for the other_energy_implicit hook
 
       implicit none
 
@@ -109,7 +109,7 @@
          ierr = 0
          call star_ptr(id, s, ierr)
          if (ierr /= 0) return
-         how_many_extra_history_columns = 7
+         how_many_extra_history_columns = 5
       end function how_many_extra_history_columns
 
 
@@ -135,12 +135,8 @@
          vals(3) = s% X_CTRL(4)
          names(4) = 'center_np'
          vals(4) = s% X_CTRL(5)
-         names(5) = 'Tx_emoment'
-         vals(5) = s% X_CTRL(6)
-         names(6) = 'extra_energy'
-         vals(6) = calc_xenergy(id, id_extra) ! ergs
-         names(7) = 'xL/Lnuc'
-         vals(7) = s% xtra(6)
+         names(5) = 'extra_energy'
+         vals(5) = calc_xenergy(id, id_extra) ! ergs
 
       end subroutine data_for_extra_history_columns
 
@@ -172,7 +168,7 @@
          ierr = 0
          call star_ptr(id, s, ierr)
          if (ierr /= 0) return
-         how_many_extra_profile_columns = 4
+         how_many_extra_profile_columns = 3
       end function how_many_extra_profile_columns
 
 
@@ -191,14 +187,12 @@
 
          names(1) = 'nx'
          names(2) = 'np'
-         names(3) = 'Vk'
-         names(4) = 'DM_temp'
+         names(3) = 'DM_temp'
 
          do k = 1, nz
             vals(k,1) = s% xtra1_array(k)
             vals(k,2) = s% xtra2_array(k)
-            vals(k,3) = s% xtra3_array(k)
-            vals(k,4) = s% X_CTRL(2)
+            vals(k,3) = s% X_CTRL(2)
          end do
 
       end subroutine data_for_extra_profile_columns
@@ -209,8 +203,6 @@
          use chem_def
          integer, intent(in) :: id, id_extra
          integer :: ierr
-         LOGICAL :: flg1=.FALSE., flg2=.FALSE., flg3=.FALSE., flg4=.FALSE.
-         LOGICAL :: flg5=.FALSE., flg6=.FALSE., flg7=.FALSE., flg8=.FALSE.
          type (star_info), pointer :: s
          ierr = 0
          call star_ptr(id, s, ierr)
@@ -219,73 +211,6 @@
          call store_extra_info(s)
 
          s% xtra(1) = s% xtra(2)  !! = Nx (so DM is not collected when step is not accepted)
-
-         IF ( (.NOT. flg1) .AND. (s% center_h1 .LT. 0.71D0) ) THEN
-           flg1 = .TRUE.
-           s% need_to_update_history_now = .true.
-           s% need_to_save_profiles_now = .true.
-           s% save_profiles_model_priority = 99	!! ENTER MS
-         ENDIF
-         IF ( (.NOT. flg2) .AND. (s% center_h1 .LT. 0.3D0) ) THEN
-           flg2 = .TRUE.
-           s% need_to_update_history_now = .true.
-           s% need_to_save_profiles_now = .true.
-           s% save_profiles_model_priority = 98	!! INTERMEDIATE MS
-         ENDIF
-         IF ( (.NOT. flg3) .AND. (s% center_h1 .LT. 1.D-1) ) THEN
-           flg3 = .TRUE.
-           s% need_to_update_history_now = .true.
-           s% need_to_save_profiles_now = .true.
-           s% save_profiles_model_priority = 97
-         ENDIF
-         IF ( (.NOT. flg4) .AND. (s% center_h1 .LT. 1.D-2) ) THEN
-           flg4 = .TRUE.
-           s% need_to_update_history_now = .true.
-           s% need_to_save_profiles_now = .true.
-           s% save_profiles_model_priority = 96
-         ENDIF
-         IF ( (.NOT. flg5) .AND. (s% center_h1 .LT. 1.D-3) ) THEN
-           flg5 = .TRUE.
-           s% need_to_update_history_now = .true.
-           s% need_to_save_profiles_now = .true.
-           s% save_profiles_model_priority = 95	!! LEAVE MS
-         ENDIF
-         IF ( (.NOT. flg6) .AND. (s% center_h1 .LT. 1.D-12) ) THEN
-           flg6 = .TRUE.
-           s% need_to_update_history_now = .true.
-           s% need_to_save_profiles_now = .true.
-           s% save_profiles_model_priority = 94	!! TAMS
-         ENDIF
-         IF ( (.NOT. flg7) .AND. (s% power_he_burn .GT. 1.D6) ) THEN
-           flg7 = .TRUE.
-           s% need_to_update_history_now = .true.
-           s% need_to_save_profiles_now = .true.
-           s% save_profiles_model_priority = 93	!! He IGNITION
-         ENDIF
-         IF ( (.NOT. flg8) .AND. (s% center_he4 .LT. 1.D-3) ) THEN
-           flg8 = .TRUE.
-           s% need_to_update_history_now = .true.
-           s% need_to_save_profiles_now = .true.
-           s% save_profiles_model_priority = 92	!! He EXHAUSTED
-         ENDIF
-
-         IF ( MOD(s% model_number, 1000) .EQ. 0) THEN
-           s% need_to_update_history_now = .true.
-           s% need_to_save_profiles_now = .true.
-           s% save_profiles_model_priority = 10
-         ENDIF
-
-         IF ( MOD(s% model_number, 10000) .EQ. 0) THEN
-           s% need_to_update_history_now = .true.
-           s% need_to_save_profiles_now = .true.
-           s% save_profiles_model_priority = 50
-         ENDIF
-
-         IF ( MOD(s% model_number, 100000) .EQ. 0) THEN
-           s% need_to_update_history_now = .true.
-           s% need_to_save_profiles_now = .true.
-           s% save_profiles_model_priority = 75
-         ENDIF
 
       end function extras_finish_step
 

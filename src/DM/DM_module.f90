@@ -6,16 +6,21 @@
 !!!	calculates extra heat transported by DM
 !!!-------------------------------------------!!!
 !!! controls:
+!!!
 !!!	cboost = s% X_CTRL(1)
-!!!	extra history columns values = s% X_CTRL(2:6)
-!!! s% X_CTRL(7) =
+!!!
+!!!	extra history columns values = s% X_CTRL(2:5)
+!!!
 !!!	spindep = s% X_LOGICAL_CTRL(1)  ! .true. = spin dependent; .false. = spin independent
-!!! emom_norm = s% X_LOGICAL_CTRL(2) ! whether emoment integral should be normalized
+!!!			! spin independent option is not completely set up.
+!!!			! partial derivatives need to be calculated
 !!!
 !!! Nx = s% xtra(1)
-!!! s% xtra(4) = Lnuc
-!!!	s% xtra(5) = xL
-!!!	s% xtra(6) = xL/Lnuc
+!!!			! in extras_finish_step (run_star_extras) s% xtra(1) = s% xtra(2)
+!!! 		! so DM is not collected when step is not accepted
+!!!
+!!!-------------------------------------------!!!
+
 
 
 
@@ -25,7 +30,6 @@
 	use const_def
 	use chem_def
 	use DM_num
-	! use test_fncs
 	IMPLICIT NONE
 	INCLUDE 'DM_vars.h'
 
@@ -47,7 +51,6 @@
 
 	cboost = s% X_CTRL(1)  ! boost in capture rate of DM compared to the local capture rate near the Sun, \propto density/sigma_v
 	spindep = s% X_LOGICAL_CTRL(1)
-	emom_logical = s% X_LOGICAL_CTRL(2)
 
 	CALL get_star_variables(id,ierr)
 	CALL set_DM_variables(id,ierr)
@@ -171,8 +174,7 @@
 
 	mxGeV = 5.D0	! 5 GeV DM
 	mx = mxGeV* gperGeV	! DM mass in grams
-!	cboost = s% X_CTRL(1)  ! boost in capture rate of DM compared to the local capture rate near the Sun, \propto density/sigma_v
-!	already set in main module
+
 	IF (spindep) THEN
 		sigmaxp = 1.D-37	! DM-proton cross section, cm^2
 	ELSE
@@ -198,20 +200,13 @@
 !!----------------------------
 !!	xheat is luminosity per unit mass (in cgs units) that DM gives up to baryons
 !!	This is what needs to be given to MESA
-!!	This is SP85 equ 4.9 divided by rho(k)
+!!	This is Spergel & Press 1985 equ 4.9 divided by rho(k)
 !!----------------------------
 	SUBROUTINE calc_xheat(Tx_given)
 	USE const_def, only : pi, mp, kerg ! Boltzmann's constant (erg K^-1)
 	IMPLICIT NONE
 	INTEGER :: itr, j
 	DOUBLE PRECISION :: mfact, dfact, Tfact, xheat_j, Tx_given
-
-!	LOGICAL :: ISOPEN
-
-!	INQUIRE(FILE='xheat.Tx_givent', OPENED=ISOPEN)
-!	IF (.NOT. ISOPEN) THEN
-!		OPEN(FILE='xheat.Tx_givent', UNIT=10)
-!	ENDIF
 
 	IF (spindep) THEN
 		mfact = 8.D0*SQRT(2.D0/pi)* sigmaxp* mx*mp/((mx+mp)**2) ! this is common to all cells
@@ -276,7 +271,8 @@
 
 !!----------------------------
 !!	calculate number of captured DM particles in current time step
-!!	crate is ZH11 equation 1 with cboost subsuming rho and vbar factors
+!!	crate is Zentner & Hearin 2011 equation 1
+!!	with cboost subsuming rho and vbar factors
 !!----------------------------
 	FUNCTION calc_dNx()
 	USE const_def, only : Msun ! solar mass (g)
@@ -298,8 +294,8 @@
 
 
 !!----------------------------
-!!	calculate DM temp using SP85 one-zone model.
-!!	this is the root of SP85 equ 4.10
+!!	calculate DM temp using Spergel & Press 1985 one-zone model.
+!!	this is the root of Spergel & Press 1985 equ 4.10
 !!----------------------------
 	FUNCTION calc_Tx(id,ierr)
 	USE nrutil, ONLY : nrerror
@@ -309,7 +305,7 @@
 	INTEGER, INTENT(OUT) :: ierr
 	INTEGER :: k
 	DOUBLE PRECISION :: Txhigh, Txlow, tol
-	DOUBLE PRECISION :: Ttmp, calc_Tx, xL, Lnuc
+	DOUBLE PRECISION :: Ttmp, calc_Tx
 	DOUBLE PRECISION :: Tarray(4)
 	INTEGER :: tries, model_err=-1
 	LOGICAL :: Tflag=.FALSE.
@@ -352,6 +348,12 @@
 			Ttmp = Tarray(1)
 			Tflag = is_slope_negative(Ttmp)
 			IF (.NOT.Tflag) THEN
+				! If the code gets here, a suitable root cannot be found.
+				! In most cases there are other problems with the star at this
+				! timestep and MESA will re-do the step.
+				! The model_err variable (below) keeps track of this and will
+				! kill the run if the step is not re-done, since this means
+				! a suitable DM temperature was never found.
 				Ttmp= 10.**(s% log_center_temperature)
 				WRITE(*,*) '**** Tx set to center_T ****', Ttmp, 'problem model ', s% model_number
 				model_err= s% model_number +1
@@ -362,71 +364,42 @@
 
 	ENDDO
 
-	!!!!!!!!
-	! check that L_extra / L_nuc < 1
-	! else approximate emoment root function
-	! with straight line to find better Tx
-	CALL calc_xheat(Ttmp)
-	xL = 0.0
-	DO k = 1,kmax
-		xL = xL + xheat(k)* s% dq(k)* s% xmstar ! (ergs/gm/sec)*gm = ergs/sec
-	ENDDO
-	xL = xL/Lsun
-	Lnuc = s% power_nuc_burn ! Lsun
-	s% xtra(4) = Lnuc
-	s% xtra(5) = xL
-	! IF (( ABS(xL/ Lnuc).GT.0.1 ) .AND. ( Lnuc.GT.0.1)) THEN !
-	! 	Ttmp = linear_root(Tarray)
-	! 	WRITE(*,*) "ZBRENT---***---"
-	! 	WRITE(*,*) "ZBRENT---***--- model number = ", s% model_number
-	! 	WRITE(*,*) "ZBRENT---***--- xL/ Lnuc OLD = ", xL/ Lnuc,  "---***---"
-	! 	CALL calc_xheat(Ttmp)
-	! 	xL = 0.0
-	! 	DO k = 1,kmax
-	! 		xL = xL + xheat(k)* s% dq(k)* s% xmstar ! (ergs/gm/sec)*gm = ergs/sec
-	! 	ENDDO
-	! 	xL = xL/Lsun
-	! 	WRITE(*,*) "ZBRENT---***--- xL/ Lnuc NEW = ", xL/ Lnuc,  "---***---"
-	! ENDIF
-	s% xtra(6) = xL/Lnuc
-	!!!!!!!!
-
 	Tx_array = Tarray ! set DM_vars Tx_array
 	calc_Tx = Ttmp
 	END FUNCTION calc_Tx
 
-
-
 !!----------------------------
-!!	If extra energy is "too high", approximate emoment function with a
-!!	straight line and return a root closer to actual zero
-	FUNCTION linear_root(Tarray)
-		DOUBLE PRECISION :: x1, x2, y1, y2
-		DOUBLE PRECISION :: m, linear_root
-		DOUBLE PRECISION :: Tarray(4)
+!!	if slope < 0, return .TRUE.
+!!	This helps to find the correct root of the energy equation
+	FUNCTION is_slope_negative(Tx_given)
+		IMPLICIT NONE
+		DOUBLE PRECISION, INTENT(IN) :: Tx_given
+		DOUBLE PRECISION :: Tl, Tx_int, Tl_int, slope
+		LOGICAL :: is_slope_negative
 
-		x1 = Tarray(1)
-		y1 = Tarray(2)
-		x2 = Tarray(3)
-		y2 = Tarray(4)
-		m = (y2-y1)/(x2-x1)
-		linear_root = x1 - y1/m ! Tx
+		Tx_int = emoment(Tx_given)
+		Tl = 0.999*Tx_given ! use narrower range to avoid function maximum
+		Tl_int = emoment(Tl)
+		slope = (Tx_int-Tl_int)/(Tx_given-Tl)
 
-		! WRITE(*,*) "linear_root---***---"
-		! WRITE(*,*) "linear_root---***--- slope = ", m
-		! WRITE(*,*) "linear_root---***--- Tx OLD = ", x1
-		! WRITE(*,*) "linear_root---***--- emoment OLD = ", y1
-		! WRITE(*,*) "linear_root---***--- Tx NEW = ", linear_root
-		! WRITE(*,*) "linear_root---***--- emoment NEW = ", emoment(linear_root)
+		IF (slope.LT.0.0) THEN
+			is_slope_negative=.TRUE.
+			! WRITE(*,*) 'is_slope_negative returns true. slope=',slope
+		ELSE
+			is_slope_negative=.FALSE.
+			WRITE(*,*) 'is_slope_negative returns false. slope=',slope
+		ENDIF
 
-	END FUNCTION linear_root
-
+	END FUNCTION is_slope_negative
+!!----------------------------
 
 !!----------------------------
 !!	To avoid finding wrong (lower) root and inducing Tx oscillations
 !!	calculate slope of Ttmp
 !!	lower root has slope ~0, correct slope is usually very steep
 !!	if abs(slope) < 10, return .FALSE.
+!!
+!!	This function turned out to be unnecessary and is not called from the code.
 	FUNCTION is_slope_steep(Tx_given)
 		IMPLICIT NONE
 		DOUBLE PRECISION, INTENT(IN) :: Tx_given
@@ -448,34 +421,13 @@
 		ENDIF
 
 	END FUNCTION is_slope_steep
-!!	if slope < 0, return .TRUE.
 !!----------------------------
-	FUNCTION is_slope_negative(Tx_given)
-		IMPLICIT NONE
-		DOUBLE PRECISION, INTENT(IN) :: Tx_given
-		DOUBLE PRECISION :: Tl, Tx_int, Tl_int, slope
-		LOGICAL :: is_slope_negative
-
-		Tx_int = emoment(Tx_given)
-		Tl = 0.999*Tx_given ! use narrower range to avoid function maximum
-		Tl_int = emoment(Tl)
-		slope = (Tx_int-Tl_int)/(Tx_given-Tl)
-
-		IF (slope.LT.0.0) THEN
-			is_slope_negative=.TRUE.
-			! WRITE(*,*) 'is_slope_negative returns true. slope=',slope
-		ELSE
-			is_slope_negative=.FALSE.
-			WRITE(*,*) 'is_slope_negative returns false. slope=',slope
-		ENDIF
-
-	END FUNCTION is_slope_negative
 
 
 
 !!----------------------------
-!!	this is LHS of SP85 equ 4.10 which implicitly defines Tx
-!!	called by zbrent() (which is called by calc_Tx())
+!!	This is LHS of Spergel & Press 1985 equ 4.10 which implicitly defines Tx
+!!	Called by zbrent() (which is called by calc_Tx())
 !!	zbrent() finds Tx as the root of this equation
 !!----------------------------
 	FUNCTION emoment(Txtest)
@@ -487,22 +439,15 @@
 	DOUBLE PRECISION :: Tnorm, nnorm, Rnorm, m, npbar, Txbar, Tbar, rbar, drbar
 	PARAMETER ( mpGeV=0.938272D0 ) ! Proton mass in GeV
 
-	IF ( emom_logical ) THEN ! get normalized emoment
-		sum = emom_normalized(Txtest)
-	ELSE
-	!!!! non-normalized
-		sum = 0.D0
-		DO itr = kmax,1,-1 ! integrate over dm from r=0 to r_star
-			mfact =  dmk(itr)/4./pi/rhok(itr) ! r^2 dr = dm / (4 pi rho)
-			efact = EXP(-mx*Vk(itr)/ kerg/Txtest)
-			IF (spindep) THEN
-				Tfact = SQRT((mpGeV*Txtest+ mxGeV*Tk(itr))/(mxGeV*mpGeV))* (Tk(itr)-Txtest)
-				sum = sum+ npk(itr)*Tfact*efact*mfact
-			ENDIF
-		ENDDO
-	!!!! end non-normalized
-
-	ENDIF
+	sum = 0.D0
+	DO itr = kmax,1,-1 ! integrate over dm from r=0 to r_star
+		mfact =  dmk(itr)/4./pi/rhok(itr) ! r^2 dr = dm / (4 pi rho)
+		efact = EXP(-mx*Vk(itr)/ kerg/Txtest)
+		IF (spindep) THEN
+			Tfact = SQRT((mpGeV*Txtest+ mxGeV*Tk(itr))/(mxGeV*mpGeV))* (Tk(itr)-Txtest)
+			sum = sum+ npk(itr)*Tfact*efact*mfact
+		ENDIF
+	ENDDO
 
 	emoment = sum
 	END FUNCTION emoment
@@ -531,12 +476,10 @@
 		s% X_CTRL(3) = Nx ! names(2) = 'Nx_total'
 		s% X_CTRL(4) = nxk((s% nz)+1) ! names(3) = 'center_nx'
 		s% X_CTRL(5) = npk((s% nz)+1) ! names(4) = 'center_np'
-		s% X_CTRL(6) = emoment(Tx) ! names(5) = 'Tx_emoment'
 
 		DO k = 1,kmax
 			s% xtra1_array(k) = nxk(k)
 			s% xtra2_array(k) = npk(k)
-			s% xtra3_array(k) = Vk(k)
 		ENDDO
 
 
@@ -545,7 +488,34 @@
 
 
 
-!!!***!!!*** TEST FUNCTIONS !!!***!!!***
+!!!***!!!*** TEST FUNCTIONS FOR THE Tx ROOT FINDING !!!***!!!***
+! These functions are not currently used in the code, but can be used
+! to understand the Tx root finding better.
+
+!!----------------------------
+!!	If extra energy is "too high", approximate emoment function with a
+!!	straight line and return a root closer to actual zero
+	FUNCTION linear_root(Tarray)
+		DOUBLE PRECISION :: x1, x2, y1, y2
+		DOUBLE PRECISION :: m, linear_root
+		DOUBLE PRECISION :: Tarray(4)
+
+		x1 = Tarray(1)
+		y1 = Tarray(2)
+		x2 = Tarray(3)
+		y2 = Tarray(4)
+		m = (y2-y1)/(x2-x1)
+		linear_root = x1 - y1/m ! Tx
+
+		! WRITE(*,*) "linear_root---***---"
+		! WRITE(*,*) "linear_root---***--- slope = ", m
+		! WRITE(*,*) "linear_root---***--- Tx OLD = ", x1
+		! WRITE(*,*) "linear_root---***--- emoment OLD = ", y1
+		! WRITE(*,*) "linear_root---***--- Tx NEW = ", linear_root
+		! WRITE(*,*) "linear_root---***--- emoment NEW = ", emoment(linear_root)
+
+	END FUNCTION linear_root
+
 
 !!!!!!!!
 ! have Tx_array = [ Tx1, emom1, Tx2, emom2 ] from DM_num root finding.
@@ -615,57 +585,6 @@
 		calc_xenrgy = xe ! ergs
 	END FUNCTION calc_xenrgy
 !!! ONLY USED FOR energy_plots
-
-
-
-!!----------------------------
-!!	this is LHS of SP85 equ 4.10 which implicitly defines Tx
-!!	called by emoment function if inlist specifies it should be normalized
-!!----------------------------
-	FUNCTION emom_normalized(Txtest)
-		USE const_def, only : Rsun, Msun, kerg ! Boltzmann's constant (erg K^-1)
-		IMPLICIT NONE
-		INTEGER :: itr, j
-		DOUBLE PRECISION, INTENT(IN) :: Txtest
-		DOUBLE PRECISION :: mpGeV, Tfact, efact, rfact, mfact, mjfact, sum, emom_normalized
-		DOUBLE PRECISION :: Tnorm, nnorm, Rnorm, Mnorm, m, npbar, Txbar, Tbar, rbar, drbar, dmbar
-		PARAMETER ( mpGeV=0.938272D0 ) ! Proton mass in GeV
-
-	!!!! normalized
-		! normalization constants
-		Tnorm = 1.D7 ! K
-		nnorm = 1.D25 ! dimensionless
-		Rnorm = Rsun ! cm
-		Mnorm = Msun ! grams
-		! normalized variables
-		m = mxGeV / mpGeV
-		Txbar = Txtest / Tnorm
-
-
-		sum = 0.D0
-		DO itr = kmax,1,-1 ! integrate from r=0 to r_star
-			! normalized variables
-			npbar = npk(itr) / nnorm
-			Tbar = Tk(itr) / Tnorm
-			rbar = rk(itr+1) / Rnorm
-			drbar = (rk(itr)- rk(itr+1)) / Rnorm
-			dmbar = dmk(itr) / Mnorm
-
-			mfact =  dmbar/rhok(itr) ! r^2 dr = dm / (4 pi rho)
-			efact = EXP(-mx*Vk(itr)/ kerg/Txtest)
-			IF (spindep) THEN
-				Tfact = SQRT(Txbar+ m*Tbar)* (Tbar - Txbar)
-				sum = sum+ npbar*Tfact*efact*mfact
-	!!!! STILL NEED SPIN INDEPENDENT NORMALIZED
-			ENDIF
-		ENDDO
-	!!!! end normalized
-
-
-
-		emom_normalized = sum
-
-	END FUNCTION emom_normalized
 
 
 !!!***!!!*** END TEST FUNCTIONS !!!***!!!***
