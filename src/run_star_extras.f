@@ -25,7 +25,7 @@
       use star_lib
       use star_def
       use const_def
-      use wimp_module   ! necessary to point towards the other_energy hook
+      use DM_module   ! necessary to point towards the other_energy hook
 
       implicit none
 
@@ -52,7 +52,7 @@
          s% how_many_extra_profile_columns => how_many_extra_profile_columns
          s% data_for_extra_profile_columns => data_for_extra_profile_columns
 
-         s% other_energy_implicit => wimp_energy_transport ! subroutine where extra_heat is defined inside of module wimp_module
+         s% other_energy_implicit => DM_energy_transport ! subroutine where extra_heat is defined inside of module DM_module
       end subroutine extras_controls
 
 
@@ -127,7 +127,7 @@
          ! the history_columns.list is only for the built-in log column options.
          ! it must not include the new column names you are adding here.
 
-         names(1) = 'wimp_temp'
+         names(1) = 'DM_temp'
          vals(1) = s% X_CTRL(2)
          names(2) = 'Nx_total'
          vals(2) = s% X_CTRL(3)
@@ -192,7 +192,7 @@
          names(1) = 'nx'
          names(2) = 'np'
          names(3) = 'Vk'
-         names(4) = 'wimp_temp'
+         names(4) = 'DM_temp'
 
          do k = 1, nz
             vals(k,1) = s% xtra1_array(k)
@@ -218,7 +218,7 @@
          extras_finish_step = keep_going
          call store_extra_info(s)
 
-         s% xtra(1) = s% xtra(2)  !! = Nx (so wimps are not collected when step is not accepted)
+         s% xtra(1) = s% xtra(2)  !! = Nx (so DM is not collected when step is not accepted)
 
          IF ( (.NOT. flg1) .AND. (s% center_h1 .LT. 0.71D0) ) THEN
            flg1 = .TRUE.

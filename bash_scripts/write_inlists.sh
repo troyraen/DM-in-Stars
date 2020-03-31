@@ -10,7 +10,7 @@ function write_inlists () {
         exit 1
     fi
 
-    maindir=$1 # main mesa_wimps dir (e.g. mesaruns)
+    maindir=$1 # main dir for runs (e.g. mesaruns)
     RUN=$2 # specific directory for log files
     mass=$3 # floating point number
     cboost=$4 # = integer 0..6

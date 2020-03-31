@@ -14,9 +14,9 @@
   max_age = _MAXAGE_
 
   use_other_energy_implicit = .false.
-  X_CTRL(1) = 0.E0 ! this sets cboost in wimp_module.f90
+  X_CTRL(1) = 0.E0 ! this sets cboost in DM_module.f90
 
-  X_LOGICAL_CTRL(1) = .TRUE.    ! sets spindep in wimp_module.f90
+  X_LOGICAL_CTRL(1) = .TRUE.    ! sets spindep in DM_module.f90
                                 ! .true. = spin dependent
                                 ! .false. = spin independent
   X_LOGICAL_CTRL(2) = .FALSE. ! emom_norm true or false

@@ -3,7 +3,7 @@
 !!!	June 2017
 !!!
 !!!	add-on module for MESA
-!!!	calculates extra heat transported by WIMPS
+!!!	calculates extra heat transported by DM
 !!!-------------------------------------------!!!
 !!! controls:
 !!!	cboost = s% X_CTRL(1)
@@ -19,15 +19,15 @@
 
 
 
-	MODULE wimp_module
+	MODULE DM_module
 
 	use star_def
 	use const_def
 	use chem_def
-	use wimp_num
+	use DM_num
 	! use test_fncs
 	IMPLICIT NONE
-	INCLUDE 'wimp_vars.h'
+	INCLUDE 'DM_vars.h'
 
 	CONTAINS
 
@@ -35,7 +35,7 @@
 !!----------------------------
 !!	main routine, called by MESA run_star_extras.f
 !!----------------------------
-	SUBROUTINE wimp_energy_transport(id,ierr)
+	SUBROUTINE DM_energy_transport(id,ierr)
 	IMPLICIT NONE
 	INTEGER, INTENT(IN) :: id
 	INTEGER, INTENT(OUT) :: ierr
@@ -45,12 +45,12 @@
 	CALL GET_STAR_PTR(id, s, ierr)
 	IF ( ierr /= 0 ) RETURN
 
-	cboost = s% X_CTRL(1)  ! boost in capture rate of WIMPs compared to the local capture rate near the Sun, \propto density/sigma_v
+	cboost = s% X_CTRL(1)  ! boost in capture rate of DM compared to the local capture rate near the Sun, \propto density/sigma_v
 	spindep = s% X_LOGICAL_CTRL(1)
 	emom_logical = s% X_LOGICAL_CTRL(2)
 
 	CALL get_star_variables(id,ierr)
-	CALL set_wimp_variables(id,ierr)
+	CALL set_DM_variables(id,ierr)
 	CALL calc_xheat(Tx)
 
 	DO itr = 1,kmax
@@ -68,7 +68,7 @@
 	CALL store_hist(id,ierr)
 
 
-	END SUBROUTINE wimp_energy_transport
+	END SUBROUTINE DM_energy_transport
 
 
 !!----------------------------
@@ -156,9 +156,9 @@
 
 
 !!----------------------------
-!!	set all WIMP properties
+!!	set all DM properties
 !!----------------------------
-	SUBROUTINE set_wimp_variables(id,ierr)
+	SUBROUTINE set_DM_variables(id,ierr)
 	IMPLICIT NONE
 	DOUBLE PRECISION :: dNx
 	INTEGER, INTENT(IN) :: id
@@ -169,12 +169,12 @@
 	CALL GET_STAR_PTR(id, s, ierr)
 	IF ( ierr /= 0 ) RETURN
 
-	mxGeV = 5.D0	! 5 GeV WIMP
-	mx = mxGeV* gperGeV	! WIMP mass in grams
-!	cboost = s% X_CTRL(1)  ! boost in capture rate of WIMPs compared to the local capture rate near the Sun, \propto density/sigma_v
+	mxGeV = 5.D0	! 5 GeV DM
+	mx = mxGeV* gperGeV	! DM mass in grams
+!	cboost = s% X_CTRL(1)  ! boost in capture rate of DM compared to the local capture rate near the Sun, \propto density/sigma_v
 !	already set in main module
 	IF (spindep) THEN
-		sigmaxp = 1.D-37	! wimp-proton cross section, cm^2
+		sigmaxp = 1.D-37	! DM-proton cross section, cm^2
 	ELSE
 		sigmaxp = 1.D-40
 		DO j = 1,numspecies
@@ -185,18 +185,18 @@
 	Tx = calc_Tx(id,ierr)
 
 !! in extras_finish_step (run_star_extras) s% xtra(1) = s% xtra(2)
-!! so wimps are not collected when step is not accepted
+!! so DM is not collected when step is not accepted
 	dNx = calc_dNx()
 	Nx = (s% xtra(1)) + dNx
 	s% xtra(2) = Nx
 	CALL calc_nxk()
 
-	END SUBROUTINE set_wimp_variables
+	END SUBROUTINE set_DM_variables
 
 
 
 !!----------------------------
-!!	xheat is luminosity per unit mass (in cgs units) that wimps give up to baryons
+!!	xheat is luminosity per unit mass (in cgs units) that DM gives up to baryons
 !!	This is what needs to be given to MESA
 !!	This is SP85 equ 4.9 divided by rho(k)
 !!----------------------------
@@ -250,7 +250,7 @@
 
 
 !!----------------------------
-!!	calculate wimp number density for each cell
+!!	calculate DM number density for each cell
 !!	assumes Nx has been calculated
 !!----------------------------
 	SUBROUTINE calc_nxk()
@@ -275,7 +275,7 @@
 
 
 !!----------------------------
-!!	calculate number of captured wimps in current time step
+!!	calculate number of captured DM particles in current time step
 !!	crate is ZH11 equation 1 with cboost subsuming rho and vbar factors
 !!----------------------------
 	FUNCTION calc_dNx()
@@ -298,7 +298,7 @@
 
 
 !!----------------------------
-!!	calculate wimp temp using SP85 one-zone model.
+!!	calculate DM temp using SP85 one-zone model.
 !!	this is the root of SP85 equ 4.10
 !!----------------------------
 	FUNCTION calc_Tx(id,ierr)
@@ -391,7 +391,7 @@
 	s% xtra(6) = xL/Lnuc
 	!!!!!!!!
 
-	Tx_array = Tarray ! set wimp_vars Tx_array
+	Tx_array = Tarray ! set DM_vars Tx_array
 	calc_Tx = Ttmp
 	END FUNCTION calc_Tx
 
@@ -527,7 +527,7 @@
 		! store info to write to extra_history_columns
 		! indicies offset by one since cboost = s% X_CTRL(1)
 
-		s% X_CTRL(2) = Tx ! names(1) = 'wimp_temp'
+		s% X_CTRL(2) = Tx ! names(1) = 'DM_temp'
 		s% X_CTRL(3) = Nx ! names(2) = 'Nx_total'
 		s% X_CTRL(4) = nxk((s% nz)+1) ! names(3) = 'center_nx'
 		s% X_CTRL(5) = npk((s% nz)+1) ! names(4) = 'center_np'
@@ -548,7 +548,7 @@
 !!!***!!!*** TEST FUNCTIONS !!!***!!!***
 
 !!!!!!!!
-! have Tx_array = [ Tx1, emom1, Tx2, emom2 ] from wimp_num root finding.
+! have Tx_array = [ Tx1, emom1, Tx2, emom2 ] from DM_num root finding.
 ! find linear_root Tx and emom with this Tx
 ! calc xenergy for all these Tx's
 ! write to separate file for plotting
@@ -672,4 +672,4 @@
 
 
 
-END MODULE wimp_module
+END MODULE DM_module

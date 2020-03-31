@@ -2,7 +2,7 @@
 
 
 function do_mesa_run () {
-    maindir=$1 # main mesa_wimps dir (e.g. mesaruns)
+    maindir=$1 # main dir for runs (e.g. mesaruns)
     RUN=${maindir}/$2 # specific directory for log files (e.g. RUNS_/SD/C0/m1p4)
     mass=$3 # floating point number
     cboost=$4 # = integer 0..6

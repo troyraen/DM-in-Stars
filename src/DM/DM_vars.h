@@ -6,7 +6,7 @@
 	LOGICAL :: spindep, emom_logical
 	INTEGER :: chemj, numspecies, kmax  !// zones go from k= 1 to kmax. kmax+1 is star center
 
-!// 	! wimp variables
+!// 	! DM variables
 	DOUBLE PRECISION mx, mxGeV, sigmaxp, cboost, Tx, Nx
 	DOUBLE PRECISION Tx_array(4)
 
