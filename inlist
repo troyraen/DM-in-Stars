@@ -1,11 +1,8 @@
 
 &star_job
 
-    history_columns_file = '/home/tjr63/DMS/mesaruns/history_columns.list'
-    profile_columns_file = '/home/tjr63/DMS/mesaruns/profile_columns.list'
-
-    read_extra_star_job_inlist1 = .true.
-    extra_star_job_inlist1_name = 'inlist_options'
+    read_extra_star_job_inlist1 = .false.
+    extra_star_job_inlist1_name = ''
 
       show_log_description_at_start = .false.
 
@@ -34,13 +31,21 @@
 
 / ! end of star_job namelist
 
+
 &controls
+
+    read_extra_controls_inlist1 = .true.
+    extra_controls_inlist1_name = 'inlist_DM'
+
+
+!   STAR PROPERTIES
+      initial_mass = 1.0
+      initial_z = 0.0142
+      initial_y = 0.2703
+
 
 !	STOPPING CONDITIONS
       log_L_lower_limit = -1.0
-	  stop_at_TP = .TRUE.
-      HB_limit = 1d-12 ! stop when central mass frac of He4 drops below this
-                        ! (for models without a thermal pulse)
 
 
 !   SAVE DATA
@@ -48,15 +53,11 @@
       profile_interval = 1000
 	  max_num_profile_models = 10
 	  write_controls_info_with_profile = .true.
-      history_interval = 1
+      history_interval = 10
       terminal_interval = 100
       write_header_frequency = 10
 
-!     MY OPTIONS
-      read_extra_controls_inlist1 = .true.
-      extra_controls_inlist1_name = 'inlist_options'
-      report_why_dt_limits = .true.
-
+!   OTHER
 
       use_gold_tolerances = .true.
       use_eosELM = .true.
@@ -68,14 +69,7 @@
       min_cell_energy_fraction_for_dedt_form = 0
       use_eps_correction_for_KE_plus_PE_in_dLdm_eqn = .true.
 
-      num_trace_history_values = 2
-      trace_history_value_name(1) = 'rel_E_err'
-      trace_history_value_name(2) = 'log_rel_run_E_err'
-
       backup_hold = 3
-
-      initial_z = 0.0142
-      initial_y = 0.2703
 
       use_Type2_opacities = .true.
       Zbase = 0.0142
@@ -92,7 +86,6 @@
       varcontrol_target = 1d-3
       delta_lgL_He_limit = 0.01d0
 
-      !envelope_mass_limit = 1d-2 ! Msun
 
       cool_wind_full_on_T = 9.99d9
       hot_wind_full_on_T = 1d10
@@ -111,7 +104,7 @@
 
 &pgstar
 
-    read_extra_pgstar_inlist1 = .true.
-    extra_pgstar_inlist1_name = 'inlist_options'
+    read_extra_pgstar_inlist1 = .false.
+    extra_pgstar_inlist1_name = ''
 
 / ! end of pgstar namelist
