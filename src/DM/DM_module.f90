@@ -330,7 +330,7 @@
 		Tarray = zbrent(emoment, Txhigh, Txlow, tol) ! returns -1 if gets root must be bracketed error
 		Ttmp = Tarray(1)
 		IF (Txlow.GT.maxT) THEN ! treat as root must be bracketed error. Tx close to Tmax and slope is shallow (most likely)
-			WRITE(*,*) 'Txlow > maxT. Treating as root must be bracketed error. Model =', s% model_number
+			! WRITE(*,*) 'Txlow > maxT. Treating as root must be bracketed error. Model =', s% model_number
 			Ttmp = -1.0
 		ENDIF
 
@@ -338,11 +338,11 @@
 			Tflag = is_slope_negative(Ttmp)
 			Txlow = 1.05*Txlow
 		ELSE IF (tries.EQ.1) THEN ! expand the range and try again
-			WRITE(*,*) 'root must be bracketed. Txhigh=', Txhigh, 'Txlow=', Txlow, 'tries=', tries, 'Model =', s% model_number
+			! WRITE(*,*) 'root must be bracketed. Txhigh=', Txhigh, 'Txlow=', Txlow, 'tries=', tries, 'Model =', s% model_number
 			Txlow = Txlow/2.0
 			Txhigh = Txhigh*1.25
 		ELSE ! go back a step, find root, make sure slope is negative
-			WRITE(*,*) 'root must be bracketed. Txhigh=', Txhigh, 'Txlow=', Txlow, 'tries=', tries, 'Model =', s% model_number
+			! WRITE(*,*) 'root must be bracketed. Txhigh=', Txhigh, 'Txlow=', Txlow, 'tries=', tries, 'Model =', s% model_number
 			Txlow = Txlow/1.05
 			Tarray = zbrent(emoment, Txhigh, Txlow, tol)
 			Ttmp = Tarray(1)
@@ -355,7 +355,7 @@
 				! kill the run if the step is not re-done, since this means
 				! a suitable DM temperature was never found.
 				Ttmp= 10.**(s% log_center_temperature)
-				WRITE(*,*) '**** Tx set to center_T ****', Ttmp, 'problem model ', s% model_number
+				! WRITE(*,*) '**** Tx set to center_T ****', Ttmp, 'problem model ', s% model_number
 				model_err= s% model_number +1
 				EXIT ! terminate the DO WHILE loop
 			ENDIF
@@ -387,7 +387,7 @@
 			! WRITE(*,*) 'is_slope_negative returns true. slope=',slope
 		ELSE
 			is_slope_negative=.FALSE.
-			WRITE(*,*) 'is_slope_negative returns false. slope=',slope
+			! WRITE(*,*) 'is_slope_negative returns false. slope=',slope
 		ENDIF
 
 	END FUNCTION is_slope_negative
