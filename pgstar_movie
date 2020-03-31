@@ -1,1 +1,0 @@
-images_to_movie.sh 'png/*.png' movie.mp4
