@@ -48,6 +48,23 @@ Put the following in the appendix?
 - isochrones look older primarily because they are at a lower luminosity at fixed age
 - then show plot of hottest Teff and L vs isochrone age
 
+- 1 sentence describing isochrones
+- Features to point out:
+    - leave MS at lower mass, luminosity -> look older
+    - convective hook
+    - explain the gaps in isochrone data
+- MS turnoff paragraph(s) and plots (Teff and/or L as fnc of isochrone age)
+
+
+- fig (tracks) show effects of ADM on the luminosity and temperature at the stellar surface. (Andrew's paragraph). intro L t param space.
+- in fig (isos) we show
+    - idea of iso being single age stellar pop track in this space. stars of same age but all diff masses. when observing stellar populations, fit isochrone to model. MS turn off feature (connected to previous section, MS lifetimes). Major feature used in fitting. Our models have a very diff prediction for it's location when high DM. plots show several isochrones at diff ages.
+    - L vs Teff for stellar population at a given age. observable analog. one individual track is called an isochrone. if you observe a stellar population that were all born at the same time it would follow a similar track.
+    - people fit isochrones to observations. wrong input template (from models) -> wrong age.
+    with a lot of DM, fitting an isochrone, going to infer an older age.
+
+
+
 <!-- fe # Results -->
 
 
