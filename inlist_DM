@@ -1,16 +1,16 @@
 &controls
 
-  use_other_energy_implicit = .TRUE. ! Activates the DM module
+  use_other_energy_implicit = .TRUE.    ! Activates the DM module
 
-  X_CTRL(1) = 0.E0 ! This sets the cboost in `src/DM/DM_module.f90`.
-                   ! This is the boost to the capture rate of DM compared
-                   ! to the local capture rate near the Sun (where cboost=1).
-                   ! Reasonable values range from 0 to 1e6.
+  X_CTRL(1) = 0.E0  ! This sets the cboost in `src/DM/DM_module.f90`.
+                    ! This is the boost to the capture rate of DM compared
+                    ! to the local capture rate near the Sun (where cboost=1).
+                    ! Reasonable values range from 0 (no DM captured) to 1E6.
 
   X_LOGICAL_CTRL(1) = .TRUE.    ! sets spindep in `src/DM/DM_module.f90`
-                                ! .true. = spin dependent
+                                ! .true. = spin dependent ! this works
                                 ! .false. = ~spin independent~
-                                            ! THIS DOES NOT CURRENTLY WORK
+                                        ! THIS DOES NOT CURRENTLY WORK PROPERLY
 
 
 / ! end of controls namelist
