@@ -9,6 +9,7 @@ function do_mesa_run () {
     pgstar=${5:-0} # = 1 generates a movie, default 0
     inlist_master=${6:-"master"} # inlist_$6 will be used as base inlist
     stop_TAMS=${7:-0} # = 1 stops the run when h1 frac < 1.e-12
+    skip_existing=${8:-0} # = 1 exits the run if ${RUN}/LOGS/history.data exists
 
     ### PREP
     source ${maindir}/bash_scripts/write_inlists.sh
@@ -16,8 +17,15 @@ function do_mesa_run () {
     echo
     if [ -d "${RUN}" ]; then # check for existing history file in $RUN
         if [ -f "${RUN}/LOGS/history.data" ]; then
-            tm=$(date +"%m%d%y_%H%M")
-            mv ${RUN} ${RUN}_ow_${tm}  # move what's already here
+            if [ "${skip_existing}" = 1 ]; then # exit the run
+                echo "Run exists, skipping: ${mass}M_sun cb${cboost}"
+                echo
+                return 0
+
+            else # move what's already here
+                tm=$(date +"%m%d%y_%H%M")
+                mv ${RUN} ${RUN}_ow_${tm}
+            fi
         else
             rm -r ${RUN} # no previous history.data file exists. delete the folder
         fi
