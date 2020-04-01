@@ -1,15 +1,11 @@
 #### DM-in-Stars explores the effects of dark matter (DM) on stellar evolution. It adds a module to the code base Modules for Experiments in Stellar Astrophysics ([MESA](http://mesa.sourceforge.net)) which calculates the capture of DM by stars and the subsequent energy transport. The physical mechanism is the scattering of stellar nuclei with DM particles in the environment.
 
-<!-- # Physics ####
-####   DM with a very small cross section they have a large mean free path which means they can transport energy across large distances. At high enough densities the WIMPs can transport enough energy to affect the evolution of the star in an observable way, via stellar cluster isochrones on HR diagrams.
--->
-
 ## Quick Start ##
 1. Install MESA by following the instructions [here](http://mesa.sourceforge.net/prereqs.html).
-2. Clone this repo ([](git@github.com:troyraen/DM-in-Stars.git)) and navigate into it.
+2. Clone this repo ([git@github.com:troyraen/DM-in-Stars.git](git@github.com:troyraen/DM-in-Stars.git)) and navigate into it.
 3. Change settings in the `inlist` as desired (it is currently set to run a 1.0 Msun model).
 4. Set the DM properties in `inlist_DM` as desired.
-5. Execute `./clean`, `./mk`, and `./rn` from the command line to start the model.
+5. To start the model, execute `./clean`, `./mk`, and `./rn` from the command line (in the directory you cloned this repo to).
 
 ## Parameters ##
 - DM-nucleon cross section, set in `src/DM/DM_module.f90`.
