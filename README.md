@@ -2,7 +2,7 @@
 
 ## Quick Start ##
 1. Install MESA by following the instructions [here](http://mesa.sourceforge.net/prereqs.html).
-2. Clone this repo ([git@github.com:troyraen/DM-in-Stars.git](git@github.com:troyraen/DM-in-Stars.git)) and navigate into it.
+2. Clone this repo and navigate into it.
 3. Change settings in the `inlist` as desired (it is currently set to run a 1.0 Msun model).
 4. Set the DM properties in `inlist_DM` as desired.
 5. To start the model, execute `./clean`, `./mk`, and `./rn` from the command line (in the directory you cloned this repo to).
@@ -20,4 +20,4 @@ The following is computed for each time step in a MESA run:
 - Amount of energy transported as a result of DM-nucleon scattering events as a function of distance from the center of the star
 
 ## Output ##
-The amount of energy transported by DM (as a function of 'zone') is passed to MESA via the built-in 'extra_heat' hook.
+The amount of energy transported by DM (as a function of `zone`) is passed to MESA via the built-in `extra_heat_implicit` hook.
