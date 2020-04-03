@@ -605,7 +605,7 @@ def plot_HR(hdf, color=None, title=None, save=None):
 
         if color == 'dt':
             c = df.log_dt
-            ax.scatter(df.log_Teff, df.log_L, label=lbl, c=c, **kwargs)
+            scat = ax.scatter(df.log_Teff, df.log_L, label=lbl, c=c, **kwargs)
         else:
             kwargs['ax'] = ax
             # print(kwargs)
@@ -627,6 +627,9 @@ def plot_HR(hdf, color=None, title=None, save=None):
         ax.legend(loc=3)
     axs[0].set_ylabel(r'log L / L$_\odot$')
     if title is not None: plt.suptitle(title)
+    if color == 'dt':
+        cbar = plt.colorbar(scat)#, cax=cbax, orientation='horizontal')
+        cbar.set_label('log dt')
 
     plt.tight_layout()
     if save is not None: plt.savefig(save)
