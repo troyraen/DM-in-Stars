@@ -18,14 +18,14 @@ Immediately prior (during, and after) to this I was doing my final runs from the
 - [x]  update main `readme.md`
 - [x]  delete unnecessary files and directories
 - [x]  clean up `DM_module.f`
-- [ ]  check that `master` branch works by running (in `sand` dir)
+- [x]  check that `master` branch works by running (in `sand` dir)
     - [x]  1 Msun, c0 (stopped manually after a couple of days, see below)
-    - [ ]  1 Msun, c6 (through core H depletion)
+    - [x]  1 Msun, c6
 
-Remove lines from `sand/STD.out` for readability:
+Remove lines from `sand/LOGS/STD.out` for readability:
 ```python
 bad_words = [' is_slope_negative returns false. ', ' retry ', 'save photos/x']
-with open('STD.out') as oldfile, open('STDclean.out', 'w') as newfile:
+with open('LOGS/STD.out') as oldfile, open('LOGS/STDclean.out', 'w') as newfile:
     for line in oldfile:
         if not any(bad_word in line for bad_word in bad_words):
             newfile.write(line)
@@ -41,21 +41,31 @@ mv STDclean.out STD.out LOGS_c0/.
 ```python
 # run this from within the _defDM dir to use its fncs.py
 %run fncs
-hpath = '/home/tjr63/sand/LOGS_c0/history.data'
-figpath = '/home/tjr63/sand/LOGS_c0/HR.png'
-# hdf = load_history(hpath) # doesn't work because `wimp_temp` column has been renamed
-hdf = pd.read_csv(hpath, header=4, sep='\s+')
-hdf['cb'], hdf['mass'] = 0, 1.0
-hdf.set_index(['cb','mass'], inplace=True)
-plot_HR(hdf, color='dt', title=None, save=figpath)
+hpath = [   '/home/tjr63/sand/LOGS_c0/history.data',
+            '/home/tjr63/sand/LOGS_c6/history.data',
+            '/home/tjr63/sand/RUNS_master-tjraen/c1/1p0/LOGS/history.data']
+hdflst = []
+for hp, cb in zip(hpath, [0,6,1]):
+    hdf = pd.read_csv(hp, header=4, sep='\s+')
+    hdf['cb'], hdf['mass'] = cb, 1.0
+    print(hdf.cb.unique())
+    hdflst.append(hdf.set_index(['cb','mass']))
+hdf = pd.concat(hdflst, axis=0)
+
+title = 'testing that _repoCleanup works'
+figpath = '/home/tjr63/sand/HR.png'
+plot_HR(hdf, color='dt', title=title, save=figpath)
 ```
 
 __c0 model__ is taking a very long time to finish, but I think it's running fine (4/1/20). It finished the MS by model 350. First time lg_dt_yr goes negative is after H_cntr=0.
 
 Now (4/3/20) stopping c0 model to test c6 model. Inlist stop run was only set to logL < -1 so that it would run to WD. Model has been stuck in small timesteps at logL ~= -0.73 for a long time. I think it is running sufficiently well for my purposes. Others can tweak inlist settings to get this to a WD if they want.
 
+__c6 model__ is going along fine. No need to finish the run; stopping early.
+
 <img src="HR.png" alt="HR" width=""/>
 
+__c1 model__ is from `master-tjraen` branch (see below).
 
 
 - [x]  check `RUNS_defDM` `STD.out` files for `WRITE` output from `DM_module.f` indicating that a suitable root for Tx could not be found. Look through files indicated in `prob.mods` to make sure the "problem model" timesteps were retried by MESA.
@@ -69,7 +79,25 @@ find . -type f -print | xargs grep "problem model " &>> prob.mods
 ## Pull in changes to `master-tjraen`
 - [x]  history and profile lists from `defDM` (don't know why these didn't get copied over when I merged `defDM` to `master`)
 - [x]  pull in code cleanup changes that I made to `master`
-- [ ]  check that I can run MESA from this branch
+- [x]  check that I can run MESA from this branch
+
+```bash
+mv LOGS LOGS_c6
+git checkout master-tjraen
+./clean
+./mk
+screen
+cd bash_scripts
+maindir="/home/tjr63/sand"
+RUNS="RUNS_master-tjraen"
+cb=1
+mass=1p0
+mval=1.0
+source ${maindir}/bash_scripts/do_mesa_run.sh
+do_mesa_run "${maindir}" "${RUNS}/c${cb}/${mass}" "${mval}" "${cb}" 0 "master" 1 0 &> STD.out
+```
+
+This ran successfully through to core H exhaustion in 358 models :thumbsup:. See HR plot above.
 
 
 ## Brett's feedback

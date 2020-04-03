@@ -615,7 +615,7 @@ def plot_HR(hdf, color=None, title=None, save=None):
         df = df.reset_index().set_index(['cb','mass','model_number'])
         sa = df.star_age
         for t,m in zip([10e9, 13e9],['s','X']):
-            ags = {'marker':m, 's':100, 'c':'k', 'label':f'{t/1e9:.0f}Gyr'}
+            ags = {'marker':m, 's':10, 'c':'k', 'label':f'{t/1e9:.0f}Gyr'}
             try:
                 i = df[sa.gt(t)].sort_values('star_age').index[0]
                 ax.scatter(df.loc[i,'log_Teff'],df.loc[i,'log_L'], **ags)
