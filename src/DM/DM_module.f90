@@ -7,13 +7,17 @@
 !!!-------------------------------------------!!!
 !!! controls:
 !!!
+!!! mxGeV = s% X_CTRL(6)	! DM mass in GeV
+!!! sigmaxp = s% X_CTRL(7)	! DM-proton cross section, cm^2
 !!!	cboost = s% X_CTRL(1)
+!!!	spindep = s% X_LOGICAL_CTRL(1)
+			! .true. = spin dependent; .false. = spin independent
+!!!			! Spin independent option is not completely set up.
+!!!			! Partial derivatives need to be calculated for
+!!!			! use_other_energy_implicit.
 !!!
 !!!	extra history columns values = s% X_CTRL(2:5)
 !!!
-!!!	spindep = s% X_LOGICAL_CTRL(1)  ! .true. = spin dependent; .false. = spin independent
-!!!			! spin independent option is not completely set up.
-!!!			! partial derivatives need to be calculated
 !!!
 !!! Nx = s% xtra(1)
 !!!			! in extras_finish_step (run_star_extras) s% xtra(1) = s% xtra(2)
@@ -172,13 +176,11 @@
 	CALL GET_STAR_PTR(id, s, ierr)
 	IF ( ierr /= 0 ) RETURN
 
-	mxGeV = 5.D0	! 5 GeV DM
+	mxGeV = X_CTRL(6)	! DM mass in GeV
 	mx = mxGeV* gperGeV	! DM mass in grams
 
-	IF (spindep) THEN
-		sigmaxp = 1.D-37	! DM-proton cross section, cm^2
-	ELSE
-		sigmaxp = 1.D-40
+	sigmaxp = s% X_CTRL(7)	! DM-proton cross section, cm^2
+	IF (.NOT.spindep) THEN
 		DO j = 1,numspecies
 			sigmaxj(j) = sigmaxp* (Aj(j)*mj(j)/mp)**2 * ((mx+mp)/(mx+mj(j)))**2
 		ENDDO

@@ -8,10 +8,12 @@
 5. To start the model, execute `./clean`, `./mk`, and `./rn` from the command line (in the directory you cloned this repo to).
 
 ## DM Parameters ##
-- DM-nucleon cross section (`sigmaxp` in [cm^2]), set in `src/DM/DM_module.f90`. (to do: configure this to be set in `inlist_DM`)
-- DM mass (`mxGeV` in [GeV]), set in `src/DM/DM_module.f90`. (to do: configure this to be set in `inlist_DM`)
-- Cboost factor (`cboost`, dimensionless), set in `inlist_DM`. This is a boost factor to the DM capture rate relative to the Sun's environment. It encapsulates the local DM density and its characteristic infall speed which are both unknown and degenerate with each other.
-- Spin dependent or independent scattering (`spindep`, Boolean), set in `inlist_DM`. Spin dependence effectively means that only hydrogen is available for scattering.
+The following are accessed through `inlist_DM`:
+
+1.  DM mass (`mxGeV [GeV]`)
+2.  DM-proton cross section (`sigmaxp [cm^2]`)
+3.  Boost in DM capture rate relative to the solar environment (`cboost`, dimensionless). It encapsulates the environment's DM 1) density and 2) velocity dispersion.
+4.  Spin dependent or independent scattering (`spindep`, Boolean).
 
 ## Functionality ##
 The following is computed for each time step in a MESA run:
