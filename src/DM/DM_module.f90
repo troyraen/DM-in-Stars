@@ -176,7 +176,7 @@
 	CALL GET_STAR_PTR(id, s, ierr)
 	IF ( ierr /= 0 ) RETURN
 
-	mxGeV = X_CTRL(6)	! DM mass in GeV
+	mxGeV = s% X_CTRL(6)	! DM mass in GeV
 	mx = mxGeV* gperGeV	! DM mass in grams
 
 	sigmaxp = s% X_CTRL(7)	! DM-proton cross section, cm^2
