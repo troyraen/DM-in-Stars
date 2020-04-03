@@ -76,7 +76,7 @@ find . -type f -print | xargs grep "problem model " &>> prob.mods
 ```
 
 
-## Pull in changes to `master-tjraen`
+## Pull in changes to `master-tjraen` (later renamed to `Raen2020`)
 - [x]  history and profile lists from `defDM` (don't know why these didn't get copied over when I merged `defDM` to `master`)
 - [x]  pull in code cleanup changes that I made to `master`
 - [x]  check that I can run MESA from this branch
@@ -103,6 +103,13 @@ This ran successfully through to core H exhaustion in 358 models :thumbsup:. See
 ## Brett's feedback
 - [x]  shorten repo intro (top line) to ~10 words
 - [x]  don't bold first part of readme
-- [ ]  add a license, see [Marvin's](https://github.com/sdss/marvin/blob/master/LICENSE.md)
+- [x]  add a license, see [Marvin's](https://github.com/sdss/marvin/blob/master/LICENSE.md)
 - [ ]  add a changelog, see [Marvin's](https://github.com/sdss/marvin/blob/master/CHANGELOG.rst)
-- [ ]  name `master-tjraen` branch after the paper, `raen2020`
+- [x]  name `master-tjraen` branch after the paper, `Raen2020`
+
+```bash
+git checkout master-tjraen
+git branch -m Raen2020
+git push origin --delete master-tjraen
+git push origin -u Raen2020
+```
