@@ -2,6 +2,8 @@
 
 Explores the effects of dark matter (DM) on stellar evolution. It adds a module to the code base Modules for Experiments in Stellar Astrophysics ([MESA](http://mesa.sourceforge.net)) which calculates the capture of DM by stars and the subsequent energy transport via scattering.
 
+This is the main branch used in Raen 2020 (in prep).
+
 
 ## DM Parameters ##
 The following are accessed through `inlist_DM`:
