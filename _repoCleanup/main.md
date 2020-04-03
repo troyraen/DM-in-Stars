@@ -68,7 +68,8 @@ find . -type f -print | xargs grep "problem model " &>> prob.mods
 
 ## Pull in changes to `master-tjraen`
 - [x]  history and profile lists from `defDM` (don't know why these didn't get copied over when I merged `defDM` to `master`)
-- [ ]  pull in code cleanup changes that I made to `master`
+- [x]  pull in code cleanup changes that I made to `master`
+- [ ]  check that I can run MESA from this branch
 
 
 ## Brett's feedback
