@@ -3,6 +3,8 @@
 
 Travis Hurst's student, Logan, is trying to use my code and having problems getting it running. Looking at the repo, I'm sure it's very confusing to anyone but me, so I'm cleaning it up. Will delete unnecessary files, create simple inlists for the `master` branch, and move all files that others don't need to use (e.g. bash scripts to run bulk jobs with my parameters) into a different branch.
 
+Immediately prior (during, and after) to this I was doing my final runs from the `defDM` branch. If I've lost important changes after this, they can probably be recovered from that branch.
+
 ## Changes to `master` branch
 - [x]  Merge `defDM` branch changes (mostly for the upgrade to MESA-r12115) into `master`
 - [x]  rename 'wimp' -> 'DM'
@@ -65,7 +67,7 @@ find . -type f -print | xargs grep "problem model " &>> prob.mods
 
 
 ## Pull in changes to `master-tjraen`
-- [ ]  history and profile lists from `defDM` (don't know why these didn't get copied over when I merged `defDM` to `master`)
+- [x]  history and profile lists from `defDM` (don't know why these didn't get copied over when I merged `defDM` to `master`)
 - [ ]  pull in code cleanup changes that I made to `master`
 
 
