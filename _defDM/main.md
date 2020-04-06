@@ -1,3 +1,7 @@
+- [Start final runs using `defDM` settings](#startfinalruns)
+- [Investigate possible problem models](#probmods)
+
+
 # Installing Anaconda, python3, etc. on Osiris
 ```bash
 wget https://repo.anaconda.com/archive/Anaconda3-2019.10-Linux-x86_64.sh
@@ -5,6 +9,7 @@ chmod 744 Anaconda3-2019.10-Linux-x86_64.sh
 ./Anaconda3-2019.10-Linux-x86_64.sh
 ```
 
+<a name="startfinalruns"></a>
 # Start final runs using `defDM` settings
 <!-- fs -->
 See [runSettings branch](https://github.com/troyraen/DM-in-Stars/blob/runSettings/runSettings/main.md) for details.
@@ -74,6 +79,7 @@ exit
 <!-- fe # Start final runs using `defDM` settings -->
 
 
+<a name="probmods"></a>
 # Investigate Possible problem models
 <!-- fs -->
 Clone new version of repo on Osiris for analyzing `mesaruns` data:
@@ -92,8 +98,11 @@ git clone git@github.com:troyraen/DM-in-Stars.git mesaruns_analysis
 
 - [ ]  Did not reach center_he4 < 1e-6 (this is _part_ of MIST EEP TP-AGB). Alternately, did not reach center_he4 < 1e-4 (MIST EEP terminal age core He burning (TACHeB)). (Not a problem if max age > 10Gyr)
     - [ ]  m1p05c1:
+    - [ ]  m1p05c2:
+    - [ ]  m1p20c2:
     - [ ]  m1p60c2:
     - [ ]  m1p55c4: (segfault problems, see above)
+    - [ ]  m1p90c5:
 
 - [ ]  Models with cb < 4 and runtime > 1e3 min
 
@@ -101,20 +110,23 @@ git clone git@github.com:troyraen/DM-in-Stars.git mesaruns_analysis
 
 ```python
 %run fncs
+
+# Load data
 hdf, pidf, cdf, rcdf = load_all_data(dr=drO, get_history=True, use_reduc=False)
+
+# Runtimes, fix and plot
 rcdf.loc[rcdf.runtime<0,'runtime'] # check for negative runtimes
 rcdf = fix_negative_runtimes(rcdf)
 # currently running models
-idx_currently_running = [(4, 1.25), (2, 1.20), (5, 1.90)] # as of __Mar 6, 11am__
-startime_currently_running = ['2/25/20, 9pm', '3/4/20, 5am', '2/24/20, 7:30pm']
-rtfix_currently_running = { idx_currently_running[0]: 9.6,
-                            idx_currently_running[1]: 2.3,
-                            idx_currently_running[2]: 10.7,
+# idx_currently_running = [(4, 1.25), (2, 1.20), (5, 1.90)] # as of __Mar 6, 11am__
+idx_currently_running = [(5, 1.40), (5, 1.20), (5, 1.00)] # as of __Apr 6, 1pm__
+startime_currently_running = ['4/3/20, 2am', '3/30/20, 3pm', '3/23/20, 9pm']
+rtfix_currently_running = { idx_currently_running[0]: 3.5,
+                            idx_currently_running[1]: 6.9,
+                            idx_currently_running[2]: 13.7,
                             }
 rcdf = fix_negative_runtimes(rcdf, rtfix=rtfix_currently_running)    
-
-# Runtimes
-plot_runtimes(rcdf, save='plots/runtimes_Mar6.png')
+plot_runtimes(rcdf, save='plots/runtimes_Apr6.png')
 
 
 # heatmap of termCodes
@@ -123,20 +135,21 @@ plt.figure()
 pvt = {'index':'termCode','columns':'mass','aggfunc':{'termCode':len}}
 sns.heatmap(r.pivot_table(**pvt),cmap='Accent',linewidths=.5)
 plt.tight_layout()
-plt.savefig('plots/termCodes_heatmap.png')
+plt.savefig('plots/termCodes_heatmap_Apr6.png')
 
 # there is one model that quit for an unknown reason:
 rcdf.loc[((rcdf.termCode==-1)&(~rcdf.index.isin(idx_currently_running))),'center_he4_end']
 
 ```
 
-<img src="plots/runtimes_Mar6.png" alt="plots/runtimes_Mar6" width=""/>
+<img src="plots/runtimes_Apr6.png" alt="plots/runtimes_Apr6" width=""/>
 
-<img src="plots/termCodes_heatmap.png" alt="plots/termCodes_heatmap" width=""/>
+<img src="plots/termCodes_heatmap_Apr6.png" alt="plots/termCodes_heatmap_Apr6" width=""/>
 
 
 ## Models that did not complete He burning
 <!-- fs -->
+True problem models do not complete He burning and max_age<10Gyr
 
 ```python
 # Final center He4 values
@@ -149,45 +162,43 @@ def plot_he4end(rcdf):
     plt.axhline(1e-4,c='k',lw=1) # MIST EEP terminal age core He burning (TACHeB)
     plt.ylabel('center_he4 (final)')
 plot_he4end(rcdf)
-plt.savefig('plots/he4end.png')
+plt.savefig('plots/he4end_all.png')
 
 # Models with final center_he4 > 1e-4
 rhe4 = rcdf.loc[rcdf.center_he4_end>1e-4,:]
 hhe4 = hdf.loc[rhe4.index,:]
-plot_HR(hhe4, color='dt', title='final He4 > 1e-4', save='plots/HR_he4_all.png')
+# plot_HR(hhe4, color='dt', title='final He4 > 1e-4', save='plots/HR_he4_all.png')
 # Get rid of models with max age > 10Gyr (all < 1Msun), they are not a problem
 max_age = hhe4.star_age.groupby(level=['cb','mass']).max()
 rhe4 = rhe4.loc[max_age<1e10,:] # max age < 10 Gyr
-hhe4 = hhe4.loc[rhe4.index,:]
 # Get rid of models currently running
 rhe4 = rhe4.loc[~rhe4.index.isin(idx_currently_running),:]
-hhe4 = hhe4.loc[rhe4.index,:]
-plot_HR(hhe4, color='dt', title='final He4 > 1e-4', save='plots/HR_he4.png')
-rhe4.center_he4_end
-plot_he4end(rhe4)
-plt.savefig('tp/he4end_rhe4.png')
 # There are 3 models with final center_he4 ~ 1e-4...
 # Deciding these are ok and getting rid of them
 rhe4 = rhe4.loc[rhe4.center_he4_end>1e-3,:]
 hhe4 = hhe4.loc[rhe4.index,:]
 
+# Plot the true problem models
+plot_HR(hhe4, color='dt', title='final He4 > 1e-3', save='plots/HR_he4_probmods.png')
+plot_he4end(rhe4)
+plt.savefig('plots/he4end_probmods.png')
 
 # for those that don't, how close are they?
 # plot HR with color by dt
 # find number of years it took model of same mass, previous cb to get from where this star is to He<10^-6
 ```
 
-<img src="plots/he4end.png" alt="plots/he4end" width=""/>
+<img src="plots/he4end_probmods.png" alt="plots/he4end_probmods" width=""/>
 
-<img src="plots/HR_he4_all.png" alt="plots/HR_he4_all" width="400"/>
+<img src="plots/HR_he4_probmods.png" alt="plots/HR_he4_probmods" width=""/>
 
-<img src="plots/HR_he4.png" alt="plots/HR_he4" width=""/>
-
-__There are 3 models that did not get close to completing core He burning: m1p05c1, m1p60c2, m1p55c4__
+__There are 5 models that did not get close to completing core He burning: m1p05c1, m1p60c2, m1p55c4__
 
 __Possible Options:__
 
-- [ ]  set max age
+- [x]  set max age
+- [ ]  rerun with smaller min_timestep_limit
+- [ ]  are there any He burning settings I can try?
 
 
 <!-- fe ## Models that did not complete He burning -->
@@ -221,6 +232,8 @@ plt.savefig(f'plots/xheat_m{mass}.png')
 ```
 
 <img src="plots/xheat_m1.6.png" alt="plots/xheat_m1.6" width=""/>
+
+These all seem fine. Not sure why there is a spike in xheat in post-TAMS models, but its magnitude is so small that it should not be a problem.
 
 <!-- fe ## Check that DM affects after the MS -->
 

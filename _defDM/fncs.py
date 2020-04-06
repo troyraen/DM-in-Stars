@@ -233,15 +233,21 @@ def load_be_controls(Lpath, pidf, dfkey):
 
     cdic = {}
 
-    n = pidf.loc[pidf.priority==99,'profile_number']
-    if len(n)>1: print(f'\n*** Multiple priority 99 controls files in {Lpath} ***\n')
-    cpath = pjoin(Lpath,f'controls{n.iloc[0]}.data')
-    cdic[tuple(list(dfkey)+[99])] = load_controls(cpath)
+    try:
+        n = pidf.loc[pidf.priority==99,'profile_number']
+        if len(n)>1: print(f'\n*** Multiple priority 99 controls files in {Lpath} ***\n')
+        cpath = pjoin(Lpath,f'controls{n.iloc[0]}.data')
+        cdic[tuple(list(dfkey)+[99])] = load_controls(cpath)
+    except:
+        print(f'profile with priority==99 could not be loaded from {Lpath}')
 
-    n = pidf.loc[pidf.model_number==pidf.model_number.max(),'profile_number']
-    if len(n)>1: print(f'\n*** Multiple max model_number controls files in {Lpath} ***\n')
-    cpath = pjoin(Lpath,f'controls{n.iloc[0]}.data')
-    cdic[tuple(list(dfkey)+['max_mod'])] = load_controls(cpath)
+    try:
+        n = pidf.loc[pidf.model_number==pidf.model_number.max(),'profile_number']
+        if len(n)>1: print(f'\n*** Multiple max model_number controls files in {Lpath} ***\n')
+        cpath = pjoin(Lpath,f'controls{n.iloc[0]}.data')
+        cdic[tuple(list(dfkey)+['max_mod'])] = load_controls(cpath)
+    except:
+        print(f'profile with max model number could not be loaded from {Lpath}')
 
     cdf = pd.DataFrame.from_dict(cdic, orient='index')
     return cdf
@@ -477,10 +483,13 @@ def fix_negative_runtimes(rcdf, rtfix=None):
     minday = 24*60
 
     if rtfix is None:
-        rtfix = {   idx[6,1.0]: 19,
+        rtfix = {
                     idx[1,1.15]: 17,
                     idx[1,1.2]: 18.3,
-                    idx[2,1.1]: 22.5
+                    idx[2,1.1]: 22.5,
+                    idx[4,1.1]: 14.6,
+                    idx[4,1.25]: 20.9,
+                    idx[6,1.0]: 19,
                 }
 
     for i, val in rtfix.items():
@@ -600,12 +609,12 @@ def plot_HR(hdf, color=None, title=None, save=None):
     for a, ((cb,mass), df) in enumerate(gb):
         ax = axs[a]
         df = df.loc[df.star_age>1e6,:]
-        # he4 = df.sort_values('star_age').center_he4.iloc[-1]
-        lbl = f'm{mass} c{cb}'
+        endHe4 = df.loc[df.star_age==df.star_age.max(),'center_he4']
+        lbl = f'm{mass} c{cb}\ncenterHe4_end = {endHe4.iloc[0]:.2f}'
 
         if color == 'dt':
             c = df.log_dt
-            ax.scatter(df.log_Teff, df.log_L, label=lbl, c=c, **kwargs)
+            scat = ax.scatter(df.log_Teff, df.log_L, label=lbl, c=c, **kwargs)
         else:
             kwargs['ax'] = ax
             # print(kwargs)
@@ -626,6 +635,9 @@ def plot_HR(hdf, color=None, title=None, save=None):
         ax.set_xlabel(r'log T$_{eff}$ / K')
         ax.legend(loc=3)
     axs[0].set_ylabel(r'log L / L$_\odot$')
+    if color == 'dt':
+        cbar = plt.colorbar(scat)#, cax=cbax, orientation='horizontal')
+        cbar.set_label('log dt')
     if title is not None: plt.suptitle(title)
 
     plt.tight_layout()
