@@ -1,4 +1,5 @@
 # Creating 1.0 Msun profile movie
+<!-- fs -->
 ```python
 import pandas as pd
 from matplotlib import pyplot as plt
@@ -29,6 +30,8 @@ pdf = pdf[pdf['mass']<0.25]
 pdfg = pdf.groupby('model_number') # automatically sorted by model_number
 
 ```
+<!-- fe # Creating 1.0 Msun profile movie -->
+
 
 # Increased MS lifetimes
 <!-- fs -->

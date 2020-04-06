@@ -193,20 +193,27 @@ def adjust_plot_readability(fig=None, fontAdj=False, fontOG=None, plot=None):
 # fe Set plot defaults
 
 # fs Files and directories
-mesaruns = '/Users/troyraen/Osiris/DMS/mesaruns'
-datadir = mesaruns+ '/RUNS_2test_final/plotsdata/Glue'
-plotdir = '/Users/troyraen/Documents/Comms/WIMP_Paper'
-# finalplotdir = '/Users/troyraen/Osiris/mesaruns/RUNS_2test_final/plots'
-# finalplotdir = '/Users/troyraen/Google_Drive/MESA/code/mesa_wimps/final_plots'
-finalplotdir = '/Users/troyraen/Google_Drive/MESA/code/mesa_wimps/DMS-Paper/plots'
-talkplotdir = '/Users/troyraen/Documents/Comms/Chicago_2019'
-fzams = datadir+ '/zams.csv'
-# fdesc = datadir+ '/descDF_MS_allmassesreg.csv'
-fdesc = datadir+ '/descDF_updated.csv'
-profiles_datadir = mesaruns+ '/RUNS_2test_final/profile_runs/'
-iso_csv = mesaruns+ '/RUNS_2test_final/isochrones/isochrones.csv'
-hotTeff_csv = mesaruns+ '/RUNS_2test_final/isochrones/hotTeff.csv'
-r2tf_dir = mesaruns+ '/RUNS_2test_final'
+mesaruns = '/home/tjr63/DMS/mesaruns'
+datadir = mesaruns+ '/RUNS_defDM'
+plotdir = '/home/tjr63/DMS/mesaruns_analysis/_Paper/figures/temp'
+finalplotdir = '/home/tjr63/DMS/mesaruns_analysis/_Paper/figures/final'
+
+# fs "final" runs before MESA-r12115 (defDM branch) update
+# mesaruns = '/Users/troyraen/Osiris/DMS/mesaruns'
+# datadir = mesaruns+ '/RUNS_2test_final/plotsdata/Glue'
+# plotdir = '/Users/troyraen/Documents/Comms/WIMP_Paper'
+# # finalplotdir = '/Users/troyraen/Osiris/mesaruns/RUNS_2test_final/plots'
+# # finalplotdir = '/Users/troyraen/Google_Drive/MESA/code/mesa_wimps/final_plots'
+# finalplotdir = '/Users/troyraen/Google_Drive/MESA/code/mesa_wimps/DMS-Paper/plots'
+# talkplotdir = '/Users/troyraen/Documents/Comms/Chicago_2019'
+# fzams = datadir+ '/zams.csv'
+# # fdesc = datadir+ '/descDF_MS_allmassesreg.csv'
+# fdesc = datadir+ '/descDF_updated.csv'
+# profiles_datadir = mesaruns+ '/RUNS_2test_final/profile_runs/'
+# iso_csv = mesaruns+ '/RUNS_2test_final/isochrones/isochrones.csv'
+# hotTeff_csv = mesaruns+ '/RUNS_2test_final/isochrones/hotTeff.csv'
+# r2tf_dir = mesaruns+ '/RUNS_2test_final'
+# fe "final" runs before MESA-r12115 (defDM branch) update
 
 try: # mount Osiris dir if not already
     assert os.path.isdir(mesaruns)
