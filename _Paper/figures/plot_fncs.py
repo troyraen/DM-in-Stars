@@ -193,10 +193,18 @@ def adjust_plot_readability(fig=None, fontAdj=False, fontOG=None, plot=None):
 # fe Set plot defaults
 
 # fs Files and directories
-mesaruns = '/home/tjr63/DMS/mesaruns'
+basedir = '/home/tjr63/DMS'
+mesaruns = basedir + '/mesaruns'
 datadir = mesaruns+ '/RUNS_defDM'
-plotdir = '/home/tjr63/DMS/mesaruns_analysis/_Paper/figures/temp'
-finalplotdir = '/home/tjr63/DMS/mesaruns_analysis/_Paper/figures/final'
+fdesc = datadir + '/descDF.csv'
+profiles_datadir = datadir + '/'
+r2tf_dir = datadir
+plotdir = basedir + '/mesaruns_analysis/_Paper/figures/temp'
+finalplotdir = basedir + '/mesaruns_analysis/_Paper/figures/final'
+
+iso_csv = ''
+hotTeff_csv = ''
+talkplotdir = ''
 
 # fs "final" runs before MESA-r12115 (defDM branch) update
 # mesaruns = '/Users/troyraen/Osiris/DMS/mesaruns'
@@ -601,7 +609,6 @@ def get_profilesindex_df(profile_runs_dir=profiles_datadir):
         Assumes particular path structure,
             as written by mesa_wimps script ./bash_scripts/profile_run.sh
     """
-    pidx_cols = ['model_number', 'priority', 'profile_number']
 
     dflist = []
     for cb in os.listdir(profile_runs_dir):
@@ -612,7 +619,7 @@ def get_profilesindex_df(profile_runs_dir=profiles_datadir):
             Lpath = cbpath+'/'+ mass+'/'+'LOGS'
             fpidx = Lpath+ '/profiles.index'
             try:
-                df = pd.read_csv(fpidx, names=pidx_cols, skiprows=1, header=None, sep='\s+')
+                df = load_profilesindex(fpidx)
             except:
                 strsplit = fpidx.split('/') # don't print the whole path
                 print('Skipping {cb} dir {s}'.format(cb=cb, s=strsplit[-3]))
@@ -628,6 +635,14 @@ def get_profilesindex_df(profile_runs_dir=profiles_datadir):
             dflist.append(df)
 
     return pd.concat(dflist, ignore_index=True)
+
+def load_profilesindex(fpidx):
+    """ Loads a single profiles.index file """
+
+    pidx_cols = ['model_number', 'priority', 'profile_number']
+    pidf = pd.read_csv(fpidx, names=pidx_cols, skiprows=1, header=None, sep='\s+')
+    return pidf
+
 try:
     pidxdfOG
     print('pidxdfOG dataframe already exists.')
@@ -1042,34 +1057,29 @@ def plot_delta_tau(descdf, cctrans_frac='default', which='avg', save=None):
         cmapdict = get_cmapdict(cb,len(dat.mass))
         plt.scatter(dat.mass,dat.MStau, s=2, **cmapdict)
         plt.plot(dat.mass,dat.MStau, c=get_cmap_color(cb), lw=2)
-        # Plot interpolated MStau:
-        # mass, mst = interp_mstau(dat.mass, dat.MStau, mnum=mnum)
-        # cmapdict = get_cmapdict(cb,len(mass))
-        # plt.scatter(mass,mst(mass), s=5, **cmapdict)
 
         # plot mass of transition to core convection
         ccidx = int(cctrans.loc[cctrans.index == cb, 'cctrans_index'])
         cmapdict = get_cmapdict(cb,len([ccidx]))
-        # ec = np.array(['w' for i in range(len([ccidx]))])
-        plt.scatter(dat.loc[ccidx,'mass'], dat.loc[ccidx,'MStau'], \
+        # Fix problem in matplotlib version 3.1.3 with scatter plots of length 1
+        # See https://github.com/matplotlib/matplotlib/issues/10365/
+        cmapdict['c'] = np.reshape(cmapdict['c'],-1)
+        x = np.reshape(dat.loc[ccidx,'mass'],-1)
+        y = np.reshape(dat.loc[ccidx,'MStau'],-1)
+        plt.scatter(x, y, \
             marker='d', s=35, **cmapdict, linewidths=0.5, edgecolors='k', zorder=10)
-
-    # plot mass of transition to CNO burning
-        # cidx = int(pp2cno.loc[pp2cno.index == cb, 'pp2cno_index'])
-        # cmapdict = get_cmapdict(cb,len([cidx]))
-        # plt.scatter(dat.loc[cidx,'mass'], dat.loc[cidx,'MStau'], \
-        #         marker='*', edgecolors='w', s=200, linewidths=0.5, **cmapdict, zorder=100)
 
     # cb0 triangle and lines
     kargs = {'color':get_cmap_color(0), 'lw':1, 'zorder':0}
-    # plt.axhline(0., **kargs)
     plt.axhline(0., c='k', lw=0.5, zorder=0)
-    # cidx = int(pp2cno.loc[pp2cno.index == 0,'pp2cno_index'])
-    # plt.scatter(descdf.loc[cidx,'mass'], descdf.loc[cidx,'MStau'], \
-            # marker='*', edgecolors='w', s=200, linewidths=0.5, **cmapdict, zorder=99)
     ccidx = int(cctrans.loc[cctrans.index == 0, 'cctrans_index'])
     cmapdict = get_cmapdict(0,len([ccidx]))
-    plt.scatter(descdf.loc[ccidx,'mass'], descdf.loc[ccidx,'MStau'], \
+    # Fix problem in matplotlib version 3.1.3 with scatter plots of length 1
+    # See https://github.com/matplotlib/matplotlib/issues/10365/
+    cmapdict['c'] = np.reshape(cmapdict['c'],-1)
+    x = np.reshape(descdf.loc[ccidx,'mass'],-1)
+    y = np.reshape(descdf.loc[ccidx,'MStau'],-1)
+    plt.scatter(x, y, \
                 marker='d', edgecolors='k', s=35, linewidths=0.5, **cmapdict, zorder=10)
     plt.axvline(descdf.loc[ccidx,'mass'], **kargs)
 
