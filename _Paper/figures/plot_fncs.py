@@ -13,6 +13,7 @@ import matplotlib.colors as colors
 from matplotlib.colors import ListedColormap
 from matplotlib.ticker import FormatStrFormatter
 import os
+from pathlib import Path
 # import subprocess
 # fe imports
 
@@ -203,8 +204,10 @@ plotdir = basedir + '/mesaruns_analysis/_Paper/figures/temp'
 finalplotdir = basedir + '/mesaruns_analysis/_Paper/figures/final'
 
 iso_csv = ''
-hotTeff_csv = ''
+hotTeff_csv = datadir+ '/hotTeff.csv'
 talkplotdir = ''
+
+usepruned = True # uses history_pruned.data files
 
 # fs "final" runs before MESA-r12115 (defDM branch) update
 # mesaruns = '/Users/troyraen/Osiris/DMS/mesaruns'
@@ -454,7 +457,7 @@ def get_cmapdict(pos, l, which_cmap='cbcmap'):
         print('Invalid argument passed to which_cmap in get_cmapdict()')
 
     if l == 1:
-        return {'c':pos, 'cmap':cmp, 'vmin':vmn, 'vmax':vmx}
+        return {'c':np.reshape(pos,-1), 'cmap':cmp, 'vmin':vmn, 'vmax':vmx}
     else:
         return {'c':pos*np.ones(l), 'cmap':cmp, 'vmin':vmn, 'vmax':vmx}
 # fe Colormap helper fncs
@@ -847,7 +850,7 @@ def load_hist_from_file(cb, mass=1.0, from_file=True, pidxdf=None):
         print('Specific dir requested: {ff}'.format(ff=from_file))
 
     # Load history.data
-    hpath = Lpath+ '/history.data'
+    hpath = Lpath+ '/history_pruned.data' if usepruned else Lpath+ '/history.data'
     print('Loading history df from path {}'.format(hpath))
     try:
         df = pd.read_csv(hpath, header=4, sep='\s+')
@@ -1215,7 +1218,7 @@ def plot_Teff(mlist=None, cblist=None, from_file=False, descdf=None, save=None):
     add_axes_list = [cb_right-eps+0.005, cb_bot+epsb, 0.02, cb_top-cb_bot-epsb]
                             # (pushes right, pushes up, width, height)
     cmapdict = get_cmapdict(cmap_masses[mass],len([1]), which_cmap='mcmap')
-    ascat = axs[a].scatter(6,3.5, marker='+', s=0.01, **cmapdict)
+    ascat = axs[a].scatter(np.reshape(6,-1),np.reshape(3.5,-1), marker='+', s=0.01, **cmapdict)
     cb_ax = f.add_axes(add_axes_list)
     cbar = get_mcbar(sm=ascat, cax=cb_ax, f=f)
 
@@ -1307,7 +1310,7 @@ def plot_HR_tracks(mlist=None, cblist=None, from_file=False, cut_axes=True,
     add_axes_list = [cb_right-eps+0.005, cb_bot+epsb, 0.02, cb_top-cb_bot-epsb]
                             # (pushes right, pushes up, width, height)
     cmapdict = get_cmapdict(cmap_masses[mass],len([1]), which_cmap='mcmap')
-    ascat = axs[a].scatter(4,2.3, marker='+', s=0.01, **cmapdict)
+    ascat = axs[a].scatter(np.reshape(4,-1),np.reshape(2.3,-1), marker='+', s=0.01, **cmapdict)
     cb_ax = f.add_axes(add_axes_list)
     cbar = get_mcbar(sm=ascat, cax=cb_ax, f=f)
 
@@ -1669,13 +1672,14 @@ def get_hotT_data(data_dir=r2tf_dir+'/', age_range=(10**7.75,10**10.25), pdf=Non
 
         print('Processing dir {}'.format(Ldir))
         # get the MS data from the history file
-        hpath = os.path.join(Ldir,'history.data')
+        hpath = os.path.join(Ldir,'history_pruned.data') if usepruned else os.path.join(Ldir,'history.data')
+        if not Path(hpath).is_file(): continue
         df = pd.read_csv(hpath, header=4, sep='\s+', usecols=cols)
         df = cut_HR_hdf(df, cuts=['ZAMS','H-3']) # only use MS
 
         # add Teff interpolated to ages in plot_times
         pt = np.ma.masked_outside(plot_times,df.star_age.min(),df.star_age.max())
-        pt = pt.data[pt.mask == False]
+        pt = pt.data[pt.mask == False].flatten()
         dftmp = pd.DataFrame({'star_age':pt, 'log_Teff':np.nan})
         # set star_age as the index and concatenate the dfs
         df = df.loc[:,['star_age','log_Teff']].set_index('star_age')

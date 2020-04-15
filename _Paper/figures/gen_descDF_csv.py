@@ -1,7 +1,7 @@
 """
 Generates desc.csv from MESA LOGS files in plot_fncs.datadir.
 Saves descDF.csv to plot_fncs.datadir.
-Uses `history_pruned.data` files to avoid having to load the full files.
+Uses `history_pruned.data` files if `usepruned=True` (below) to avoid having to load the full files.
 
 Most of this is adapted from ../../Glue/data_proc_README.py
 """
@@ -18,6 +18,7 @@ import plot_fncs as pf
 #     sys.path.append(Gpath)
 import data_proc as dp # new data_proc.py is in this directory
 
+usepruned = True
 
 root = Path(pf.datadir)
 # masses = np.around(np.arange(0.8, 5.1, 0.05).tolist(),decimals=2)
@@ -43,7 +44,7 @@ for cbdir in root.iterdir():
         # if mass<1.0 or cb not in ['c0','c1','c2','c3']: continue
 
         rootc = massdir / 'LOGS'
-        hist = rootc / 'history_pruned.data'
+        hist = rootc / 'history_pruned.data' if usepruned else rootc / 'history.data'
         prof = rootc / 'profiles.index'
 
         if not hist.is_file(): continue # skip if history file doesn't exist

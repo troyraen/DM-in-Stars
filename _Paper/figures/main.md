@@ -2,6 +2,7 @@
 - [Create derived data files](#deriveddata)
     - [`history_pruned.data`](#prunehist)
     - [`descDF.csv`](#descdf)
+    - [`hotTeff.csv`](#hotT)
     - [Do some checks](#checks)
 - [Create Raen2020 paper plots](#makeplots)
     - [Changes made to `RUNS_2test_final` (MESA-r10398) plot code](#r10398Changes)
@@ -21,6 +22,10 @@ conda create -n DMS python=3.7 numpy pandas ipython matplotlib astropy scipy
 <!-- fs -->
 
 Prune `history.data` files according to `data_proc.prune_hist()`
+
+To use the pruned files in future code, set `usepruned=True` at the top of each file
+    - `gen_descDF_csv.py`
+    - `plot_fncs.py`
 
 ```python
 from pathlib import Path
@@ -94,6 +99,19 @@ python gen_descDF_csv.py
 <!-- fe ## Create `descDF.csv` -->
 
 
+<a name="hotT"></a>
+## Create `hotTeff.csv`
+<!-- fs -->
+```python
+%run plot_fncs
+# get the data
+hotT_data = get_hotT_data(data_dir=datadir+'/', age_range=(10**7.75,10**10.25))
+# write the file
+hotT_data.to_csv(datadir+'/hotTeff.csv')
+```
+<!-- fe ## Create `hotTeff.csv` -->
+
+
 <a name="checks"></a>
 ## Do some checks
 <!-- fs -->
@@ -155,8 +173,9 @@ Need to be aware of TACHeB.
 - `defDM` branch
 - `home/tjr63/DMS/mesaruns_analysis/_Paper/figures/` (Osiris) directory
 
-```python
+
 ### setup and testing
+```python
 %run plot_fncs
 pidf = pidxdfOG # df of profiles.index files
 cb, mass = 0, 1.0
@@ -164,23 +183,27 @@ modnum = pidf.loc[((pidf.mass==mass)&(pidf.cb==cb)&(pidf.priority==97)),'model_n
 # hdf = load_hist_from_file(0, mass=1.0, from_file=True, pidxdf=pidf) # 1p0c0 history df
 hdf = get_hdf(cb, mass=mass) # single history df
 pdf = get_pdf(cb, modnum, mass=mass, rtrn='df') # single profile df
-###
+```
 
 
 ### delta MS Tau
+```python
 descdf = get_descdf(fin=fdesc)
-save = plotdir + '/MStau.png'
-plot_delta_tau(descdf, cctrans_frac='default', which='avg', save=save)
-# Note that there is a problem in matplotlib version 3.1.3
-# when trying to use a colormap with a scatter plot and data of length 1
-# See https://github.com/matplotlib/matplotlib/issues/10365/
-# I fixed this in plot_delta_tau() by doing
-# plt.scatter(np.reshape(x,-1), np.reshape(y,-1), c=np.reshape(c,-1))
+save = [None, plotdir + '/MStau.png', finalplotdir + '/MStau.png']
+plot_delta_tau(descdf, cctrans_frac='default', which='avg', save=save[1])
+```
 
-###
+- [ ]  check unpruned history.data fro m2.55c4 to see if this is causing the spike
+
+Note that there is a problem in matplotlib version 3.1.3
+when trying to use a colormap with a scatter plot and data of length 1
+See https://github.com/matplotlib/matplotlib/issues/10365/
+I fixed this in `plot_delta_tau()` and other fncs below by doing
+`plt.scatter(np.reshape(x,-1), np.reshape(y,-1), c=np.reshape(c,-1))`
 
 
 ### Teff v Age
+```python
 mlist = [1.0, 2.0, 3.5,]# ,0.8, 5.0]
 cblist = [4, 6]
 from_file = [False, get_r2tf_LOGS_dirs(masses=mlist, cbs=cblist+[0])]
@@ -188,22 +211,30 @@ from_file = [False, get_r2tf_LOGS_dirs(masses=mlist, cbs=cblist+[0])]
                     # It stores history dfs in dict hdfs (unless overwritten)
 save = [None, plotdir+'/Teff.png', finalplotdir+'/Teff.png']
 plot_Teff(mlist=mlist, cblist=cblist, from_file=from_file[1], descdf=descdf, save=save[1])
-### Need complete descdf before this will work properly
+```
+
+- [ ]  start ages = 0 at ZAMS
+- [ ]  why does lifetime difference in 1Msun look bigger than in 2Msun (contradicting MStau plot)?
 
 
 ### HR Tracks
+```python
 # mlist = [0.8, 1.0, 2.0, 3.5, 5.0]
 # cblist = [4, 6]
 from_file = [False, True, get_r2tf_LOGS_dirs(masses=mlist, cbs=cblist+[0])]
                         # Only need to send this dict once.
                         # It stores history dfs in dict hdfs (unless overwritten)
-save = [None, plotdir+'/tracks_testing.png', finalplotdir+'/tracks.png']
+save = [None, plotdir+'/tracks.png', finalplotdir+'/tracks.png']
 plot_HR_tracks(mlist=mlist, cblist=cblist, from_file=from_file[0], descdf=descdf,
                   save=save[1])
-###
+```
+
+- [ ]  why is there a jaunt in the NoDM leave MS line?
+- [ ]  remove pre-ZAMS portion
 
 
 ### Isochrones
+```python
 isodf = load_isos_from_file(fin=iso_csv, cols=None)
 isoages = get_iso_ages(isodf)
 plot_times = [age for i,age in enumerate(isoages) if i%5==0][3:]
@@ -215,28 +246,33 @@ for c in cb:
     save = [None, plotdir+'/isos_cb'+str(c)+'_symb.png', \
             finalplotdir+'/isos_cb'+str(c)+'.png']
     plot_isos_ind(isodf, plot_times=plot_times, cb=c, save=save[1])
-###
+```
 
 
 ### Hottest MS Teff
+```python
 save = [None, plotdir+'/hotTeff.png', finalplotdir+'/hotTeff.png']
 plot_hottest_Teff(plot_data=hotTeff_csv, save=save[1], resid=False)
-###
+```
+
+- [ ]  rerun when all models have completed
 
 
 ### 3.5 Msun profiles
+```python
 # cbmods = get_h1_modnums(mass=3.5)
 # print(cbmods)
 peeps = [ 'ZAMS', 'IAMS', 'H-3', 'H-4' ]
-save = [None, plotdir+'/m3p5_notitle.png', finalplotdir+'/m3p5.png']
+save = [None, plotdir+'/m3p5.png', finalplotdir+'/m3p5.png']
 h1_legend = [False, True]
-plot_m3p5(peeps=peeps, h1_legend=h1_legend[0], save=save[2])
-###
+plot_m3p5(peeps=peeps, h1_legend=h1_legend[1], save=save[1])
+```
+
+- [ ]  last two profiles look like they are at the wrong times
 
 
 ### 1.0 Msun profiles
-
-###
+```python
 
 ```
 
