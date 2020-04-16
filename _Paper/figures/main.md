@@ -3,6 +3,7 @@
     - [`history_pruned.data`](#prunehist)
     - [`descDF.csv`](#descdf)
     - [`hotTeff.csv`](#hotT)
+    - [`isochrones.csv`](#isocsv)
     - [Do some checks](#checks)
 - [Create Raen2020 paper plots](#makeplots)
     - [Changes made to `RUNS_2test_final` (MESA-r10398) plot code](#r10398Changes)
@@ -62,6 +63,27 @@ plt.title(f'{LOGSdir}')
 plt.tight_layout()
 plt.savefig(pf.plotdir + '/checkprun_HR.png')
 # This looks good
+
+# Generated `history_pruned.data` with care_cols fractional change > 1%
+# and `history_pruned_0.001.data` with care_cols fractional change > 0.1%
+# File sizes of `history_pruned_0.001.data` look sufficiently small
+# => change file names so that `history_pruned.data` is the 0.1% version
+tpath = Path('/Users/troyraen/Osiris/DMS/mesaruns/RUNS_defDM/c5/m1p15/LOGS/history_pruned_0.001.data')
+target = Path('/Users/troyraen/Osiris/DMS/mesaruns/RUNS_defDM/c5/m1p15/LOGS/history_pruned_test.data')
+tpath.rename(target)
+
+rootPath = Path(pf.datadir)
+for massdir, mass, cb in dp.iter_starModel_dirs(rootPath):
+    h1_old = massdir / 'LOGS' / 'history_pruned.data'
+    h1_new = massdir / 'LOGS' / 'history_pruned_0.01.data'
+    hp1_old = massdir / 'LOGS' / 'history_pruned_0.001.data'
+    hp1_new = massdir / 'LOGS' / 'history_pruned.data'
+
+    if h1_old.is_file():
+        h1_old.rename(h1_new)
+
+    if hp1_old.is_file():
+        hp1_old.rename(hp1_new)
 ```
 <!-- fe ## Create `history_pruned.data` files -->
 
@@ -110,6 +132,19 @@ hotT_data = get_hotT_data(data_dir=datadir+'/', age_range=(10**7.75,10**10.25))
 hotT_data.to_csv(datadir+'/hotTeff.csv')
 ```
 <!-- fe ## Create `hotTeff.csv` -->
+
+
+<a name="isocsv"></a>
+## Create `isochrones.csv`
+<!-- fs -->
+Starting from instruction and scripts in `DMS/isomy-r10398/scripts` and `DMS/isomy-r10398/glue` and moving necessary stuff to dir `isoScripts` (in same directory as this `main.md`).
+
+- [x]  clone new version of MIST code `git clone git@github.com:aarondotter/iso.git DMS/isomy`
+- [ ]  generate history files from `history_pruned.data` stripped of non-essential columns and stored in iso dir (`hdat_clean.sh`)
+- [ ]  generate the iso input files (`genisoinput.sh`)
+- [ ]  make eep and iso
+- [ ]  convert output to csv (`convert_iso_file.py`)
+<!-- fe ## Create `isochrones.csv` -->
 
 
 <a name="checks"></a>
@@ -193,7 +228,7 @@ save = [None, plotdir + '/MStau.png', finalplotdir + '/MStau.png']
 plot_delta_tau(descdf, cctrans_frac='default', which='avg', save=save[1])
 ```
 
-- [ ]  check unpruned history.data fro m2.55c4 to see if this is causing the spike
+- [ ]  check unpruned history.data from m2.55c4 to see if this is causing the spike
 
 Note that there is a problem in matplotlib version 3.1.3
 when trying to use a colormap with a scatter plot and data of length 1

@@ -134,7 +134,7 @@ def prune_hist(LOGSdir, skip_exists=True, ow_exists=False):
                 # if linemod<TAMSmod or any(modnums.isin([linemod])):
                     write = True
 
-                # write line if fractional change > 1%
+                # write line if fractional change > 0.1%
                 else:
                     for c in care_cols:
 
@@ -145,7 +145,7 @@ def prune_hist(LOGSdir, skip_exists=True, ow_exists=False):
                         # check fractional change
                         val, vallast = float(s.get(c)), float(slast.get(c))
                         if vallast==0: continue
-                        if abs(vallast-val)/vallast > 0.01:
+                        if abs(vallast-val)/vallast > 0.001:
                             write = True
                             break
 
