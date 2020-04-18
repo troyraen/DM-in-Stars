@@ -1,3 +1,6 @@
+##!/usr/local/bin/bash
+#!/bin/bash
+
 ####
 #   This script generates the input file isocinput for Aaron's isochrone program
 #       based on history.data files in hdatadir
@@ -11,9 +14,6 @@
 #   Script takes one argument: cboost number in [0..6]
 ###
 
-##!/usr/local/bin/bash
-#!/bin/bash
-
 if [ $# -eq 0 ]
   then
     echo "*********** Must supply script with cboost argument in [0..6] ***********"
@@ -21,11 +21,15 @@ if [ $# -eq 0 ]
 fi
 
 cb=$1 # script input argument
-datadir="./data"
-hdatadir="${datadir}/tracks/c${cb}" # history.data files should be here and named m#p#.data
+isodir="/home/tjr63/DMS/isomy"
+hdatadir="data/tracks/c${cb}" # history.data files should be here and named m#p#.data
 eepinput="input.eep"
 isocinput="input.example" # will create this file
 isocoutput="isochrone_c$cb.dat" # make_iso writes to this file
+
+cd ${isodir}
+mkdir -p data/eeps
+mkdir -p data/isochrones
 
 declare -a hfiles # store names of history files for input.example
 
@@ -64,7 +68,7 @@ echo
 echo "#version string, max 8 characters
 example
 #initial Y, initial Z, [Fe/H], [alpha/Fe], v/vcrit (space separated)
-   0.2703 1.4e-02   0.00        0.00     0.0
+   0.2703 1.42e-02   0.00        0.00     0.0
 #data directories: 1) history files, 2) eeps, 3) isochrones
 ${hdatadir}
 data/eeps
@@ -86,5 +90,5 @@ log10
 cp ${isocinput} ${eepinput} ${hdatadir}/.
 
 # uncomment these lines to run make_eep and make_iso
-export ISO_DIR=$(pwd)
+# export ISO_DIR=$(pwd)
 ./make_both $isocinput

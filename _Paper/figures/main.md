@@ -27,6 +27,7 @@ Prune `history.data` files according to `data_proc.prune_hist()`
 To use the pruned files in future code, set `usepruned=True` at the top of each file
     - `gen_descDF_csv.py`
     - `plot_fncs.py`
+    - `isoScripts/hdat_clean.py`
 
 ```python
 from pathlib import Path
@@ -140,10 +141,39 @@ hotT_data.to_csv(datadir+'/hotTeff.csv')
 Starting from instruction and scripts in `DMS/isomy-r10398/scripts` and `DMS/isomy-r10398/glue` and moving necessary stuff to dir `isoScripts` (in same directory as this `main.md`).
 
 - [x]  clone new version of MIST code `git clone git@github.com:aarondotter/iso.git DMS/isomy`
-- [ ]  generate history files from `history_pruned.data` stripped of non-essential columns and stored in iso dir (`hdat_clean.sh`)
-- [ ]  generate the iso input files (`genisoinput.sh`)
-- [ ]  make eep and iso
-- [ ]  convert output to csv (`convert_iso_file.py`)
+- [x]  generate MIST input history files from `history_pruned.data` stripped of non-essential columns and stored in iso dir (`isoScripts/hdat_clean.py`)
+- [x]  copy `history_columns.list` to `isomy` and comment out non-essential columns
+- [x]  generate the iso input files (`genisoinput.sh`)
+- [x]  make eep and iso
+- [x]  combine output to csv (`convert_iso_file.py`)
+
+```python
+import subprocess
+from isoScripts import hdat_clean as hc
+import data_proc as dp
+import plot_fncs as pf
+
+# copy history files to isomy dir
+mesa_datadir = Path(pf.datadir) # mesa output files
+iso_datadir = Path('/home/tjr63/DMS/isomy/data/tracks') # history files placed in tracks/c{cb} dir
+hc.write_hdat_files_for_MIST(mesa_datadir, iso_datadir, dp.iter_starModel_dirs)
+```
+
+```bash
+# generate the iso input files and run make_eep and make_iso
+# check the isodir in genisoinput.sh before running this
+cd ~/DMS/mesaruns_analysis/_Paper/figures/isoScripts
+for cb in $(seq 0 6); do
+    ./genisoinput.sh ${cb} '~/DMS/isomy'
+done
+```
+
+```python
+# combine output in DMS/isomy/data/isochrones to csv in pf.datadir
+from isoScripts import convert_iso_file as cif
+import plot_fncs as pf
+cif.iso_to_csv(cboost=[c for c in range(5)], append_cb=True, append_PEEPs=True, isodir='/home/tjr63/DMS/isomy', outdir=pf.datadir)
+```
 <!-- fe ## Create `isochrones.csv` -->
 
 
@@ -210,6 +240,7 @@ Need to be aware of TACHeB.
 
 
 ### setup and testing
+<!-- fs -->
 ```python
 %run plot_fncs
 pidf = pidxdfOG # df of profiles.index files
@@ -220,24 +251,31 @@ hdf = get_hdf(cb, mass=mass) # single history df
 pdf = get_pdf(cb, modnum, mass=mass, rtrn='df') # single profile df
 ```
 
+Note that there is a problem in matplotlib version 3.1.3
+when trying to use a colormap with a scatter plot and data of length 1
+See https://github.com/matplotlib/matplotlib/issues/10365/
+I fixed this in `plot_delta_tau()` and other fncs below by doing
+`plt.scatter(np.reshape(x,-1), np.reshape(y,-1), c=np.reshape(c,-1))`
+<!-- fe -->
+
 
 ### delta MS Tau
+<!-- fs -->
 ```python
 descdf = get_descdf(fin=fdesc)
 save = [None, plotdir + '/MStau.png', finalplotdir + '/MStau.png']
 plot_delta_tau(descdf, cctrans_frac='default', which='avg', save=save[1])
 ```
 
-- [ ]  check unpruned history.data from m2.55c4 to see if this is causing the spike
+<img src="temp//MStau.png" alt="/MStau.png" width="400"/>
 
-Note that there is a problem in matplotlib version 3.1.3
-when trying to use a colormap with a scatter plot and data of length 1
-See https://github.com/matplotlib/matplotlib/issues/10365/
-I fixed this in `plot_delta_tau()` and other fncs below by doing
-`plt.scatter(np.reshape(x,-1), np.reshape(y,-1), c=np.reshape(c,-1))`
+- [x]  check unpruned history.data from m2.55c4 to see if this is causing the spike (it is not)
+- [ ]  plot Xc as fnc of time for 3 masses (1 at spike and 2 bracketing it)
+<!-- fe -->
 
 
 ### Teff v Age
+<!-- fs -->
 ```python
 mlist = [1.0, 2.0, 3.5,]# ,0.8, 5.0]
 cblist = [4, 6]
@@ -248,11 +286,15 @@ save = [None, plotdir+'/Teff.png', finalplotdir+'/Teff.png']
 plot_Teff(mlist=mlist, cblist=cblist, from_file=from_file[1], descdf=descdf, save=save[1])
 ```
 
+<img src="temp/Teff.png" alt="Teff.png" width="400"/>
+
 - [ ]  start ages = 0 at ZAMS
 - [ ]  why does lifetime difference in 1Msun look bigger than in 2Msun (contradicting MStau plot)?
+<!-- fe -->
 
 
 ### HR Tracks
+<!-- fs -->
 ```python
 # mlist = [0.8, 1.0, 2.0, 3.5, 5.0]
 # cblist = [4, 6]
@@ -264,11 +306,15 @@ plot_HR_tracks(mlist=mlist, cblist=cblist, from_file=from_file[0], descdf=descdf
                   save=save[1])
 ```
 
-- [ ]  why is there a jaunt in the NoDM leave MS line?
+<img src="temp/tracks.png" alt="tracks.png" width="400"/>
+
+- [ ]  why is there a jaunt in the NoDM leave MS line? plot center_h1 like for delta MS Tau debugging
 - [ ]  remove pre-ZAMS portion
+<!-- fe -->
 
 
 ### Isochrones
+<!-- fs -->
 ```python
 isodf = load_isos_from_file(fin=iso_csv, cols=None)
 isoages = get_iso_ages(isodf)
@@ -276,24 +322,38 @@ plot_times = [age for i,age in enumerate(isoages) if i%5==0][3:]
 print(plot_times)
 # plot_times = [8.284, 8.4124, 8.8618, 9.1828, 9.4396, 9.6964, 9.9532, 10.017400000000002]
 # plot_times = [7.0, 7.3852, 7.642, 7.8346, 8.0272, 8.155599999999998]
-cb = [4,6]
+cb = [4]
 for c in cb:
-    save = [None, plotdir+'/isos_cb'+str(c)+'_symb.png', \
+    save = [None, plotdir+'/isos_cb'+str(c)+'.png', \
             finalplotdir+'/isos_cb'+str(c)+'.png']
     plot_isos_ind(isodf, plot_times=plot_times, cb=c, save=save[1])
 ```
 
+<img src="temp/isos_cb4.png" alt="isos_cb4.png" width="400"/>
+<img src="temp/isos_cb6.png" alt="isos_cb6.png" width="400"/>
+
+- [ ]  `isochrone_c0.dat` only has masses between 2-3Msun and no isochrones older than 10^8.93. Wondering if I haven't run a fine enough mass grid. Previous results used [.0, .03, .05, .08].
+    - [ ]  Try running more c0s.
+    - [ ]  take old data and down sample mass grid, re-generate isochrones and see if get the same problem.
+    - [ ]  what is the oldest isochrone I want to show in c6 models, run finer mass grid only for c0,4,6 and stop them when reach age > oldest isochrone
+<!-- fe -->
+
 
 ### Hottest MS Teff
+<!-- fs -->
 ```python
 save = [None, plotdir+'/hotTeff.png', finalplotdir+'/hotTeff.png']
 plot_hottest_Teff(plot_data=hotTeff_csv, save=save[1], resid=False)
 ```
 
+<img src="temp/hotTeff.png" alt="hotTeff.png" width="400"/>
+
 - [ ]  rerun when all models have completed
+<!-- fe -->
 
 
 ### 3.5 Msun profiles
+<!-- fs -->
 ```python
 # cbmods = get_h1_modnums(mass=3.5)
 # print(cbmods)
@@ -303,13 +363,46 @@ h1_legend = [False, True]
 plot_m3p5(peeps=peeps, h1_legend=h1_legend[1], save=save[1])
 ```
 
+<img src="temp/m3p5.png" alt="m3p5.png" height="400"/>
+
 - [ ]  last two profiles look like they are at the wrong times
+    - get mod nums from saved profiles. plot log h1center v age, highlight modnums
+- [ ]  run models again.. how to save the right profiles?
+
+Testing/debugging code
+```python
+from pandas import IndexSlice as idx
+import debug_fncs as dbg
+
+mass, cb = 3.5, [0,6]
+pidf.set_index(['mass','cb'], inplace=True)
+p3 = pidf.loc[idx[mass,cb],:]
+modnums = { 0: list(p3.loc[idx[:,0],'model_number']),
+            6: list(p3.loc[idx[:,6],'model_number'])
+            }
+hdf = pd.concat([get_hdf(0, mass=mass), get_hdf(6, mass=mass)])
+hdf['mass'] = 3.5
+hdf.set_index(['mass','cb'], inplace=True)
+
+dbg.plot_m3p5_h1vage(hdf, modnums=modnums)
+
+p3['center_h1'] = p3.apply(dbg.get_h1_for_p3, axis=1, hdf=hdf, result_type='expand')
+# having trouble getting the centerh1 values into p3
+
+p3['center_h1'] = hdf.loc[p3.set_index('model_number').index,'center_h1']
+pvt = {'index':'priority', 'columns':'cb', 'values':'center_h1'}
+p3.pivot(**pvt)
+```
+
+<!-- fe -->
 
 
 ### 1.0 Msun profiles
+<!-- fs -->
 ```python
 
 ```
+<!-- fe -->
 
 <!-- fe plots -->
 

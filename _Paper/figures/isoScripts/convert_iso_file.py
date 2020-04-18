@@ -3,11 +3,11 @@ import numpy as np
 
 # converts isochrone output files (isochrone_cb.dat) to isochrones.csv for Glue
 # can combine files from multple cboosts
-def iso_to_csv(cboost=[0], append_cb=True, append_PEEPs=True, isodir=None):
+def iso_to_csv(cboost=[0], append_cb=True, append_PEEPs=True, isodir=None, outdir=None):
     if isodir is None:
         isodir = '/Users/troyraen/Google_Drive/MESA/code/iso'
-    eepinput = isodir+'/data/input.eep'
-    fout = isodir+'/glue/isochrones.csv'
+    eepinput = isodir+'/input.eep'
+    fout = outdir+'/isochrones.csv'
     hdr = ''
 
     for i, cb in enumerate(cboost):

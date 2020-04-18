@@ -203,7 +203,7 @@ r2tf_dir = datadir
 plotdir = basedir + '/mesaruns_analysis/_Paper/figures/temp'
 finalplotdir = basedir + '/mesaruns_analysis/_Paper/figures/final'
 
-iso_csv = ''
+iso_csv = datadir+ '/isochrones.csv'
 hotTeff_csv = datadir+ '/hotTeff.csv'
 talkplotdir = ''
 
@@ -1509,6 +1509,7 @@ def plot_isos_ind(isodf, plot_times=None, cb=None, cut_axes=True, save=None):
 #             if cb not in [0,6]: continue # skip this part
         midx_dict = get_midx_dict(cbdf, mtol=1e-1)
         for mkey, midx in midx_dict.items():
+            continue
             if midx is None: continue
             mrkr = '^' if mkey == 3.5 else 'o'
 #             kwargs = {'marker':mrkr, 'facecolors':'none', 'edgecolors':'k', \
