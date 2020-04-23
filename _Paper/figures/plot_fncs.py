@@ -2,6 +2,7 @@
 # fs imports
 import numpy as np
 import pandas as pd
+from pandas import IndexSlice as idx
 from pandas import DataFrame as DF
 from collections import OrderedDict as OD
 import math
@@ -311,7 +312,7 @@ def get_h1_modnums(frm='profile_metadata', mass=3.5, hdf=None, cb=None):
 
 def get_h1cuts():
     """ Returns OD of h1 cuts to find profile model numbers"""
-    start_center_h1 = 0.718 # this is the same for all models
+    start_center_h1 = 0.7155 # this is the same for all models
 
     # define h1 cuts to find profile model numbers
     # taken from Dotter where possible
@@ -1192,11 +1193,13 @@ def plot_Teff(mlist=None, cblist=None, from_file=False, descdf=None, save=None):
             age.iloc[0] = 1 # avoid log(0)
             axs[a].plot(np.log10(age), hdf.log_Teff, \
                                     c=mcolor[im], zorder=-3*mass+16)
+            # axs[a].axhline(descdf.set_index(['mass','cboost']).loc[idx[mass,cb],'lAMS_Teff'],c='blue',lw=1)
             if cb != 0:
                 age = hdf0.star_age - hdf0.star_age.iloc[0]
                 age.iloc[0] = 1 # avoid log(0)
                 axs[a].plot(np.log10(age), hdf0.log_Teff, zorder=-3*mass+17, c='w', lw=1)
                 axs[a].plot(np.log10(age), hdf0.log_Teff, zorder=-3*mass+18, c=mcolor[im], lw=0.75)
+                # axs[a].axhline(descdf.set_index(['mass','cboost']).loc[idx[mass,0],'lAMS_Teff'],c='0.5',lw=1)
 
         # Title panels
         if cb==0:

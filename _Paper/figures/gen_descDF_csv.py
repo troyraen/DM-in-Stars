@@ -40,6 +40,7 @@ for cbdir in root.iterdir():
 
     for massdir in cbdir.iterdir():
         if not massdir.is_dir(): continue
+        if len(massdir.name.split('_')) > 1: continue # skip dirs with a suffix
         mass = float('.'.join(massdir.name.split('p')).strip('m'))
         # if mass<1.0 or cb not in ['c0','c1','c2','c3']: continue
 

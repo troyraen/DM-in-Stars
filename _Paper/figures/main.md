@@ -256,6 +256,7 @@ when trying to use a colormap with a scatter plot and data of length 1
 See https://github.com/matplotlib/matplotlib/issues/10365/
 I fixed this in `plot_delta_tau()` and other fncs below by doing
 `plt.scatter(np.reshape(x,-1), np.reshape(y,-1), c=np.reshape(c,-1))`
+
 <!-- fe -->
 
 
@@ -271,6 +272,61 @@ plot_delta_tau(descdf, cctrans_frac='default', which='avg', save=save[1])
 
 - [x]  check unpruned history.data from m2.55c4 to see if this is causing the spike (it is not)
 - [ ]  plot Xc as fnc of time for 3 masses (1 at spike and 2 bracketing it)
+- [ ]  plot MS lifetimes (not the delta)
+
+Testing/debugging:
+```python
+%run plot_fncs
+from pandas import IndexSlice as idx
+import debug_fncs as dbg
+
+# find the c4 models around 2.5Msun that cause the dip and spike
+descdf = get_descdf(fin=fdesc)
+descdf.rename(columns={'cboost':'cb'}, inplace=True)
+descdf.set_index(['mass','cb'], inplace=True)
+descdf.loc[idx[2.3:2.8,4],'MStau']
+
+# get a center_h1 vs age df as a pivot table
+mass, cb = [2.35, 2.40, 2.45, 2.50, 2.55, 2.60], 4 # model 2.40 has dip, 2.55 has spike
+hdf = pd.concat([get_hdf(cb, mass=m) for m in mass])
+hdf['mass'] = hdf.index.str.strip('m').str[:-2]
+pvt = {'index':'star_age','columns':'mass','values':'center_h1'}
+hp = hdf.pivot(**pvt)
+hp = hp.interpolate(method='index') # fill nans due to different star_age values between models
+
+# plot it
+hp.plot()
+plt.xlim(0,6e8)
+plt.ylabel('center_h1')
+plt.title('c4 models')
+plt.tight_layout()
+plt.show(block=False)
+plt.savefig(plotdir+'/check_MStau_centerh1_linear.png')
+```
+
+<img src="temp/check_MStau_centerh1_linear.png" alt="check_MStau_centerh1_linear" width="400"/>
+<img src="temp/check_MStau_centerh1_linear_c0.png" alt="check_MStau_centerh1_linear_c0" width="400"/>
+
+__Note the increases in the `m2.55c4` and `m2.40c0` models at early times.__
+I looked at a loglog plot to see where each model fell below 1e-3 (end of MS) and the pattern is the same as seen here.
+
+Get a list of models that have non-monotonic center_h1 values before they hit TAMS. (Note that loglog plots above showed center_h1 increases after TAMS at very small values < ~1e-30.)
+
+```python
+h1cut = 1e-12
+currently_running = [(1.40,5), (1.20,5), (0.85,5), (2.58,0)]
+rootPath, nonmono = Path(datadir), pd.DataFrame(columns=['mass','cb','h1_mono'])
+for massdir, mass, cb in dp.iter_starModel_dirs(rootPath):
+    masscb = (mass,cb)
+    # if masscb in currently_running: continue
+    hpath = massdir / 'LOGS' / 'history_pruned.data'
+    if not hpath.is_file(): continue
+    hdf = dp.load_history(hpath)
+    mono = hdf.loc[hdf.center_h1>h1cut,'center_h1'].is_monotonic_decreasing
+    nonmono = nonmono.append({'mass':mass,'cb':cb,'h1_mono':mono},ignore_index=True)
+```
+__There are 64 (out of 554) models for which center_h1 is non-monotonic before TAMS.__
+
 <!-- fe -->
 
 
@@ -288,28 +344,47 @@ plot_Teff(mlist=mlist, cblist=cblist, from_file=from_file[1], descdf=descdf, sav
 
 <img src="temp/Teff.png" alt="Teff.png" width="400"/>
 
-- [ ]  start ages = 0 at ZAMS
-- [ ]  why does lifetime difference in 1Msun look bigger than in 2Msun (contradicting MStau plot)?
+- [x]  start ages = 0 at ZAMS (had to fix `start_center_h1` value in `get_h1cuts()`)
+- [x]  why does lifetime difference in 1Msun look bigger than in 2Msun (contradicting MStau plot)? (it is deceiving, see plots below)
+
+<img src="temp/Teff_2.0Msun.png" alt="temp/Teff_2.0Msun" width="400"/>
+<img src="temp/Teff_1.0Msun.png" alt="temp/Teff_1.0Msun" width="400"/>
+
+Grey lines mark Teff of NoDM models, blue lines mark same for c6 models. Difference in MS lifetime of 2.0Msun models is greater than for 1.0Msun models.
+
+```python
+descdf = get_descdf(fin=fdesc)
+descdf.set_index(['mass','cboost'],inplace=True)
+mass, massstr, cb = 1.00, 'm1p00', 0
+hpath = Path(datadir) / f'c{cb}' / f'{massstr}' / 'LOGS' / 'history_pruned.data'
+hdf = dp.load_history(hpath)
+# h = cut_HR_hdf(hdf, cuts=['ZAMS','TACHeB'], tahe=[descdf,mass,cb])
+h = cut_HR_hdf(hdf, cuts=['ZAMS','H-3'])
+
+np.log10(h.star_age.max() - h.star_age.min())
+np.log10(descdf.loc[idx[mass,cb],'MStau_yrs'])
+```
+__Note that the MS lifetimes I get from h (9.886) and descdf (9.897) above do not match.__ Need to track down why.
 <!-- fe -->
 
 
 ### HR Tracks
 <!-- fs -->
 ```python
-# mlist = [0.8, 1.0, 2.0, 3.5, 5.0]
-# cblist = [4, 6]
+mlist = [1.0, 2.0, 3.5,]# ,0.8, 5.0]
+cblist = [4, 6]
 from_file = [False, True, get_r2tf_LOGS_dirs(masses=mlist, cbs=cblist+[0])]
                         # Only need to send this dict once.
                         # It stores history dfs in dict hdfs (unless overwritten)
 save = [None, plotdir+'/tracks.png', finalplotdir+'/tracks.png']
-plot_HR_tracks(mlist=mlist, cblist=cblist, from_file=from_file[0], descdf=descdf,
+plot_HR_tracks(mlist=mlist, cblist=cblist, from_file=from_file[2], descdf=descdf,
                   save=save[1])
 ```
 
 <img src="temp/tracks.png" alt="tracks.png" width="400"/>
 
 - [ ]  why is there a jaunt in the NoDM leave MS line? plot center_h1 like for delta MS Tau debugging
-- [ ]  remove pre-ZAMS portion
+- [x]  remove pre-ZAMS portion
 <!-- fe -->
 
 
@@ -369,7 +444,7 @@ plot_m3p5(peeps=peeps, h1_legend=h1_legend[1], save=save[1])
     - get mod nums from saved profiles. plot log h1center v age, highlight modnums
 - [ ]  run models again.. how to save the right profiles?
 
-Testing/debugging code
+Testing/debugging:
 ```python
 from pandas import IndexSlice as idx
 import debug_fncs as dbg
@@ -389,6 +464,7 @@ dbg.plot_m3p5_h1vage(hdf, modnums=modnums)
 p3['center_h1'] = p3.apply(dbg.get_h1_for_p3, axis=1, hdf=hdf, result_type='expand')
 # having trouble getting the centerh1 values into p3
 
+# do this instead
 p3['center_h1'] = hdf.loc[p3.set_index('model_number').index,'center_h1']
 pvt = {'index':'priority', 'columns':'cb', 'values':'center_h1'}
 p3.pivot(**pvt)

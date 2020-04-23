@@ -63,6 +63,7 @@ def iter_starModel_dirs(rootPath):
         for massdir in cbdir.iterdir():
             # This is the directory for a single star which contains the LOGS dir
             if not massdir.is_dir(): continue
+            if len(massdir.name.split('_')) > 1: continue # skip dirs with a suffix
             mass = float('.'.join(massdir.name.split('p')).strip('m'))
 
             yield (massdir, mass, cb)
@@ -263,6 +264,7 @@ def desc_to_DF(sdic, MStau_DF, othmap) -> "sdic['descDF'] = ":
 
     TACHeBmodel = h.model_number[findEV_TACHeB(h)]
     MStau = MStau_DF.MStau[star_idx]
+    MStau_yrs = MStau_DF.MStau_yrs[star_idx]
     pp = MStau_DF.PPavg[star_idx]
     cno = MStau_DF.CNOavg[star_idx]
     masscc_avg = MStau_DF.masscc_avg[star_idx]
@@ -272,12 +274,13 @@ def desc_to_DF(sdic, MStau_DF, othmap) -> "sdic['descDF'] = ":
             'enterMS_model', 'ZAMS_Teff', 'ZAMS_L', \
             'leaveMS_model', 'lAMS_Teff', 'lAMS_L', \
             'TAMS_model', 'TAMS_Teff', 'TAMS_L', \
-            'TACHeB_model', 'MStau', 'PPavg', 'CNOavg', 'masscc_avg', 'masscc_ZAMS']
+            'TACHeB_model', 'MStau_yrs', 'MStau', \
+            'PPavg', 'CNOavg', 'masscc_avg', 'masscc_ZAMS']
     data = [ int(star_idx), float(mass[:-5]), int(cb[1]), other, \
                 enterMSmodel, ZAMS_Teff, ZAMS_L, \
                 leaveMSmodel, lAMS_Teff, lAMS_L, \
                 TAMSmodel, TAMS_Teff, TAMS_L, \
-                TACHeBmodel, MStau, pp, cno, masscc_avg, masscc_ZAMS ]
+                TACHeBmodel, MStau_yrs, MStau, pp, cno, masscc_avg, masscc_ZAMS ]
     datadic = {1:data}
 #     print(type(datadic[1]))
     df = pd.DataFrame.from_dict(datadic, orient='index', columns=cols)
@@ -338,6 +341,7 @@ def create_MS_DF(star_dicts, othmap) -> 'msdf':
         listMSdicts.append({'mass':mass}) # create dict for this mass
         star_idx = []
         cb = []
+        tau_yrs = []
         tau = []
         pp = []
         cno = []
@@ -366,6 +370,7 @@ def create_MS_DF(star_dicts, othmap) -> 'msdf':
                     enterMS = h.star_age[findEV_enterMS(h)]
                     leaveMS = h.star_age[findEV_leaveMS(h)]
                     MStau = leaveMS - enterMS
+                    tau_yrs.append(MStau)
                     MStau0 = MStau if k==1 else MStau0
                     tau.append(0. if k==1 else (MStau-MStau0)/MStau0)
 
@@ -393,6 +398,7 @@ def create_MS_DF(star_dicts, othmap) -> 'msdf':
 
         listMSdicts[l]['star_index'] = np.array(list(star_idx))
         listMSdicts[l]['cb'] = np.array(list(cb))
+        listMSdicts[l]['MStau_yrs'] = np.array(list(tau_yrs))
         listMSdicts[l]['MStau'] = np.array(list(tau))
         listMSdicts[l]['mass'] = np.ones(len(cb))*mass
         listMSdicts[l]['PPavg'] = np.array(list(pp))
@@ -401,7 +407,7 @@ def create_MS_DF(star_dicts, othmap) -> 'msdf':
         listMSdicts[l]['masscc_ZAMS'] = np.array(list(mcc_ZAMS))
         sdicts = [s for s in sdicts if sdicts.index(s) not in idx]
 
-    columns = ['star_index', 'mass', 'cb', 'MStau', 'PPavg', 'CNOavg', \
+    columns = ['star_index', 'mass', 'cb', 'MStau_yrs', 'MStau', 'PPavg', 'CNOavg', \
                 'masscc_avg', 'masscc_ZAMS']
     msdf = pd.concat([pd.DataFrame(listMSdicts[i], columns=columns) \
              for i in range(len(listMSdicts))], ignore_index=True)
