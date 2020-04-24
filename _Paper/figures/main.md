@@ -6,6 +6,13 @@
     - [`isochrones.csv`](#isocsv)
     - [Do some checks](#checks)
 - [Create Raen2020 paper plots](#makeplots)
+    - [delta MS Tau](#mstau)
+    - [Teff v Age](#teff)
+    - [HR Tracks](#tracks)
+    - [Isochrones](#isos)  
+    - [Hottest MS Teff](#hotT)
+    - [3.5 Msun profiles](#3p5)
+    - [1.0 Msun profiles](#1p0)
     - [Changes made to `RUNS_2test_final` (MESA-r10398) plot code](#r10398Changes)
 
 <a name="condaenv"></a>
@@ -260,6 +267,7 @@ I fixed this in `plot_delta_tau()` and other fncs below by doing
 <!-- fe -->
 
 
+<a name="mstau"></a>
 ### delta MS Tau
 <!-- fs -->
 ```python
@@ -270,11 +278,12 @@ plot_delta_tau(descdf, cctrans_frac='default', which='avg', save=save[1])
 
 <img src="temp//MStau.png" alt="/MStau.png" width="400"/>
 
+##### Debug:
+
 - [x]  check unpruned history.data from m2.55c4 to see if this is causing the spike (it is not)
 - [ ]  plot Xc as fnc of time for 3 masses (1 at spike and 2 bracketing it)
 - [ ]  plot MS lifetimes (not the delta)
 
-Testing/debugging:
 ```python
 %run plot_fncs
 from pandas import IndexSlice as idx
@@ -288,11 +297,7 @@ descdf.loc[idx[2.3:2.8,4],'MStau']
 
 # get a center_h1 vs age df as a pivot table
 mass, cb = [2.35, 2.40, 2.45, 2.50, 2.55, 2.60], 4 # model 2.40 has dip, 2.55 has spike
-hdf = pd.concat([get_hdf(cb, mass=m) for m in mass])
-hdf['mass'] = hdf.index.str.strip('m').str[:-2]
-pvt = {'index':'star_age','columns':'mass','values':'center_h1'}
-hp = hdf.pivot(**pvt)
-hp = hp.interpolate(method='index') # fill nans due to different star_age values between models
+hp = dbg.get_h1_v_age_pivot(mass,cb)
 
 # plot it
 hp.plot()
@@ -330,6 +335,7 @@ __There are 64 (out of 554) models for which center_h1 is non-monotonic before T
 <!-- fe -->
 
 
+<a name="teff"></a>
 ### Teff v Age
 <!-- fs -->
 ```python
@@ -343,6 +349,8 @@ plot_Teff(mlist=mlist, cblist=cblist, from_file=from_file[1], descdf=descdf, sav
 ```
 
 <img src="temp/Teff.png" alt="Teff.png" width="400"/>
+
+##### Debug:
 
 - [x]  start ages = 0 at ZAMS (had to fix `start_center_h1` value in `get_h1cuts()`)
 - [x]  why does lifetime difference in 1Msun look bigger than in 2Msun (contradicting MStau plot)? (it is deceiving, see plots below)
@@ -364,10 +372,12 @@ h = cut_HR_hdf(hdf, cuts=['ZAMS','H-3'])
 np.log10(h.star_age.max() - h.star_age.min())
 np.log10(descdf.loc[idx[mass,cb],'MStau_yrs'])
 ```
-__Note that the MS lifetimes I get from h (9.886) and descdf (9.897) above do not match.__ Need to track down why.
+- [x]  __Note that the MS lifetimes I get from h (9.886) and descdf (9.897) above do not match.__ Need to track down why. (Fixed. I was not including the leaveMS model in the `cut_HR_hdf` for h.)
+
 <!-- fe -->
 
 
+<a name="tracks"></a>
 ### HR Tracks
 <!-- fs -->
 ```python
@@ -383,11 +393,88 @@ plot_HR_tracks(mlist=mlist, cblist=cblist, from_file=from_file[2], descdf=descdf
 
 <img src="temp/tracks.png" alt="tracks.png" width="400"/>
 
-- [ ]  why is there a jaunt in the NoDM leave MS line? plot center_h1 like for delta MS Tau debugging
+##### Debug:
+
 - [x]  remove pre-ZAMS portion
+- [ ]  why is there a jaunt in the NoDM leave MS line?
+    - biggest is 2.4Msun (model has other problems, see above)
+    - the others
+
+
+plot MStau - MStau of previous mass (should be negative)
+```python
+descdf = get_descdf(fin=fdesc).sort_values('mass').set_index(['mass','cboost'])
+d0 = descdf.loc[idx[:,0],:]
+dif = np.log10(d0.MStau_yrs).diff()#.dropna()
+plt.figure()
+plt.plot(d0.reset_index().mass, dif, '-o')
+plt.axhline(0,c='k')
+plt.xlabel('star mass')
+plt.ylabel('log10 MStau[mass[i]] - \nlog10 MStau[mass[i-1]]',fontsize=12)
+plt.tight_layout()
+plt.show(block=False)
+plt.savefig(plotdir+'/check_HR_MStau_c0.png')
+```
+
+<img src="temp/check_HR_MStau_c0.png" alt="/check_HR_MStau_c0" width="400"/>
+
+- Only 2.4Msun model lives longer than previous mass (identified in [delta MSTau](#mstau) debugging above.)
+- I think the bouncing around at the end is just due to the irregularly space masses (4.0, 4.03, 4.05, 4.08, ...). Lower masses at .03 and .08 aren't done yet.
+
+Plot T, L, MStau
+```python
+d = d0.reset_index().set_index('mass')
+d['logMStau/max'] = np.log10(d.MStau_yrs)/np.log10(d.MStau_yrs.max())
+d['lAMS_logTeff/max'] = d.lAMS_Teff/d.lAMS_Teff.max()
+d['lAMS_logL/max'] = d.lAMS_L/d.lAMS_L.max()
+args = {'marker':'o', 'ms':3}
+d.loc[idx[3.4:],['lAMS_logTeff/max', 'lAMS_logL/max', 'logMStau/max']].plot(**args)
+plt.grid(which='both')
+plt.tight_layout()
+plt.show(block=False)
+plt.savefig(plotdir+'/check_HR_lAMS_c0.png')
+```
+
+<img src="temp/check_HR_lAMS_c0.png" alt="/check_HR_lAMS_c0" width="400"/>
+
+If I zoom in real close it looks like the spikes might be due to slightly increased MS lifetimes. Check timestep resolution for center_h1.
+
+```python
+import debug_fncs as dbg
+import data_proc as dp
+# get a center_h1 vs age df as a pivot table
+mass, cb = [4.93], 0 # 4.93 is the last spike
+hp = dbg.get_h1_v_age_pivot(mass,cb)
+# get the same for the unpruned history file
+hdf = dp.load_history(datadir+'/c0/m4p93/LOGS/history.data')
+hdf['mass'] = '4.93 unpruned'
+pvt = {'index':'star_age','columns':'mass','values':'center_h1'}
+hpup = hdf.pivot(**pvt)
+
+# plot them
+plt.figure()
+ax = plt.gca()
+args = {'marker':'o', 'ms':5, 'loglog':True, 'ax':ax}
+hp.plot(**args)
+args['ms'] = 3
+hpup.plot(**args)
+plt.axhline(1e-3, c='0.5', lw=0.5)
+plt.ylabel('center_h1')
+plt.title('c0 models')
+plt.tight_layout()
+plt.show(block=False)
+plt.savefig(plotdir+'/check_HR_centerh1_4p93.png')
+
+```
+
+<img src="temp/check_HR_centerh1_4p93.png" alt="check_HR_centerh1_4p93" width="400"/>
+
+The datapoint that intersects the 1e-3 line is actually slightly above it (I zoomed in to check). Therefore the leaveMS model is much closer to 1e-4. Since Teff changes so quickly during this time, this causes the spike in the leaveMS line. The issue is not caused by the pruned history file. I also checked 3.93Msun which has a similar issue.
+
 <!-- fe -->
 
 
+<a name="isos"></a>
 ### Isochrones
 <!-- fs -->
 ```python
@@ -414,6 +501,7 @@ for c in cb:
 <!-- fe -->
 
 
+<a name="hotT"></a>
 ### Hottest MS Teff
 <!-- fs -->
 ```python
@@ -427,6 +515,7 @@ plot_hottest_Teff(plot_data=hotTeff_csv, save=save[1], resid=False)
 <!-- fe -->
 
 
+<a name="3p5"></a>
 ### 3.5 Msun profiles
 <!-- fs -->
 ```python
@@ -473,6 +562,7 @@ p3.pivot(**pvt)
 <!-- fe -->
 
 
+<a name="1p0"></a>
 ### 1.0 Msun profiles
 <!-- fs -->
 ```python

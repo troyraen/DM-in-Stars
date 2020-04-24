@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 from matplotlib import pyplot as plt
 
-from plot_fncs import plotdir, cbcmap
+from plot_fncs import plotdir, cbcmap, get_hdf
 
 def plot_m3p5_h1vage(hdf, modnums={}):
     plt.figure()
@@ -30,3 +30,16 @@ def plot_m3p5_h1vage(hdf, modnums={}):
 def get_h1_for_p3(p3row, hdf=None):
     center_h1 = hdf.loc[hdf.model_number==p3row.model_number,'center_h1']
     return center_h1
+
+
+def get_h1_v_age_pivot(mass,cb):
+    """ get a center_h1 vs age df as a pivot table
+        mass: list
+        cb: int
+    """
+    hdf = pd.concat([get_hdf(cb, mass=m) for m in mass])
+    hdf['mass'] = hdf.index.str.strip('m').str[:-2]
+    pvt = {'index':'star_age','columns':'mass','values':'center_h1'}
+    hp = hdf.pivot(**pvt)
+    hp = hp.interpolate(method='index') # fill nans due to different star_age values between models
+    return hp

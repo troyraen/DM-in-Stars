@@ -345,6 +345,7 @@ def cut_HR_hdf(hdf, cuts=['ZAMS'], tahe=[]):
 
     if 'ZAMS' in cuts: # cut pre ZAMS
         ZAMS_cut = h1cuts['ZAMS']
+        # ZAMS model is first model after center_h1 < ZAMS_cut
         df = df[df.center_h1 < ZAMS_cut]
 
     if 'ZAMS_time_step' in cuts: # add time_step [years] column, then cut pre ZAMS
@@ -354,15 +355,21 @@ def cut_HR_hdf(hdf, cuts=['ZAMS'], tahe=[]):
 
     if 'IAMS' in cuts: # cut post IAMS
         IAMS_cut = h1cuts['IAMS']
-        df = df[df.center_h1 > IAMS_cut]
+        # IAMS model is first model after center_h1 < IAMS_cut, include this model
+        IAMS_cut = df.loc[df.center_h1<IAMS_cut,'center_h1'].max()
+        df = df[df.center_h1 >= IAMS_cut]
 
     if 'H-3' in cuts: # cut post H-3 (leaveMS)
         H3_cut = h1cuts['H-3']
-        df = df[df.center_h1 > H3_cut]
+        # H-3 model is first model after center_h1 < H3_cut, include this model
+        H3_cut = df.loc[df.center_h1<H3_cut,'center_h1'].max()
+        df = df[df.center_h1 >= H3_cut]
 
     if 'TAMS' in cuts: # cut post TAMS
         TAMS_cut = h1cuts['TAMS']
-        df = df[df.center_h1 > TAMS_cut]
+        # TAMS model is first model after center_h1 < TAMS_cut, include this model
+        TAMS_cut = df.loc[df.center_h1<TAMS_cut,'center_h1'].max()
+        df = df[df.center_h1 >= TAMS_cut]
 
     if 'TACHeB' in cuts: # cut post TACHeB
         if tahe=='iso':
