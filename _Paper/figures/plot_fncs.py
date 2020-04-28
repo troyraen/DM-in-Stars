@@ -33,7 +33,7 @@ mpl.rcParams['font.size'] = 13
 mpl.rcParams['mathtext.fontset'] = 'cm'
 mpl.rcParams['font.family'] = 'DejaVu Sans' #'cmu serif'
 
-mpl.rcParams['lines.linewidth'] = 2
+mpl.rcParams['lines.linewidth'] = 1
 # mpl.rcParams['legend.fontsize'] = 'small'
 plt.rcParams["text.usetex"] = False
 # mpl.rcParams['axes.linewidth'] = 0.8
@@ -627,6 +627,7 @@ def get_profilesindex_df(profile_runs_dir=profiles_datadir):
         cbpath = profile_runs_dir+ cb
         for mass in os.listdir(cbpath):
             if mass[0] == '.': continue # skip hidden directories
+            if len(mass.split('_')) > 1: continue # skip dirs with a suffix
             Lpath = cbpath+'/'+ mass+'/'+'LOGS'
             fpidx = Lpath+ '/profiles.index'
             try:
@@ -1671,7 +1672,7 @@ def get_hotT_data(data_dir=r2tf_dir+'/', age_range=(10**7.75,10**10.25), pdf=Non
 
     plot_times = np.linspace(age_range[0],age_range[1],1000)
     plot_data = []
-    cols = ['star_age','log_Teff', 'center_h1']
+    cols = ['star_age','log_Teff', 'center_h1', 'log_L']
 
     # get df of [mass, cb, path_to_LOGS] for history files and itterate thru them
     pdf = get_profilesindex_df(profile_runs_dir=data_dir) if pdf is None else pdf
@@ -1691,9 +1692,9 @@ def get_hotT_data(data_dir=r2tf_dir+'/', age_range=(10**7.75,10**10.25), pdf=Non
         # add Teff interpolated to ages in plot_times
         pt = np.ma.masked_outside(plot_times,df.star_age.min(),df.star_age.max())
         pt = pt.data[pt.mask == False].flatten()
-        dftmp = pd.DataFrame({'star_age':pt, 'log_Teff':np.nan})
+        dftmp = pd.DataFrame({'star_age':pt, 'log_Teff':np.nan, 'log_L':np.nan})
         # set star_age as the index and concatenate the dfs
-        df = df.loc[:,['star_age','log_Teff']].set_index('star_age')
+        df = df.loc[:,['star_age','log_Teff','log_L']].set_index('star_age')
         dftmp = dftmp.set_index('star_age')
         age_Teff = pd.concat([df,dftmp], axis=0).sort_index()
         # interpolate log_Teff
@@ -1711,7 +1712,7 @@ def get_hotT_data(data_dir=r2tf_dir+'/', age_range=(10**7.75,10**10.25), pdf=Non
 
     return df
 
-def plot_hottest_Teff(save=None, pdf=None, plot_data=hotTeff_csv, resid=False):
+def plot_hottest_Teff(save=None, pdf=None, plot_data=hotTeff_csv, resid=False, plotL=False):
     """ Plots highest log_Teff of any mass in MS
         pdf arg is passed to get_hotT_data(pdf=pdf) if plot_data is None
         plot_data (None, df, or str):
@@ -1744,13 +1745,15 @@ def plot_hottest_Teff(save=None, pdf=None, plot_data=hotTeff_csv, resid=False):
         zord = cb #np.abs(cb-6)
         c = get_cmap_color(cb, cmap=cbcmap, myvmin=cbvmin, myvmax=cbvmax)
 
-        if not resid:
-            y = dat.log_Teff
-        else:
+        if resid:
             dat0 = cbgroup.get_group(0)
             d0 = dat0.set_index('star_age', drop=False)
             d = dat.set_index('star_age', drop=False)
             y = d.log_Teff - d0.loc[d.index,'log_Teff']
+        elif plotL:
+            y = dat.log_L
+        else:
+            y = dat.log_Teff
 
         plt.plot(dat.star_age.apply(np.log10), y, c=c, lw=1, zorder=zord)
 
@@ -1760,8 +1763,13 @@ def plot_hottest_Teff(save=None, pdf=None, plot_data=hotTeff_csv, resid=False):
 
     cbar = get_cbcbar()
 
-    ylbl = r'log ($T_{\mathrm{eff}}$ /K)' if not resid else \
-            r'log($T_{\mathrm{eff}}$ /K) - log($T_{\mathrm{eff,\, NoDM}}$ /K)'
+    if resid:
+        ylbl = r'log($T_{\mathrm{eff}}$ /K) - log($T_{\mathrm{eff,\, NoDM}}$ /K)'
+    elif plotL:
+        ylbl = r'log ($L/$ /L$_\odot$)'
+    else:
+        ylbl = r'log ($T_{\mathrm{eff}}$ /K)'
+
     plt.xlabel(r'log ($Isochrone\ Age$ /yr)')
     plt.ylabel(ylbl)
     plt.tight_layout()
@@ -2089,7 +2097,141 @@ def plot_m3p5_sidebyside(peeps=None, save=None):
 
 # fe 3.5 Msun profiles
 
-# fs 1.0 Msun c3 profiles
+# fs 1.0 Msun profiles
+def plot_m1p0(peeps=None, h1_legend=True, talk_plot=False, save=None):
+    """ peeps = list of h1cuts (names defined in get_h1cuts()) to plot
+    """
+
+    mass, cb = 1.00 ,6
+    cbmods = get_h1_modnums(mass=mass)
+    c0mods = cbmods[0]
+    c6mods = cbmods[cb]
+    xmax = 0.5 # max mass coord to plot
+
+    if peeps is None:
+        peeps = list(get_h1cuts()[0].keys())
+        print(peeps)
+
+    cbc = [get_cmap_color(0, cmap=cbcmap), get_cmap_color(cb, cmap=cbcmap)] # plot colors
+
+    # For annotations:
+     # placement for extra heat arrows in axes fraction corrds:
+    delth = 0.055; deltv = 0.15
+    l = 0.94; r = l + delth; b = 0.70; t = b + deltv
+    eps = 0.1
+    xarws = [[(r,b),(l,t)],
+             [(r,b),(l,t)],
+             [(r,b-eps),(l,t-eps)],
+             [(r,b-eps),(l,t-eps)],
+             [(r,b-eps),(l,t-eps)],
+             [(r,b-eps),(l,t-eps)],
+             [(r,b-eps),(l,t-eps)],
+             [(r,b-eps),(l,t-eps)],
+             ]
+
+    # Tick directions
+    # mpl.rcParams['xtick.direction'] = 'out'
+    # mpl.rcParams['ytick.direction'] = 'out'
+    fontOG = adjust_plot_readability(fontAdj=True, plot='m3p5')
+
+    ntimes = len(peeps)
+    nrows = 3
+    ncols = 1
+
+    # height = savefigh_vert*nrows**1.75 if not talk_plot else savefigh_vert*nrows
+    height = 8
+    f = plt.figure() if save is None else plt.figure(figsize=(savefigw_vert, height))
+    outer = gs.GridSpec(nrows=ntimes,ncols=ncols, figure=f, hspace=0.25, right=0.98)
+    inner = [gs.GridSpecFromSubplotSpec(nrows,ncols, subplot_spec=outer[o], hspace=0) \
+                    for o in range(ntimes)]
+
+    a = -1
+    h1c_names, titles = get_h1cuts()
+    for t, peep in enumerate(list(h1c_names.keys())):
+        c0mod = c0mods[t]
+        c6mod = c6mods[t]
+        if peep not in peeps:
+            continue
+        elif math.isnan(c0mod) or math.isnan(c6mod):
+            continue
+        else:
+            a = a+1 # iterate outer subplot
+
+        axe = f.add_subplot(inner[a][0])
+        # axtwin = axe.twinx()
+        axtwin = f.add_subplot(inner[a][1], sharex=axe)
+        if a != ntimes-1:
+            axc = f.add_subplot(inner[a][2], sharex=axe)
+        else:
+            axc = f.add_subplot(inner[a][2]) # need the xtick labels to show up correctly
+
+        df = [ get_pdf(0, c0mod, mass=mass), get_pdf(cb, c6mod, mass=mass) ] # list of dataframes
+        for i, dtmp in enumerate(df):
+            d = dtmp.loc[dtmp.mass<xmax,:]
+            # Plot nuclear energy (use arrays to avoid auto generating legend label):
+            lbl = r'$\Gamma_B = 0$' if i==0 else r'$\Gamma_B = 10^{}$'.format(cb)
+            axe.plot(np.array(d.mass), np.array(d.eps_nuc_plus_nuc_neu), c=cbc[i], label=lbl)
+            # Plot extra heat:
+            axtwin.plot(d.mass, d.extra_heat, ls='-.', c=cbc[i])
+
+            # Plot temperature:
+            xfrac_lbl = get_xfrac_lbl(d)
+            axc.plot(d.mass, d.logT, c=cbc[i], label=xfrac_lbl)
+
+        # Annotate with arrows:
+        # kwargs = {  'xycoords':"axes fraction", 'textcoords':"axes fraction",
+        #             'arrowprops':{  'arrowstyle':"->",
+        #                             'connectionstyle':"angle,angleA=90,angleB=0",
+        #                             'alpha':0.5 }
+        #         }
+        # axe.annotate('',xarws[a][0], xytext=xarws[a][1], **kwargs)
+
+        if a==0:
+            axe.legend(fontsize=9, frameon=False, borderaxespad=0.1)
+
+        # axes limits
+        # axc.set_ylim(-1,19.8)
+        axe.set_xlim(0,xmax)
+        margin = 0.3
+        axe.margins(y=margin)
+        axtwin.margins(y=margin)
+
+        if h1_legend:
+            axc.legend()
+        # Labels and Titles
+        axe.set_title(titles[peep], fontsize=12, pad=2)
+        # axe.set_title(peep if (plt.rcParams["text.usetex"]==False) else r'$\textbf{'+peep+'}$')
+        # SEE https://matplotlib.org/3.1.0/api/text_api.html#matplotlib.text.Text
+        # FOR TEXT ADJUSTMENT OPTIONS (e.g. 'position' and 'rotation')
+        # print(r'$\ \ \ \epsilon_{\rm{nuc}}\ [\frac{\rm{erg}}{\rm{g\, s}}]$')
+        # axe.set_ylabel(r'$\ \ \ \epsilon_{\rm{nuc}}\ [\frac{\rm{erg}}{\rm{g\, s}}]$')
+        args = {'rotation': 45, 'va': 'center', 'ha': 'right'}
+        axe.set_ylabel(r'$\epsilon_{\rm{nuc}}$', **args, labelpad=7)
+        # axe.tick_params(labelrotation=-45)
+        # axtwin.set_ylabel(r'$\ \ \ \epsilon_{\rm{DM}}\ [\frac{\rm{erg}}{\rm{g\, s}}]$')
+        axtwin.set_ylabel(r'$\ \ \ \epsilon_{\rm{DM}}$', **args, labelpad=2)
+        # axtwin.tick_params(labelrotation=45)
+        # print(r'log($D/ [\frac{\rm{cm}^2}{\rm{s}}]$)')
+        # axc.set_ylabel(r'log($D/ [\frac{\rm{cm}^2}{\rm{s}}]$)')
+        axc.set_ylabel(r'log($T/$K)', **args, labelpad=7)
+        # axc.tick_params(labelrotation=-45)
+        axe.set_xticklabels([])
+    axc.set_xlabel(r'mass$(<r)/\mathrm{M}_{\odot}$', labelpad=10)
+    # f.suptitle(r'3.5 M$_{\odot}$ Profiles', fontsize=20)
+
+    f, eps = adjust_plot_readability(fig=f, fontOG=None, plot='m3p5')
+
+    axc.set_xlim(0,xmax) # this axis is not connected to axe to avoid tick labels on axe
+
+    if save is not None: plt.savefig(save)
+    plt.show()
+
+    adjust_plot_readability(fig=None, fontOG=fontOG)
+    return None
+
+# fe 1.0 Msun profiles
+
+# fs OLD 1.0 Msun c3 profiles
 def plot_m1p0c3(peeps=None, h1_legend=True, fix_yscale=False, talk_plot=False, save=None):
     """ peeps = list of h1cuts (names defined in get_h1cuts()) to plot
     """
@@ -2354,9 +2496,9 @@ def plot_m1p0c3_sidebyside(peeps=None, save=None):
 
     if save is not None: plt.savefig(save)
     plt.show()
-# fe 1.0 Msun c3 profiles
+# fe OLD 1.0 Msun c3 profiles
 
-# fs 1.0 Msun c6 profiles
+# fs OLD 1.0 Msun c6 profiles
 def plot_m1p0c6_movie(pdfin=None, savedir=talkplotdir+'/m1c6_movie'):
     """ Profile plots of single time steps, for movie making.
     """
@@ -2811,9 +2953,9 @@ def plot_m1p0c6_sidebyside_old(plot_times=None, save=None):
 
     if save is not None: plt.savefig(save)
     plt.show()
-# fe 1.0 Msun c6 profiles
+# fe OLD 1.0 Msun c6 profiles
 
-# fs 1.0 Msun c6 Kippenhahn
+# fs OLD 1.0 Msun c6 Kippenhahn
 def plot_m1p0c6_kipp(plot_times=None, from_file=False, time_lines=True, save=None):
     """ Gets and plots the history.data file.
         from_file should be list [c0,c6] of specific dirs (parent of LOGS dir)
@@ -3059,4 +3201,4 @@ def get_burn_cols(hdf):
 #     'burn_type_1', 'burn_qtop_1'
     return df
 
-# fe 1.0 Msun c6 Kippenhahn⁄
+# fe OLD 1.0 Msun c6 Kippenhahn⁄

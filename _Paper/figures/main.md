@@ -13,7 +13,7 @@
     - [Hottest MS Teff](#hotT)
     - [3.5 Msun profiles](#3p5)
     - [1.0 Msun profiles](#1p0)
-    - [Changes made to `RUNS_2test_final` (MESA-r10398) plot code](#r10398Changes)
+
 
 <a name="condaenv"></a>
 # Create a DMS Conda env on Osiris
@@ -238,9 +238,8 @@ Need to be aware of TACHeB.
 
 <a name="makeplots"></a>
 # Create plots for Raen2020 paper
-<!-- fs -->
-
 <!-- fs plots -->
+
 - Osiris
 - `defDM` branch
 - `home/tjr63/DMS/mesaruns_analysis/_Paper/figures/` (Osiris) directory
@@ -281,7 +280,7 @@ plot_delta_tau(descdf, cctrans_frac='default', which='avg', save=save[1])
 ##### Debug:
 
 - [x]  check unpruned history.data from m2.55c4 to see if this is causing the spike (it is not)
-- [ ]  plot Xc as fnc of time for 3 masses (1 at spike and 2 bracketing it)
+- [x]  plot Xc as fnc of time for 3 masses (1 at spike and 2 bracketing it)
 - [ ]  plot MS lifetimes (not the delta)
 
 ```python
@@ -353,12 +352,12 @@ plot_Teff(mlist=mlist, cblist=cblist, from_file=from_file[1], descdf=descdf, sav
 ##### Debug:
 
 - [x]  start ages = 0 at ZAMS (had to fix `start_center_h1` value in `get_h1cuts()`)
-- [x]  why does lifetime difference in 1Msun look bigger than in 2Msun (contradicting MStau plot)? (it is deceiving, see plots below)
+- [x]  why does lifetime difference in 1Msun look bigger than in 2Msun (contradicting MStau plot)? (it is deceiving, see plots below... or __perhaps delta MS tau is deceiving?__)
 
 <img src="temp/Teff_2.0Msun.png" alt="temp/Teff_2.0Msun" width="400"/>
 <img src="temp/Teff_1.0Msun.png" alt="temp/Teff_1.0Msun" width="400"/>
 
-Grey lines mark Teff of NoDM models, blue lines mark same for c6 models. Difference in MS lifetime of 2.0Msun models is greater than for 1.0Msun models.
+Grey lines mark Teff of NoDM models (thin line), blue lines mark same for c6 models (thick line). Difference in MS lifetime of 2.0Msun models is greater than for 1.0Msun models.
 
 ```python
 descdf = get_descdf(fin=fdesc)
@@ -469,7 +468,10 @@ plt.savefig(plotdir+'/check_HR_centerh1_4p93.png')
 
 <img src="temp/check_HR_centerh1_4p93.png" alt="check_HR_centerh1_4p93" width="400"/>
 
-The datapoint that intersects the 1e-3 line is actually slightly above it (I zoomed in to check). Therefore the leaveMS model is much closer to 1e-4. Since Teff changes so quickly during this time, this causes the spike in the leaveMS line. The issue is not caused by the pruned history file. I also checked 3.93Msun which has a similar issue.
+The datapoint that intersects the 1e-3 line is actually slightly above it (I zoomed in to check). Therefore the leaveMS model is much closer to 1e-4. Since Teff changes so quickly during this time, it is conceivable that this causes the spike in the leaveMS line. Check plot (todo, below) to be sure. The issue is not caused by the pruned history file. I also checked 3.93Msun which has a similar issue.
+
+- [ ]  plot Teff v age and L v age for (4.90, 4.93, 4.95)Msun. star leaveMS model. see if using previous model for 4.93 would smooth the curve.
+- [ ]  consider smoothing this out by either interpolating using `hdf.interpolate` or just using the Teff of the previous model since it's closest to center_h1 condition
 
 <!-- fe -->
 
@@ -512,6 +514,15 @@ plot_hottest_Teff(plot_data=hotTeff_csv, save=save[1], resid=False)
 <img src="temp/hotTeff.png" alt="hotTeff.png" width="400"/>
 
 - [ ]  rerun when all models have completed
+
+Plot log L of hottest MS star to see what it looks like:
+```python
+save = [None, plotdir+'/hotL.png', finalplotdir+'/hotL.png']
+plotL = True
+plot_hottest_Teff(save=save[1], plot_data=hotTeff_csv, resid=False, plotL=plotL)
+```
+
+<img src="temp/hotL.png" alt="hotL" width="400"/>
 <!-- fe -->
 
 
@@ -529,9 +540,9 @@ plot_m3p5(peeps=peeps, h1_legend=h1_legend[1], save=save[1])
 
 <img src="temp/m3p5.png" alt="m3p5.png" height="400"/>
 
-- [ ]  last two profiles look like they are at the wrong times
-    - get mod nums from saved profiles. plot log h1center v age, highlight modnums
-- [ ]  run models again.. how to save the right profiles?
+- [ ]  last two profiles are at the wrong times. the correct profiles did not get saved. run models again. how to save the right profiles?
+    - find the model numbers from `hdf` and save profiles that way.
+    - _first_ think about what story I'm trying to tell with this plot and make sure those profiles will tell that story
 
 Testing/debugging:
 ```python
@@ -566,17 +577,12 @@ p3.pivot(**pvt)
 ### 1.0 Msun profiles
 <!-- fs -->
 ```python
-
+peeps = [ 'ZAMS', 'IAMS', 'H-3', 'TAMS']
+save = [None, plotdir+'/m1p0.png', finalplotdir+'/m1p0.png']
+plot_m1p0(peeps=peeps, h1_legend=False, talk_plot=False, save=save[1])
 ```
+
+<img src="temp/m1p0.png" alt="m1p0.png" height="400"/>
 <!-- fe -->
 
 <!-- fe plots -->
-
-
-<a name="r10398Changes"></a>
-## Changes made to `RUNS_2test_final` (plots-r10398) plot code
-<!-- fs -->
-- [x]  update paths to files and directories
-
-<!-- fe ## Changes -->
-<!-- fe # Create plots for Raen2020 paper -->
