@@ -396,7 +396,7 @@ plot_HR_tracks(mlist=mlist, cblist=cblist, from_file=from_file[2], descdf=descdf
 #### Debug:
 
 - [x]  remove pre-ZAMS portion
-- [ ]  why is there a jaunt in the NoDM leave MS line?
+- [ ]  why is the NoDM leave MS line not smooth?
 
 plot MStau - MStau of previous mass (should be negative)
 ```python
@@ -418,7 +418,7 @@ plt.savefig(plotdir+'/check_HR_MStau_c0.png')
 - Only 2.4Msun model lives longer than previous mass (identified in [delta MSTau](#mstau) debugging above.)
 - I think the bouncing around at the end is just due to the irregularly space masses (4.0, 4.03, 4.05, 4.08, ...). Lower masses at .03 and .08 aren't done yet.
 
-Plot T, L, MStau
+Plot T, L, MStau to look for high mass problem models
 ```python
 d = d0.reset_index().set_index('mass')
 d['logMStau/max'] = np.log10(d.MStau_yrs)/np.log10(d.MStau_yrs.max())
@@ -542,8 +542,8 @@ plot_m3p5(peeps=peeps, h1_legend=h1_legend[1], save=save[1])
 
 #### Debug:
 
-- [ ]  last two profiles are at the wrong times. the correct profiles did not get saved. run models again. how to save the right profiles?
-    - find the model numbers from `hdf` and save profiles that way.
+- [ ]  last two profiles are at the wrong times. the correct profiles did not get saved. run models again.
+    - profile for h1_center<1e-4 was not set to be saved in `run_star_extras.f`. Not sure why h1_center<1e-3 didn't save. can find the model numbers from `hdf` and save profiles that way.
     - _first_ think about what story I'm trying to tell with this plot and make sure those profiles will still tell that story
 
 ```python
