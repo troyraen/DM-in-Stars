@@ -300,9 +300,9 @@ plt.tight_layout()
 plt.savefig(plotdir+'/check_MStau_yrs.png')
 ```
 
-<img src="temp/check_MStau_yrs.png" alt="check_MStau_yrs" width="400"/>
+<img src="temp/check_MStau_yrs.png" alt="check_MStau_yrs" height="400"/>
 
-Note the strange increase in lifetimes around 2.4Msun in cboost 0-3, and it's pushed to higher masses in cboost 4 and 5.
+Note the strange increase in lifetimes around 2.4Msun in cboost 0-3, and it's pushed to higher masses in cboost 4 and 5. See next plots (center_h1) for more info.
 
 Xc as fnc of time:
 ```python
@@ -352,7 +352,7 @@ for massdir, mass, cb in dp.iter_starModel_dirs(rootPath):
     nonmono = nonmono.append({'mass':mass,'cb':cb,'h1_mono':mono},ignore_index=True)
 ```
 
-- [ ]  __There are 64 (out of 554) models for which center_h1 is non-monotonic before TAMS.__ Need to track down why. Seems like this really shouldn't happen.
+- [ ]  __There are 64 (out of 554) models for which center_h1 is non-monotonic before TAMS.__ Need to track down why. Only physically plausible mechanism I can think of that may increase central H1 abundance is convection, but that shouldn't affect a single mass and not the masses that bracket it in the way seen in the center_h1 plots above.
 
 <!-- fe -->
 
@@ -381,6 +381,10 @@ plot_Teff(mlist=mlist, cblist=cblist, from_file=from_file[1], descdf=descdf, sav
 <img src="temp/Teff_1.0Msun.png" alt="temp/Teff_1.0Msun" width="400"/>
 
 Grey lines mark Teff at leaveMS of NoDM models (thin line), blue lines mark same for c6 models (thick line). Difference in MS lifetime of 2.0Msun models is greater than for 1.0Msun models.
+
+Problems:
+- [ ]  In 2Msun models (top row), c6 model lives __longer__ than the NoDM model which is opposite of delta MS tau plot. Something is wrong here.
+- [ ]  Difference in MS lifetime between 2Msun models is more like 10% than 20%
 
 ```python
 descdf = get_descdf(fin=fdesc)
