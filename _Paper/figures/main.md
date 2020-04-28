@@ -280,9 +280,31 @@ plot_delta_tau(descdf, cctrans_frac='default', which='avg', save=save[1])
 #### Debug:
 
 - [x]  check unpruned history.data from m2.55c4 to see if this is causing the spike (it is not)
+- [x]  plot MS lifetimes (not the delta)
 - [x]  plot Xc as fnc of time for 3 masses (1 at spike and 2 bracketing it)
-- [ ]  plot MS lifetimes (not the delta)
 
+MS lifetimes
+```python
+%run plot_fncs
+descdf = get_descdf(fin=fdesc)
+descdf.rename(columns={'cboost':'cb'}, inplace=True)
+pvt = {'index':'mass','columns':'cb','values':'MStau_yrs'}
+ddf = descdf.pivot(**pvt)
+
+plt.figure(figsize=(4,16))
+args = {'logy':True, 'marker':'o', 'ms':1, 'color':[cbcmap(i) for i in range(7)],
+        'subplots':True, 'ax':plt.gca()}
+ddf.plot(**args)
+plt.ylabel('MS lifetime [yrs]')
+plt.tight_layout()
+plt.savefig(plotdir+'/check_MStau_yrs.png')
+```
+
+<img src="temp/check_MStau_yrs.png" alt="check_MStau_yrs" width="400"/>
+
+Note the strange increase in lifetimes around 2.4Msun in cboost 0-3, and it's pushed to higher masses in cboost 4 and 5.
+
+Xc as fnc of time:
 ```python
 %run plot_fncs
 from pandas import IndexSlice as idx
@@ -577,6 +599,8 @@ p3.pivot(**pvt)
 <a name="1p0"></a>
 ### 1.0 Msun profiles
 <!-- fs -->
+The old plots for 1Msun models are no longer relevant. I think something like this would be better.
+
 ```python
 peeps = [ 'ZAMS', 'IAMS', 'H-3', 'TAMS']
 save = [None, plotdir+'/m1p0.png', finalplotdir+'/m1p0.png']
