@@ -2,7 +2,7 @@
 - [Create derived data files](#deriveddata)
     - [`history_pruned.data`](#prunehist)
     - [`descDF.csv`](#descdf)
-    - [`hotTeff.csv`](#hotT)
+    - [`hotTeff.csv`](#hotTcsv)
     - [`isochrones.csv`](#isocsv)
     - [Do some checks](#checks)
 - [Create Raen2020 paper plots](#makeplots)
@@ -129,7 +129,7 @@ python gen_descDF_csv.py
 <!-- fe ## Create `descDF.csv` -->
 
 
-<a name="hotT"></a>
+<a name="hotTcsv"></a>
 ## Create `hotTeff.csv`
 <!-- fs -->
 ```python
@@ -277,7 +277,7 @@ plot_delta_tau(descdf, cctrans_frac='default', which='avg', save=save[1])
 
 <img src="temp//MStau.png" alt="/MStau.png" width="400"/>
 
-##### Debug:
+#### Debug:
 
 - [x]  check unpruned history.data from m2.55c4 to see if this is causing the spike (it is not)
 - [x]  plot Xc as fnc of time for 3 masses (1 at spike and 2 bracketing it)
@@ -329,7 +329,8 @@ for massdir, mass, cb in dp.iter_starModel_dirs(rootPath):
     mono = hdf.loc[hdf.center_h1>h1cut,'center_h1'].is_monotonic_decreasing
     nonmono = nonmono.append({'mass':mass,'cb':cb,'h1_mono':mono},ignore_index=True)
 ```
-__There are 64 (out of 554) models for which center_h1 is non-monotonic before TAMS.__
+
+- [ ]  __There are 64 (out of 554) models for which center_h1 is non-monotonic before TAMS.__ Need to track down why. Seems like this really shouldn't happen.
 
 <!-- fe -->
 
@@ -349,7 +350,7 @@ plot_Teff(mlist=mlist, cblist=cblist, from_file=from_file[1], descdf=descdf, sav
 
 <img src="temp/Teff.png" alt="Teff.png" width="400"/>
 
-##### Debug:
+#### Debug:
 
 - [x]  start ages = 0 at ZAMS (had to fix `start_center_h1` value in `get_h1cuts()`)
 - [x]  why does lifetime difference in 1Msun look bigger than in 2Msun (contradicting MStau plot)? (it is deceiving, see plots below... or __perhaps delta MS tau is deceiving?__)
@@ -357,7 +358,7 @@ plot_Teff(mlist=mlist, cblist=cblist, from_file=from_file[1], descdf=descdf, sav
 <img src="temp/Teff_2.0Msun.png" alt="temp/Teff_2.0Msun" width="400"/>
 <img src="temp/Teff_1.0Msun.png" alt="temp/Teff_1.0Msun" width="400"/>
 
-Grey lines mark Teff of NoDM models (thin line), blue lines mark same for c6 models (thick line). Difference in MS lifetime of 2.0Msun models is greater than for 1.0Msun models.
+Grey lines mark Teff at leaveMS of NoDM models (thin line), blue lines mark same for c6 models (thick line). Difference in MS lifetime of 2.0Msun models is greater than for 1.0Msun models.
 
 ```python
 descdf = get_descdf(fin=fdesc)
@@ -392,13 +393,10 @@ plot_HR_tracks(mlist=mlist, cblist=cblist, from_file=from_file[2], descdf=descdf
 
 <img src="temp/tracks.png" alt="tracks.png" width="400"/>
 
-##### Debug:
+#### Debug:
 
 - [x]  remove pre-ZAMS portion
 - [ ]  why is there a jaunt in the NoDM leave MS line?
-    - biggest is 2.4Msun (model has other problems, see above)
-    - the others
-
 
 plot MStau - MStau of previous mass (should be negative)
 ```python
@@ -496,6 +494,8 @@ for c in cb:
 <img src="temp/isos_cb4.png" alt="isos_cb4.png" width="400"/>
 <img src="temp/isos_cb6.png" alt="isos_cb6.png" width="400"/>
 
+#### Debug:
+
 - [ ]  `isochrone_c0.dat` only has masses between 2-3Msun and no isochrones older than 10^8.93. Wondering if I haven't run a fine enough mass grid. Previous results used [.0, .03, .05, .08].
     - [ ]  Try running more c0s.
     - [ ]  take old data and down sample mass grid, re-generate isochrones and see if get the same problem.
@@ -540,11 +540,12 @@ plot_m3p5(peeps=peeps, h1_legend=h1_legend[1], save=save[1])
 
 <img src="temp/m3p5.png" alt="m3p5.png" height="400"/>
 
+#### Debug:
+
 - [ ]  last two profiles are at the wrong times. the correct profiles did not get saved. run models again. how to save the right profiles?
     - find the model numbers from `hdf` and save profiles that way.
-    - _first_ think about what story I'm trying to tell with this plot and make sure those profiles will tell that story
+    - _first_ think about what story I'm trying to tell with this plot and make sure those profiles will still tell that story
 
-Testing/debugging:
 ```python
 from pandas import IndexSlice as idx
 import debug_fncs as dbg
