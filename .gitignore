@@ -3,6 +3,7 @@ LOGS/
 png/
 photos/
 **/.DS_Store
+**/._.DS_Store
 MIST_files/
 *.pyc
 **/.ipynb_checkpoints
