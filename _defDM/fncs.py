@@ -351,7 +351,8 @@ def load_all_data(dr=dr, get_history=True, use_reduc=True, mods=None, skip=None)
         if cb[0] != 'c': continue
         for mdir in os.listdir(pjoin(dr,cb)):
             rk = mdir.split('_',1)[-1]
-            if rk.split('_')[0] == 'ow': continue # skip 'ow' dirs
+            skipwords = ['ow', 'segfault', 'kill']
+            if rk.split('_')[0] in skipwords: continue # skip these dirs
             # skip dirs not in mods
             if mods is not None:
                 if ''.join([mdir,cb]) not in mods: continue
@@ -709,5 +710,26 @@ def plot_profiles_all(pdf):
 
     return None
 
+def plot_termcodes(rcdf, col='tc', save=None):
+    plt.figure()
+    ri = rcdf.reset_index().set_index(['cb','mass'],drop=False)
+
+    if col == 'tc':
+        groups = ri.groupby('termCode')
+        for tc, r in groups:
+            plt.plot(r.cb, r.mass, marker="o", linestyle="", label=tc)
+
+    elif col=='idx':
+        plt.scatter(ri.cb, ri.mass,
+                c=ri.runtime/ri.runtime.max(),
+                label=ri.index)
+
+    plt.ylabel('Star Mass [Msun]')
+    plt.xlabel('cboost')
+    plt.legend()
+    plt.title('Term Codes')
+    if save is not None: plt.savefig(save)
+
+    return
 
 # fe------ plots and functions ------#

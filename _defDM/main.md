@@ -1,5 +1,7 @@
 - [Start final runs using `defDM` settings](#startfinalruns)
-- [Investigate possible problem models](#probmods)
+- [Data Review - runs (mostly) complete](#datareview)
+- [Investigate Possible problem models - middle of runs](#probmods)
+- [Sand](#sand)
 
 
 # Installing Anaconda, python3, etc. on Osiris
@@ -73,14 +75,86 @@ mr # cd to mesaruns
 nohup nice ./bash_scripts/run_osiris.sh 3 &>> STD_nohup_defDM3.out & # start with 3rd to last mord
 # check that the first run started
 exit
+
+# 4/20/20: run the m#p#3 and m#p#8 models for c0
+ssho2
+dmsrepo # cd to mesaruns
+nohup nice ./bash_scripts/run_osiris_fine.sh 1 &>> STD_nohup_defDMfine.out & # start with last mord and run all c0s
+# check that the first run started
+exit
+
+# 4/20/20: re-run the model that failed with a segfault. This segfaulted again.
+# 4/23/20: re-run the model and generate a video
+    # # ERROR:
+    # Making pgstar movies
+    # bash: images_to_movie.sh: command not found
+    # bash: images_to_movie.sh: command not found
+ssho
+screen
+maindir="/home/tjr63/DMS/mesaruns"
+RUNS="RUNS_defDM"
+cb=4
+mass=m1p55
+massval=1.55
+source ${maindir}/bash_scripts/do_mesa_run.sh
+do_mesa_run "${maindir}" "${RUNS}/c${cb}/${mass}" "${massval}" "${cb}" 1 "master" 0 1
 ```
 <!-- fe ## Generate bash scripts and do the runs -->
 
 <!-- fe # Start final runs using `defDM` settings -->
 
 
+<a name="datareview"></a>
+# Data Review - runs (mostly) complete
+<!-- fs -->
+
+Want to know:
+- [ ]  still running
+    - [x]  0.95 c6
+    - [ ]  2.43 c0
+- [ ]  term codes
+    - not done, done with term code
+- [ ]  end center_he4 > 1e-4 (MIST EEP terminal age core He burning (TACHeB)) and final age < 10Gyr)
+
+
+```python
+%run fncs
+
+reduc_all_LOGS(RUNSdir=drO)
+
+# Load data
+hdf, pidf, cdf, rcdf = load_all_data(dr=drO, get_history=True, use_reduc=True)
+
+# Find problem_mods:
+# center_he4_end > 1e-4 and final age < 10Gyr
+rcdf['final_age'] = np.NaN # add final age column
+for i in rcdf.index:
+    rcdf.loc[i,'final_age'] = hdf.loc[i,'star_age'].max()
+
+for i in rcdf.index:
+    if rcdf.loc[i,'center_he4_end']>1e-4 and rcdf.loc[i,'final_age']<1e10:
+        print(i, 'tot')
+    if rcdf.loc[i,'termCode']==-1:
+        print(i, 'tcm1')
+    if rcdf.loc[i,'termCode']=='min_timestep_limit':
+        print(i, 'mtl')
+
+
+# term codes
+plot_termcodes(rcdf, col='tc', save='plots/termCodes_Grid_Aug5.png')
+plot_termcodes(rcdf.loc[rcf.termCode==-1,:], col='idx', save='plots/termCodes_minus1.png')
+
+
+# Runtimes, fix and plot
+rcdf.loc[rcdf.runtime<0,'runtime'] # check for negative runtimes
+rcdf = fix_negative_runtimes(rcdf)
+
+```
+<!-- fe # Data Review - runs (mostly) complete -->
+
+
 <a name="probmods"></a>
-# Investigate Possible problem models
+# Investigate Possible problem models - middle of runs
 <!-- fs -->
 Clone new version of repo on Osiris for analyzing `mesaruns` data:
 ```bash
@@ -91,7 +165,7 @@ git clone git@github.com:troyraen/DM-in-Stars.git mesaruns_analysis
 ## Possible problem models
 
 - [ ]  Quit for an unknown reason (termCode==-1 and not currently running)
-    - [ ]  m1p55c4: STD.out => segfault. Try re-running this model.
+    - [ ]  m1p55c4: STD.out => segfault. I re-ran this model and it segfaulted again.
 
 - [ ]  Quit due to `min_timestep_limit`
     - [ ]  not a problem if age < 10Gyr and log_dt.min() > -5
@@ -106,7 +180,6 @@ git clone git@github.com:troyraen/DM-in-Stars.git mesaruns_analysis
 
 - [ ]  Models with cb < 4 and runtime > 1e3 min
 
-- [ ]  Currently running models are taking longer than they should. check them
 
 ```python
 %run fncs
@@ -126,7 +199,7 @@ rtfix_currently_running = { idx_currently_running[0]: 3.5,
                             idx_currently_running[2]: 13.7,
                             }
 rcdf = fix_negative_runtimes(rcdf, rtfix=rtfix_currently_running)    
-plot_runtimes(rcdf, save='plots/runtimes_Apr6.png')
+plot_runtimes(rcdf, save='plots/runtimes_July8.png')
 
 
 # heatmap of termCodes
@@ -241,6 +314,7 @@ These all seem fine. Not sure why there is a spike in xheat in post-TAMS models,
 
 
 
+<a name="sand"></a>
 # Sand
 <!-- fs -->
 
