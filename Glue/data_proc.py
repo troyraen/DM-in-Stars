@@ -106,14 +106,12 @@ def make_csv(stars,othmap,list_Hcols,list_Pcols, clean=False, write=['hist','pro
     glue_descDF.set_index('star_index', drop=True, inplace=True, verify_integrity=False)
 
     # save these to csv files
-    maindir = rt+'/Glue'
-    # maindir='./dftest'
     if 'hist' in write:
-        glue_historyDF.to_csv(maindir+'/historyDF.csv', index=True, index_label='star_index')
+        glue_historyDF.to_csv(rt+'/historyDF.csv', index=True, index_label='star_index')
     if 'prof' in write:
-        glue_profilesDF.to_csv(maindir+'/profilesDF.csv', index=True, index_label='star_index')
+        glue_profilesDF.to_csv(rt+'/profilesDF.csv', index=True, index_label='star_index')
     if 'desc' in write:
-        glue_descDF.to_csv(maindir+'/descDF.csv', index=True, index_label='star_index')
+        glue_descDF.to_csv(rt+'/descDF.csv', index=True, index_label='star_index')
 
 # ---------------------------------- #
 # LOAD FROM SOURCE
