@@ -314,15 +314,26 @@ plot_delta_tau(descdf, cctrans_frac='default', which='avg', save=save[1])
 
 #### Debug:
 
+Random deviations from the trends seems to be a problem. e.g., c4 at 2.55 Msun has ~10% increase.
+
+- [x]  get (some) affected masses
 - [x]  check unpruned history.data from m2.55c4 to see if this is causing the spike (it is not)
 - [x]  plot MS lifetimes (not the delta)
 - [x]  plot Xc as fnc of time for 3 masses (1 at spike and 2 bracketing it)
+
+Get (some) affected masses
+```python
+for cb in [4,5]:
+tmp = descdf.loc[idx[2.3:,cb],'MStau']
+print(tmp.loc[tmp.diff()>0.03].index)
+```
 
 MS lifetimes
 ```python
 %run plot_fncs
 descdf = get_descdf(fin=fdesc)
 descdf.rename(columns={'cboost':'cb'}, inplace=True)
+descdf.set_index(['mass','cb'], inplace=True, drop=False)
 pvt = {'index':'mass','columns':'cb','values':'MStau_yrs'}
 ddf = descdf.pivot(**pvt)
 
@@ -334,10 +345,40 @@ plt.ylabel('MS lifetime [yrs]')
 plt.tight_layout()
 plt.savefig(plotdir+'/check_MStau_yrs.png')
 ```
-
 <img src="temp/check_MStau_yrs.png" alt="check_MStau_yrs" height="400"/>
 
-Note the strange increase in lifetimes around 2.4Msun in cboost 0-3, and it's pushed to higher masses in cboost 4 and 5. See next plots (center_h1) for more info.
+The __trend__ has a noticeable increase in c3-6 just do to the shutoff of core convection.
+
+There is an __unexpected increase__ around 2.4Msun in cboost 0-3, and it's pushed to higher masses in cboost 4 and 5. Get affected masses and check center_h1.
+
+Get affected masses:
+```python
+for cb in ddf.columns:
+    dif = ddf[cb].dropna().diff() # difference with the previous row, should be negative
+    for prob in dif.loc[dif>0].index.tolist():
+        print(f'({cb}, {prob})') # get positive (problem) value indicies
+
+mstau_increase_probmods = [(0, 2.4), (1, 2.4), (2, 2.4), (3, 2.4), (4, 2.55), (5, 3.5)]
+```
+__Problem models__ are (cb, mass):
+(0, 2.4)
+(1, 2.4)
+(2, 2.4)
+(3, 2.4)
+(4, 2.55)
+(5, 3.5)
+
+Models that increase due to core convection:
+(3, 1.45)
+(4, 1.8)
+(4, 1.85)
+(5, 2.45)
+(5, 2.5)
+(5, 2.55)
+(6, 3.5)
+(6, 3.6)
+(6, 3.65)
+(6, 3.7)
 
 Xc as fnc of time:
 ```python
