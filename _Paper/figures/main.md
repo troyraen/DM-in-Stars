@@ -385,9 +385,13 @@ for massdir, mass, cb in dp.iter_starModel_dirs(rootPath):
     hdf = dp.load_history(hpath)
     mono = hdf.loc[hdf.center_h1>h1cut,'center_h1'].is_monotonic_decreasing
     nonmono = nonmono.append({'mass':mass,'cb':cb,'h1_mono':mono},ignore_index=True)
+
+len(nonmono)
+len(len(nonmono.loc[nonmono.h1_mono==False,:]))
+nonmono.loc[nonmono.h1_mono==False,:]
 ```
 
-- [ ]  __There are 64 (out of 554) models for which center_h1 is non-monotonic before TAMS.__ Need to track down why. Only physically plausible mechanism I can think of that may increase central H1 abundance is convection, but that shouldn't affect a single mass and not the masses that bracket it in the way seen in the center_h1 plots above.
+- [ ]  __There are 93 (out of 569) models for which center_h1 is non-monotonic before TAMS.__ Need to track down why. Only physically plausible mechanism I can think of that may increase central H1 abundance is convection, but that shouldn't affect a single mass and not the masses that bracket it in the way seen in the center_h1 plots above.
 
 <!-- fe -->
 
