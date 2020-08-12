@@ -25,6 +25,41 @@ conda create -n DMS python=3.7 numpy pandas ipython matplotlib astropy scipy
 # Create derived data files
 <!-- fs  -->
 
+
+# Move models that I will be using in final plots to a different directory.
+<!-- fs -->
+if (mass>0.89 and mass%0.05==0) and (cb, mass) not in problem_mods:
+    move to RUNS_FINAL
+Get problem_mods from \_defDM/main.md, section # Data Review - runs (mostly) complete, comment # Find problem_mods:
+
+```python
+from pathlib import Path
+import data_proc as dp
+import plot_fncs as pf
+import pandas as pd
+import os
+
+problem_mods = [(1, 1.05), (1, 2.55), (2, 1.05), (2, 1.1), (2, 1.2), (2, 1.6),
+                (2, 2.65), (3, 2.25), (4, 1.55), (4, 2.3), (5, 1.25), (5, 1.9)]
+
+oldPath = Path(pf.mesaruns+ '/RUNS_defDM')
+newPath = Path(pf.mesaruns+ '/RUNS_FINAL')
+
+for cb in range(7):
+    os.mkdir(newPath / f'c{cb}')
+
+for massdir, mass, cb in dp.iter_starModel_dirs(oldPath):
+    move = True
+    if mass < 0.90: move = False
+    if int(str(massdir)[-1])%5 != 0: move = False
+    if (cb, mass) in problem_mods: move = False
+    if move:
+        dnew = newPath / f'c{cb}' / massdir.name
+        os.rename(massdir,dnew)
+```
+<!-- fe -->
+
+
 <a name="prunehist"></a>
 ## Create `history_pruned.data` files
 <!-- fs -->
@@ -42,12 +77,12 @@ import data_proc as dp
 import plot_fncs as pf
 
 # iterate over all model dirs and prune the `history.data` file, creating `history_pruned.data`
-currently_running = [(1.40,5), (1.20,5), (1.00,5)] # (mass, cb), skip these
+# currently_running = [(0.95,6), (2.43,0)] # (mass, cb), skip these
 rootPath = Path(pf.datadir)
 for massdir, mass, cb in dp.iter_starModel_dirs(rootPath):
-    if (mass,cb) in currently_running: continue
-    LOGSdir = massdir / 'LOGS'
-    dp.prune_hist(LOGSdir, skip_exists=False, ow_exists=True)
+# if (mass,cb) in currently_running: continue
+LOGSdir = massdir / 'LOGS'
+dp.prune_hist(LOGSdir, skip_exists=False, ow_exists=True)
 
 # add prune by variable changes
 LOGSdir = Path(pf.datadir + '/c6/m2p00/LOGS')
@@ -179,7 +214,7 @@ done
 # combine output in DMS/isomy/data/isochrones to csv in pf.datadir
 from isoScripts import convert_iso_file as cif
 import plot_fncs as pf
-cif.iso_to_csv(cboost=[c for c in range(5)], append_cb=True, append_PEEPs=True, isodir='/home/tjr63/DMS/isomy', outdir=pf.datadir)
+cif.iso_to_csv(cboost=[c for c in range(7)], append_cb=True, append_PEEPs=True, isodir='/home/tjr63/DMS/isomy', outdir=pf.datadir)
 ```
 <!-- fe ## Create `isochrones.csv` -->
 
@@ -275,7 +310,7 @@ save = [None, plotdir + '/MStau.png', finalplotdir + '/MStau.png']
 plot_delta_tau(descdf, cctrans_frac='default', which='avg', save=save[1])
 ```
 
-<img src="temp//MStau.png" alt="/MStau.png" width="400"/>
+<img src="temp/MStau.png" alt="/MStau.png" width="400"/>
 
 #### Debug:
 
@@ -506,11 +541,11 @@ The datapoint that intersects the 1e-3 line is actually slightly above it (I zoo
 ```python
 isodf = load_isos_from_file(fin=iso_csv, cols=None)
 isoages = get_iso_ages(isodf)
-plot_times = [age for i,age in enumerate(isoages) if i%5==0][3:]
+plot_times = [age for i,age in enumerate(isoages) if i%4==0][3:]
 print(plot_times)
 # plot_times = [8.284, 8.4124, 8.8618, 9.1828, 9.4396, 9.6964, 9.9532, 10.017400000000002]
 # plot_times = [7.0, 7.3852, 7.642, 7.8346, 8.0272, 8.155599999999998]
-cb = [4]
+cb = [4, 6]
 for c in cb:
     save = [None, plotdir+'/isos_cb'+str(c)+'.png', \
             finalplotdir+'/isos_cb'+str(c)+'.png']
@@ -608,7 +643,7 @@ The old plots for 1Msun models are no longer relevant. I think something like th
 ```python
 peeps = [ 'ZAMS', 'IAMS', 'H-3', 'TAMS']
 save = [None, plotdir+'/m1p0.png', finalplotdir+'/m1p0.png']
-plot_m1p0(peeps=peeps, h1_legend=False, talk_plot=False, save=save[1])
+plot_m1p0(peeps=peeps, h1_legend=True, talk_plot=False, save=save[1])
 ```
 
 <img src="temp/m1p0.png" alt="m1p0.png" height="400"/>

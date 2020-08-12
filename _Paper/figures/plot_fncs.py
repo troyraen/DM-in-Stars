@@ -197,7 +197,7 @@ def adjust_plot_readability(fig=None, fontAdj=False, fontOG=None, plot=None):
 # fs Files and directories
 basedir = '/home/tjr63/DMS'
 mesaruns = basedir + '/mesaruns'
-datadir = mesaruns+ '/RUNS_defDM'
+datadir = mesaruns+ '/RUNS_FINAL'
 fdesc = datadir + '/descDF.csv'
 profiles_datadir = datadir + '/'
 r2tf_dir = datadir
