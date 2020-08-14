@@ -282,7 +282,10 @@ Need to be aware of TACHeB.
 
 ### setup and testing
 <!-- fs -->
+See `probmods.md` where I track models that seem to have problems. The `probmods [dict]` in this file (below) tracks the indices.
+
 ```python
+probmods = {}
 %run plot_fncs
 pidf = pidxdfOG # df of profiles.index files
 cb, mass = 0, 1.0
@@ -321,11 +324,13 @@ Random deviations from the trends seems to be a problem. e.g., c4 at 2.55 Msun h
 - [x]  plot MS lifetimes (not the delta)
 - [x]  plot Xc as fnc of time for 3 masses (1 at spike and 2 bracketing it)
 
-Get (some) affected masses
+Get (some) affected masses (tracked in `probmods.md`)
 ```python
 for cb in [4,5]:
 tmp = descdf.loc[idx[2.3:,cb],'MStau']
 print(tmp.loc[tmp.diff()>0.03].index)
+
+probmods['deltaSpike'] = [(2.55,4), (3.35,4), (3.5,5)]
 ```
 
 MS lifetimes
@@ -347,7 +352,7 @@ plt.savefig(plotdir+'/check_MStau_yrs.png')
 ```
 <img src="temp/check_MStau_yrs.png" alt="check_MStau_yrs" height="400"/>
 
-The __trend__ has a noticeable increase in c3-6 just do to the shutoff of core convection.
+The __trend__ has a noticeable increase in c3-6 just due to the shutoff of core convection.
 
 There is an __unexpected increase__ around 2.4Msun in cboost 0-3, and it's pushed to higher masses in cboost 4 and 5. Get affected masses and check center_h1.
 
@@ -355,18 +360,18 @@ Get affected masses:
 ```python
 for cb in ddf.columns:
     dif = ddf[cb].dropna().diff() # difference with the previous row, should be negative
-    for prob in dif.loc[dif>0].index.tolist():
-        print(f'({cb}, {prob})') # get positive (problem) value indicies
+    for mass in dif.loc[dif>0].index.tolist():
+        print(f'({mass}, {cb})') # get positive (problem) value indicies
 
-mstau_increase_probmods = [(0, 2.4), (1, 2.4), (2, 2.4), (3, 2.4), (4, 2.55), (5, 3.5)]
+probmods['msIncPrevMass'] = [(2.4, 0), (2.4, 1), (2.4, 2), (2.4, 3), (2.55, 4), (3.5, 5)]
 ```
-__Problem models__ are (cb, mass):
-(0, 2.4)
-(1, 2.4)
-(2, 2.4)
-(3, 2.4)
-(4, 2.55)
-(5, 3.5)
+__Problem models__ are:
+(2.4, 0)
+(2.4, 1)
+(2.4, 2)
+(2.4, 3)
+(2.55, 4)
+(3.5, 5)
 
 Models that increase due to core convection:
 (3, 1.45)
@@ -386,44 +391,53 @@ Xc as fnc of time:
 from pandas import IndexSlice as idx
 import debug_fncs as dbg
 
-# find the c4 models around 2.5Msun that cause the dip and spike
-descdf = get_descdf(fin=fdesc)
-descdf.rename(columns={'cboost':'cb'}, inplace=True)
-descdf.set_index(['mass','cb'], inplace=True)
-descdf.loc[idx[2.3:2.8,4],'MStau']
+# # get a center_h1 vs age df as a pivot table
+# mass, cb = [2.35, 2.40, 2.45, 2.50, 2.55, 2.60], 4 # model 2.40 has dip, 2.55 has spike
+# hp = dbg.get_h1_v_age_pivot(mass,cb)
+# # plot it
+# hp.plot()
+# plt.xlim(0,6e8)
+# plt.ylabel('center_h1')
+# plt.title('c4 models')
+# plt.tight_layout()
+# plt.show(block=False)
+# plt.savefig(plotdir+'/check_MStau_centerh1_linear.png')
 
-# get a center_h1 vs age df as a pivot table
-mass, cb = [2.35, 2.40, 2.45, 2.50, 2.55, 2.60], 4 # model 2.40 has dip, 2.55 has spike
-hp = dbg.get_h1_v_age_pivot(mass,cb)
-
-# plot it
-hp.plot()
-plt.xlim(0,6e8)
-plt.ylabel('center_h1')
-plt.title('c4 models')
+pmlist = list(set(sum(probmods.values(), [])))
+minage = 1e7
+H1cInc = []
+fig, axs = plt.subplots(nrows=len(pmlist),ncols=1, sharex=True, figsize=(5,12))
+for a, ix in enumerate(pmlist):
+    (mass,cb) = ix
+    h = get_hdf(cb, mass=mass)
+    h = h.loc[h.star_age>minage,:]
+    axs[a].semilogx(h.star_age, h.center_h1, label=f'({mass}, {cb})')
+    axs[a].legend()
+    plt.ylabel('center_h1')
+    if h.center_h1.is_monotonic_decreasing == False:
+        H1cInc.append(ix)
+plt.xlabel('star_age')
 plt.tight_layout()
-plt.show(block=False)
-plt.savefig(plotdir+'/check_MStau_centerh1_linear.png')
+plt.savefig(plotdir+'/check_centerH1.png')
+probmods['H1cInc'] = H1cInc
+
 ```
 
-<img src="temp/check_MStau_centerh1_linear.png" alt="check_MStau_centerh1_linear" width="400"/>
-<img src="temp/check_MStau_centerh1_linear_c0.png" alt="check_MStau_centerh1_linear_c0" width="400"/>
+<img src="temp/check_centerH1.png" alt="check_centerH1" width="400"/>
 
-__Note the increases in the `m2.55c4` and `m2.40c0` models at early times.__
-I looked at a loglog plot to see where each model fell below 1e-3 (end of MS) and the pattern is the same as seen here.
 
-Get a list of models that have non-monotonic center_h1 values before they hit TAMS. (Note that loglog plots above showed center_h1 increases after TAMS at very small values < ~1e-30.)
+<!-- __Note the increases in the `m2.55c4` and `m2.40c0` models at early times.__ -->
+<!-- I looked at a loglog plot to see where each model fell below 1e-3 (end of MS) and the pattern is the same as seen here. -->
+
+Get a list of models that have non-monotonic center_h1 values before they hit TAMS.
+<!-- (Note that loglog plots above showed center_h1 increases after TAMS at very small values < ~1e-30.) -->
 
 ```python
 h1cut = 1e-12
-currently_running = [(1.40,5), (1.20,5), (0.85,5), (2.58,0)]
 rootPath, nonmono = Path(datadir), pd.DataFrame(columns=['mass','cb','h1_mono'])
 for massdir, mass, cb in dp.iter_starModel_dirs(rootPath):
     masscb = (mass,cb)
-    # if masscb in currently_running: continue
-    hpath = massdir / 'LOGS' / 'history_pruned.data'
-    if not hpath.is_file(): continue
-    hdf = dp.load_history(hpath)
+    hdf = get_hdf(cb, mass=mass)
     mono = hdf.loc[hdf.center_h1>h1cut,'center_h1'].is_monotonic_decreasing
     nonmono = nonmono.append({'mass':mass,'cb':cb,'h1_mono':mono},ignore_index=True)
 
