@@ -2195,6 +2195,7 @@ def plot_m1p0(peeps=None, h1_legend=True, talk_plot=False, save=None):
         margin = 0.3
         axe.margins(y=margin)
         axtwin.margins(y=margin)
+        axc.margins(y=margin)
 
         if h1_legend:
             axc.legend()

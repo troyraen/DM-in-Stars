@@ -298,7 +298,7 @@ probmods['deltaSpike'] = [(2.55,4), (3.35,4), (3.5,5)]
 ```
 
 <a name="MStauVsMass"></a>
-# MS lifetimes vs Mass
+## MS lifetimes vs Mass
 <!-- fs -->
 ```python
 %run plot_fncs
@@ -354,7 +354,7 @@ Models that increase predictably, due to DM shutting off core convection:
 <!-- fe  -->
 
 <a name="XcVsTime"></a>
-# Xc as fnc of time:
+## Xc as fnc of time:
 <!-- fs -->
 ```python
 %run plot_fncs
@@ -422,10 +422,10 @@ nonmono.loc[nonmono.h1_mono==False,:]
 <!-- fe  -->
 
 <a name="probmod_profiles"></a>
-# Look at 2.4c0 and 2.55c4 (which have the most noticeable affects)
+## Look at 2.4c0 and 2.55c4 (which have the most noticeable affects)
 <!-- fs -->
 
-## Look at the 2.4c0 model more closely:
+### Look at the 2.4c0 model more closely:
 <!-- fs -->
 ```python
 %run plot_fncs
@@ -577,7 +577,7 @@ This confirms that the inner edge of the rotational mixing zone extends into the
 
 <!-- fe ## Look at the 2.4c0 model more closely: -->
 
-## Look at the 2.55c4 model more closely:
+### Look at the 2.55c4 model more closely:
 <!-- fs -->
 Plots below show similar patterns to 2.4c0 plots above.
 
@@ -733,7 +733,31 @@ plot_delta_tau(descdf, cctrans_frac='default', which='avg', save=save[1])
 <img src="temp/MStau.png" alt="/MStau.png" width="400"/>
 
 #### Debug:
-[See above](#bugs)
+[See above](#bugs) for exploration/explanation of the random deviations from the trends (due to rotational mixing -> injecting h1 into center)
+
+Check how much hydrogen is being burned, relative to c0 model of same mass.
+- [x]  Update `data_proc.py` to find Hburned = (c6hburn - c0hburn)/c0hburn and regenerate `descDF.csv`
+
+```python
+from matplotlib import pyplot as plt
+
+%run plot_fncs
+descdf = get_descdf(fin=fdesc)
+
+pvt = {'index':'mass','columns':'cboost','values':'Hburned'}
+dpiv = descdf.pivot(**pvt)
+plt.set_cmap(cbcmap)
+args = {'cmap':cbcmap}
+dpiv.plot(**args)
+plt.legend(loc=4)
+plt.ylabel('(Hburned - Hburned_c0)/Hburned_c0', fontsize=12)
+plt.tight_layout()
+save = plotdir + '/Hburned.png'
+plt.savefig(save)
+```
+
+<img src="temp/Hburned.png" alt="Hburned.png" width="400"/>
+
 <!-- fe -->
 
 
@@ -941,41 +965,83 @@ plot_hottest_Teff(save=save[1], plot_data=hotTeff_csv, resid=False, plotL=plotL)
 peeps = [ 'ZAMS', 'IAMS', 'H-3', 'H-4' ]
 save = [None, plotdir+'/m3p5.png', finalplotdir+'/m3p5.png']
 h1_legend = [False, True]
-plot_m3p5(peeps=peeps, h1_legend=h1_legend[1], save=save[1])
+plot_m3p5(peeps=peeps, h1_legend=h1_legend[1], save=plotdir+'/m3p5_legend.png')
+plot_m3p5(peeps=peeps, h1_legend=h1_legend[0], save=save[1])
 ```
 
 <img src="temp/m3p5.png" alt="m3p5.png" height="400"/>
+<img src="temp/m3p5_legend.png" alt="m3p5_legend.png" height="400"/>
 
 #### Debug:
 
 - [ ]  last two profiles are at the wrong times. the correct profiles did not get saved. run models again.
     - profile for h1_center<1e-4 was not set to be saved in `run_star_extras.f`. Not sure why h1_center<1e-3 didn't save. can find the model numbers from `hdf` and save profiles that way.
-    - _first_ think about what story I'm trying to tell with this plot and make sure those profiles will still tell that story
 
 ```python
 from pandas import IndexSlice as idx
 import debug_fncs as dbg
 
+h1cuts, __ = get_h1cuts()
+moddic = {}
 mass, cb = 3.5, [0,6]
-pidf.set_index(['mass','cb'], inplace=True)
-p3 = pidf.loc[idx[mass,cb],:]
-modnums = { 0: list(p3.loc[idx[:,0],'model_number']),
-            6: list(p3.loc[idx[:,6],'model_number'])
-            }
-hdf = pd.concat([get_hdf(0, mass=mass), get_hdf(6, mass=mass)])
-hdf['mass'] = 3.5
-hdf.set_index(['mass','cb'], inplace=True)
-
-dbg.plot_m3p5_h1vage(hdf, modnums=modnums)
-
-p3['center_h1'] = p3.apply(dbg.get_h1_for_p3, axis=1, hdf=hdf, result_type='expand')
-# having trouble getting the centerh1 values into p3
-
-# do this instead
-p3['center_h1'] = hdf.loc[p3.set_index('model_number').index,'center_h1']
-pvt = {'index':'priority', 'columns':'cb', 'values':'center_h1'}
-p3.pivot(**pvt)
+for c in cb:
+    print(c, hdf.model_number.max())
+    moddic[c] = {}
+    hdf = get_hdf(c, mass=mass).sort_values('model_number')
+    for name, cut in h1cuts.items():
+        m = hdf.loc[hdf.center_h1<cut,'model_number'].min()
+        moddic[c][name] = m
 ```
+
+Update run_star_extras to save model numbers in moddic, then re-run these two models.
+```bash
+maindir="/home/tjr63/DMS/mesaruns"
+cd ${maindir}
+nano src/run_star_extras.f
+# Update run_star_extras to save model numbers in moddic
+./clean
+./mk
+RUNS="RUNS_FINAL_tmp"
+source ${maindir}/bash_scripts/do_mesa_run.sh
+# source ${maindir}/images_to_movie.sh # the call to this script fails
+mass=m3p50
+mval=3.50
+cb=0
+do_mesa_run "${maindir}" "${RUNS}/c${cb}/${mass}" "${mval}" "${cb}" 0 "master" 0
+
+RUNSfinal="RUNS_FINAL"
+RUNSdefDM="RUNS_defDM"
+mass=m3p50
+mv "${RUNSfinal}/c${cb}/${mass}" "${RUNSdefDM}/c${cb}/${mass}"
+mv "${RUNS}/c${cb}/${mass}" "${RUNSfinal}/c${cb}/${mass}"
+# repeat for cb=6
+
+cd
+cd DMS/mesaruns_analysis/_Paper/figures/
+dmsenv
+ipython
+```
+
+Prune the new history files
+```python
+from pathlib import Path
+import data_proc as dp
+import plot_fncs as pf
+rootPath = Path(pf.datadir)
+for cb in [0,6]:
+    LOGSdir = Path(pf.datadir + f'/c{cb}/m3p50/LOGS')
+    dp.prune_hist(LOGSdir, skip_exists=False, ow_exists=True)
+```
+Now the above plots should have the correct data.
+
+#### Check that temp profile is flattened
+```python
+# alter plot_fncs plot_m3p5() to show T instead of convection
+save = plotdir+'/m3p5_temp_profiles.png'
+plot_m3p5(peeps=peeps, h1_legend=False, save=save)
+```
+<img src="temp/m3p5_temp_profiles.png" alt="m3p5_temp_profiles.png" width="400"/>
+It is flattened.
 
 <!-- fe -->
 
@@ -988,9 +1054,10 @@ The old plots for 1Msun models are no longer relevant. I think something like th
 ```python
 peeps = [ 'ZAMS', 'IAMS', 'H-3', 'TAMS']
 save = [None, plotdir+'/m1p0.png', finalplotdir+'/m1p0.png']
-plot_m1p0(peeps=peeps, h1_legend=False, talk_plot=False, save=save[1])
+plot_m1p0(peeps=peeps, h1_legend=True, save=plotdir+'/m1p0_h1Legend.png')
+plot_m1p0(peeps=peeps, h1_legend=False, save=save[1])
 ```
-
+<img src="temp/m1p0_h1Legend.png" alt="m1p0_h1Legend.png" height="400"/>
 <img src="temp/m1p0.png" alt="m1p0.png" height="400"/>
 <!-- fe -->
 
