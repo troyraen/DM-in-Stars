@@ -391,17 +391,17 @@ Xc as fnc of time:
 from pandas import IndexSlice as idx
 import debug_fncs as dbg
 
-# # get a center_h1 vs age df as a pivot table
-# mass, cb = [2.35, 2.40, 2.45, 2.50, 2.55, 2.60], 4 # model 2.40 has dip, 2.55 has spike
-# hp = dbg.get_h1_v_age_pivot(mass,cb)
-# # plot it
-# hp.plot()
-# plt.xlim(0,6e8)
-# plt.ylabel('center_h1')
-# plt.title('c4 models')
-# plt.tight_layout()
-# plt.show(block=False)
-# plt.savefig(plotdir+'/check_MStau_centerh1_linear.png')
+# get a center_h1 vs age df as a pivot table
+mass, cb = [2.35, 2.40, 2.45, 2.50, 2.55, 2.60], 4 # model 2.40 has dip, 2.55 has spike
+hp = dbg.get_h1_v_age_pivot(mass,cb)
+# plot it
+hp.plot()
+plt.xlim(0,6e8)
+plt.ylabel('center_h1')
+plt.title('c4 models')
+plt.tight_layout()
+plt.show(block=False)
+plt.savefig(plotdir+'/check_MStau_centerh1_linear.png')
 
 pmlist = list(set(sum(probmods.values(), [])))
 minage = 1e7
@@ -423,6 +423,7 @@ probmods['H1cInc'] = H1cInc
 
 ```
 
+<img src="temp/check_MStau_centerh1_linear.png" alt="check_MStau_centerh1_linear" width="400"/>
 <img src="temp/check_centerH1.png" alt="check_centerH1" width="400"/>
 
 
@@ -447,6 +448,106 @@ nonmono.loc[nonmono.h1_mono==False,:]
 ```
 
 - [ ]  __There are 93 (out of 569) models for which center_h1 is non-monotonic before TAMS.__ Need to track down why. Only physically plausible mechanism I can think of that may increase central H1 abundance is convection, but that shouldn't affect a single mass and not the masses that bracket it in the way seen in the center_h1 plots above.
+
+Look at the 2.4c0 model more closely:
+
+```python
+%run plot_fncs
+cb, mass = 0, 2.40
+hdf = get_hdf(cb, mass=mass) # plot_fncs.py usepruned = True
+hdfunp = get_hdf(cb, mass=mass) # usepruned = False
+# len(hdf) = 880, len(hdfunp) = 881
+hdfb = get_hdf(cb, mass=mass-0.05)
+
+h1cut = 1e-12
+hdf.loc[hdf.center_h1>h1cut,'center_h1'].is_monotonic_decreasing # False
+hdfb.loc[hdfb.center_h1>h1cut,'center_h1'].is_monotonic_decreasing # True
+
+hdf = hdf.loc[hdf.center_h1>h1cut,:]
+
+import matplotlib as mpl
+from matplotlib import pyplot as plt
+hdf.plot('model_number', 'center_h1', kind='scatter')
+plt.show(block=False)
+# model 284 has the only increase
+pm = 284
+hdf.loc[hdf.model_number>pm,'center_h1'].is_monotonic_decreasing # True
+hdf.loc[hdf.model_number<pm,'center_h1'].is_monotonic_decreasing # True
+
+h = hdf.loc[((hdf.model_number>225)&(hdf.model_number<325)),:]
+
+# scale energy error to see on same plot
+h['log_reiec'] = np.log10(h.rel_error_in_energy_conservation.abs())/13
+plotcols = ['center_h1','center_he4','mass_conv_core','total_mass_h1','log_reiec']
+h.plot('model_number', plotcols)
+plt.gca().axvline(pm, c='0.5', lw=0.25)
+plt.title(rf'2.4M$_\odot$ c0')
+plt.tight_layout()
+plt.show(block=False)
+plt.savefig(plotdir+'/m2p4c0.png')
+
+# look at mixing
+plotcols = ['mass_conv_core','conv_mx1_top','conv_mx1_bot','conv_mx2_top','conv_mx2_bot','mx1_top', 'mx1_bot']
+h.plot('model_number', plotcols)
+plt.gca().axvline(pm, c='0.5', lw=0.25)
+plt.title(rf'2.4M$_\odot$ c0')
+plt.tight_layout()
+plt.show(block=False)
+plt.savefig(plotdir+'/m2p4c0_mixing.png')
+
+```
+<img src="temp/m2p4c0.png" alt="temp/m2p4c0.png" width="400"/>
+<img src="temp/m2p4c0_mixing.png" alt="temp/m2p4c0_mixing.png" width="400"/>
+
+- [x]  I looked at `STD.out` for this model and there is no entry for model number 284 (skips from model 270 to 287), indicating that there was no problem with this step.
+
+
+Look at the 2.55c4 model more closely:
+
+```python
+%run plot_fncs
+cb, mass = 4, 2.55
+hdf = get_hdf(cb, mass=mass) # plot_fncs.py usepruned = True
+hdfunp = get_hdf(cb, mass=mass) # usepruned = False
+# len(hdf) = 828, len(hdfunp) = 828
+
+h1cut = 1e-12
+hdf.loc[hdf.center_h1>h1cut,'center_h1'].is_monotonic_decreasing # False
+
+hdf = hdf.loc[hdf.center_h1>h1cut,:]
+
+hdf.plot('model_number', 'center_h1', kind='scatter')
+plt.show(block=False)
+# model 284 has the only increase
+pm = 286
+hdf.loc[hdf.model_number>pm,'center_h1'].is_monotonic_decreasing # True
+hdf.loc[hdf.model_number<pm,'center_h1'].is_monotonic_decreasing # True
+
+h = hdf.loc[((hdf.model_number>225)&(hdf.model_number<325)),:]
+
+# scale energy error to see on same plot
+h['log_reiec'] = np.log10(h.rel_error_in_energy_conservation.abs())/13
+plotcols = ['center_h1','center_he4','conv_mx1_top','total_mass_h1','log_reiec']
+h.plot('model_number', plotcols)
+plt.gca().axvline(pm, c='0.5', lw=0.25)
+plt.title(rf'2.55M$_\odot$ c4')
+plt.tight_layout()
+plt.show(block=False)
+plt.savefig(plotdir+'/m2p55c4.png')
+
+
+plotcols = ['mass_conv_core','conv_mx1_top','conv_mx1_bot','conv_mx2_top','conv_mx2_bot',
+            'mx1_top', 'mx1_bot']
+h.plot('model_number', plotcols)
+plt.gca().axvline(pm, c='0.5', lw=0.25)
+plt.title(rf'2.55M$_\odot$ c4')
+plt.tight_layout()
+plt.show(block=False)
+plt.savefig(plotdir+'/m2p55c4_mixing.png')
+```
+<img src="temp/m2p55c4.png" alt="temp/m2p55c4.png" width="400"/>
+<img src="temp/m2p55c4_mixing.png" alt="temp/m2p55c4_mixing.png" width="400"/>
+
 
 <!-- fe -->
 
@@ -702,7 +803,7 @@ The old plots for 1Msun models are no longer relevant. I think something like th
 ```python
 peeps = [ 'ZAMS', 'IAMS', 'H-3', 'TAMS']
 save = [None, plotdir+'/m1p0.png', finalplotdir+'/m1p0.png']
-plot_m1p0(peeps=peeps, h1_legend=True, talk_plot=False, save=save[1])
+plot_m1p0(peeps=peeps, h1_legend=False, talk_plot=False, save=save[1])
 ```
 
 <img src="temp/m1p0.png" alt="m1p0.png" height="400"/>
