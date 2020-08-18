@@ -269,18 +269,20 @@ def desc_to_DF(sdic, MStau_DF, othmap) -> "sdic['descDF'] = ":
     cno = MStau_DF.CNOavg[star_idx]
     masscc_avg = MStau_DF.masscc_avg[star_idx]
     masscc_ZAMS = MStau_DF.masscc_ZAMS[star_idx]
+    Hburned = MStau_DF.Hburned[star_idx]
 
     cols=['star_index', 'mass', 'cboost', 'other', \
             'enterMS_model', 'ZAMS_Teff', 'ZAMS_L', \
             'leaveMS_model', 'lAMS_Teff', 'lAMS_L', \
             'TAMS_model', 'TAMS_Teff', 'TAMS_L', \
             'TACHeB_model', 'MStau_yrs', 'MStau', \
-            'PPavg', 'CNOavg', 'masscc_avg', 'masscc_ZAMS']
+            'PPavg', 'CNOavg', 'masscc_avg', 'masscc_ZAMS', 'Hburned']
     data = [ int(star_idx), float(mass[:-5]), int(cb[1]), other, \
                 enterMSmodel, ZAMS_Teff, ZAMS_L, \
                 leaveMSmodel, lAMS_Teff, lAMS_L, \
                 TAMSmodel, TAMS_Teff, TAMS_L, \
-                TACHeBmodel, MStau_yrs, MStau, pp, cno, masscc_avg, masscc_ZAMS ]
+                TACHeBmodel, MStau_yrs, MStau, pp, cno, \
+                masscc_avg, masscc_ZAMS, Hburned ]
     datadic = {1:data}
 #     print(type(datadic[1]))
     df = pd.DataFrame.from_dict(datadic, orient='index', columns=cols)
@@ -346,7 +348,8 @@ def create_MS_DF(star_dicts, othmap) -> 'msdf':
         pp = []
         cno = []
         mass_conv_core = []
-        mcc_ZAMS = [] #convert these to arrays at end
+        mcc_ZAMS = []
+        Hburned = [] #convert these to arrays at end
 
         # do this twice. 1st time, get c0. 2nd time, get all others.
         for k in [1,2]:
@@ -367,12 +370,19 @@ def create_MS_DF(star_dicts, othmap) -> 'msdf':
 
                     # MS lifetime:
                     h = sdic['hist']
-                    enterMS = h.star_age[findEV_enterMS(h)]
-                    leaveMS = h.star_age[findEV_leaveMS(h)]
+                    eMS, lMS = findEV_enterMS(h), findEV_leaveMS(h)
+                    enterMS = h.star_age[eMS]
+                    leaveMS = h.star_age[lMS]
                     MStau = leaveMS - enterMS
                     tau_yrs.append(MStau)
                     MStau0 = MStau if k==1 else MStau0
                     tau.append(0. if k==1 else (MStau-MStau0)/MStau0)
+
+                    # H burned during MS relative to c0 model
+                    Hburn = h.total_mass_h1[eMS] - h.total_mass_h1[lMS]
+                    Hburn0 = Hburn if k==1 else Hburn0
+                    Hburned.append(0. if k==1 else (Hburn-Hburn0)/Hburn0)
+
 
                     # setup a DF for what follows
                     en = findEV_enterMS(h) - 1 # get 1 model before MS for delta_age (below)
@@ -405,10 +415,11 @@ def create_MS_DF(star_dicts, othmap) -> 'msdf':
         listMSdicts[l]['CNOavg'] = np.array(list(cno))
         listMSdicts[l]['masscc_avg'] = np.array(list(mass_conv_core))
         listMSdicts[l]['masscc_ZAMS'] = np.array(list(mcc_ZAMS))
+        listMSdicts[l]['Hburned'] = np.array(list(Hburned))
         sdicts = [s for s in sdicts if sdicts.index(s) not in idx]
 
     columns = ['star_index', 'mass', 'cb', 'MStau_yrs', 'MStau', 'PPavg', 'CNOavg', \
-                'masscc_avg', 'masscc_ZAMS']
+                'masscc_avg', 'masscc_ZAMS', 'Hburned']
     msdf = pd.concat([pd.DataFrame(listMSdicts[i], columns=columns) \
              for i in range(len(listMSdicts))], ignore_index=True)
     msdf.set_index('star_index', drop=False, inplace=True, verify_integrity=True)

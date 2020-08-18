@@ -48,7 +48,9 @@ for cbdir in root.iterdir():
         hist = rootc / 'history_pruned.data' if usepruned else rootc / 'history.data'
         prof = rootc / 'profiles.index'
 
-        if not hist.is_file(): continue # skip if history file doesn't exist
+        if not hist.is_file():  # skip if history file doesn't exist
+            print(f'\n{hist} does not exist.\nSkipping\n')
+            continue
         print(f'Starting {massdir}')
 
         sid = len(stars.items())
