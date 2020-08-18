@@ -5,6 +5,10 @@
     - [`hotTeff.csv`](#hotTcsv)
     - [`isochrones.csv`](#isocsv)
     - [Do some checks](#checks)
+- [Check things that seem weird in plots below](#bugs)
+    - [MS lifetimes vs Mass](#MStauVsMass)
+    - [Xc as fnc of time](#XcVsTime)
+    - [Look at 2.4c0 and 2.55c4 (which are the most obvious problems)](#probmod_profiles)
 - [Create Raen2020 paper plots](#makeplots)
     - [delta MS Tau](#mstau)
     - [Teff v Age](#teff)
@@ -270,54 +274,12 @@ Need to be aware of TACHeB.
 
 <!-- fe # Create derived data files -->
 
-
-<a name="makeplots"></a>
-# Create plots for Raen2020 paper
-<!-- fs plots -->
-
-- Osiris
-- `defDM` branch
-- `home/tjr63/DMS/mesaruns_analysis/_Paper/figures/` (Osiris) directory
-
-
-### setup and testing
+<a name="bugs"></a>
+# Check things that seem weird in the plots below
 <!-- fs -->
 See `probmods.md` where I track models that seem to have problems. The `probmods [dict]` in this file (below) tracks the indices.
 
-```python
-probmods = {}
-%run plot_fncs
-pidf = pidxdfOG # df of profiles.index files
-cb, mass = 0, 1.0
-modnum = pidf.loc[((pidf.mass==mass)&(pidf.cb==cb)&(pidf.priority==97)),'model_number'].iloc[0]
-# hdf = load_hist_from_file(0, mass=1.0, from_file=True, pidxdf=pidf) # 1p0c0 history df
-hdf = get_hdf(cb, mass=mass) # single history df
-pdf = get_pdf(cb, modnum, mass=mass, rtrn='df') # single profile df
-```
-
-Note that there is a problem in matplotlib version 3.1.3
-when trying to use a colormap with a scatter plot and data of length 1
-See https://github.com/matplotlib/matplotlib/issues/10365/
-I fixed this in `plot_delta_tau()` and other fncs below by doing
-`plt.scatter(np.reshape(x,-1), np.reshape(y,-1), c=np.reshape(c,-1))`
-
-<!-- fe -->
-
-
-<a name="mstau"></a>
-### delta MS Tau
-<!-- fs -->
-```python
-descdf = get_descdf(fin=fdesc)
-save = [None, plotdir + '/MStau.png', finalplotdir + '/MStau.png']
-plot_delta_tau(descdf, cctrans_frac='default', which='avg', save=save[1])
-```
-
-<img src="temp/MStau.png" alt="/MStau.png" width="400"/>
-
-#### Debug:
-
-Random deviations from the trends seems to be a problem. e.g., c4 at 2.55 Msun has ~10% increase.
+Random deviations from the trends in the [delta MS Tau](#mstau) plot seem to be a problem. e.g., c4 at 2.55 Msun has ~10% increase.
 
 - [x]  get (some) affected masses
 - [x]  check unpruned history.data from m2.55c4 to see if this is causing the spike (it is not)
@@ -326,6 +288,8 @@ Random deviations from the trends seems to be a problem. e.g., c4 at 2.55 Msun h
 
 Get (some) affected masses (tracked in `probmods.md`)
 ```python
+probmods = {}
+
 for cb in [4,5]:
 tmp = descdf.loc[idx[2.3:,cb],'MStau']
 print(tmp.loc[tmp.diff()>0.03].index)
@@ -333,7 +297,9 @@ print(tmp.loc[tmp.diff()>0.03].index)
 probmods['deltaSpike'] = [(2.55,4), (3.35,4), (3.5,5)]
 ```
 
-MS lifetimes
+<a name="MStauVsMass"></a>
+# MS lifetimes vs Mass
+<!-- fs -->
 ```python
 %run plot_fncs
 descdf = get_descdf(fin=fdesc)
@@ -373,7 +339,7 @@ __Problem models__ are:
 (2.55, 4)
 (3.5, 5)
 
-Models that increase due to core convection:
+Models that increase predictably, due to DM shutting off core convection:
 (3, 1.45)
 (4, 1.8)
 (4, 1.85)
@@ -385,7 +351,11 @@ Models that increase due to core convection:
 (6, 3.65)
 (6, 3.7)
 
-Xc as fnc of time:
+<!-- fe  -->
+
+<a name="XcVsTime"></a>
+# Xc as fnc of time:
+<!-- fs -->
 ```python
 %run plot_fncs
 from pandas import IndexSlice as idx
@@ -447,10 +417,16 @@ len(len(nonmono.loc[nonmono.h1_mono==False,:]))
 nonmono.loc[nonmono.h1_mono==False,:]
 ```
 
-- [ ]  __There are 93 (out of 569) models for which center_h1 is non-monotonic before TAMS.__ Need to track down why. Only physically plausible mechanism I can think of that may increase central H1 abundance is convection, but that shouldn't affect a single mass and not the masses that bracket it in the way seen in the center_h1 plots above.
+- [ ]  __There are 93 (out of 569) models for which center_h1 is non-monotonic before TAMS. Need to track down why. This seems to cause the other problems found above.__ Only physically plausible mechanism I can think of that may increase central H1 abundance is convection, but that shouldn't affect a single mass and not the masses that bracket it in the way seen in the center_h1 plots above.
 
-Look at the 2.4c0 model more closely:
+<!-- fe  -->
 
+<a name="probmod_profiles"></a>
+# Look at 2.4c0 and 2.55c4 (which have the most noticeable affects)
+<!-- fs -->
+
+## Look at the 2.4c0 model more closely:
+<!-- fs -->
 ```python
 %run plot_fncs
 cb, mass = 0, 2.40
@@ -496,13 +472,114 @@ plt.show(block=False)
 plt.savefig(plotdir+'/m2p4c0_mixing.png')
 
 ```
-<img src="temp/m2p4c0.png" alt="temp/m2p4c0.png" width="400"/>
-<img src="temp/m2p4c0_mixing.png" alt="temp/m2p4c0_mixing.png" width="400"/>
+<img src="temp/m2p4c0.png" alt="temp/m2p4c0.png" width="600"/>
+<img src="temp/m2p4c0_mixing.png" alt="temp/m2p4c0_mixing.png" width="600"/>
+
+__Problem model number = 284 (thin grey line)__
 
 - [x]  I looked at `STD.out` for this model and there is no entry for model number 284 (skips from model 270 to 287), indicating that there was no problem with this step.
+- [ ]  __Some type of non-convective mixing turns on in the core at this step. What kind of mixing is it?__
+
+### Do another 2.4c0 run and save video
+```bash
+maindir="/home/tjr63/DMS/mesaruns_x"
+cd ${maindir}
+./clean
+./mk
+
+RUNS="RUNS"
+source ${maindir}/bash_scripts/do_mesa_run.sh
+# source ${maindir}/images_to_movie.sh # the call to this script fails
+mass=m2p4
+mval=2.40
+cb=0
+do_mesa_run "${maindir}" "${RUNS}/c${cb}/${mass}" "${mval}" "${cb}" 1 "master" 1
+mv "${RUNS}/c${cb}/${mass}" "${RUNS}/c${cb}/${mass}_png"
+```
+Didn't show anything obviously useful.
+
+### Do another run and save profiles for models 280-285.
+```bash
+# edit src/run_star_extras.f to save profiles
+do_mesa_run "${maindir}" "${RUNS}/c${cb}/${mass}" "${mval}" "${cb}" 0 "master" 1
+
+cd _Paper/figures
+dmsenv
+ipython
+```
+
+```python
+import pandas as pd
+from matplotlib import pyplot as plt
+%run plot_fncs
+pidx = pidxdfOG
+# load the profiles
+cb, mass = 0, 2.40
+pm = 284 # problem model where center_h1 increases
+modnum = [pm+i for i in [-2,-1,0,1]]
+pdflist = []
+for mn in modnum:
+    pdf = get_pdf(cb, mn, mass=mass)
+    pdf['massi'], pdf['cb'], pdf['modnum'] = mass, cb, mn
+    pdflist.append(pdf.set_index(['modnum','zone'], drop=False))
+pdf = pd.concat(pdflist)
+
+# mixingcols = ['mixing_type', 'log_D_mix', 'log_D_conv', 'log_D_soft', 'log_D_semi',
+#             'log_D_ovr', 'log_D_thrm', 'log_D_minimum', 'log_D_rayleigh_taylor',
+#             'log_D_anon']
+# I checked all of those. The interesting one is
+mixingcols = ['mixing_type', 'h1']
+
+for col in mixingcols:
+    plt.figure()
+    for mn, p in pdf.groupby(level='modnum'):
+        args = {'ax':plt.gca(), 'label':f'model {mn}'}
+        p.plot('q',col, **args)
+    plt.title(f'{col} m2p4c0')
+    plt.ylabel(col)
+    plt.legend()
+    plt.tight_layout()
+    plt.show(block=False)
+    plt.savefig(plotdir+f'/m2p4c0_{col}_profiles.png')
+
+```
+<img src="temp/m2p4c0_mixing_type_profiles.png" alt="m2p4c0_mixing_type_profiles" width="400"/>
+
+Mixing types from mesa-r12115/const/public/const_def.f90:
+- no_mixing = 0
+- convective_mixing = 1
+- softened_convective_mixing = 2  ! for modified D_mix near convective boundary
+- overshoot_mixing = 3
+- semiconvective_mixing = 4
+- thermohaline_mixing = 5
+- rotation_mixing = 6
+- rayleigh_taylor_mixing = 7
+- minimum_mixing = 8
+- anonymous_mixing = 9
+
+Model numbers 284 and 285 have rotation mixing in q = [0.2, 0.4], while the previous models have no mixing in that region.
+
+<img src="temp/m2p4c0_h1_profiles.png" alt="m2p4c0_h1_profiles" width="400"/>
+
+```python
+# plot h1 and mixing type together for model 284
+from pandas import IndexSlice as idx
+plt.figure()
+args = {'ax':plt.gca()}
+pdf.loc[idx[pm-1,:],:].plot('q','h1', **args)
+pdf.loc[idx[pm,:],:].plot('q',mixingcols, **args)
+plt.show(block=False)
+# zoom in and save manually
+```
+This confirms that the inner edge of the rotational mixing zone extends into the core region where h1 was previously depleted. Blue is h1 profile from model 283, orange and green are from model 284.
+<img src="temp/m2p4c0_h1_rotmixing.png" alt="m2p4c0_h1_rotmixing" width="400"/>
 
 
-Look at the 2.55c4 model more closely:
+<!-- fe ## Look at the 2.4c0 model more closely: -->
+
+## Look at the 2.55c4 model more closely:
+<!-- fs -->
+Plots below show similar patterns to 2.4c0 plots above.
 
 ```python
 %run plot_fncs
@@ -518,7 +595,7 @@ hdf = hdf.loc[hdf.center_h1>h1cut,:]
 
 hdf.plot('model_number', 'center_h1', kind='scatter')
 plt.show(block=False)
-# model 284 has the only increase
+# model 286 has the only increase
 pm = 286
 hdf.loc[hdf.model_number>pm,'center_h1'].is_monotonic_decreasing # True
 hdf.loc[hdf.model_number<pm,'center_h1'].is_monotonic_decreasing # True
@@ -548,7 +625,115 @@ plt.savefig(plotdir+'/m2p55c4_mixing.png')
 <img src="temp/m2p55c4.png" alt="temp/m2p55c4.png" width="400"/>
 <img src="temp/m2p55c4_mixing.png" alt="temp/m2p55c4_mixing.png" width="400"/>
 
+__Problem model number = 286 (thin grey line)__
 
+### Do another run and save profiles for models 282-287.
+```bash
+# edit src/run_star_extras.f to save profiles
+maindir="/home/tjr63/DMS/mesaruns_x"
+cd ${maindir}
+# edit src/run_star_extras.f to save profiles
+./clean
+./mk
+
+RUNS="RUNS"
+source ${maindir}/bash_scripts/do_mesa_run.sh
+# source ${maindir}/images_to_movie.sh # the call to this script fails
+mass=m2p55
+mval=2.55
+cb=4
+
+do_mesa_run "${maindir}" "${RUNS}/c${cb}/${mass}" "${mval}" "${cb}" 0 "master" 1
+
+cd _Paper/figures
+dmsenv
+ipython
+```
+
+```python
+import pandas as pd
+from matplotlib import pyplot as plt
+%run plot_fncs
+pidx = pidxdfOG
+# load the profiles
+cb, mass = 4, 2.55
+pm = 286 # problem model where center_h1 increases
+modnum = [pm+i for i in [-2,-1,0,1]]
+pdflist = []
+for mn in modnum:
+    pdf = get_pdf(cb, mn, mass=mass)
+    pdf['massi'], pdf['cb'], pdf['modnum'] = mass, cb, mn
+    pdflist.append(pdf.set_index(['modnum','zone'], drop=False))
+pdf = pd.concat(pdflist)
+
+mixingcols = ['mixing_type', 'h1']
+
+for col in mixingcols:
+    plt.figure()
+    for mn, p in pdf.groupby(level='modnum'):
+        args = {'ax':plt.gca(), 'label':f'model {mn}'}
+        p.plot('q',col, **args)
+    plt.ylabel(col)
+    plt.title(f'{col} m2p55c4')
+    plt.legend()
+    plt.tight_layout()
+    plt.show(block=False)
+    plt.savefig(plotdir+f'/m2p55c4_{col}_profiles.png')
+```
+<img src="temp/m2p55c4_mixing_type_profiles.png" alt="m2p55c4_mixing_type_profiles" width="400"/>
+<img src="temp/m2p55c4_h1_profiles.png" alt="m2p55c4_h1_profiles" width="400"/>
+
+Similar to m2p4c0 above, rotation mixing in q = [0.2, 0.4] turns on at the problem model.
+
+<!-- fe ## Look at the 2.55c4 model more closely: -->
+
+<!-- fe # Look at 2.4c0 and 2.55c4 (which have the most noticeable affects)  -->
+
+<!-- fe # Check things that seem weird in plots below -->
+
+<a name="makeplots"></a>
+# Create plots for Raen2020 paper
+<!-- fs plots -->
+
+- Osiris
+- `defDM` branch
+- `home/tjr63/DMS/mesaruns_analysis/_Paper/figures/` (Osiris) directory
+
+
+### setup and testing
+<!-- fs -->
+```python
+%run plot_fncs
+pidf = pidxdfOG # df of profiles.index files
+cb, mass = 0, 1.0
+modnum = pidf.loc[((pidf.mass==mass)&(pidf.cb==cb)&(pidf.priority==97)),'model_number'].iloc[0]
+# hdf = load_hist_from_file(0, mass=1.0, from_file=True, pidxdf=pidf) # 1p0c0 history df
+hdf = get_hdf(cb, mass=mass) # single history df
+pdf = get_pdf(cb, modnum, mass=mass, rtrn='df') # single profile df
+```
+
+Note that there is a problem in matplotlib version 3.1.3
+when trying to use a colormap with a scatter plot and data of length 1
+See https://github.com/matplotlib/matplotlib/issues/10365/
+I fixed this in `plot_delta_tau()` and other fncs below by doing
+`plt.scatter(np.reshape(x,-1), np.reshape(y,-1), c=np.reshape(c,-1))`
+
+<!-- fe -->
+
+
+<a name="mstau"></a>
+### delta MS Tau
+<!-- fs -->
+```python
+descdf = get_descdf(fin=fdesc)
+save = [None, plotdir + '/MStau.png', finalplotdir + '/MStau.png']
+plot_delta_tau(descdf, cctrans_frac='default', which='avg', save=save[1])
+```
+
+<img src="temp/MStau.png" alt="/MStau.png" width="400"/>
+
+#### Debug:
+[See above](#bugs)
 <!-- fe -->
 
 
