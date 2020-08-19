@@ -5,7 +5,7 @@
     - [`descDF.csv`](#descdf)
     - [`hotTeff.csv`](#hotTcsv)
     - [`isochrones.csv`](#isocsv)
-    - [`mdf.csv`](#mdfcsv) 
+    - [`mdf.csv`](#mdfcsv)
     - [Do some checks](#checks)
 - [Check things that seem weird in plots below](#bugs)
     - [MS lifetimes vs Mass](#MStauVsMass)
@@ -26,6 +26,88 @@
 ```bash
 conda create -n DMS python=3.7 numpy pandas ipython matplotlib astropy scipy
 ```
+
+<a name="latex"></a>
+# Installs for `pyplot` `usetex`
+<!-- fs -->
+
+__Note: I was never able to get this to work properly. Instead just chose a font that looks close:__
+```python
+plt.rcParams['mathtext.fontset'] = 'cm'
+plt.rcParams['font.family'] = 'STIXGeneral'
+```
+
+
+Following instructions [here](https://stackoverflow.com/questions/58121461/runtimeerror-failed-to-process-string-with-tex-because-latex-could-not-be-found)
+
+## TeX Live
+[Quick install](http://www.tug.org/texlive/quickinstall.html)
+
+`dvipng` is included with this; verified it was installed during Tex Live install
+
+```bash
+dmsenv
+wget http://mirror.ctan.org/systems/texlive/tlnet/install-tl-unx.tar.gz
+tar -xzf install-tl-unx.tar.gz
+cd install-tl-20200819/
+perl install-tl
+# change options to letter size paper default and
+# install directory: /home/tjr63/local/texlive/2020
+
+# find platform for setting the path
+# https://ubuntuforums.org/showthread.php?t=1359211
+arch # returns x86_64.
+ls local/texlive/2020/bin/ # returns x86_64-linux
+# add /home/tjr63/local/texlive/2020/bin/x86_64-linux to the PATH
+# in .bash_profile
+```
+
+## Ghostscript
+[FAQ](https://www.ghostscript.com/faq.html), go to "How do I build Ghostscript from source on Linux?"
+
+```bash
+# apt-get install ghostscript # requires sudo
+wget https://github.com/ArtifexSoftware/ghostpdl-downloads/releases/download/gs952/ghostscript-9.52.tar.gz
+tar -xzf ghostscript-9.52.tar.gz
+cd ghostscript-9.52/
+./autogen.sh # (Not required for releases)
+./configure
+# edit Makefile, under "Generic options" section, set
+# prefix = /home/tjr63/local
+make
+make install
+
+# add /home/tjr63/local/bin/gs to PATH in `.bash_profile`
+```
+
+After trying to create MStau plot again, got this error:
+``latex: /lib64/libc.so.6: version `GLIBC_2.14' not found (required by latex)``
+Following instructions [here](https://stackoverflow.com/questions/32316707/rhel-6-how-to-install-glibc-2-14-or-glibc-2-15).
+
+First I tried to install glibc-2.14, but it seems to require a very old version of gcc (gcc 4.1 or 4.4 recommended, current version is 9.x). Also tried the newest version of glibc, 2.32, but it required versions of 5 different applications that are different from the versions I have. Tried a few versions until I found 2.18 which didn't require me to up/down-grade any other applications.
+
+```bash
+wget https://ftp.gnu.org/gnu/libc/glibc-2.18.tar.gz
+tar -xzf glibc-2.18.tar.gz
+cd glibc-2.18
+mkdir build
+cd build
+../configure --prefix=/home/tjr63/local
+make
+make install DESTDIR=/home/tjr63/local
+# add the export to .bash_profile
+export LD_LIBRARY_PATH=/home/tjr63/local/glibc-2.18/lib:$LD_LIBRARY_PATH
+```
+
+This does not work. `/home/tjr63/local/glibc-2.18` does not exist; can't figure out where it is installing.
+
+Instead, just going to pick a font that is close. Following instructions [here](https://stackoverflow.com/questions/11367736/matplotlib-consistent-font-using-latex). In `plot_fncs.py` set the following:
+```python
+plt.rcParams['mathtext.fontset'] = 'cm'
+plt.rcParams['font.family'] = 'STIXGeneral'
+```
+
+<!-- fe # Installs for `pyplot` `usetex` -->
 
 <a name="deriveddata"></a>
 # Create derived data files
@@ -223,6 +305,16 @@ import plot_fncs as pf
 cif.iso_to_csv(cboost=[c for c in range(7)], append_cb=True, append_PEEPs=True, isodir='/home/tjr63/DMS/isomy', outdir=pf.datadir)
 ```
 <!-- fe ## Create `isochrones.csv` -->
+
+
+<a name="mdfcsv"></a>
+# Create `mdf.csv`
+<!-- fs -->
+```python
+%run plot_fncs # choose option that loads mdf from source files
+write_mdf_csv(mdf) # writes to file mdf_csv
+```
+<!-- fe # Create `mdf.csv` -->
 
 
 <a name="checks"></a>
@@ -693,6 +785,7 @@ Similar to m2p4c0 above, rotation mixing in q = [0.2, 0.4] turns on at the probl
 
 <!-- fe # Check things that seem weird in plots below -->
 
+
 <a name="makeplots"></a>
 # Create plots for Raen2020 paper
 <!-- fs plots -->
@@ -719,7 +812,6 @@ when trying to use a colormap with a scatter plot and data of length 1
 See https://github.com/matplotlib/matplotlib/issues/10365/
 I fixed this in `plot_delta_tau()` and other fncs below by doing
 `plt.scatter(np.reshape(x,-1), np.reshape(y,-1), c=np.reshape(c,-1))`
-
 <!-- fe -->
 
 
@@ -727,9 +819,11 @@ I fixed this in `plot_delta_tau()` and other fncs below by doing
 ### delta MS Tau
 <!-- fs -->
 ```python
+%run plot_fncs
 descdf = get_descdf(fin=fdesc)
 save = [None, plotdir + '/MStau.png', finalplotdir + '/MStau.png']
-plot_delta_tau(descdf, cctrans_frac='default', which='avg', save=save[1])
+# plt.rcParams["text.usetex"] = True
+plot_delta_tau(descdf, cctrans_frac='default', which='avg', save=save[2])
 ```
 
 <img src="temp/MStau.png" alt="/MStau.png" width="400"/>
@@ -767,7 +861,7 @@ plt.savefig(save)
 ### Teff v Age
 <!-- fs -->
 ```python
-mlist = [1.0, 2.0, 3.5,]# ,0.8, 5.0]
+mlist = [1.0, 1.75, 2.5, 3.5, 5.0]
 cblist = [4, 6]
 from_file = [False, get_r2tf_LOGS_dirs(masses=mlist, cbs=cblist+[0])]
                     # Only need to send this dict once.
@@ -813,7 +907,7 @@ np.log10(descdf.loc[idx[mass,cb],'MStau_yrs'])
 ### HR Tracks
 <!-- fs -->
 ```python
-mlist = [1.0, 2.0, 3.5,]# ,0.8, 5.0]
+mlist = [1.0, 1.75, 2.5, 3.5, 5.0]
 cblist = [4, 6]
 from_file = [False, True, get_r2tf_LOGS_dirs(masses=mlist, cbs=cblist+[0])]
                         # Only need to send this dict once.
@@ -945,8 +1039,6 @@ plot_hottest_Teff(plot_data=hotTeff_csv, save=save[1], resid=False)
 
 <img src="temp/hotTeff.png" alt="hotTeff.png" width="400"/>
 
-- [ ]  rerun when all models have completed
-
 Plot log L of hottest MS star to see what it looks like:
 ```python
 save = [None, plotdir+'/hotL.png', finalplotdir+'/hotL.png']
@@ -964,7 +1056,7 @@ plot_hottest_Teff(save=save[1], plot_data=hotTeff_csv, resid=False, plotL=plotL)
 ```python
 # cbmods = get_h1_modnums(mass=3.5)
 # print(cbmods)
-peeps = [ 'ZAMS', 'IAMS', 'H-3', 'H-4' ]
+peeps = [ 'ZAMS', 'IAMS', 'H-3', 'H-4']
 save = [None, plotdir+'/m3p5.png', finalplotdir+'/m3p5.png']
 h1_legend = [False, True]
 plot_m3p5(peeps=peeps, h1_legend=h1_legend[1], save=plotdir+'/m3p5_legend.png')
@@ -976,7 +1068,7 @@ plot_m3p5(peeps=peeps, h1_legend=h1_legend[0], save=save[1])
 
 #### Debug:
 
-- [ ]  last two profiles are at the wrong times. the correct profiles did not get saved. run models again.
+- [x]  last two profiles are at the wrong times. the correct profiles did not get saved. run models again.
     - profile for h1_center<1e-4 was not set to be saved in `run_star_extras.f`. Not sure why h1_center<1e-3 didn't save. can find the model numbers from `hdf` and save profiles that way.
 
 ```python

@@ -28,10 +28,10 @@ savefigh = 4
 savefigw_vert = 3.5
 savefigh_vert = 2.5 # multiply this by number of times plotted (outer rows)
 
-mpl.rcParams["figure.dpi"] = 200
+mpl.rcParams["figure.dpi"] = 600
 mpl.rcParams['font.size'] = 13
 mpl.rcParams['mathtext.fontset'] = 'cm'
-mpl.rcParams['font.family'] = 'DejaVu Sans' #'cmu serif'
+mpl.rcParams['font.family'] = 'STIXGeneral' #'cmu serif'
 
 mpl.rcParams['lines.linewidth'] = 1
 # mpl.rcParams['legend.fontsize'] = 'small'
@@ -206,6 +206,7 @@ finalplotdir = basedir + '/mesaruns_analysis/_Paper/figures/final'
 
 iso_csv = datadir+ '/isochrones.csv'
 hotTeff_csv = datadir+ '/hotTeff.csv'
+mdf_csv = datadir+ '/mdf.csv'
 talkplotdir = ''
 
 usepruned = True # uses history_pruned.data files
@@ -509,14 +510,14 @@ cbcmap = ListedColormap(carr)
 # fs mass colormap
 m5p0c = normalize_RGB((254,227,145))
 m3p5c = normalize_RGB((254,196,79))
-m2p0c = normalize_RGB((254,153,41))
-m1p0c = normalize_RGB((217,95,14))
-m0p8c = normalize_RGB((153,52,4))
-marr = (m0p8c,m1p0c,m2p0c,m3p5c,m5p0c)
+m2p5c = normalize_RGB((254,153,41))
+m1p75c = normalize_RGB((217,95,14))
+m1p0c = normalize_RGB((153,52,4))
+marr = (m1p0c,m1p75c,m2p5c,m3p5c,m5p0c)
 mcmap = ListedColormap(marr)
 
 # These need to match above. Used to generate mcbar (below)
-cmap_masses = OD([(0.8,0), (1.0,1), (2.0,2), (3.5,3), (5.0,4)])
+cmap_masses = OD([(1.0,0), (1.75,1), (2.5,2), (3.5,3), (5.0,4)])
     # key = mass
     # val = position in colormap. e.g.: get_cmap_color(cmap_masses[mass], cmap=mcmap, myvmin=mvmin, myvmax=mvmax)
 
@@ -1100,7 +1101,7 @@ def plot_delta_tau(descdf, cctrans_frac='default', which='avg', save=None):
     y = np.reshape(descdf.loc[ccidx,'MStau'],-1)
     plt.scatter(x, y, \
                 marker='d', edgecolors='k', s=35, linewidths=0.5, **cmapdict, zorder=10)
-    plt.axvline(descdf.loc[ccidx,'mass'], **kargs)
+    # plt.axvline(descdf.loc[ccidx,'mass'], **kargs)
 
     cbar = get_cbcbar()
 
@@ -1201,8 +1202,11 @@ def plot_Teff(mlist=None, cblist=None, from_file=False, descdf=None, save=None):
             hdf = get_hdf(cb,mass=mass, from_file=fromf)
 
             if cut_axes:
+                # 0.9 Msun models don't get to TACHeB.
                 hdf = cut_HR_hdf(hdf, cuts=['ZAMS','TACHeB'], tahe=[descdf,mass,cb])
                 hdf0 = cut_HR_hdf(hdf0, cuts=['ZAMS','TACHeB'], tahe=[descdf,mass,0])
+                # hdf = cut_HR_hdf(hdf, cuts=['ZAMS','TAMS'])
+                # hdf0 = cut_HR_hdf(hdf0, cuts=['ZAMS','TAMS'])
 
             age = hdf.star_age - hdf.star_age.iloc[0]
             age.iloc[0] = 1 # avoid log(0)
@@ -1212,8 +1216,8 @@ def plot_Teff(mlist=None, cblist=None, from_file=False, descdf=None, save=None):
             if cb != 0:
                 age = hdf0.star_age - hdf0.star_age.iloc[0]
                 age.iloc[0] = 1 # avoid log(0)
-                axs[a].plot(np.log10(age), hdf0.log_Teff, zorder=-3*mass+17, c='w', lw=1)
-                axs[a].plot(np.log10(age), hdf0.log_Teff, zorder=-3*mass+18, c=mcolor[im], lw=0.75)
+                # axs[a].plot(np.log10(age), hdf0.log_Teff, zorder=-3*mass+17, c='w', lw=1)
+                axs[a].plot(np.log10(age), hdf0.log_Teff, zorder=-3*mass+18, c=mcolor[im], alpha=0.4)
                 # axs[a].axhline(descdf.set_index(['mass','cboost']).loc[idx[mass,0],'lAMS_Teff'],c='0.5',lw=1)
 
         # Title panels
@@ -1298,8 +1302,8 @@ def plot_HR_tracks(mlist=None, cblist=None, from_file=False, cut_axes=True,
                         s=20, marker='X', zorder=20)
 
             if cb != 0:
-                axs[a].plot(hdf0.log_Teff, hdf0.log_L, zorder=9, c='w', lw=1.5)
-                axs[a].plot(hdf0.log_Teff, hdf0.log_L, zorder=10, c=mcolor[im], lw=1)
+                # axs[a].plot(hdf0.log_Teff, hdf0.log_L, zorder=9, c='w', lw=1.5)
+                axs[a].plot(hdf0.log_Teff, hdf0.log_L, zorder=10, c=mcolor[im], alpha=0.4)
 
         # c0 ZAMS and H-3 lines
         ddf0 = descdf.sort_values('mass').groupby('cboost').get_group(0)
@@ -1319,7 +1323,7 @@ def plot_HR_tracks(mlist=None, cblist=None, from_file=False, cut_axes=True,
         teff = r'log $T_{\mathrm{eff}}$ [K]'
         axs[a].set_xlabel(teff)
     axs[0].set_ylabel(r'log $L\ [\mathrm{L}_{\odot}]$', labelpad=-2)
-    axs[0].set_ylim((-0.7,3.7))
+    axs[0].set_ylim((-0.5,3.7))
     axs[a].invert_xaxis()
 
     # Colorbar
@@ -1941,23 +1945,24 @@ def plot_m3p5(peeps=None, h1_legend=True, talk_plot=False, save=None):
         if h1_legend:
             axc.legend()
         # Labels and Titles
-        axe.set_title(titles[peep], fontsize=12, pad=2)
+        axe.set_title(titles[peep], fontsize=12, pad=4)
         # axe.set_title(peep if (plt.rcParams["text.usetex"]==False) else r'$\textbf{'+peep+'}$')
         # SEE https://matplotlib.org/3.1.0/api/text_api.html#matplotlib.text.Text
         # FOR TEXT ADJUSTMENT OPTIONS (e.g. 'position' and 'rotation')
         # print(r'$\ \ \ \epsilon_{\rm{nuc}}\ [\frac{\rm{erg}}{\rm{g\, s}}]$')
         # axe.set_ylabel(r'$\ \ \ \epsilon_{\rm{nuc}}\ [\frac{\rm{erg}}{\rm{g\, s}}]$')
-        axe.set_ylabel(r'$\epsilon_{\rm{nuc}}$', rotation='horizontal', va='center', ha='right', labelpad=7)
+        args = {'rotation': 45, 'va': 'center', 'ha': 'right'}
+        axe.set_ylabel(r'$\epsilon_{\rm{nuc}}$', **args, labelpad=11)
         # axe.tick_params(labelrotation=-45)
         # axtwin.set_ylabel(r'$\ \ \ \epsilon_{\rm{DM}}\ [\frac{\rm{erg}}{\rm{g\, s}}]$')
-        axtwin.set_ylabel(r'$\ \ \ \epsilon_{\rm{DM}}$', rotation='horizontal', va='center', ha='right', labelpad=2)
+        axtwin.set_ylabel(r'$\ \ \ \epsilon_{\rm{DM}}$', **args, labelpad=7)
         # axtwin.tick_params(labelrotation=45)
         # print(r'log($D/ [\frac{\rm{cm}^2}{\rm{s}}]$)')
         # axc.set_ylabel(r'log($D/ [\frac{\rm{cm}^2}{\rm{s}}]$)')
-        axc.set_ylabel(r'log($D$)', rotation='horizontal', va='center', ha='right', labelpad=15)
+        axc.set_ylabel(r'log($D$)', **args, labelpad=11)
         # axc.tick_params(labelrotation=-45)
         axe.set_xticklabels([])
-    axc.set_xlabel(r'mass$(<r)/\mathrm{M}_{\odot}$', labelpad=10)
+    axc.set_xlabel(r'mass$(<r)/\mathrm{M}_{\odot}$', labelpad=6)
     # f.suptitle(r'3.5 M$_{\odot}$ Profiles', fontsize=20)
 
     f, eps = adjust_plot_readability(fig=f, fontOG=None, plot='m3p5')
@@ -2199,7 +2204,7 @@ def plot_m1p0(peeps=None, h1_legend=True, talk_plot=False, save=None):
         # axes limits
         # axc.set_ylim(-1,19.8)
         axe.set_xlim(0,xmax)
-        margin = 0.3
+        margin = 0.25
         axe.margins(y=margin)
         axtwin.margins(y=margin)
         axc.margins(y=margin)
@@ -2207,24 +2212,24 @@ def plot_m1p0(peeps=None, h1_legend=True, talk_plot=False, save=None):
         if h1_legend:
             axc.legend()
         # Labels and Titles
-        axe.set_title(titles[peep], fontsize=12, pad=2)
+        axe.set_title(titles[peep], fontsize=12, pad=4)
         # axe.set_title(peep if (plt.rcParams["text.usetex"]==False) else r'$\textbf{'+peep+'}$')
         # SEE https://matplotlib.org/3.1.0/api/text_api.html#matplotlib.text.Text
         # FOR TEXT ADJUSTMENT OPTIONS (e.g. 'position' and 'rotation')
         # print(r'$\ \ \ \epsilon_{\rm{nuc}}\ [\frac{\rm{erg}}{\rm{g\, s}}]$')
         # axe.set_ylabel(r'$\ \ \ \epsilon_{\rm{nuc}}\ [\frac{\rm{erg}}{\rm{g\, s}}]$')
         args = {'rotation': 45, 'va': 'center', 'ha': 'right'}
-        axe.set_ylabel(r'$\epsilon_{\rm{nuc}}$', **args, labelpad=7)
+        axe.set_ylabel(r'$\epsilon_{\rm{nuc}}$', **args, labelpad=15)
         # axe.tick_params(labelrotation=-45)
         # axtwin.set_ylabel(r'$\ \ \ \epsilon_{\rm{DM}}\ [\frac{\rm{erg}}{\rm{g\, s}}]$')
-        axtwin.set_ylabel(r'$\ \ \ \epsilon_{\rm{DM}}$', **args, labelpad=2)
+        axtwin.set_ylabel(r'$\ \ \ \epsilon_{\rm{DM}}$', **args, labelpad=10)
         # axtwin.tick_params(labelrotation=45)
         # print(r'log($D/ [\frac{\rm{cm}^2}{\rm{s}}]$)')
         # axc.set_ylabel(r'log($D/ [\frac{\rm{cm}^2}{\rm{s}}]$)')
         axc.set_ylabel(r'log($T/$K)', **args, labelpad=7)
         # axc.tick_params(labelrotation=-45)
         axe.set_xticklabels([])
-    axc.set_xlabel(r'mass$(<r)/\mathrm{M}_{\odot}$', labelpad=10)
+    axc.set_xlabel(r'mass$(<r)/\mathrm{M}_{\odot}$', labelpad=6)
     # f.suptitle(r'3.5 M$_{\odot}$ Profiles', fontsize=20)
 
     f, eps = adjust_plot_readability(fig=f, fontOG=None, plot='m3p5')
