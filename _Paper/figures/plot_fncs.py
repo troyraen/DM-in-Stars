@@ -700,10 +700,17 @@ try:
     mdf
     print('mdf dataframe already exists.')
 except:
-    load = int(input('Do you want to load metadata df? (1 = yes) ') or 0)
+    load = int(input('Do you want to load metadata df? (1 = yes, 9 = yes, from csv) ') or 0)
     if load == 1:
         print('Loading mdf: df of metadata of all profiles in pidxdf')
         mdf = get_meta_df()
+    if load == 9:
+        print(f'Loading mdf from {mdf_csv}')
+        mdf = pd.read_csv(mdf_csv)
+        mdf.set_index('pidx', drop=False, inplace=True)
+
+def write_mdf_csv(mdf):
+    mdf.to_csv(mdf_csv, index=False)
 
 def load_prof_from_file(cb, modnum, mass=3.5, pidxdf=None):
     """ Returns profile index and 2 dfs (df and metadf) from profile#.data info.
