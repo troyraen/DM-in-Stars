@@ -1081,9 +1081,11 @@ Using `fin = isomy_csv` (My interpolation code):
 #### Debug:
 
 - [ ]  `isochrone_c0.dat` only has masses between 2-3Msun and no isochrones older than 10^8.93. Wondering if I haven't run a fine enough mass grid. Previous results used [.0, .03, .05, .08].
-    - [ ]  Try running more c0s.
-    - [ ]  take old data and down sample mass grid, re-generate isochrones and see if get the same problem.
-    - [ ]  what is the oldest isochrone I want to show in c6 models, run finer mass grid only for c0,4,6 and stop them when reach age > oldest isochrone
+    - [ ]  ~Try running more c0s.~
+    - [ ]  ~take old data and down sample mass grid, re-generate isochrones and see if get the same problem.~
+    - [ ]  ~what is the oldest isochrone I want to show in c6 models, run finer mass grid only for c0,4,6 and stop them when reach age > oldest isochrone~
+
+Instead of doing the above, now trying to generate my own isochrones via simple interpolation of `history.data` files. See comparison above.
 <!-- fe -->
 
 
