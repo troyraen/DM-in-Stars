@@ -1,10 +1,12 @@
-- [Create a DMS Conda env on Osiris](#condaenv)
-- [Installs for `pyplot` `usetex`](#latex)
+- [Env and software setup](#setup)
+    - [Create a DMS Conda env on Osiris](#condaenv)
+    - [Installs for `pyplot` `usetex`](#latex)
 - [Create derived data files](#deriveddata)
     - [`history_pruned.data`](#prunehist)
     - [`descDF.csv`](#descdf)
     - [`hotTeff.csv`](#hotTcsv)
     - [`isochrones.csv`](#isocsv)
+    - [`isos_myInterp.csv`](#isointerpcsv)
     - [`mdf.csv`](#mdfcsv)
     - [Do some checks](#checks)
 - [Check things that seem weird in plots below](#bugs)
@@ -21,14 +23,18 @@
     - [1.0 Msun profiles](#1p0)
 
 
+<a name="setup"></a>
+# Env and software setup
+<!-- fs -->
+
 <a name="condaenv"></a>
-# Create a DMS Conda env on Osiris
+## Create a DMS Conda env on Osiris
 ```bash
 conda create -n DMS python=3.7 numpy pandas ipython matplotlib astropy scipy
 ```
 
 <a name="latex"></a>
-# Installs for `pyplot` `usetex`
+## Installs for `pyplot` `usetex`
 <!-- fs -->
 
 __Note: I was never able to get this to work properly. Instead just chose a font that looks close:__
@@ -108,11 +114,12 @@ plt.rcParams['font.family'] = 'STIXGeneral'
 ```
 
 <!-- fe # Installs for `pyplot` `usetex` -->
+<!-- fe # Env and software setup -->
+
 
 <a name="deriveddata"></a>
 # Create derived data files
 <!-- fs  -->
-
 
 # Move models that I will be using in final plots to a different directory.
 <!-- fs -->
@@ -147,7 +154,6 @@ for massdir, mass, cb in dp.iter_starModel_dirs(oldPath):
 ```
 <!-- fe -->
 
-
 <a name="prunehist"></a>
 ## Create `history_pruned.data` files
 <!-- fs -->
@@ -158,6 +164,7 @@ To use the pruned files in future code, set `usepruned=True` at the top of each 
     - `gen_descDF_csv.py`
     - `plot_fncs.py`
     - `isoScripts/hdat_clean.py`
+    - `isos_myInterp.py`
 
 ```python
 from pathlib import Path
@@ -218,7 +225,6 @@ for massdir, mass, cb in dp.iter_starModel_dirs(rootPath):
 ```
 <!-- fe ## Create `history_pruned.data` files -->
 
-
 <a name="descdf"></a>
 ## Create `descDF.csv`
 <!-- fs -->
@@ -251,7 +257,6 @@ python gen_descDF_csv.py
     - [ ]  TACHeB_model -->
 <!-- fe ## Create `descDF.csv` -->
 
-
 <a name="hotTcsv"></a>
 ## Create `hotTeff.csv`
 <!-- fs -->
@@ -263,7 +268,6 @@ hotT_data = get_hotT_data(data_dir=datadir+'/', age_range=(10**7.75,10**10.25))
 hotT_data.to_csv(datadir+'/hotTeff.csv')
 ```
 <!-- fe ## Create `hotTeff.csv` -->
-
 
 <a name="isocsv"></a>
 ## Create `isochrones.csv`
@@ -306,9 +310,57 @@ cif.iso_to_csv(cboost=[c for c in range(7)], append_cb=True, append_PEEPs=True, 
 ```
 <!-- fe ## Create `isochrones.csv` -->
 
+<a name="isointerpcsv"></a>
+## Create `isos_myInterp.csv`
+<!-- fs -->
+Isochrones from Aaron's code have a lot of holes where it was not able to find a solution. Creating my own isochrones by simple interpolation.
+
+Need to interpolate each star's log(L) and log(Teff) to a fixed array of ages.
+save to df -> isomy_csv
+need cols ['log10_isochrone_age_yr', 'initial_mass', 'cboost', \
+            'log_Teff', 'log_L', 'center_h1', 'center_he4',
+            ~'log_center_T', 'log_center_Rho'~]
+
+- [ ]  for each history file:
+    - [x]  extract cols to new df with age = index
+    - [x]  append rows of NaNs for ages in iso times
+    - [x]  sort by index
+    - [x]  cut rows with iso times > max(star_age)
+    - [x]  interpolate NaNs
+        - [x]  test: plot original values and interp'd values in different colors, see if it looks ok.
+    - [x]  drop ages not in iso times and append df to list
+- [x]  concat
+- [ ]  sort by
+- [x]  write to file
+
+- [ ]  drop duplicates from hdf and regenerate all files and plots
+
+```python
+import isos_myInterp as imi
+
+# test whether interpolation looks ok
+from importlib import reload
+from plot_fncs import plotdir
+from matplotlib import pyplot as plt
+plt.rcParams.update(plt.rcParamsDefault)
+plt.rcParams['figure.figsize'] = [12.0, 8.0]
+# pick some random models to plot
+mclist = [(0.9,0), (1.0,6), (1.75,4), (2.15, 1), (2.55,4), (3.5,3), (4.35,2)]
+for (mass, cb) in mclist:
+    save = plotdir+ f'/isoInterp_tests/m{mass}c{cb}.png'
+    imi.plot_test_interp_hdf(mass, cb, save=save)
+
+# These look fine. Now create `isomy_csv`
+isodf = imi.interp4isos()
+```
+
+See the `temp/isoInterp_tests` directory for the `plot_test_interp_hdf()` plots. The interpolation looks fine.
+
+
+<!-- fe # Create `isosInterp.csv` -->
 
 <a name="mdfcsv"></a>
-# Create `mdf.csv`
+## Create `mdf.csv`
 <!-- fs -->
 ```python
 %run plot_fncs # choose option that loads mdf from source files
@@ -367,6 +419,7 @@ Need to be aware of TACHeB.
 <!-- fe ## Do some checks -->
 
 <!-- fe # Create derived data files -->
+
 
 <a name="bugs"></a>
 # Check things that seem weird in the plots below
@@ -1004,9 +1057,10 @@ The datapoint that intersects the 1e-3 line is actually slightly above it (I zoo
 ### Isochrones
 <!-- fs -->
 ```python
-isodf = load_isos_from_file(fin=iso_csv, cols=None)
+fin = isomy_csv
+isodf = load_isos_from_file(fin=fin, cols=None)
 isoages = get_iso_ages(isodf)
-plot_times = [age for i,age in enumerate(isoages) if i%4==0][3:]
+plot_times = [age for i,age in enumerate(isoages) if i%10==0][3:]
 print(plot_times)
 # plot_times = [8.284, 8.4124, 8.8618, 9.1828, 9.4396, 9.6964, 9.9532, 10.017400000000002]
 # plot_times = [7.0, 7.3852, 7.642, 7.8346, 8.0272, 8.155599999999998]

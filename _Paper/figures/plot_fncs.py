@@ -1,4 +1,4 @@
-# import plot_fncs as pf
+
 # fs imports
 import numpy as np
 import pandas as pd
@@ -30,8 +30,8 @@ savefigh_vert = 2.5 # multiply this by number of times plotted (outer rows)
 
 mpl.rcParams["figure.dpi"] = 600
 mpl.rcParams['font.size'] = 13
-mpl.rcParams['mathtext.fontset'] = 'cm'
-mpl.rcParams['font.family'] = 'STIXGeneral' #'cmu serif'
+# mpl.rcParams['mathtext.fontset'] = 'cm'
+# mpl.rcParams['font.family'] = 'STIXGeneral' #'cmu serif'
 
 mpl.rcParams['lines.linewidth'] = 1
 # mpl.rcParams['legend.fontsize'] = 'small'
@@ -205,6 +205,7 @@ plotdir = basedir + '/mesaruns_analysis/_Paper/figures/temp'
 finalplotdir = basedir + '/mesaruns_analysis/_Paper/figures/final'
 
 iso_csv = datadir+ '/isochrones.csv'
+isomy_csv = datadir+ '/isos_myInterp.csv'
 hotTeff_csv = datadir+ '/hotTeff.csv'
 mdf_csv = datadir+ '/mdf.csv'
 talkplotdir = ''
@@ -947,11 +948,14 @@ def get_r2tf_LOGS_dirs(masses=[1.0, 3.5], cbs=[0,3,6]):
 # fe History setup
 
 # fs Isochrone setup
-def load_isos_from_file(fin=iso_csv, cols=None):
+def load_isos_from_file(fin=iso_csv, cols=None, which='my'):
     if cols is None:
-        cols = ['PrimaryEEP', 'EEP', 'log10_isochrone_age_yr', 'initial_mass', 'cboost', \
-                'log_Teff', 'log_L', 'log_center_T', 'log_center_Rho', \
-                'center_h1', 'center_he4']
+        if which == 'Dotter':
+            cols = ['PrimaryEEP', 'EEP', 'log10_isochrone_age_yr', 'initial_mass', 'cboost', \
+                    'log_Teff', 'log_L', 'log_center_T', 'log_center_Rho', \
+                    'center_h1', 'center_he4']
+        else:
+            cols = None
 
     try:
         isodf = pd.read_csv(fin, header=0, sep=',', usecols=cols)
@@ -961,8 +965,8 @@ def load_isos_from_file(fin=iso_csv, cols=None):
         print('isochrones.csv could not be loaded to df.')
         print()
 
-
-    isodf = isodf.astype({'PrimaryEEP':int, 'EEP':int, 'cboost':int})
+    if which == 'Dotter':
+        isodf = isodf.astype({'PrimaryEEP':int, 'EEP':int, 'cboost':int})
 
     return isodf
 
@@ -1518,11 +1522,13 @@ def plot_isos_ind(isodf, plot_times=None, cb=None, cut_axes=True, save=None):
 
         p = axs[a].scatter(cbdf.log_Teff, cbdf.log_L, zorder=1,
                c=cbdf.log10_isochrone_age_yr, cmap=isocmap, vmin=isovmin, vmax=isovmax)
+        # axs[a].plot(cbdf.log_Teff, cbdf.log_L, c='0.6', lw=2)
 
         if c != 0:
             axs[a].scatter(cbdf0.log_Teff, cbdf0.log_L, zorder=2, s=1.25, c='w')
             axs[a].scatter(cbdf0.log_Teff, cbdf0.log_L, zorder=3, s=0.75,
                    c=cbdf0.log10_isochrone_age_yr, cmap=isocmap, vmin=isovmin, vmax=isovmax)
+            # axs[a].plot(cbdf0.log_Teff, cbdf0.log_L, c='0.4', lw=0.5)
             # c = get_cmap_color(cbdf0.log10_isochrone_age_yr.iloc[0],
             #                     cmap=isocmap, myvmin=isovmin, myvmax=isovmax)
             # axs[a].plot(cbdf0.log_Teff, cbdf0.log_L, zorder=3, lw=1, c=c)
@@ -1577,7 +1583,7 @@ def plot_isos_ind(isodf, plot_times=None, cb=None, cut_axes=True, save=None):
 
 #     plt.tight_layout()
     if save is not None: plt.savefig(save)
-    plt.show()
+    plt.show(block=False)
 
     adjust_plot_readability(fig=None, fontOG=fontOG)
     return None
