@@ -1068,11 +1068,11 @@ print(plot_times)
 cb = [4, 6]
 for c in cb:
     save = [None, plotdir+'/isos_cb'+str(c)+'.png', finalplotdir+'/isos_cb'+str(c)+'.png']
-    plot_isos_ind(isodf, plot_times=plot_times, cb=c, save=save[2])
+    plot_isos_ind(isodf, plot_times=plot_times, cb=c, save=save[1])
 ```
 Using `fin = iso_csv` (Dotter's code):
 <img src="temp/isos_cb4_Dotter.png" alt="isos_cb4_Dotter.png" width="400"/>
-<img src="temp/isos_cb6_Dotter.png" alt="isos_cb6_Dotter.png" width="400"/>
+<img src="temp/isos_cb6_Dotter.png" alt="isos_cb6_Dotter.png" width="400"/> 
 
 Using `fin = isomy_csv` (My interpolation code):
 <img src="temp/isos_cb4.png" alt="isos_cb4.png" width="400"/>
@@ -1214,4 +1214,4 @@ plot_m1p0(peeps=peeps, h1_legend=False, save=save[1])
 <!-- fe -->
 
 <!-- fe plots -->
-  
+                                                                                                                                            
