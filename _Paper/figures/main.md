@@ -1057,20 +1057,24 @@ The datapoint that intersects the 1e-3 line is actually slightly above it (I zoo
 ### Isochrones
 <!-- fs -->
 ```python
+%run plot_fncs
 fin = isomy_csv
 isodf = load_isos_from_file(fin=fin, cols=None)
 isoages = get_iso_ages(isodf)
-plot_times = [age for i,age in enumerate(isoages) if i%10==0][3:]
+plot_times = [age for i,age in enumerate(isoages) if i%11==0][2:]
 print(plot_times)
 # plot_times = [8.284, 8.4124, 8.8618, 9.1828, 9.4396, 9.6964, 9.9532, 10.017400000000002]
 # plot_times = [7.0, 7.3852, 7.642, 7.8346, 8.0272, 8.155599999999998]
 cb = [4, 6]
 for c in cb:
-    save = [None, plotdir+'/isos_cb'+str(c)+'.png', \
-            finalplotdir+'/isos_cb'+str(c)+'.png']
+    save = [None, plotdir+'/isos_cb'+str(c)+'.png', finalplotdir+'/isos_cb'+str(c)+'.png']
     plot_isos_ind(isodf, plot_times=plot_times, cb=c, save=save[1])
 ```
+Using `fin = iso_csv` (Dotter's code):
+<img src="temp/isos_cb4_Dotter.png" alt="isos_cb4_Dotter.png" width="400"/>
+<img src="temp/isos_cb6_Dotter.png" alt="isos_cb6_Dotter.png" width="400"/> 
 
+Using `fin = isomy_csv` (My interpolation code):
 <img src="temp/isos_cb4.png" alt="isos_cb4.png" width="400"/>
 <img src="temp/isos_cb6.png" alt="isos_cb6.png" width="400"/>
 

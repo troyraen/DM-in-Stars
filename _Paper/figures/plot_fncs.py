@@ -30,8 +30,8 @@ savefigh_vert = 2.5 # multiply this by number of times plotted (outer rows)
 
 mpl.rcParams["figure.dpi"] = 600
 mpl.rcParams['font.size'] = 13
-# mpl.rcParams['mathtext.fontset'] = 'cm'
-# mpl.rcParams['font.family'] = 'STIXGeneral' #'cmu serif'
+mpl.rcParams['mathtext.fontset'] = 'cm'
+mpl.rcParams['font.family'] = 'STIXGeneral' #'cmu serif'
 
 mpl.rcParams['lines.linewidth'] = 1
 # mpl.rcParams['legend.fontsize'] = 'small'
@@ -1488,6 +1488,8 @@ def plot_isos_ind(isodf, plot_times=None, cb=None, cut_axes=True, save=None):
     """ Plots isochrone panels.
     """
     fontOG = adjust_plot_readability(fontAdj=True, plot='isos')
+    icolor = {pt: get_cmap_color(pt, cmap=isocmap, myvmin=isovmin, myvmax=isovmax) for pt in plot_times}
+
     if cb is None:
         cb = 4
 
@@ -1519,15 +1521,21 @@ def plot_isos_ind(isodf, plot_times=None, cb=None, cut_axes=True, save=None):
                 # print(cbdf.log10_isochrone_age_yr.unique())
                 # print(cbdf0.log10_isochrone_age_yr.unique())
 
+        for pt in plot_times:
+            tmp = cbdf.loc[cbdf.log10_isochrone_age_yr==pt,:]
+            axs[a].plot(tmp.log_Teff, tmp.log_L, '-o', c=icolor[pt], lw=3, ms=5)
+            tmp = cbdf0.loc[cbdf0.log10_isochrone_age_yr==pt,:]
+            axs[a].plot(tmp.log_Teff, tmp.log_L, '-o', c=icolor[pt], lw=1, ms=3, alpha=0.5)
+
 
         p = axs[a].scatter(cbdf.log_Teff, cbdf.log_L, zorder=1,
                c=cbdf.log10_isochrone_age_yr, cmap=isocmap, vmin=isovmin, vmax=isovmax)
         # axs[a].plot(cbdf.log_Teff, cbdf.log_L, c='0.6', lw=2)
 
-        if c != 0:
-            axs[a].scatter(cbdf0.log_Teff, cbdf0.log_L, zorder=2, s=1.25, c='w')
-            axs[a].scatter(cbdf0.log_Teff, cbdf0.log_L, zorder=3, s=0.75,
-                   c=cbdf0.log10_isochrone_age_yr, cmap=isocmap, vmin=isovmin, vmax=isovmax)
+        # if c != 0:
+        #     axs[a].scatter(cbdf0.log_Teff, cbdf0.log_L, zorder=2, s=1.25, c='w')
+        #     axs[a].scatter(cbdf0.log_Teff, cbdf0.log_L, zorder=3, s=0.75,
+        #            c=cbdf0.log10_isochrone_age_yr, cmap=isocmap, vmin=isovmin, vmax=isovmax)
             # axs[a].plot(cbdf0.log_Teff, cbdf0.log_L, c='0.4', lw=0.5)
             # c = get_cmap_color(cbdf0.log10_isochrone_age_yr.iloc[0],
             #                     cmap=isocmap, myvmin=isovmin, myvmax=isovmax)
