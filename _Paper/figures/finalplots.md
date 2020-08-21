@@ -1,0 +1,22 @@
+# delta MS Tau
+<img src="final/MStau.png" alt="MStau.png" width="600"/>
+
+# Teff v Age
+<img src="final/Teff.png" alt="Teff.png" width="600"/>
+
+# HR Tracks
+<img src="final/tracks.png" alt="tracks.png" width="600"/>
+
+# Isochrones
+<img src="final/isos_cb4.png" alt="isos_cb4.png" width="600"/>
+
+<img src="final/isos_cb6.png" alt="isos_cb6.png" width="600"/>
+
+# Hottest MS Teff
+<img src="final/hotTeff.png" alt="hotTeff.png" width="600"/>
+
+# 3.5 Msun profiles
+<img src="final/m3p5.png" alt="m3p5.png" width="600"/>
+
+# 1.0 Msun profiles
+<img src="final/m1p0.png" alt="m1p0.png" width="600"/>
