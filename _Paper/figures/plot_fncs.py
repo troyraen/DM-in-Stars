@@ -1580,7 +1580,7 @@ def plot_isos_ind(isodf, plot_times=None, cb=None, cut_axes=True, save=None):
             lbl = r'NoDM'
         else:
             lbl = r'$\Gamma_B = 10^{}$'.format(c)
-        axs[a].annotate(lbl,(ann_lmarg+3,ann_bmarg), fontsize=25, xycoords='axes fraction', \
+        axs[a].annotate(lbl,(ann_lmarg+.03,ann_bmarg), fontsize=25, xycoords='axes fraction', \
                         horizontalalignment='left', verticalalignment='top')
         # Axes params
         axs[a].invert_xaxis()
