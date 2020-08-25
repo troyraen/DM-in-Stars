@@ -1125,7 +1125,7 @@ cb = [4, 6]
 for c in cb:
     plot_times = [agemap[rage] for rage in plot_times_cb[c]]
     save = [None, plotdir+'/isos_cb'+str(c)+'.png', finalplotdir+'/isos_cb'+str(c)+'.png']
-    plot_isos_ind(isodf, plot_times=plot_times, cb=c, save=save[1])
+    plot_isos_ind(isodf, plot_times=plot_times, cb=c, save=save[2])
 ```
 Using `fin = iso_csv` (Dotter's code):
 
