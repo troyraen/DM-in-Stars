@@ -8,9 +8,7 @@
 <img src="final/tracks.png" alt="tracks.png" width="800"/>
 
 # Isochrones
-<img src="final/isos_cb4.png" alt="isos_cb4.png" width="550"/>
-
-<img src="final/isos_cb6.png" alt="isos_cb6.png" width="550"/>
+<img src="final/isos_cb4.png" alt="isos_cb4.png" width="450"/> <img src="final/isos_cb6.png" alt="isos_cb6.png" width="450"/>
 
 # Hottest MS Teff
 <img src="final/hotTeff.png" alt="hotTeff.png" width="800"/>
