@@ -274,6 +274,8 @@ for massdir, mass, cb in dp.iter_starModel_dirs(rootPath):
     if hp1_old.is_file():
         hp1_old.rename(hp1_new)
 ```
+<!-- fe ### Debug -->
+
 <!-- fe ## Create `history_pruned.data` files -->
 
 <a name="descdf"></a>
@@ -344,6 +346,7 @@ iso_datadir = Path('/home/tjr63/DMS/isomy/data/tracks') # history files placed i
 hc.write_hdat_files_for_MIST(mesa_datadir, iso_datadir, dp.iter_starModel_dirs)
 ```
 
+Switch to bash.
 ```bash
 # generate the iso input files and run make_eep and make_iso
 # check the isodir in genisoinput.sh before running this
@@ -353,6 +356,7 @@ for cb in $(seq 0 6); do
 done
 ```
 
+Back to python.
 ```python
 # combine output in DMS/isomy/data/isochrones to csv in pf.datadir
 from isoScripts import convert_iso_file as cif
@@ -1112,31 +1116,102 @@ The datapoint that intersects the 1e-3 line is actually slightly above it (I zoo
 fin = isomy_csv
 isodf = load_isos_from_file(fin=fin, cols=None)
 isoages = get_iso_ages(isodf)
-plot_times = [age for i,age in enumerate(isoages) if i%11==0][2:]
-print(plot_times)
-# plot_times = [8.284, 8.4124, 8.8618, 9.1828, 9.4396, 9.6964, 9.9532, 10.017400000000002]
-# plot_times = [7.0, 7.3852, 7.642, 7.8346, 8.0272, 8.155599999999998]
+# plot_times = [age for i,age in enumerate(isoages) if i%16==0][2:]
+# plots_times chosen by hand to to get as good a sampling as possible around the MS turnoff and sub-giant branch
+# see below for details
+plot_times_cb = {4: [8.29, 8.54, 8.81, 9.11, 9.55, 9.98],
+                 6: [8.1, 8.37, 8.81, 9.22, 9.65, 9.98]}
 cb = [4, 6]
 for c in cb:
+    plot_times = [agemap[rage] for rage in plot_times_cb[c]]
     save = [None, plotdir+'/isos_cb'+str(c)+'.png', finalplotdir+'/isos_cb'+str(c)+'.png']
     plot_isos_ind(isodf, plot_times=plot_times, cb=c, save=save[1])
 ```
 Using `fin = iso_csv` (Dotter's code):
 
-<img src="temp/isos_cb4_Dotter.png" alt="isos_cb4_Dotter.png" width="400"/> <img src="temp/isos_cb6_Dotter.png" alt="isos_cb6_Dotter.png" width="400"/> 
+<img src="temp/isos_cb4_Dotter.png" alt="isos_cb4_Dotter.png" width="400"/> <img src="temp/isos_cb6_Dotter.png" alt="isos_cb6_Dotter.png" width="400"/>
 
 Using `fin = isomy_csv` (My interpolation code):
 
 <img src="temp/isos_cb4.png" alt="isos_cb4.png" width="400"/> <img src="temp/isos_cb6.png" alt="isos_cb6.png" width="400"/>
 
 #### Debug:
-
+<!-- fs -->
 - [ ]  `isochrone_c0.dat` only has masses between 2-3Msun and no isochrones older than 10^8.93. Wondering if I haven't run a fine enough mass grid. Previous results used [.0, .03, .05, .08].
     - [ ]  ~Try running more c0s.~
     - [ ]  ~take old data and down sample mass grid, re-generate isochrones and see if get the same problem.~
     - [ ]  ~what is the oldest isochrone I want to show in c6 models, run finer mass grid only for c0,4,6 and stop them when reach age > oldest isochrone~
 
 Instead of doing the above, now trying to generate my own isochrones via simple interpolation of `history.data` files. See comparison above.
+
+__Finding iso ages with good sampling in sub-giant branch (my isos)__
+```python
+%run plot_fncs
+fin = isomy_csv
+isodf = load_isos_from_file(fin=fin, cols=None)
+isoages = get_iso_ages(isodf)
+dmod = 16
+cb = [4, 6]
+for dm in range(dmod):
+    plot_times = [age for i,age in enumerate(isoages[dm:]) if i%dmod==0]
+    for c in cb:
+        save = plotdir+ f'/isoAges_tests/isos_cb{c}_{dm}.png'
+        plot_isos_ind(isodf, plot_times=plot_times, cb=c, save=save)
+    plt.close('all')
+
+### begin c4 ###
+# Look at the plots generated above and pick out times that sample the sub-giant branch best. Then plot them again.
+possible_c4_mods = sorted([8.37, 8.81, 9.25, 8.54, 9.0, 9.44, 9.87,
+                    9.03, 9.05, 8.65, 9.11, 9.55, 9.98, 8.29,
+                    9.74, 8.05, 9.35, 8.51, 9.9, 9.49, 9.57,
+                    7.91 ])
+agemap = {np.round(age,2): age for age in isoages}
+c = 4
+dmod = 4
+for dm in range(dmod):
+    plot_times = [agemap[rage] for i,rage in enumerate(possible_c4_mods[dm:]) if i%dmod==0]
+    save = plotdir+ f'/isoAges_tests/refined/isos_cb{c}_{dm}.png'
+    plot_isos_ind(isodf, plot_times=plot_times, cb=c, save=save)
+plt.close('all')
+
+# Look at plots above, pick final times, and plot again.
+plot_times_cb = {}
+plot_times_cb[4] = [8.29, 8.54, 8.81, # 7.91,
+                 9.11, 9.55, 9.98]
+plot_times = [agemap[rage] for rage in plot_times_cb[c]]
+save = plotdir+ f'/isoAges_tests/refined/isos_cb{c}_final.png'
+plot_isos_ind(isodf, plot_times=plot_times, cb=c, save=save)
+### end c4 ###
+
+### begin c6 ###
+# Look at the plots generated above and pick out times that sample the sub-giant branch best. Then plot them again.
+possible_c6_mods = sorted([8.37, 8.81, 9.68, 7.96, 8.4, 9.27, 9.71,
+                            9.3, 9.74, 9.79, 8.51, 9.82, 9.0, 9.03,
+                            9.46, 8.62, 9.49, 8.65, 9.11, 9.6, 8.78,
+                            9.22, 9.65])
+c = 6
+dmod = 4
+for dm in range(dmod):
+    plot_times = [agemap[rage] for i,rage in enumerate(possible_c6_mods[dm:]) if i%dmod==0]
+    save = plotdir+ f'/isoAges_tests/refined/isos_cb{c}_{dm}.png'
+    plot_isos_ind(isodf, plot_times=plot_times, cb=c, save=save)
+plt.close('all')
+
+# Look at plots above, pick final times, and plot again.
+plot_times_cb[6] = [8.1, 8.37, 8.81, # 8.65,
+                    9.22, 9.65, 9.98] # 9.0,
+plot_times = [agemap[rage] for rage in plot_times_cb[c]]
+save = plotdir+ f'/isoAges_tests/refined/isos_cb{c}_final.png'
+plot_isos_ind(isodf, plot_times=plot_times, cb=c, save=save)
+### end c6 ###
+
+# plot finals
+for c in cb:
+    plot_times = [agemap[rage] for rage in plot_times_cb[c]]
+    save = plotdir+ f'/isos_cb{c}.png'
+    plot_isos_ind(isodf, plot_times=plot_times, cb=c, save=save)
+```
+<!-- fe #### Debug: -->
 <!-- fe -->
 
 

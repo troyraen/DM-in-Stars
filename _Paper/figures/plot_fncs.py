@@ -58,6 +58,7 @@ ann_fs = 26 # font size
 ann_rmarg = 0.97 # use for right align
 ann_lmarg = 0.03 # use for left align
 ann_tmarg = 0.96 # top margin
+ann_bmarg = 0.08 # bottom margin
 
 # Used to adjust axes
 cb_top = 0.99; cb_bot = 0.07; cb_right = 0.92; cb_left = 0.06
@@ -565,17 +566,32 @@ def get_mcbar(sm=None, cax=None, f=None, **kwargs):
 # aarr = [get_cmap_color(i, cmap=isocmap_tmp, myvmin=0, myvmax=n-1) for i in range(n)]
 # isocmap = ListedColormap(aarr)
 
-cmap_tmp = plt.get_cmap('tab20b_r')
-# cmap_idxs = [4,8,12,16,7,11,15,19]
-cmap_idxs = [8,12,16,2,11,15,19,7]
-aarr = [get_cmap_color(i, cmap=cmap_tmp, myvmin=0, myvmax=19) for i in cmap_idxs]
+# cmap_tmp = plt.get_cmap('tab20b_r')
+# cmap_idxs = [8,12,16,2,11,15,19,7]
+# aarr = [get_cmap_color(i, cmap=cmap_tmp, myvmin=0, myvmax=19) for i in cmap_idxs]
+
+cmap_tmp = plt.get_cmap('gist_earth_r')
+numisos = 6
+cmap_idxs = [i for i in range(1,numisos+1)]
+aarr = [get_cmap_color(i, cmap=cmap_tmp, myvmin=0, myvmax=numisos) for i in cmap_idxs]
+
+# cmap_tmp = plt.get_cmap('twilight_r')
+# numisos = 6
+# cmap_idxs = [i for i in range(1,numisos+1)]
+# aarr = [get_cmap_color(i, cmap=cmap_tmp, myvmin=0, myvmax=numisos*2) for i in cmap_idxs]
+
+# cmap_tmp = plt.get_cmap('twilight_shifted')
+# numisos = 6
+# cmap_idxs = [i for i in range(7,numisos*2+1)]
+# aarr = [get_cmap_color(i, cmap=cmap_tmp, myvmin=0, myvmax=numisos*2) for i in cmap_idxs]
+
 isocmap = ListedColormap(aarr)
 
 # isocmap = plt.get_cmap('Accent')
 
 # used in plt.plot and other places to normalize colorbar:
-isovmin = 7.89
-isovmax = 10.25
+isovmin = 8.0
+isovmax = 10.1
 
 def get_isocbar(sm=None, cax=None, f=None, ticks=None, **kwargs):
     """ Returns a colorbar that will be added to the side of a plot.
@@ -599,7 +615,7 @@ def get_isocbar(sm=None, cax=None, f=None, ticks=None, **kwargs):
         cbar.set_ticks([i for i in ticks],update_ticks=False)
         cbar.set_ticklabels([np.round(i,2) for i in ticks])
     cbar.ax.minorticks_off()
-    cbar.set_label(r'log ($Isochrone\ Age$ /yr)', labelpad=6)
+    cbar.set_label(r'log (Isochrone Age /yr)', labelpad=6)
     return cbar
 # fe isochrone colormap
 
@@ -1525,7 +1541,7 @@ def plot_isos_ind(isodf, plot_times=None, cb=None, cut_axes=True, save=None):
             tmp = cbdf.loc[cbdf.log10_isochrone_age_yr==pt,:]
             axs[a].plot(tmp.log_Teff, tmp.log_L, '-o', c=icolor[pt], lw=3, ms=5)
             tmp = cbdf0.loc[cbdf0.log10_isochrone_age_yr==pt,:]
-            axs[a].plot(tmp.log_Teff, tmp.log_L, '-o', c=icolor[pt], lw=1, ms=3, alpha=0.5)
+            axs[a].plot(tmp.log_Teff, tmp.log_L, '-x', c=icolor[pt], lw=1, ms=7)#, alpha=0.5)
 
 
         p = axs[a].scatter(cbdf.log_Teff, cbdf.log_L, zorder=1,
@@ -1564,7 +1580,7 @@ def plot_isos_ind(isodf, plot_times=None, cb=None, cut_axes=True, save=None):
             lbl = r'NoDM'
         else:
             lbl = r'$\Gamma_B = 10^{}$'.format(c)
-        axs[a].annotate(lbl,(ann_lmarg,ann_tmarg), fontsize=25, xycoords='axes fraction', \
+        axs[a].annotate(lbl,(ann_lmarg+3,ann_bmarg), fontsize=25, xycoords='axes fraction', \
                         horizontalalignment='left', verticalalignment='top')
         # Axes params
         axs[a].invert_xaxis()
@@ -1572,11 +1588,11 @@ def plot_isos_ind(isodf, plot_times=None, cb=None, cut_axes=True, save=None):
 
     # Axes labels
         teff = r'log ($T_{\mathrm{eff}}$ /K)'
-        axs[a].set_xlabel(teff)
-    axs[0].set_ylabel(r'log ($L / \mathrm{L}_{\odot}$)', labelpad=-10)
+        axs[a].set_xlabel(teff, labelpad=5)
+    axs[0].set_ylabel(r'log ($L / \mathrm{L}_{\odot}$)', labelpad=5)
 
     # Axes limits
-    axs[0].set_xlim(4.15,3.45)
+    axs[0].set_xlim(4.15,3.61)
     # axs[0].set_ylim(-0.5,3.5)
 
     # Colorbar
@@ -3228,4 +3244,4 @@ def get_burn_cols(hdf):
 #     'burn_type_1', 'burn_qtop_1'
     return df
 
-# fe OLD 1.0 Msun c6 Kippenhahn⁄
+# fe OLD 1.0 Msun c6 Kippenhahn
