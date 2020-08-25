@@ -121,7 +121,7 @@ plt.rcParams['font.family'] = 'STIXGeneral'
 # Create derived data files
 <!-- fs  -->
 
-# Move models that I will be using in final plots to a different directory.
+## Move models that I will be using in final plots to a different directory.
 <!-- fs -->
 if (mass>0.89 and mass%0.05==0) and (cb, mass) not in problem_mods:
     move to RUNS_FINAL
@@ -158,6 +158,8 @@ for massdir, mass, cb in dp.iter_starModel_dirs(oldPath):
 ## Create `history_pruned.data` files
 <!-- fs -->
 
+If you are generating new `history_pruned.data` files, fix the duplicate model numbers issue first (see below for fix after files have been generated).
+
 Prune `history.data` files according to `data_proc.prune_hist()`
 
 To use the pruned files in future code, set `usepruned=True` at the top of each file
@@ -178,7 +180,56 @@ for massdir, mass, cb in dp.iter_starModel_dirs(rootPath):
 # if (mass,cb) in currently_running: continue
 LOGSdir = massdir / 'LOGS'
 dp.prune_hist(LOGSdir, skip_exists=False, ow_exists=True)
+```
 
+### Debug
+
+__`history_pruned.data` files have been generated, but many still contain duplicates in `model_number`. Get rid of these:__
+
+- [x]  iter_starModel_dirs
+    - [x]  check for duplicate model numbers, continue if none
+    - [x]  move `history_pruned.data` -> `history_pruned_with_dup_mods.data`
+    - [x]  for line in file:
+        - [x]  write header
+        - [x]  write_prev_line = False
+        - [x]  current_mod = s.get('model_number')
+        - [x]  if current_mod != prev_mod:
+            - [x]  write_prev_line = True
+        - [x]  if write_prev_line:
+            - [x]  write prev_line
+        - [x]  prev_line = line.copy()
+        - [x]  prev_mod = current_mod
+    - [x]  write prev_line # write the last line of the file
+
+
+```python
+from pathlib import Path
+import data_proc as dp
+%run plot_fncs
+
+# cb, mass = 0, 2.00
+# hdf = get_hdf(cb, mass=mass)
+# LOGSdir = Path(datadir + '/c6/m2p00/LOGS')
+
+# clean history_pruned.data files
+for massdir, mass, cb in dp.iter_starModel_dirs(Path(datadir)):
+    numdupmods = dp.clean_histpruned_of_dupmods(massdir/'LOGS', ow_exists='_with_dup_mods')
+    # if numdupmods>0:
+    #     break
+
+# check the cleaning
+fhist = massdir/'LOGS'/'history_pruned.data'
+h = dp.load_history(fhist)
+fhistd = massdir/'LOGS'/'history_pruned_with_dup_mods.data'
+hd = dp.load_history(fhistd)
+dupmods = hd.loc[hd.model_number.duplicated(),'model_number'].unique
+hd.loc[hd.model_number.isin(dupmods),:]
+h.loc[h.model_number.isin(dupmods),:]
+# cleaning wrote the correct line
+
+```
+<!-- fs -->
+```python
 # add prune by variable changes
 LOGSdir = Path(pf.datadir + '/c6/m2p00/LOGS')
 dp.prune_hist(LOGSdir, skip_exists=False, ow_exists=True)

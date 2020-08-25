@@ -75,8 +75,8 @@ def load_profilesindex(fpidx):
     pidf = pd.read_csv(fpidx, names=pidx_cols, skiprows=1, header=None, sep='\s+')
     return pidf
 
-def load_history(hpath, masscb=None):
-    hdf = pd.read_csv(hpath, header=4, sep='\s+')
+def load_history(hpath, usecols=None, masscb=None):
+    hdf = pd.read_csv(hpath, usecols=usecols, header=4, sep='\s+')
 
     if masscb is not None:
         hdf['mass'], hdf['cb'] = masscb
@@ -157,6 +157,71 @@ def prune_hist(LOGSdir, skip_exists=True, ow_exists=False):
 
     print(f'Pruned history.data from {LOGSdir}')
 
+def clean_histpruned_of_dupmods(LOGSdir, ow_exists='_with_dup_mods'):
+    """ Cleans the history_pruned.data file of duplicate model numbers
+        ow_exists = sufix arg to pass to file_ow(), will rename the file at LOGSdir/history_pruned.data.
+    """
+
+    fhist = LOGSdir / 'history_pruned.data'
+    # fhistow = LOGSdir / f'history_pruned_{ow_exists}.data'
+
+    # return if fhist doesn't exist
+    # if ~fhist.is_file():
+    #     print(f'\nFile does not exist: {fhist}\n')
+    #     return
+
+    # check for duplicate model numbers, return if none
+    modnums = load_history(fhist, usecols=['model_number'])
+    numdupmods = modnums.duplicated().sum()
+    if numdupmods == 0:
+        print(f'No duplicated models in {fhist}')
+        return numdupmods
+    else:
+        print(f'\nCleaning {fhist} of duplicated models...')
+
+    # move `history_pruned.data` -> `history_pruned_{ow_exists}.data`
+    fhistow = file_ow(str(fhist), suffix=ow_exists)
+
+    # read/write the file
+    with open(fhistow) as oldhist, open(fhist, 'w') as newhist:
+        cols = []
+        for l, line in enumerate(oldhist):
+            write_line = False
+            write_prev_line = False
+
+            # write header
+            if l<=5:
+                write_line = True
+                current_mod = np.nan
+                if l==5:
+                    cols = line.split()
+
+            # get the first row of data for future comparison
+            elif l==6:
+                current_mod = pd.Series(data=line.split(),index=cols).get('model_number')
+
+            # write prev_line if model number doesn't match current
+            else:
+                current_mod = pd.Series(data=line.split(),index=cols).get('model_number')
+                if current_mod != prev_mod:
+                    write_prev_line = True
+
+            # actually write the lines
+            if write_line:
+                newhist.write(line)
+            if write_prev_line:
+                newhist.write(prev_line)
+
+            # save data
+            prev_line = line
+            prev_mod = current_mod
+
+        # write the last line of the file
+        newhist.write(prev_line)
+
+    print(f'Cleaning complete.\n')
+
+    return numdupmods
 # fe ###--- Prune history.data files ---###
 
 
