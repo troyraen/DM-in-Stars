@@ -13,6 +13,7 @@
     - [MS lifetimes vs Mass](#MStauVsMass)
     - [Xc as fnc of time](#XcVsTime)
     - [Look at 2.4c0 and 2.55c4 (which are the most obvious problems)](#probmod_profiles)
+    - [Hottest MS Teff - why is c0 so jittery?](#hotT_jitters)
 - [Create Raen2020 paper plots](#makeplots)
     - [delta MS Tau](#mstau)
     - [Teff v Age](#teff)
@@ -133,6 +134,7 @@ import data_proc as dp
 import plot_fncs as pf
 import pandas as pd
 import os
+import itertools as it
 
 problem_mods = [(1, 1.05), (1, 2.55), (2, 1.05), (2, 1.1), (2, 1.2), (2, 1.6),
                 (2, 2.65), (3, 2.25), (4, 1.55), (4, 2.3), (5, 1.25), (5, 1.9)]
@@ -151,6 +153,18 @@ for massdir, mass, cb in dp.iter_starModel_dirs(oldPath):
     if move:
         dnew = newPath / f'c{cb}' / massdir.name
         os.rename(massdir,dnew)
+
+# Check to see if any models are missing besides problem_mods
+masses = [np.round(0.9+0.05*i,2) for i in range(83)]
+cb = [i for i in range(7)]
+all_idxs = list(it.product(cb, masses))
+
+dir_idxs = []
+for massdir, mass, cb in dp.iter_starModel_dirs(newPath):
+    dir_idxs.append((cb, mass))
+
+set(all_idxs) - set(dir_idxs) - set(problem_mods)
+# result is an empty set -> no missing models that are not in problem_mods
 ```
 <!-- fe -->
 
@@ -609,17 +623,21 @@ Get a list of models that have non-monotonic center_h1 values before they hit TA
 h1cut = 1e-12
 rootPath, nonmono = Path(datadir), pd.DataFrame(columns=['mass','cb','h1_mono'])
 for massdir, mass, cb in dp.iter_starModel_dirs(rootPath):
-    masscb = (mass,cb)
-    hdf = get_hdf(cb, mass=mass)
-    mono = hdf.loc[hdf.center_h1>h1cut,'center_h1'].is_monotonic_decreasing
-    nonmono = nonmono.append({'mass':mass,'cb':cb,'h1_mono':mono},ignore_index=True)
+masscb = (mass,cb)
+hdf = get_hdf(cb, mass=mass)
+mono = hdf.loc[hdf.center_h1>h1cut,'center_h1'].is_monotonic_decreasing
+nonmono = nonmono.append({'mass':mass,'cb':cb,'h1_mono':mono},ignore_index=True)
 
+nonmono.sort_values(['cb','mass'], inplace=True)
 len(nonmono)
-len(len(nonmono.loc[nonmono.h1_mono==False,:]))
-nonmono.loc[nonmono.h1_mono==False,:]
+len(nonmono.loc[nonmono.h1_mono==False,:])
+
+for cb in [0,4,6]:
+    len(nonmono.loc[((nonmono.h1_mono==False)&(nonmono.cb==cb)),'mass'])
+    # = 6, 13, 33
 ```
 
-- [ ]  __There are 93 (out of 569) models for which center_h1 is non-monotonic before TAMS. Need to track down why. This seems to cause the other problems found above.__ Only physically plausible mechanism I can think of that may increase central H1 abundance is convection, but that shouldn't affect a single mass and not the masses that bracket it in the way seen in the center_h1 plots above.
+- [ ]  __There are 88 (out of 569) models for which center_h1 is non-monotonic before TAMS. Need to track down why. This seems to cause the other problems found above.__ Only physically plausible mechanism I can think of that may increase central H1 abundance is convection, but that shouldn't affect a single mass and not the masses that bracket it in the way seen in the center_h1 plots above.
 
 <!-- fe  -->
 
@@ -890,6 +908,65 @@ Similar to m2p4c0 above, rotation mixing in q = [0.2, 0.4] turns on at the probl
 <!-- fe ## Look at the 2.55c4 model more closely: -->
 
 <!-- fe # Look at 2.4c0 and 2.55c4 (which have the most noticeable affects)  -->
+
+<a name="hotT_jitters"></a>
+## Hottest MS Teff - why is c0 so jittery?
+<!-- fs -->
+```python
+# check
+hotT_data = pd.read_csv(hotTeff_csv)
+ht = hotT_data
+ht.set_index(['cboost','mass'], inplace=True)
+
+for col in ['center_h1', 'mass']:
+    plt.figure()
+    ax = plt.gca()
+    kwargs = {'logx':True, 'ax':ax}
+    for cb in [0,6]:
+        ht.loc[ht.cboost==cb,:].plot('star_age',col, label=f'cb{cb}', **kwargs)
+    plt.legend()
+    plt.ylabel(f'{col} of hottest MS star')
+    plt.tight_layout()
+    plt.savefig(plotdir+f'/hotT_{col}.png')
+
+# find masses that are responsible for the non-monotonicity
+ht.set_index(['cboost','mass'], inplace=True)
+ht0 = ht.loc[idx[0,:],:]
+ht0.loc[((ht0.star_age>1e9)&(ht0.star_age<1.5e9)),:]
+# 1.65, 1.70, 1.75 are the non-monotonic masses in this range
+# 1.70 is at age = 1.351568e+09
+
+# check the interpolation of 1.70 c0
+cb, masses = 0, [1.60, 1.65, 1.70, 1.75]
+axvline, cutage = 1.351568e+09, 1.2e9
+def plot_lttest(cb, masses, axvline=None, cutage=0, save=None):
+    colors = ['blue','orange','green','purple']
+    plt.figure()
+    if axvline is not None: plt.axvline(axvline, lw=0.5)
+    for m, mass in enumerate(masses):
+        httmp, plot_times = get_hotT_data(test_idx=(cb,mass))
+        httmp = httmp.loc[httmp.star_age>cutage,:]
+        kwargs = {'ax':plt.gca(), 'kind':'scatter', 'c':colors[m], 'label':f'{mass} Msun'}
+        httmp.plot('star_age','log_Teff', **kwargs)
+    plt.title(f'cb{cb} interpolation check')
+    plt.legend()
+    plt.tight_layout()
+    plt.savefig(save)
+plot_lttest(cb, masses, axvline=axvline, cutage=cutage, save=plotdir+'/hotT_interp_index.png')
+```
+<img src="temp/hotT_interp_index.png" alt="hotT_interp_index" width="400"/>
+
+__It is picking up the temperature increase from the convective hook.__ Update `get_hotT_data()` to drop it. Testing:
+
+```python
+%run plot_fncs
+plot_lttest(cb, masses, axvline=axvline, cutage=0, save=plotdir+'/hotT_interp_drop_conv_hook.png')
+```
+<img src="temp/hotT_interp_drop_conv_hook.png" alt="hotT_interp_drop_conv_hook" width="400"/>
+
+Looks good. Regenerate `hotTeff_csv`.
+
+<!-- fe -->
 
 <!-- fe # Check things that seem weird in plots below -->
 
@@ -1220,7 +1297,8 @@ for c in cb:
 <!-- fs -->
 ```python
 save = [None, plotdir+'/hotTeff.png', finalplotdir+'/hotTeff.png']
-plot_hottest_Teff(plot_data=hotTeff_csv, save=save[1], resid=False)
+cb = [0,6]
+plot_hottest_Teff(plot_data=hotTeff_csv, cblist=cb, save=save[1], resid=False)
 ```
 
 <img src="temp/hotTeff.png" alt="hotTeff.png" width="400"/>

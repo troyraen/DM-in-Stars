@@ -1701,7 +1701,7 @@ def plot_isos(isodf, plot_times=None, cblist=None, cut_axes=False, save=None):
 # fe HR isochrones plot
 
 # fs Hottest MS Teff
-def get_hotT_data(data_dir=r2tf_dir+'/', age_range=(10**7.75,10**10.25), pdf=None):
+def get_hotT_data(data_dir=r2tf_dir+'/', age_range=(10**7.75,10**10.25), pdf=None, test_idx=None):
     """ Loads data from all history.data files in data_dir subdirectories matching c[0-6].
             if pdf arg given it uses this instead of loading from scratch.
         Interpolates log_Teff to plot_times.
@@ -1719,6 +1719,7 @@ def get_hotT_data(data_dir=r2tf_dir+'/', age_range=(10**7.75,10**10.25), pdf=Non
     pdf = get_profilesindex_df(profile_runs_dir=data_dir) if pdf is None else pdf
     hdf_dirs = pdf.groupby('path_to_LOGS').max() # .max() to get one row per star
     for i, (Ldir, row) in enumerate(hdf_dirs.iterrows()):
+        if test_idx not in [None,(int(row.cb),row.mass)]: continue
 
         # if row.mass < 4.5: continue
         # if row.cb > 1.0 and row.cb <5: continue
@@ -1728,24 +1729,40 @@ def get_hotT_data(data_dir=r2tf_dir+'/', age_range=(10**7.75,10**10.25), pdf=Non
         hpath = os.path.join(Ldir,'history_pruned.data') if usepruned else os.path.join(Ldir,'history.data')
         if not Path(hpath).is_file(): continue
         df = pd.read_csv(hpath, header=4, sep='\s+', usecols=cols)
-        df = cut_HR_hdf(df, cuts=['ZAMS','H-3']) # only use MS
+        # only use MS
+        df = cut_HR_hdf(df, cuts=['ZAMS','H-3'])
+        # reset age to zams
+        # df.loc[:,'star_age'] = df.loc[:,'star_age'] - df.loc[:,'star_age'].min()
+
+        # drop the convective hook
+        dftmp = df.loc[df.center_h1<1e-1,:]
+        Tdiff = dftmp.log_Teff.diff(-1).apply(np.log10)
+        # 1st NaN will be the first row that is smaller than the next
+        # it is the last row we want to keep
+        # if Tdiff is monotonic, first NaN is last row, so no harm in slicing
+        dropidx = Tdiff.index[Tdiff.isnull()][0]
+        df = df.loc[:dropidx-1,:]
 
         # add Teff interpolated to ages in plot_times
         pt = np.ma.masked_outside(plot_times,df.star_age.min(),df.star_age.max())
         pt = pt.data[pt.mask == False].flatten()
-        dftmp = pd.DataFrame({'star_age':pt, 'log_Teff':np.nan, 'log_L':np.nan})
+        dftmp = pd.DataFrame({'star_age':pt, 'log_Teff':np.nan, 'log_L':np.nan,
+                                'center_h1':np.nan})
         # set star_age as the index and concatenate the dfs
-        df = df.loc[:,['star_age','log_Teff','log_L']].set_index('star_age')
+        df = df.set_index('star_age')
         dftmp = dftmp.set_index('star_age')
         age_Teff = pd.concat([df,dftmp], axis=0).sort_index()
         # interpolate log_Teff
-        age_Teff = age_Teff.interpolate(method='values')
+        age_Teff = age_Teff.interpolate(method='index')
 
         # create df with the needed info
-        age_Teff = age_Teff.loc[pt,:].reset_index()
         age_Teff['mass'] = row.mass
         age_Teff['cboost'] = int(row.cb)
+        if test_idx == (int(row.cb),row.mass):
+            return age_Teff.reset_index(), plot_times
+        age_Teff = age_Teff.loc[pt,:].reset_index()
         plot_data.append(age_Teff)
+
 
     # concat the dfs and keep only the hottest star for a given age and cboost
     df = pd.concat(plot_data, axis=0, ignore_index=True)
@@ -1753,7 +1770,7 @@ def get_hotT_data(data_dir=r2tf_dir+'/', age_range=(10**7.75,10**10.25), pdf=Non
 
     return df
 
-def plot_hottest_Teff(save=None, pdf=None, plot_data=hotTeff_csv, resid=False, plotL=False):
+def plot_hottest_Teff(save=None, pdf=None, plot_data=hotTeff_csv, resid=False, plotL=False, cblist=[i for i in range(7)]):
     """ Plots highest log_Teff of any mass in MS
         pdf arg is passed to get_hotT_data(pdf=pdf) if plot_data is None
         plot_data (None, df, or str):
@@ -1777,6 +1794,7 @@ def plot_hottest_Teff(save=None, pdf=None, plot_data=hotTeff_csv, resid=False, p
 
     cbgroup = plot_data.groupby(('cboost'))
     for i, (cb,dat) in enumerate(cbgroup):
+        if cb not in cblist: continue
         # # showing that the sudden drop in Teff happens around the
         # # noDM rad->conv core transition
         # if cb in [0,5,6]:
