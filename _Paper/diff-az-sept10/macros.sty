@@ -1,0 +1,70 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%               Macros for TeX/LaTeX documents
+%
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\usepackage{xspace} % smart spaces after custom \newcommand
+
+%-- Comments and questions
+\newcommand{\arz}[1]{{\color{ForestGreen}\textbf{[Andrew: }\textbf{#1}]}}
+\newcommand{\cb}[1]{{\color{TealBlue}\textbf{[Carlos: }\textbf{#1}]}}
+\newcommand{\hrm}[1]{{\color{Mulberry}\textbf{[Héctor: }\textbf{#1}]}}
+\newcommand{\tjh}[1]{{\color{Red}\textbf{[Travis: }\textbf{#1}]}}
+% \newcommand{\fvdb}[1]{{\color{BurntOrange}\textbf{[Frank: }\textbf{#1}]}}
+% \newcommand{\cs}[1]{{\color{Lavender}\textbf{[ChadS: }\textbf{#1}]}}
+\newcommand{\kw}[1]{{\color{Mulberry}\textbf{[Kuan: }\textbf{#1}]}}
+\newcommand{\tjr}[1]{{\color{Brown}\textbf{[Troy: }\textbf{#1}]}}
+
+\newcommand{\cbq}[0]{{\color{TealBlue}\textbf{[Question for Carlos: ]}}}
+\newcommand{\todo}[1]{{\color{Mulberry}\textbf{[TO DO: }\textbf{#1}]}}
+\newcommand{\qus}[1]{{\color{BrickRed}\textbf{[Q: }\textbf{#1}]}}
+
+
+%-- Units
+\newcommand{\cmsq}{\ \mathrm{cm}^2}
+\newcommand{\cmcinv}{\ \mathrm{cm}^{-3}}
+\newcommand{\gev}{\ \mathrm{GeV}}
+\newcommand{\K}{\ \mathrm{K}}
+\newcommand{\kms}{\ \mathrm{km\ s}^{-1}}
+\newcommand{\Msun}{\ \mathrm{M}_{\odot}} % Msun
+\newcommand{\sinv}{\ \mathrm{s}^{-1}}
+
+
+%-- Variables
+% must be used within math mode unless command includes $$
+% \newcommand{\mp}{$m_p$}
+\newcommand{\Csun}{C_{\odot}}
+\newcommand{\Cx}{C_{\mathrm{DM}}}
+\newcommand{\epsCNO}{\epsilon_{\mathrm{CNO}}}
+\newcommand{\epsnuc}{\epsilon_{\mathrm{nuc}}}
+\newcommand{\epspp}{\epsilon_{\mathrm{pp}}}
+\newcommand{\epsx}{\epsilon_{\mathrm{DM}}}
+\newcommand{\gb}{\Gamma_\mathrm{B}}
+\newcommand{\gbzero}{\Gamma_\mathrm{B} = 0}
+\newcommand{\gbone}{\Gamma_\mathrm{B} = 1}
+\newcommand{\gbpow}[1]{\Gamma_\mathrm{B} = 10^{#1}}
+\newcommand{\LvsT}{log($L$)-log($\Teff$)\xspace}
+\newcommand{\lx}{l_{\mathrm{DM}}}
+\newcommand{\mprot}{m_{\mathrm{p}}}
+\newcommand{\mrange}{$0.9 \leq M_{\star}/\mathrm{M}_{\odot} \leq 5.0$\xspace}
+\newcommand{\mrangelow}{$0.9 \leq M_{\star}/\mathrm{M}_{\odot} \lesssim 1.3$\xspace}
+\newcommand{\mrangehigh}{$1.3 \lesssim M_{\star}/\mathrm{M}_{\odot} \leq 5.0$\xspace}
+\newcommand{\Mstar}{M_{\star}}
+\newcommand{\mx}{m_{\mathrm{DM}}}
+\newcommand{\nprot}{n_{\mathrm{p}}}
+\newcommand{\Nx}{N_{\mathrm{DM}}}
+\newcommand{\nx}{n_{\mathrm{DM}}}
+\newcommand{\rhox}{\rho_{\mathrm{DM}}}
+\newcommand{\Rstar}{R_{\star}}
+\newcommand{\rx}{r_{\mathrm{DM}}}
+\newcommand{\sigxn}{\sigma_{\mathrm{n}}}
+\newcommand{\sigxp}{\sigma_{\mathrm{p}}}
+\newcommand{\Tc}{T_\mathrm{c}}
+\newcommand{\Teff}{T_{\mathrm{eff}}}
+\newcommand{\Tx}{T_{\mathrm{DM}}}
+
+%-- Other
+\newcommand{\mesa}{\texttt{MESA}\xspace}
+\newcommand{\mist}{\texttt{MIST}\xspace}
+\newcommand{\nodm}{\texttt{NoDM}\xspace}
