@@ -13,6 +13,7 @@ import matplotlib.gridspec as gs
 import matplotlib.colors as colors
 from matplotlib.colors import ListedColormap
 from matplotlib.ticker import FormatStrFormatter
+from matplotlib.lines import Line2D
 import os
 from pathlib import Path
 # import subprocess
@@ -368,6 +369,11 @@ def cut_HR_hdf(hdf, cuts=['ZAMS'], tahe=[]):
         H3_cut = df.loc[df.center_h1<H3_cut,'center_h1'].max()
         df = df[df.center_h1 >= H3_cut]
 
+    if 'GiantBranch' in cuts: # cut isos when begin ascending giant branch
+        df = df.groupby('log10_isochrone_age_yr').apply(get_giant_branch_cut)
+        df.reset_index(inplace=True, drop=True)
+        df = cut_iso_stragglers(df) # cut some extra points
+
     if 'TAMS' in cuts: # cut post TAMS
         TAMS_cut = h1cuts['TAMS']
         # TAMS model is first model after center_h1 < TAMS_cut, include this model
@@ -376,7 +382,7 @@ def cut_HR_hdf(hdf, cuts=['ZAMS'], tahe=[]):
 
     if 'TACHeB' in cuts: # cut post TACHeB
         if tahe=='iso':
-            df = df.loc[((df.center_he4 > 1e-4) | (df.center_h1 > 0.5)),:]
+            df = df.loc[((df.center_he4 > 1e-3) | (df.center_h1 > 0.5)),:]
         else:
             descdf,mass,cb = tahe
             TACHeB_model = descdf.loc[((descdf.mass==mass) & (descdf.cboost==cb)),'TACHeB_model']
@@ -390,6 +396,34 @@ def cut_HR_hdf(hdf, cuts=['ZAMS'], tahe=[]):
             df = df[df.model_number <= TACHeB_model.iloc[0]]
 
     return df
+
+def get_giant_branch_cut(df):
+    """ Use as isodf.groupby('log10_isochrone_age_yr').apply(get_giant_branch_cut)
+    """
+    # get first index where log(Teff) < 3.72
+    # this will be the last point we keep
+    idx_cut = df.loc[df.log_Teff<3.72,'initial_mass']
+
+    if len(idx_cut) != 0:
+        return df.loc[:idx_cut.idxmin(),:]
+    else:
+        return df
+
+def cut_iso_stragglers(isodf):
+    """ cut out some points that do not get removed in the GiantBranch cut
+    """
+
+    c = isodf.cboost==4
+
+    m = isodf.initial_mass==1.35
+    a = isodf.log10_isochrone_age_yr.round(2)==9.55
+    isodf = isodf.loc[~((m)&(c)&(a)),:]
+
+    m = isodf.initial_mass==1.80
+    a = isodf.log10_isochrone_age_yr.round(2)==9.11
+    isodf = isodf.loc[~((m)&(c)&(a)),:]
+
+    return isodf
 
 
 # fe General helper fncs
@@ -1205,6 +1239,8 @@ def plot_Teff(mlist=None, cblist=None, from_file=False, descdf=None, save=None):
     if descdf is None:
         descdf = get_descdf(fin=fdesc) # get the descdf for ZAMS and TAMS lines
 
+    h1cuts, __ = get_h1cuts()
+
     nrows = 1
     ncols = len(cblist)
     if save is None:
@@ -1228,16 +1264,33 @@ def plot_Teff(mlist=None, cblist=None, from_file=False, descdf=None, save=None):
                 # hdf = cut_HR_hdf(hdf, cuts=['ZAMS','TAMS'])
                 # hdf0 = cut_HR_hdf(hdf0, cuts=['ZAMS','TAMS'])
 
-            age = hdf.star_age - hdf.star_age.iloc[0]
-            age.iloc[0] = 1 # avoid log(0)
-            axs[a].plot(np.log10(age), hdf.log_Teff, \
+            hdf.star_age = hdf.star_age - hdf.star_age.iloc[0]
+            hdf.star_age.iloc[0] = 1 # avoid log(0)
+            axs[a].plot(hdf.star_age.apply(np.log10), hdf.log_Teff, \
                                     c=mcolor[im], zorder=-3*mass+16)
+            # mark leave MS
+            h = cut_HR_hdf(hdf, cuts=['H-3'])
+            h = h.loc[h.star_age==h.star_age.max(),:]
+            axs[a].scatter(h.star_age.apply(np.log10), h.log_Teff, marker=7, \
+                                    c=np.array([mcolor[im]]), zorder=-3*mass+16)
+            # h = cut_HR_hdf(hdf, cuts=['TAMS'])
+            # h = h.loc[h.star_age==h.star_age.max(),:]
+            # axs[a].scatter(h.star_age.apply(np.log10), h.log_Teff, marker="x", \
+            #                         c=np.array([mcolor[im]]), zorder=-3*mass+16)
             # axs[a].axhline(descdf.set_index(['mass','cboost']).loc[idx[mass,cb],'lAMS_Teff'],c='blue',lw=1)
             if cb != 0:
-                age = hdf0.star_age - hdf0.star_age.iloc[0]
-                age.iloc[0] = 1 # avoid log(0)
-                # axs[a].plot(np.log10(age), hdf0.log_Teff, zorder=-3*mass+17, c='w', lw=1)
-                axs[a].plot(np.log10(age), hdf0.log_Teff, zorder=-3*mass+18, c=mcolor[im], alpha=0.4)
+                hdf0.star_age = hdf0.star_age - hdf0.star_age.iloc[0]
+                hdf0.star_age.iloc[0] = 1 # avoid log(0)
+                axs[a].plot(hdf0.star_age.apply(np.log10), hdf0.log_Teff, zorder=-3*mass+18, c=mcolor[im], alpha=0.4)
+                # mark leave MS
+                h0 = cut_HR_hdf(hdf0, cuts=['H-3'])
+                h0 = h0.loc[h0.star_age==h0.star_age.max(),:]
+                axs[a].scatter(h0.star_age.apply(np.log10), h0.log_Teff, marker=7, \
+                                        zorder=-3*mass+18, c=np.array([mcolor[im]]), alpha=0.4)
+                # h0 = cut_HR_hdf(hdf0, cuts=['TAMS'])
+                # h0 = h0.loc[h0.star_age==h0.star_age.max(),:]
+                # axs[a].scatter(h0.star_age.apply(np.log10), h0.log_Teff, marker="x", \
+                #                         zorder=-3*mass+18, c=np.array([mcolor[im]]), alpha=0.4)
                 # axs[a].axhline(descdf.set_index(['mass','cboost']).loc[idx[mass,0],'lAMS_Teff'],c='0.5',lw=1)
 
         # Title panels
@@ -1247,12 +1300,13 @@ def plot_Teff(mlist=None, cblist=None, from_file=False, descdf=None, save=None):
             lbl = r'$\Gamma_B = 10^{}$'.format(cb)
         axs[a].annotate(lbl,(ann_rmarg,ann_tmarg), fontsize=20, xycoords='axes fraction', \
                         horizontalalignment='right', verticalalignment='top')
-
+                        # (ann_rmarg,ann_tmarg-0.25*a)
         # Axes labels and limits:
         axs[a].set_xlabel(r'log Stellar Age [yr]')
     teff = r'log $T_{\mathrm{eff}}$ [K]'
     axs[0].set_ylabel(teff)
-    plt.xlim(6.8, axs[0].get_xlim()[1]-0.4)
+    plt.xlim(7.5, axs[0].get_xlim()[1]-0.4)
+    # plt.ylim(3.4, axs[0].get_ylim()[1])
 
     # Colorbar
     f, eps = adjust_plot_readability(fig=f, fontOG=None, plot='teff')
@@ -1264,6 +1318,13 @@ def plot_Teff(mlist=None, cblist=None, from_file=False, descdf=None, save=None):
     cb_ax = f.add_axes(add_axes_list)
     cbar = get_mcbar(sm=ascat, cax=cb_ax, f=f)
 
+    # Legend
+    legend_elements = [Line2D([0], [0], marker=7, color='w',
+                        markerfacecolor='0.5', markeredgecolor='0.5', label=r'$X_c = 10^{-3}$'),
+                        # Line2D([0], [0], marker="x", color='w',
+                        # markeredgecolor='0.5', label=r'$X_c = 10^{-12}$')
+                        ]
+    axs[0].legend(handles=legend_elements, fontsize=10, frameon=False, loc=3) #(9,4))
 
 #     plt.tight_layout() # makes colorbar overlap plot
     if save is not None: plt.savefig(save)
@@ -1275,8 +1336,7 @@ def plot_Teff(mlist=None, cblist=None, from_file=False, descdf=None, save=None):
 # fe Teff plot
 
 # fs HR tracks plot
-def plot_HR_tracks(mlist=None, cblist=None, from_file=False, cut_axes=True,
-                    descdf=None, save=None):
+def plot_HR_tracks(mlist=None, cblist=None, from_file=False, cut_axes=True, descdf=None, save=None):
     """ To load history.data from original MESA output dir r2tf_dir,
                                 use from_file = get_r2tf_LOGS_dirs()
     """
@@ -1318,8 +1378,8 @@ def plot_HR_tracks(mlist=None, cblist=None, from_file=False, cut_axes=True,
             # center H1 < 10^-3
             mbool = hdf.model_number== get_h1_modnums(frm='history_data', mass=mass, hdf=hdf, cb=cb)[cb][4]
             s = axs[a].scatter(hdf.loc[mbool,'log_Teff'], hdf.loc[mbool,'log_L'], \
-                        c=mcolor[im], edgecolors='k', linewidths=0.5, \
-                        s=20, marker='X', zorder=20)
+                        c=np.array([mcolor[im]]), edgecolors=np.array(['k']), linewidths=3, \
+                        s=20, marker=7, zorder=20)
 
             if cb != 0:
                 # axs[a].plot(hdf0.log_Teff, hdf0.log_L, zorder=9, c='w', lw=1.5)
@@ -1356,8 +1416,11 @@ def plot_HR_tracks(mlist=None, cblist=None, from_file=False, cut_axes=True,
     cb_ax = f.add_axes(add_axes_list)
     cbar = get_mcbar(sm=ascat, cax=cb_ax, f=f)
 
-    lgdlbls = [r'$X_c < 10^{-3}$',r'$X_{c,\, NoDM} < 10^{-3}$','ZAMS$_{NoDM}$']
-    axs[0].legend([s,l,z], lgdlbls, loc=3, fontsize=9, frameon=False)
+    # Legend
+    lgdlbls = ['ZAMS$_{NoDM}$', r'$X_{c,\, NoDM} = 10^{-3}$', r'$X_c = 10^{-3}$']
+    s = Line2D([0], [0], marker=7, color='w',
+                        markerfacecolor='0.5', markeredgecolor='0.5', label=r'$X_c < 10^{-3}$')
+    axs[0].legend([z,l,s], lgdlbls, loc=3, fontsize=10, frameon=False)
 
 #     plt.tight_layout() # makes colorbar overlap plot
     if save is not None: plt.savefig(save)
@@ -1365,7 +1428,6 @@ def plot_HR_tracks(mlist=None, cblist=None, from_file=False, cut_axes=True,
 
     adjust_plot_readability(fig=None, fontOG=fontOG)
     return None
-
 
 def plot_HR_tracks_stackvertical(mlist=None, cblist=None, from_file=False, cut_axes=True, save=None):
     """ To load history.data from original MESA output dir r2tf_dir,
@@ -1500,7 +1562,7 @@ def get_midx_dict(indf, mtarg=None, mtol=None):
 
     return midx_dict
 
-def plot_isos_ind(isodf, plot_times=None, cb=None, cut_axes=True, save=None):
+def plot_isos_ind(isodf, plot_times=None, cb=None, cut_axes='gb', save=None):
     """ Plots isochrone panels.
     """
     fontOG = adjust_plot_readability(fontAdj=True, plot='isos')
@@ -1530,10 +1592,13 @@ def plot_isos_ind(isodf, plot_times=None, cb=None, cut_axes=True, save=None):
             cbdf = cbdf[cbdf.log10_isochrone_age_yr.isin(plot_times)]
             cbdf0 = cbdf0[cbdf0.log10_isochrone_age_yr.isin(plot_times)]
 
-            if cut_axes:
-                cbdf = cut_HR_hdf(cbdf, cuts=['ZAMS','TACHeB'], tahe='iso')
-                cbdf0 = cut_HR_hdf(cbdf0, cuts=['ZAMS','TACHeB'], tahe='iso')
+            if cut_axes == 'gb':
+                cbdf = cut_HR_hdf(cbdf, cuts=['ZAMS','GiantBranch'])
+                cbdf0 = cut_HR_hdf(cbdf0, cuts=['ZAMS','GiantBranch'])
                 print(f'cb {c}')
+            elif cut_axes=='TACHeB':
+                cbdf = cut_HR_hdf(cbdf, cuts=['ZAMS', 'TACHeB'], tahe='iso')
+                cbdf0 = cut_HR_hdf(cbdf0, cuts=['ZAMS','TACHeB'], tahe='iso')
                 # print(cbdf.log10_isochrone_age_yr.unique())
                 # print(cbdf0.log10_isochrone_age_yr.unique())
 
@@ -1541,7 +1606,7 @@ def plot_isos_ind(isodf, plot_times=None, cb=None, cut_axes=True, save=None):
             tmp = cbdf.loc[cbdf.log10_isochrone_age_yr==pt,:]
             axs[a].plot(tmp.log_Teff, tmp.log_L, '-o', c=icolor[pt], lw=3, ms=5)
             tmp = cbdf0.loc[cbdf0.log10_isochrone_age_yr==pt,:]
-            axs[a].plot(tmp.log_Teff, tmp.log_L, '-x', c=icolor[pt], lw=1, ms=7)#, alpha=0.5)
+            axs[a].plot(tmp.log_Teff, tmp.log_L, '-x', c=icolor[pt], lw=3, ms=9, alpha=0.4)
 
 
         p = axs[a].scatter(cbdf.log_Teff, cbdf.log_L, zorder=1,
@@ -1575,6 +1640,13 @@ def plot_isos_ind(isodf, plot_times=None, cb=None, cut_axes=True, save=None):
                            c=rows.log10_isochrone_age_yr, cmap=isocmap, vmin=isovmin, vmax=isovmax,
                            **kwargs)
 
+        # axs[a].axvline(3.72)
+
+        # # plot hottest MS Teff
+        # hotT = pd.read_csv(hotTeff_csv)
+        # hotT = hotT.loc[hotT.cboost==cb,:]
+        # axs[a].plot(hotT.log_Teff, hotT.log_L, '-o', c='k', lw=3, ms=5)
+
         # Title panels
         if c==0:
             lbl = r'NoDM'
@@ -1584,6 +1656,7 @@ def plot_isos_ind(isodf, plot_times=None, cb=None, cut_axes=True, save=None):
                         horizontalalignment='left', verticalalignment='top')
         # Axes params
         axs[a].invert_xaxis()
+        axs[a].set_ylim(-0.4,3.0)
 #         axs[a].grid(linestyle='-', linewidth='0.5', color='0.7')
 
     # Axes labels
@@ -1610,6 +1683,46 @@ def plot_isos_ind(isodf, plot_times=None, cb=None, cut_axes=True, save=None):
     plt.show(block=False)
 
     adjust_plot_readability(fig=None, fontOG=fontOG)
+    return None
+
+def plot_isos_Dotter(isodf, plot_times=None, cb=None, save=None):
+
+    plt.figure(figsize=(6,8))
+    for a, c in enumerate(cb):
+        cbdfg = isodf.groupby('cboost')
+
+        cbdf0 = cbdfg.get_group(0)
+        cbdf0 = cbdf0[cbdf0.log10_isochrone_age_yr.isin(plot_times)]
+        cbdf0 = cut_HR_hdf(cbdf0, cuts=['ZAMS','TACHeB'], tahe='iso')
+
+        cbdf = cbdfg.get_group(c)
+        cbdf = cbdf[cbdf.log10_isochrone_age_yr.isin(plot_times)]
+        cbdf = cut_HR_hdf(cbdf, cuts=['ZAMS','TACHeB'], tahe='iso')
+
+        for pt in plot_times:
+            tmp = cbdf0.loc[cbdf0.log10_isochrone_age_yr==pt,:]
+            plt.plot(tmp.log_Teff, tmp.log_L, '-o', c=get_cmap_color(0), lw=3, ms=5, label=r'NoDM')#, alpha=0.4)
+            tmp = cbdf.loc[cbdf.log10_isochrone_age_yr==pt,:]
+            plt.plot(tmp.log_Teff, tmp.log_L, '-o', c=get_cmap_color(c), lw=3, ms=5, label='$\Gamma_B=10^6$')#, alpha=0.4)
+
+    # Title panels
+    lbl = f'log Isochrone age /yr = {np.round(pt,2)}'
+        # plt.annotate(lbl,(ann_lmarg+.03,ann_bmarg), fontsize=20, xycoords='axes fraction', horizontalalignment='left', verticalalignment='top')
+    plt.legend(title=lbl, loc=2)
+    # Axes params
+    plt.gca().invert_xaxis()
+    # Axes labels
+    teff = r'log ($T_{\mathrm{eff}}$ /K)'
+    plt.xlabel(teff, labelpad=5)
+    plt.ylabel(r'log ($L / \mathrm{L}_{\odot}$)', labelpad=5)
+    plt.ylim(1.25,2.75)
+    plt.xlim(4.1,3.6)
+    # plt.ylim(1.25,3.25)
+    # plt.xlim(4.3,3.5)
+
+    plt.tight_layout()
+    if save is not None: plt.savefig(save)
+
     return None
 
 def plot_isos(isodf, plot_times=None, cblist=None, cut_axes=False, save=None):
@@ -1701,7 +1814,7 @@ def plot_isos(isodf, plot_times=None, cblist=None, cut_axes=False, save=None):
 # fe HR isochrones plot
 
 # fs Hottest MS Teff
-def get_hotT_data(data_dir=r2tf_dir+'/', age_range=(10**7.75,10**10.25), pdf=None, test_idx=None):
+def get_hotT_data(data_dir=r2tf_dir+'/', descdf=None, age_range=(10**7.75,10**10.25), pdf=None, test_idx=None):
     """ Loads data from all history.data files in data_dir subdirectories matching c[0-6].
             if pdf arg given it uses this instead of loading from scratch.
         Interpolates log_Teff to plot_times.
@@ -1721,27 +1834,28 @@ def get_hotT_data(data_dir=r2tf_dir+'/', age_range=(10**7.75,10**10.25), pdf=Non
     for i, (Ldir, row) in enumerate(hdf_dirs.iterrows()):
         if test_idx not in [None,(int(row.cb),row.mass)]: continue
 
-        # if row.mass < 4.5: continue
-        # if row.cb > 1.0 and row.cb <5: continue
-
         print('Processing dir {}'.format(Ldir))
         # get the MS data from the history file
         hpath = os.path.join(Ldir,'history_pruned.data') if usepruned else os.path.join(Ldir,'history.data')
         if not Path(hpath).is_file(): continue
         df = pd.read_csv(hpath, header=4, sep='\s+', usecols=cols)
         # only use MS
-        df = cut_HR_hdf(df, cuts=['ZAMS','H-3'])
+        df = cut_HR_hdf(df, cuts=['ZAMS','TAMS'])
         # reset age to zams
-        # df.loc[:,'star_age'] = df.loc[:,'star_age'] - df.loc[:,'star_age'].min()
+        df.loc[:,'star_age'] = df.loc[:,'star_age'] - df.loc[:,'star_age'].min()
 
-        # drop the convective hook
-        dftmp = df.loc[df.center_h1<1e-1,:]
-        Tdiff = dftmp.log_Teff.diff(-1).apply(np.log10)
-        # 1st NaN will be the first row that is smaller than the next
-        # it is the last row we want to keep
-        # if Tdiff is monotonic, first NaN is last row, so no harm in slicing
-        dropidx = Tdiff.index[Tdiff.isnull()][0]
-        df = df.loc[:dropidx-1,:]
+        # drop the convective hook from stars with convective cores
+        # (same def of cc as in tauMS plot)
+        cbgroup = descdf.sort_values('mass').groupby(('cboost'))
+        cctrans = cbgroup.apply(find_cc_trans_mass)
+        if row.mass >= cctrans.loc[int(row.cb),'cctrans_mass']:
+            dftmp = df.loc[df.center_h1<1e-1,:]
+            Tdiff = dftmp.log_Teff.diff(-1).apply(np.log10)
+            # 1st NaN will be the first row that is smaller than the next
+            # it is the last row we want to keep
+            # if Tdiff is monotonic, first NaN is last row, so no harm in slicing
+            dropidx = Tdiff.index[Tdiff.isnull()][0]
+            df = df.loc[:dropidx-1,:]
 
         # add Teff interpolated to ages in plot_times
         pt = np.ma.masked_outside(plot_times,df.star_age.min(),df.star_age.max())
@@ -1770,7 +1884,7 @@ def get_hotT_data(data_dir=r2tf_dir+'/', age_range=(10**7.75,10**10.25), pdf=Non
 
     return df
 
-def plot_hottest_Teff(save=None, pdf=None, plot_data=hotTeff_csv, resid=False, plotL=False, cblist=[i for i in range(7)]):
+def plot_hottest_Teff(save=None, pdf=None, plot_data=hotTeff_csv, resid=False, plotL=False, plotMass=False, cblist=[i for i in range(7)]):
     """ Plots highest log_Teff of any mass in MS
         pdf arg is passed to get_hotT_data(pdf=pdf) if plot_data is None
         plot_data (None, df, or str):
@@ -1780,6 +1894,8 @@ def plot_hottest_Teff(save=None, pdf=None, plot_data=hotTeff_csv, resid=False, p
 
         resid = True will plot residuals
     """
+    agecut = 1e8
+
     if save is None:
         plt.figure()
     else:
@@ -1791,6 +1907,7 @@ def plot_hottest_Teff(save=None, pdf=None, plot_data=hotTeff_csv, resid=False, p
         plot_data = get_hotT_data(pdf=pdf)
     elif type(plot_data) == str:
         plot_data = pd.read_csv(plot_data)
+    plot_data = plot_data.loc[plot_data.star_age>agecut,:]
 
     cbgroup = plot_data.groupby(('cboost'))
     for i, (cb,dat) in enumerate(cbgroup):
@@ -1801,7 +1918,7 @@ def plot_hottest_Teff(save=None, pdf=None, plot_data=hotTeff_csv, resid=False, p
         #     datm = dat.loc[dat.mass<1,:]
         #     plt.scatter(datm.star_age.apply(np.log10), datm.log_Teff, c='k', s=2, zorder=10)
 
-        zord = cb #np.abs(cb-6)
+        zord = cb if cb !=0 else 10 #np.abs(cb-6)
         c = get_cmap_color(cb, cmap=cbcmap, myvmin=cbvmin, myvmax=cbvmax)
 
         if resid:
@@ -1811,6 +1928,8 @@ def plot_hottest_Teff(save=None, pdf=None, plot_data=hotTeff_csv, resid=False, p
             y = d.log_Teff - d0.loc[d.index,'log_Teff']
         elif plotL:
             y = dat.log_L
+        elif plotMass:
+            y = dat.mass
         else:
             y = dat.log_Teff
 
@@ -1826,10 +1945,12 @@ def plot_hottest_Teff(save=None, pdf=None, plot_data=hotTeff_csv, resid=False, p
         ylbl = r'log($T_{\mathrm{eff}}$ /K) - log($T_{\mathrm{eff,\, NoDM}}$ /K)'
     elif plotL:
         ylbl = r'log ($L/$ /L$_\odot$)'
+    elif plotMass:
+        ylbl = 'stellar mass'
     else:
         ylbl = r'log ($T_{\mathrm{eff}}$ /K)'
 
-    plt.xlabel(r'log ($Isochrone\ Age$ /yr)')
+    plt.xlabel(r'log (Isochrone Age /yr)')
     plt.ylabel(ylbl)
     plt.tight_layout()
     if save is not None: plt.savefig(save)

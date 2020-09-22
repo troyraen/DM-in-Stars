@@ -1,3 +1,4 @@
+<!-- fs outline -->
 - [Env and software setup](#setup)
     - [Create a DMS Conda env on Osiris](#condaenv)
     - [Installs for `pyplot` `usetex`](#latex)
@@ -14,6 +15,8 @@
     - [Xc as fnc of time](#XcVsTime)
     - [Look at 2.4c0 and 2.55c4 (which are the most obvious problems)](#probmod_profiles)
     - [Hottest MS Teff - why is c0 so jittery?](#hotT_jitters)
+    - [Does our definition of leaving MS qualitatively affect results?](#leaveMS_def)
+    - [Why do high Gamma_B low mass stars transition from X_c = 10^-3 to X_c = 10^-12 so quickly?](#ms_trans)
 - [Create Raen2020 paper plots](#makeplots)
     - [delta MS Tau](#mstau)
     - [Teff v Age](#teff)
@@ -23,6 +26,7 @@
     - [3.5 Msun profiles](#3p5)
     - [1.0 Msun profiles](#1p0)
 
+<!-- fe outline -->
 
 <a name="setup"></a>
 # Env and software setup
@@ -330,7 +334,8 @@ python gen_descDF_csv.py
 ```python
 %run plot_fncs
 # get the data
-hotT_data = get_hotT_data(data_dir=datadir+'/', age_range=(10**7.75,10**10.25))
+descdf = get_descdf(fin=fdesc)
+hotT_data = get_hotT_data(data_dir=datadir+'/', descdf=descdf, age_range=(10**7.75,10**10.25))
 # write the file
 hotT_data.to_csv(datadir+'/hotTeff.csv')
 ```
@@ -493,6 +498,7 @@ Need to be aware of TACHeB.
 <a name="bugs"></a>
 # Check things that seem weird in the plots below
 <!-- fs -->
+<!-- fs delta MS tau spikes and dips -->
 See `probmods.md` where I track models that seem to have problems. The `probmods [dict]` in this file (below) tracks the indices.
 
 Random deviations from the trends in the [delta MS Tau](#mstau) plot seem to be a problem. e.g., c4 at 2.55 Msun has ~10% increase.
@@ -908,26 +914,27 @@ Similar to m2p4c0 above, rotation mixing in q = [0.2, 0.4] turns on at the probl
 <!-- fe ## Look at the 2.55c4 model more closely: -->
 
 <!-- fe # Look at 2.4c0 and 2.55c4 (which have the most noticeable affects)  -->
+<!-- fe delta MS tau spikes and dips -->
 
 <a name="hotT_jitters"></a>
 ## Hottest MS Teff - why is c0 so jittery?
 <!-- fs -->
+<img src="temp/hotTeff_jitters.png" alt="hotTeff_jitters" width="400"/>
+
 ```python
 # check
-hotT_data = pd.read_csv(hotTeff_csv)
-ht = hotT_data
-ht.set_index(['cboost','mass'], inplace=True)
+ht = pd.read_csv(hotTeff_csv)
 
 for col in ['center_h1', 'mass']:
-    plt.figure()
-    ax = plt.gca()
-    kwargs = {'logx':True, 'ax':ax}
-    for cb in [0,6]:
-        ht.loc[ht.cboost==cb,:].plot('star_age',col, label=f'cb{cb}', **kwargs)
-    plt.legend()
-    plt.ylabel(f'{col} of hottest MS star')
-    plt.tight_layout()
-    plt.savefig(plotdir+f'/hotT_{col}.png')
+plt.figure()
+ax = plt.gca()
+kwargs = {'logx':True, 'ax':ax}
+for cb in [0,6]:
+    ht.loc[idx[cb,:],:].plot('star_age',col, label=f'cb{cb}', **kwargs)
+plt.legend()
+plt.ylabel(f'{col} of hottest MS star')
+plt.tight_layout()
+plt.savefig(plotdir+f'/hotT_{col}.png')
 
 # find masses that are responsible for the non-monotonicity
 ht.set_index(['cboost','mass'], inplace=True)
@@ -938,13 +945,13 @@ ht0.loc[((ht0.star_age>1e9)&(ht0.star_age<1.5e9)),:]
 
 # check the interpolation of 1.70 c0
 cb, masses = 0, [1.60, 1.65, 1.70, 1.75]
-axvline, cutage = 1.351568e+09, 1.2e9
-def plot_lttest(cb, masses, axvline=None, cutage=0, save=None):
+vline, cutage = 1.351568e+09, 1.2e9
+def plot_lttest(cb, masses, descdf, vline=None, cutage=0, save=None):
     colors = ['blue','orange','green','purple']
     plt.figure()
-    if axvline is not None: plt.axvline(axvline, lw=0.5)
+    if vline is not None: plt.axvline(vline, lw=0.5)
     for m, mass in enumerate(masses):
-        httmp, plot_times = get_hotT_data(test_idx=(cb,mass))
+        httmp, plot_times = get_hotT_data(test_idx=(cb,mass), descdf=descdf)
         httmp = httmp.loc[httmp.star_age>cutage,:]
         kwargs = {'ax':plt.gca(), 'kind':'scatter', 'c':colors[m], 'label':f'{mass} Msun'}
         httmp.plot('star_age','log_Teff', **kwargs)
@@ -952,7 +959,7 @@ def plot_lttest(cb, masses, axvline=None, cutage=0, save=None):
     plt.legend()
     plt.tight_layout()
     plt.savefig(save)
-plot_lttest(cb, masses, axvline=axvline, cutage=cutage, save=plotdir+'/hotT_interp_index.png')
+plot_lttest(cb, masses, descdf, vline=vline, cutage=cutage, save=plotdir+'/hotT_interp_index.png')
 ```
 <img src="temp/hotT_interp_index.png" alt="hotT_interp_index" width="400"/>
 
@@ -960,13 +967,70 @@ __It is picking up the temperature increase from the convective hook.__ Update `
 
 ```python
 %run plot_fncs
-plot_lttest(cb, masses, axvline=axvline, cutage=0, save=plotdir+'/hotT_interp_drop_conv_hook.png')
+plot_lttest(cb, masses, descdf, vline=vline, cutage=0, save=plotdir+'/hotT_interp_drop_conv_hook.png')
 ```
 <img src="temp/hotT_interp_drop_conv_hook.png" alt="hotT_interp_drop_conv_hook" width="400"/>
 
-Looks good. Regenerate `hotTeff_csv`.
+Looks good. Now regenerate `hotTeff_csv` and remake the plot...
+
+Looks much better, but there are still steps in the c0 line at old ages.
+Redo the `mass` plot above.
+
+<img src="temp/hotT_mass_noConvHook.png" alt="hotT_mass_noConvHook.png" width="400"/>
+
+Check non-convective models. c0 cctrans mass is 1.15 Msun.
+```python
+cb, masses = 0, [0.90, 1.10, 1.15, 1.20]
+cutage = 0
+plot_lttest(cb, masses, descdf, cutage=cutage, save=plotdir+'/hotT_interp_lowmass.png')
+```
+<img src="temp/hotT_interp_lowmass.png" alt="hotT_interp_lowmass" width="400"/>
+
+Looks fine.
 
 <!-- fe -->
+
+
+<a name="leaveMS_def"></a>
+## Does our definition of leaving MS qualitatively affect results?
+<!-- fs -->
+- [x]  Change `data_proc.py` leave MS definition
+    - [x]  Change file name `descDF.csv -> descDF_TAMS.csv`
+    - [x]  Change `findEV_leaveMS(hist_data)` to use `h.center_h1<1e-12`
+- [x]  Generate `descDF_TAMS.csv`
+- [x]  Make new MS tau plot
+
+```python
+descdf = get_descdf(fin=datadir + '/descDF_TAMS.csv')
+save = plotdir + '/MStau_TAMS.png'
+plot_delta_tau(descdf, cctrans_frac='default', which='avg', save=save)
+```
+
+Original (left) and TAMS definition (right):
+<img src="temp/MStau.png" alt="MStau" width="400"/> <img src="temp/MStau_TAMS.png" alt="MStau_TAMS" width="400"/>
+<!-- fe Does our definition of leaving MS qualitatively affect results? -->
+
+<a name="ms_trans"></a>
+## Why do high Gamma_B low mass stars transition from X_c = 10^-3 to X_c = 10^-12 so quickly?
+<!-- fs -->
+```python
+# Alter `plot_m1p0()` to plot total mixing coeff.
+%run plot_fncs
+peeps = [ 'ZAMS', 'IAMS', 'H-3', 'H-4', 'H-6', 'TAMS']
+save = plotdir+'/m1p0_mixing.png'
+plot_m1p0(peeps=peeps, h1_legend=False, save=save)
+# Alter `plot_m1p0()` to plot mixing type coeff.
+%run plot_fncs
+save = plotdir+'/m1p0_mixing_type.png'
+plot_m1p0(peeps=peeps, h1_legend=False, save=save)
+```
+<img src="temp/m1p0_mixing.png" alt="m1p0_mixing" width="300"/> <img src="temp/m1p0_mixing_type.png" alt="m1p0_mixing_type" width="300"/>
+
+Mixing type 6 is rotational mixing.
+
+Note that I do not actually have profiles for `H-4` and `H-6`, these panels are duplicates of `TAMS`.
+
+<!-- fe  -->
 
 <!-- fe # Check things that seem weird in plots below -->
 
@@ -1052,12 +1116,16 @@ from_file = [False, get_r2tf_LOGS_dirs(masses=mlist, cbs=cblist+[0])]
                     # Only need to send this dict once.
                     # It stores history dfs in dict hdfs (unless overwritten)
 save = [None, plotdir+'/Teff.png', finalplotdir+'/Teff.png']
-plot_Teff(mlist=mlist, cblist=cblist, from_file=from_file[1], descdf=descdf, save=save[1])
+plot_Teff(mlist=mlist, cblist=cblist, from_file=from_file[0], descdf=descdf, save=save[2])
 ```
 
 <img src="temp/Teff.png" alt="Teff.png" width="400"/>
 
 #### Debug:
+<!-- fs -->
+Differences in leaveMS markers and Teff drop are notable. See
+- [Does our definition of leaving MS qualitatively affect results?](#leaveMS_def).
+-
 
 - [x]  start ages = 0 at ZAMS (had to fix `start_center_h1` value in `get_h1cuts()`)
 - [x]  why does lifetime difference in 1Msun look bigger than in 2Msun (contradicting MStau plot)? (it is deceiving, see plots below... or __perhaps delta MS tau is deceiving?__)
@@ -1084,7 +1152,7 @@ np.log10(h.star_age.max() - h.star_age.min())
 np.log10(descdf.loc[idx[mass,cb],'MStau_yrs'])
 ```
 - [x]  __Note that the MS lifetimes I get from h (9.886) and descdf (9.897) above do not match.__ Need to track down why. (Fixed. I was not including the leaveMS model in the `cut_HR_hdf` for h.)
-
+<!-- fe #### Debug: -->
 <!-- fe -->
 
 
@@ -1098,8 +1166,8 @@ from_file = [False, True, get_r2tf_LOGS_dirs(masses=mlist, cbs=cblist+[0])]
                         # Only need to send this dict once.
                         # It stores history dfs in dict hdfs (unless overwritten)
 save = [None, plotdir+'/tracks.png', finalplotdir+'/tracks.png']
-plot_HR_tracks(mlist=mlist, cblist=cblist, from_file=from_file[2], descdf=descdf,
-                  save=save[1])
+plot_HR_tracks(mlist=mlist, cblist=cblist, from_file=from_file[0], descdf=descdf,
+                  save=save[2])
 ```
 
 <img src="temp/tracks.png" alt="tracks.png" width="400"/>
@@ -1193,16 +1261,18 @@ The datapoint that intersects the 1e-3 line is actually slightly above it (I zoo
 fin = isomy_csv
 isodf = load_isos_from_file(fin=fin, cols=None)
 isoages = get_iso_ages(isodf)
+agemap = {np.round(age,2): age for age in isoages}
 # plot_times = [age for i,age in enumerate(isoages) if i%16==0][2:]
-# plots_times chosen by hand to to get as good a sampling as possible around the MS turnoff and sub-giant branch
-# see below for details
 plot_times_cb = {4: [8.29, 8.54, 8.81, 9.11, 9.55, 9.98],
                  6: [8.1, 8.37, 8.81, 9.22, 9.65, 9.98]}
+ # chosen by hand to to get as good a sampling as possible around the MS turnoff and sub-giant branch
+ # see below for details
+
 cb = [4, 6]
 for c in cb:
     plot_times = [agemap[rage] for rage in plot_times_cb[c]]
-    save = [None, plotdir+'/isos_cb'+str(c)+'.png', finalplotdir+'/isos_cb'+str(c)+'.png']
-    plot_isos_ind(isodf, plot_times=plot_times, cb=c, save=save[2])
+    save = [None, plotdir+'/isos_cb'+str(c)+'_Dotter.png', finalplotdir+'/isos_cb'+str(c)+'.png']
+    plot_isos_ind(isodf, plot_times=plot_times, cb=c, save=save[1])
 ```
 Using `fin = iso_csv` (Dotter's code):
 
@@ -1211,6 +1281,59 @@ Using `fin = iso_csv` (Dotter's code):
 Using `fin = isomy_csv` (My interpolation code):
 
 <img src="temp/isos_cb4.png" alt="isos_cb4.png" width="400"/> <img src="temp/isos_cb6.png" alt="isos_cb6.png" width="400"/>
+
+To find the MS turnoff mass, alter `plot_hottest_Teff()` to plot the mass of this star rather than Teff.
+```python
+save = plotdir + '/iso_turnoffMass.png'
+cb = [0,4,6]
+plot_hottest_Teff(save=save, plot_data=hotTeff_csv, plotMass=True, cblist=cb)
+```
+
+I tried putting main sequence turnoff lines on here, but they don't look good (due to mass resolution effects on L).
+
+<img src="temp/isos_cb4_turnoff.png" alt="isos_cb4_turnoff" width="400"/>
+
+<img src="temp/isos_cb6_turnoff.png" alt="isos_cb6_turnoff" width="400"/>
+
+__Plot one of Dotter's lines__
+```python
+fin = iso_csv
+isodf = load_isos_from_file(fin=fin, cols=None)
+isoages = get_iso_ages(isodf)
+agemap = {np.round(age,2): age for age in isoages}
+save = [None, plotdir+'/iso_Dotter.png', finalplotdir+'/iso_Dotter.png']
+plot_times = [8.5408]
+cb = [6]
+plot_isos_Dotter(isodf, plot_times=plot_times, cb=cb, save=save[1])
+```
+<img src="temp/iso_Dotter.png" alt="iso_Dotter" width="400"/>
+
+```python
+# save other Dotter isos
+cb = 6
+for t in range(4):
+plot_times = [age for i,age in enumerate(isoages[t:]) if i%4==0]
+save = plotdir + f'/isoDotter/{t}.png'
+plot_isos_ind(isodf, plot_times=plot_times, cb=cb, cut_axes='TACHeB', save=save)
+```
+
+```python
+# check if luminosity is still going up.. (have we gotten to tip of rgb?)
+i = isodf.loc[isodf.log10_isochrone_age_yr==plot_times[0],:]
+ig = i.groupby('cboost')
+cb = [0,4,6]
+plt.figure()
+for c in cb:
+kwargs = {'ax':plt.gca(), 'label':f'cb{c}'}
+ic = ig.get_group(c)
+ic.plot('initial_mass', 'log_L', **kwargs)
+plt.legend()
+plt.ylabel('log_L')
+plt.tight_layout()
+plt.savefig(plotdir+'/iso_Dot_L.png')
+```
+<img src="temp/iso_Dot_L.png" alt="iso_Dot_L" width="400"/>
+
 
 #### Debug:
 <!-- fs -->
@@ -1297,8 +1420,8 @@ for c in cb:
 <!-- fs -->
 ```python
 save = [None, plotdir+'/hotTeff.png', finalplotdir+'/hotTeff.png']
-cb = [0,6]
-plot_hottest_Teff(plot_data=hotTeff_csv, cblist=cb, save=save[1], resid=False)
+cb = [i for i in range(7)] # [0,4,6] #
+plot_hottest_Teff(plot_data=hotTeff_csv, cblist=cb, save=save[2])
 ```
 
 <img src="temp/hotTeff.png" alt="hotTeff.png" width="400"/>
@@ -1307,10 +1430,11 @@ Plot log L of hottest MS star to see what it looks like:
 ```python
 save = [None, plotdir+'/hotL.png', finalplotdir+'/hotL.png']
 plotL = True
-plot_hottest_Teff(save=save[1], plot_data=hotTeff_csv, resid=False, plotL=plotL)
+plot_hottest_Teff(save=save[1], plot_data=hotTeff_csv, cblist=cb, plotL=plotL)
 ```
-
 <img src="temp/hotL.png" alt="hotL" width="400"/>
+
+
 <!-- fe -->
 
 
