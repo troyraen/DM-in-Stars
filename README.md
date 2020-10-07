@@ -1,7 +1,8 @@
 # DM-in-Stars #
 
-Explores the effects of dark matter (DM) on stellar evolution. It adds a module to the code base Modules for Experiments in Stellar Astrophysics ([MESA](http://mesa.sourceforge.net)) which calculates the capture of DM by stars and the subsequent energy transport via scattering.
+Explores the effects of dark matter (DM) on stellar evolution. Provides: (1) a module written to incorporate the effects of DM energy transport into the stellar evolution code MESA ([Modules for Experiments in Stellar Astrophysics](http://mesa.sourceforge.net)), and (2) supporting code to facilitate running MESA + DM models.
 
+Code used for the paper _The Effects of Asymmetric Dark Matter on Stellar Evolution I: Spin-Dependent Scattering_ (Raen 2020) is in the [`Raen2020` branch](https://github.com/troyraen/DM-in-Stars/tree/Raen2020).
 
 ## Quick Start ##
 1. Install MESA by following the instructions [here](http://mesa.sourceforge.net/prereqs.html).
