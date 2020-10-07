@@ -7,14 +7,16 @@ Explores the effects of dark matter (DM) on stellar evolution. It adds a module 
 1. Install MESA by following the instructions [here](http://mesa.sourceforge.net/prereqs.html).
 2. Clone this repo `git clone git@github.com:troyraen/DM-in-Stars.git`
 3. Change settings in the `inlist` as desired (optional)
-4. Set DM properties in `inlist_DM` as desired (optional)
-5. Run a MESA + DM model
+4. Alter DM properties in `inlist_DM` as desired (optional, see below for details)
+5. Run a MESA + DM model using the following:
 ```bash
 cd DM-in-Stars
 ./clean
 ./mk
 ./rn
 ```
+
+__Alternately__, if one has existing code running MESA models, this DM module can be incorporated by copying `inlist_DM` and the contents of the `src` directory from this repo.
 
 
 ## DM Parameters ##
