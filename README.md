@@ -26,7 +26,7 @@ The following are accessed through `inlist_DM`:
 1.  DM mass (`mxGeV [GeV]`)
 2.  DM-proton cross section (`sigmaxp [cm^2]`)
 3.  Boost in DM capture rate relative to the solar environment (`cboost`, dimensionless). It encapsulates the environment's DM 1) density and 2) velocity dispersion.
-4.  Spin dependent or independent scattering (`spindep`, Boolean).
+4.  Spin dependent or independent scattering (`spindep`, Boolean). Currently, only the spin dependent option is fully functional.
 
 
 ## Functionality ##
