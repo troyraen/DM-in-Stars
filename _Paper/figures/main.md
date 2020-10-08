@@ -1167,7 +1167,7 @@ from_file = [False, True, get_r2tf_LOGS_dirs(masses=mlist, cbs=cblist+[0])]
                         # It stores history dfs in dict hdfs (unless overwritten)
 save = [None, plotdir+'/tracks.png', finalplotdir+'/tracks.png']
 plot_HR_tracks(mlist=mlist, cblist=cblist, from_file=from_file[0], descdf=descdf,
-                  save=save[2])
+                  save=save[1])
 ```
 
 <img src="temp/tracks.png" alt="tracks.png" width="400"/>

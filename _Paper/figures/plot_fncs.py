@@ -1298,9 +1298,14 @@ def plot_Teff(mlist=None, cblist=None, from_file=False, descdf=None, save=None):
             lbl = r'NoDM'
         else:
             lbl = r'$\Gamma_B = 10^{}$'.format(cb)
-        axs[a].annotate(lbl,(ann_rmarg,ann_tmarg), fontsize=20, xycoords='axes fraction', \
+        axs[a].annotate(lbl,(ann_rmarg,ann_tmarg), fontsize=14, xycoords='axes fraction', \
                         horizontalalignment='right', verticalalignment='top')
                         # (ann_rmarg,ann_tmarg-0.25*a)
+        lbl = r'NoDM'
+        axs[a].annotate(lbl,(ann_rmarg,0.87), xycoords='axes fraction',
+                        fontsize=10, alpha=0.4, fontname='sans-serif',
+                        horizontalalignment='right', verticalalignment='top')
+
         # Axes labels and limits:
         axs[a].set_xlabel(r'log Stellar Age [yr]')
     teff = r'log $T_{\mathrm{eff}}$ [K]'
@@ -1396,14 +1401,19 @@ def plot_HR_tracks(mlist=None, cblist=None, from_file=False, cut_axes=True, desc
             lbl = r'NoDM'
         else:
             lbl = r'$\Gamma_B = 10^{}$'.format(cb)
-        axs[a].annotate(lbl,(0.6,ann_tmarg), fontsize=20, xycoords='axes fraction', \
-                        horizontalalignment='right', verticalalignment='top')
+        axs[a].annotate(lbl,(0.05,0.98), fontsize=14, xycoords='axes fraction', \
+                        horizontalalignment='left', verticalalignment='top')
+        lbl = r'NoDM'
+        axs[a].annotate(lbl,(0.05,0.90), xycoords='axes fraction',
+                        fontsize=10, alpha=0.4, fontname='sans-serif',
+                        horizontalalignment='left', verticalalignment='top')
+
 
         # Axes labels and limits:
         teff = r'log $T_{\mathrm{eff}}$ [K]'
         axs[a].set_xlabel(teff)
     axs[0].set_ylabel(r'log $L\ [\mathrm{L}_{\odot}]$', labelpad=-2)
-    axs[0].set_ylim((-0.5,3.7))
+    axs[0].set_ylim((-0.5,3.8))
     axs[a].invert_xaxis()
 
     # Colorbar
@@ -1417,7 +1427,7 @@ def plot_HR_tracks(mlist=None, cblist=None, from_file=False, cut_axes=True, desc
     cbar = get_mcbar(sm=ascat, cax=cb_ax, f=f)
 
     # Legend
-    lgdlbls = ['ZAMS$_{NoDM}$', r'$X_{c,\, NoDM} = 10^{-3}$', r'$X_c = 10^{-3}$']
+    lgdlbls = ['ZAMS$_{\mathrm{NoDM}}$', r'$X_{c,\, \mathrm{NoDM}} = 10^{-3}$', r'$X_c = 10^{-3}$']
     s = Line2D([0], [0], marker=7, color='w',
                         markerfacecolor='0.5', markeredgecolor='0.5', label=r'$X_c < 10^{-3}$')
     axs[0].legend([z,l,s], lgdlbls, loc=3, fontsize=10, frameon=False)
@@ -1586,8 +1596,10 @@ def plot_isos_ind(isodf, plot_times=None, cb=None, cut_axes='gb', save=None):
     # Separate isodf by cboost
     cbdfg = isodf.groupby('cboost')
     cbdf0 = cbdfg.get_group(0)
+    cbdf0.cboost = 0
     for a, c in enumerate([cb]):
         cbdf = cbdfg.get_group(c)
+        cbdf.cboost = c
         if plot_times is not None:
             cbdf = cbdf[cbdf.log10_isochrone_age_yr.isin(plot_times)]
             cbdf0 = cbdf0[cbdf0.log10_isochrone_age_yr.isin(plot_times)]
@@ -1652,8 +1664,13 @@ def plot_isos_ind(isodf, plot_times=None, cb=None, cut_axes='gb', save=None):
             lbl = r'NoDM'
         else:
             lbl = r'$\Gamma_B = 10^{}$'.format(c)
-        axs[a].annotate(lbl,(ann_lmarg+.03,ann_bmarg), fontsize=25, xycoords='axes fraction', \
+        axs[a].annotate(lbl,(0.05,0.1), fontsize=25, xycoords='axes fraction', \
                         horizontalalignment='left', verticalalignment='top')
+        lbl = r'NoDM'
+        axs[a].annotate(lbl,(0.05,0.05), xycoords='axes fraction',
+                        fontsize=18, alpha=0.4, fontname='sans-serif',
+                        horizontalalignment='left', verticalalignment='top')
+
         # Axes params
         axs[a].invert_xaxis()
         axs[a].set_ylim(-0.4,3.0)
