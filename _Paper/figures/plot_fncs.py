@@ -1,7 +1,8 @@
-# import plot_fncs as pf
+
 # fs imports
 import numpy as np
 import pandas as pd
+from pandas import IndexSlice as idx
 from pandas import DataFrame as DF
 from collections import OrderedDict as OD
 import math
@@ -12,7 +13,9 @@ import matplotlib.gridspec as gs
 import matplotlib.colors as colors
 from matplotlib.colors import ListedColormap
 from matplotlib.ticker import FormatStrFormatter
+from matplotlib.lines import Line2D
 import os
+from pathlib import Path
 # import subprocess
 # fe imports
 
@@ -26,12 +29,12 @@ savefigh = 4
 savefigw_vert = 3.5
 savefigh_vert = 2.5 # multiply this by number of times plotted (outer rows)
 
-mpl.rcParams["figure.dpi"] = 200
+mpl.rcParams["figure.dpi"] = 600
 mpl.rcParams['font.size'] = 13
 mpl.rcParams['mathtext.fontset'] = 'cm'
-mpl.rcParams['font.family'] = 'DejaVu Sans' #'cmu serif'
+mpl.rcParams['font.family'] = 'STIXGeneral' #'cmu serif'
 
-mpl.rcParams['lines.linewidth'] = 2
+mpl.rcParams['lines.linewidth'] = 1
 # mpl.rcParams['legend.fontsize'] = 'small'
 plt.rcParams["text.usetex"] = False
 # mpl.rcParams['axes.linewidth'] = 0.8
@@ -56,6 +59,7 @@ ann_fs = 26 # font size
 ann_rmarg = 0.97 # use for right align
 ann_lmarg = 0.03 # use for left align
 ann_tmarg = 0.96 # top margin
+ann_bmarg = 0.08 # bottom margin
 
 # Used to adjust axes
 cb_top = 0.99; cb_bot = 0.07; cb_right = 0.92; cb_left = 0.06
@@ -193,20 +197,39 @@ def adjust_plot_readability(fig=None, fontAdj=False, fontOG=None, plot=None):
 # fe Set plot defaults
 
 # fs Files and directories
-mesaruns = '/Users/troyraen/Osiris/DMS/mesaruns'
-datadir = mesaruns+ '/RUNS_2test_final/plotsdata/Glue'
-plotdir = '/Users/troyraen/Documents/Comms/WIMP_Paper'
-# finalplotdir = '/Users/troyraen/Osiris/mesaruns/RUNS_2test_final/plots'
-# finalplotdir = '/Users/troyraen/Google_Drive/MESA/code/mesa_wimps/final_plots'
-finalplotdir = '/Users/troyraen/Google_Drive/MESA/code/mesa_wimps/DMS-Paper/plots'
-talkplotdir = '/Users/troyraen/Documents/Comms/Chicago_2019'
-fzams = datadir+ '/zams.csv'
-# fdesc = datadir+ '/descDF_MS_allmassesreg.csv'
-fdesc = datadir+ '/descDF_updated.csv'
-profiles_datadir = mesaruns+ '/RUNS_2test_final/profile_runs/'
-iso_csv = mesaruns+ '/RUNS_2test_final/isochrones/isochrones.csv'
-hotTeff_csv = mesaruns+ '/RUNS_2test_final/isochrones/hotTeff.csv'
-r2tf_dir = mesaruns+ '/RUNS_2test_final'
+basedir = '/home/tjr63/DMS'
+mesaruns = basedir + '/mesaruns'
+datadir = mesaruns+ '/RUNS_FINAL'
+fdesc = datadir + '/descDF.csv'
+profiles_datadir = datadir + '/'
+r2tf_dir = datadir
+plotdir = basedir + '/mesaruns_analysis/_Paper/figures/temp'
+finalplotdir = basedir + '/mesaruns_analysis/_Paper/figures/final'
+
+iso_csv = datadir+ '/isochrones.csv'
+isomy_csv = datadir+ '/isos_myInterp.csv'
+hotTeff_csv = datadir+ '/hotTeff.csv'
+mdf_csv = datadir+ '/mdf.csv'
+talkplotdir = ''
+
+usepruned = True # uses history_pruned.data files
+
+# fs "final" runs before MESA-r12115 (defDM branch) update
+# mesaruns = '/Users/troyraen/Osiris/DMS/mesaruns'
+# datadir = mesaruns+ '/RUNS_2test_final/plotsdata/Glue'
+# plotdir = '/Users/troyraen/Documents/Comms/WIMP_Paper'
+# # finalplotdir = '/Users/troyraen/Osiris/mesaruns/RUNS_2test_final/plots'
+# # finalplotdir = '/Users/troyraen/Google_Drive/MESA/code/mesa_wimps/final_plots'
+# finalplotdir = '/Users/troyraen/Google_Drive/MESA/code/mesa_wimps/DMS-Paper/plots'
+# talkplotdir = '/Users/troyraen/Documents/Comms/Chicago_2019'
+# fzams = datadir+ '/zams.csv'
+# # fdesc = datadir+ '/descDF_MS_allmassesreg.csv'
+# fdesc = datadir+ '/descDF_updated.csv'
+# profiles_datadir = mesaruns+ '/RUNS_2test_final/profile_runs/'
+# iso_csv = mesaruns+ '/RUNS_2test_final/isochrones/isochrones.csv'
+# hotTeff_csv = mesaruns+ '/RUNS_2test_final/isochrones/hotTeff.csv'
+# r2tf_dir = mesaruns+ '/RUNS_2test_final'
+# fe "final" runs before MESA-r12115 (defDM branch) update
 
 try: # mount Osiris dir if not already
     assert os.path.isdir(mesaruns)
@@ -293,7 +316,7 @@ def get_h1_modnums(frm='profile_metadata', mass=3.5, hdf=None, cb=None):
 
 def get_h1cuts():
     """ Returns OD of h1 cuts to find profile model numbers"""
-    start_center_h1 = 0.718 # this is the same for all models
+    start_center_h1 = 0.7155 # this is the same for all models
 
     # define h1 cuts to find profile model numbers
     # taken from Dotter where possible
@@ -326,6 +349,7 @@ def cut_HR_hdf(hdf, cuts=['ZAMS'], tahe=[]):
 
     if 'ZAMS' in cuts: # cut pre ZAMS
         ZAMS_cut = h1cuts['ZAMS']
+        # ZAMS model is first model after center_h1 < ZAMS_cut
         df = df[df.center_h1 < ZAMS_cut]
 
     if 'ZAMS_time_step' in cuts: # add time_step [years] column, then cut pre ZAMS
@@ -335,19 +359,30 @@ def cut_HR_hdf(hdf, cuts=['ZAMS'], tahe=[]):
 
     if 'IAMS' in cuts: # cut post IAMS
         IAMS_cut = h1cuts['IAMS']
-        df = df[df.center_h1 > IAMS_cut]
+        # IAMS model is first model after center_h1 < IAMS_cut, include this model
+        IAMS_cut = df.loc[df.center_h1<IAMS_cut,'center_h1'].max()
+        df = df[df.center_h1 >= IAMS_cut]
 
     if 'H-3' in cuts: # cut post H-3 (leaveMS)
         H3_cut = h1cuts['H-3']
-        df = df[df.center_h1 > H3_cut]
+        # H-3 model is first model after center_h1 < H3_cut, include this model
+        H3_cut = df.loc[df.center_h1<H3_cut,'center_h1'].max()
+        df = df[df.center_h1 >= H3_cut]
+
+    if 'GiantBranch' in cuts: # cut isos when begin ascending giant branch
+        df = df.groupby('log10_isochrone_age_yr').apply(get_giant_branch_cut)
+        df.reset_index(inplace=True, drop=True)
+        df = cut_iso_stragglers(df) # cut some extra points
 
     if 'TAMS' in cuts: # cut post TAMS
         TAMS_cut = h1cuts['TAMS']
-        df = df[df.center_h1 > TAMS_cut]
+        # TAMS model is first model after center_h1 < TAMS_cut, include this model
+        TAMS_cut = df.loc[df.center_h1<TAMS_cut,'center_h1'].max()
+        df = df[df.center_h1 >= TAMS_cut]
 
     if 'TACHeB' in cuts: # cut post TACHeB
         if tahe=='iso':
-            df = df.loc[((df.center_he4 > 1e-4) | (df.center_h1 > 0.5)),:]
+            df = df.loc[((df.center_he4 > 1e-3) | (df.center_h1 > 0.5)),:]
         else:
             descdf,mass,cb = tahe
             TACHeB_model = descdf.loc[((descdf.mass==mass) & (descdf.cboost==cb)),'TACHeB_model']
@@ -361,6 +396,34 @@ def cut_HR_hdf(hdf, cuts=['ZAMS'], tahe=[]):
             df = df[df.model_number <= TACHeB_model.iloc[0]]
 
     return df
+
+def get_giant_branch_cut(df):
+    """ Use as isodf.groupby('log10_isochrone_age_yr').apply(get_giant_branch_cut)
+    """
+    # get first index where log(Teff) < 3.72
+    # this will be the last point we keep
+    idx_cut = df.loc[df.log_Teff<3.72,'initial_mass']
+
+    if len(idx_cut) != 0:
+        return df.loc[:idx_cut.idxmin(),:]
+    else:
+        return df
+
+def cut_iso_stragglers(isodf):
+    """ cut out some points that do not get removed in the GiantBranch cut
+    """
+
+    c = isodf.cboost==4
+
+    m = isodf.initial_mass==1.35
+    a = isodf.log10_isochrone_age_yr.round(2)==9.55
+    isodf = isodf.loc[~((m)&(c)&(a)),:]
+
+    m = isodf.initial_mass==1.80
+    a = isodf.log10_isochrone_age_yr.round(2)==9.11
+    isodf = isodf.loc[~((m)&(c)&(a)),:]
+
+    return isodf
 
 
 # fe General helper fncs
@@ -439,7 +502,7 @@ def get_cmapdict(pos, l, which_cmap='cbcmap'):
         print('Invalid argument passed to which_cmap in get_cmapdict()')
 
     if l == 1:
-        return {'c':pos, 'cmap':cmp, 'vmin':vmn, 'vmax':vmx}
+        return {'c':np.reshape(pos,-1), 'cmap':cmp, 'vmin':vmn, 'vmax':vmx}
     else:
         return {'c':pos*np.ones(l), 'cmap':cmp, 'vmin':vmn, 'vmax':vmx}
 # fe Colormap helper fncs
@@ -483,14 +546,14 @@ cbcmap = ListedColormap(carr)
 # fs mass colormap
 m5p0c = normalize_RGB((254,227,145))
 m3p5c = normalize_RGB((254,196,79))
-m2p0c = normalize_RGB((254,153,41))
-m1p0c = normalize_RGB((217,95,14))
-m0p8c = normalize_RGB((153,52,4))
-marr = (m0p8c,m1p0c,m2p0c,m3p5c,m5p0c)
+m2p5c = normalize_RGB((254,153,41))
+m1p75c = normalize_RGB((217,95,14))
+m1p0c = normalize_RGB((153,52,4))
+marr = (m1p0c,m1p75c,m2p5c,m3p5c,m5p0c)
 mcmap = ListedColormap(marr)
 
 # These need to match above. Used to generate mcbar (below)
-cmap_masses = OD([(0.8,0), (1.0,1), (2.0,2), (3.5,3), (5.0,4)])
+cmap_masses = OD([(1.0,0), (1.75,1), (2.5,2), (3.5,3), (5.0,4)])
     # key = mass
     # val = position in colormap. e.g.: get_cmap_color(cmap_masses[mass], cmap=mcmap, myvmin=mvmin, myvmax=mvmax)
 
@@ -537,17 +600,32 @@ def get_mcbar(sm=None, cax=None, f=None, **kwargs):
 # aarr = [get_cmap_color(i, cmap=isocmap_tmp, myvmin=0, myvmax=n-1) for i in range(n)]
 # isocmap = ListedColormap(aarr)
 
-cmap_tmp = plt.get_cmap('tab20b_r')
-# cmap_idxs = [4,8,12,16,7,11,15,19]
-cmap_idxs = [8,12,16,2,11,15,19,7]
-aarr = [get_cmap_color(i, cmap=cmap_tmp, myvmin=0, myvmax=19) for i in cmap_idxs]
+# cmap_tmp = plt.get_cmap('tab20b_r')
+# cmap_idxs = [8,12,16,2,11,15,19,7]
+# aarr = [get_cmap_color(i, cmap=cmap_tmp, myvmin=0, myvmax=19) for i in cmap_idxs]
+
+cmap_tmp = plt.get_cmap('gist_earth_r')
+numisos = 6
+cmap_idxs = [i for i in range(1,numisos+1)]
+aarr = [get_cmap_color(i, cmap=cmap_tmp, myvmin=0, myvmax=numisos) for i in cmap_idxs]
+
+# cmap_tmp = plt.get_cmap('twilight_r')
+# numisos = 6
+# cmap_idxs = [i for i in range(1,numisos+1)]
+# aarr = [get_cmap_color(i, cmap=cmap_tmp, myvmin=0, myvmax=numisos*2) for i in cmap_idxs]
+
+# cmap_tmp = plt.get_cmap('twilight_shifted')
+# numisos = 6
+# cmap_idxs = [i for i in range(7,numisos*2+1)]
+# aarr = [get_cmap_color(i, cmap=cmap_tmp, myvmin=0, myvmax=numisos*2) for i in cmap_idxs]
+
 isocmap = ListedColormap(aarr)
 
 # isocmap = plt.get_cmap('Accent')
 
 # used in plt.plot and other places to normalize colorbar:
-isovmin = 7.89
-isovmax = 10.25
+isovmin = 8.0
+isovmax = 10.1
 
 def get_isocbar(sm=None, cax=None, f=None, ticks=None, **kwargs):
     """ Returns a colorbar that will be added to the side of a plot.
@@ -571,7 +649,7 @@ def get_isocbar(sm=None, cax=None, f=None, ticks=None, **kwargs):
         cbar.set_ticks([i for i in ticks],update_ticks=False)
         cbar.set_ticklabels([np.round(i,2) for i in ticks])
     cbar.ax.minorticks_off()
-    cbar.set_label(r'log ($Isochrone\ Age$ /yr)', labelpad=6)
+    cbar.set_label(r'log (Isochrone Age /yr)', labelpad=6)
     return cbar
 # fe isochrone colormap
 
@@ -594,7 +672,6 @@ def get_profilesindex_df(profile_runs_dir=profiles_datadir):
         Assumes particular path structure,
             as written by mesa_wimps script ./bash_scripts/profile_run.sh
     """
-    pidx_cols = ['model_number', 'priority', 'profile_number']
 
     dflist = []
     for cb in os.listdir(profile_runs_dir):
@@ -602,10 +679,11 @@ def get_profilesindex_df(profile_runs_dir=profiles_datadir):
         cbpath = profile_runs_dir+ cb
         for mass in os.listdir(cbpath):
             if mass[0] == '.': continue # skip hidden directories
+            if len(mass.split('_')) > 1: continue # skip dirs with a suffix
             Lpath = cbpath+'/'+ mass+'/'+'LOGS'
             fpidx = Lpath+ '/profiles.index'
             try:
-                df = pd.read_csv(fpidx, names=pidx_cols, skiprows=1, header=None, sep='\s+')
+                df = load_profilesindex(fpidx)
             except:
                 strsplit = fpidx.split('/') # don't print the whole path
                 print('Skipping {cb} dir {s}'.format(cb=cb, s=strsplit[-3]))
@@ -621,6 +699,14 @@ def get_profilesindex_df(profile_runs_dir=profiles_datadir):
             dflist.append(df)
 
     return pd.concat(dflist, ignore_index=True)
+
+def load_profilesindex(fpidx):
+    """ Loads a single profiles.index file """
+
+    pidx_cols = ['model_number', 'priority', 'profile_number']
+    pidf = pd.read_csv(fpidx, names=pidx_cols, skiprows=1, header=None, sep='\s+')
+    return pidf
+
 try:
     pidxdfOG
     print('pidxdfOG dataframe already exists.')
@@ -666,10 +752,17 @@ try:
     mdf
     print('mdf dataframe already exists.')
 except:
-    load = int(input('Do you want to load metadata df? (1 = yes) ') or 0)
+    load = int(input('Do you want to load metadata df? (1 = yes, 9 = yes, from csv) ') or 0)
     if load == 1:
         print('Loading mdf: df of metadata of all profiles in pidxdf')
         mdf = get_meta_df()
+    if load == 9:
+        print(f'Loading mdf from {mdf_csv}')
+        mdf = pd.read_csv(mdf_csv)
+        mdf.set_index('pidx', drop=False, inplace=True)
+
+def write_mdf_csv(mdf):
+    mdf.to_csv(mdf_csv, index=False)
 
 def load_prof_from_file(cb, modnum, mass=3.5, pidxdf=None):
     """ Returns profile index and 2 dfs (df and metadf) from profile#.data info.
@@ -825,7 +918,7 @@ def load_hist_from_file(cb, mass=1.0, from_file=True, pidxdf=None):
         print('Specific dir requested: {ff}'.format(ff=from_file))
 
     # Load history.data
-    hpath = Lpath+ '/history.data'
+    hpath = Lpath+ '/history_pruned.data' if usepruned else Lpath+ '/history.data'
     print('Loading history df from path {}'.format(hpath))
     try:
         df = pd.read_csv(hpath, header=4, sep='\s+')
@@ -905,11 +998,14 @@ def get_r2tf_LOGS_dirs(masses=[1.0, 3.5], cbs=[0,3,6]):
 # fe History setup
 
 # fs Isochrone setup
-def load_isos_from_file(fin=iso_csv, cols=None):
+def load_isos_from_file(fin=iso_csv, cols=None, which='my'):
     if cols is None:
-        cols = ['PrimaryEEP', 'EEP', 'log10_isochrone_age_yr', 'initial_mass', 'cboost', \
-                'log_Teff', 'log_L', 'log_center_T', 'log_center_Rho', \
-                'center_h1', 'center_he4']
+        if which == 'Dotter':
+            cols = ['PrimaryEEP', 'EEP', 'log10_isochrone_age_yr', 'initial_mass', 'cboost', \
+                    'log_Teff', 'log_L', 'log_center_T', 'log_center_Rho', \
+                    'center_h1', 'center_he4']
+        else:
+            cols = None
 
     try:
         isodf = pd.read_csv(fin, header=0, sep=',', usecols=cols)
@@ -919,8 +1015,8 @@ def load_isos_from_file(fin=iso_csv, cols=None):
         print('isochrones.csv could not be loaded to df.')
         print()
 
-
-    isodf = isodf.astype({'PrimaryEEP':int, 'EEP':int, 'cboost':int})
+    if which == 'Dotter':
+        isodf = isodf.astype({'PrimaryEEP':int, 'EEP':int, 'cboost':int})
 
     return isodf
 
@@ -1035,36 +1131,31 @@ def plot_delta_tau(descdf, cctrans_frac='default', which='avg', save=None):
         cmapdict = get_cmapdict(cb,len(dat.mass))
         plt.scatter(dat.mass,dat.MStau, s=2, **cmapdict)
         plt.plot(dat.mass,dat.MStau, c=get_cmap_color(cb), lw=2)
-        # Plot interpolated MStau:
-        # mass, mst = interp_mstau(dat.mass, dat.MStau, mnum=mnum)
-        # cmapdict = get_cmapdict(cb,len(mass))
-        # plt.scatter(mass,mst(mass), s=5, **cmapdict)
 
         # plot mass of transition to core convection
         ccidx = int(cctrans.loc[cctrans.index == cb, 'cctrans_index'])
         cmapdict = get_cmapdict(cb,len([ccidx]))
-        # ec = np.array(['w' for i in range(len([ccidx]))])
-        plt.scatter(dat.loc[ccidx,'mass'], dat.loc[ccidx,'MStau'], \
+        # Fix problem in matplotlib version 3.1.3 with scatter plots of length 1
+        # See https://github.com/matplotlib/matplotlib/issues/10365/
+        cmapdict['c'] = np.reshape(cmapdict['c'],-1)
+        x = np.reshape(dat.loc[ccidx,'mass'],-1)
+        y = np.reshape(dat.loc[ccidx,'MStau'],-1)
+        plt.scatter(x, y, \
             marker='d', s=35, **cmapdict, linewidths=0.5, edgecolors='k', zorder=10)
-
-    # plot mass of transition to CNO burning
-        # cidx = int(pp2cno.loc[pp2cno.index == cb, 'pp2cno_index'])
-        # cmapdict = get_cmapdict(cb,len([cidx]))
-        # plt.scatter(dat.loc[cidx,'mass'], dat.loc[cidx,'MStau'], \
-        #         marker='*', edgecolors='w', s=200, linewidths=0.5, **cmapdict, zorder=100)
 
     # cb0 triangle and lines
     kargs = {'color':get_cmap_color(0), 'lw':1, 'zorder':0}
-    # plt.axhline(0., **kargs)
     plt.axhline(0., c='k', lw=0.5, zorder=0)
-    # cidx = int(pp2cno.loc[pp2cno.index == 0,'pp2cno_index'])
-    # plt.scatter(descdf.loc[cidx,'mass'], descdf.loc[cidx,'MStau'], \
-            # marker='*', edgecolors='w', s=200, linewidths=0.5, **cmapdict, zorder=99)
     ccidx = int(cctrans.loc[cctrans.index == 0, 'cctrans_index'])
     cmapdict = get_cmapdict(0,len([ccidx]))
-    plt.scatter(descdf.loc[ccidx,'mass'], descdf.loc[ccidx,'MStau'], \
+    # Fix problem in matplotlib version 3.1.3 with scatter plots of length 1
+    # See https://github.com/matplotlib/matplotlib/issues/10365/
+    cmapdict['c'] = np.reshape(cmapdict['c'],-1)
+    x = np.reshape(descdf.loc[ccidx,'mass'],-1)
+    y = np.reshape(descdf.loc[ccidx,'MStau'],-1)
+    plt.scatter(x, y, \
                 marker='d', edgecolors='k', s=35, linewidths=0.5, **cmapdict, zorder=10)
-    plt.axvline(descdf.loc[ccidx,'mass'], **kargs)
+    # plt.axvline(descdf.loc[ccidx,'mass'], **kargs)
 
     cbar = get_cbcbar()
 
@@ -1148,6 +1239,8 @@ def plot_Teff(mlist=None, cblist=None, from_file=False, descdf=None, save=None):
     if descdf is None:
         descdf = get_descdf(fin=fdesc) # get the descdf for ZAMS and TAMS lines
 
+    h1cuts, __ = get_h1cuts()
+
     nrows = 1
     ncols = len(cblist)
     if save is None:
@@ -1165,32 +1258,60 @@ def plot_Teff(mlist=None, cblist=None, from_file=False, descdf=None, save=None):
             hdf = get_hdf(cb,mass=mass, from_file=fromf)
 
             if cut_axes:
+                # 0.9 Msun models don't get to TACHeB.
                 hdf = cut_HR_hdf(hdf, cuts=['ZAMS','TACHeB'], tahe=[descdf,mass,cb])
                 hdf0 = cut_HR_hdf(hdf0, cuts=['ZAMS','TACHeB'], tahe=[descdf,mass,0])
+                # hdf = cut_HR_hdf(hdf, cuts=['ZAMS','TAMS'])
+                # hdf0 = cut_HR_hdf(hdf0, cuts=['ZAMS','TAMS'])
 
-            age = hdf.star_age - hdf.star_age.iloc[0]
-            age.iloc[0] = 1 # avoid log(0)
-            axs[a].plot(np.log10(age), hdf.log_Teff, \
+            hdf.star_age = hdf.star_age - hdf.star_age.iloc[0]
+            hdf.star_age.iloc[0] = 1 # avoid log(0)
+            axs[a].plot(hdf.star_age.apply(np.log10), hdf.log_Teff, \
                                     c=mcolor[im], zorder=-3*mass+16)
+            # mark leave MS
+            h = cut_HR_hdf(hdf, cuts=['H-3'])
+            h = h.loc[h.star_age==h.star_age.max(),:]
+            axs[a].scatter(h.star_age.apply(np.log10), h.log_Teff, marker=7, \
+                                    c=np.array([mcolor[im]]), zorder=-3*mass+16)
+            # h = cut_HR_hdf(hdf, cuts=['TAMS'])
+            # h = h.loc[h.star_age==h.star_age.max(),:]
+            # axs[a].scatter(h.star_age.apply(np.log10), h.log_Teff, marker="x", \
+            #                         c=np.array([mcolor[im]]), zorder=-3*mass+16)
+            # axs[a].axhline(descdf.set_index(['mass','cboost']).loc[idx[mass,cb],'lAMS_Teff'],c='blue',lw=1)
             if cb != 0:
-                age = hdf0.star_age - hdf0.star_age.iloc[0]
-                age.iloc[0] = 1 # avoid log(0)
-                axs[a].plot(np.log10(age), hdf0.log_Teff, zorder=-3*mass+17, c='w', lw=1)
-                axs[a].plot(np.log10(age), hdf0.log_Teff, zorder=-3*mass+18, c=mcolor[im], lw=0.75)
+                hdf0.star_age = hdf0.star_age - hdf0.star_age.iloc[0]
+                hdf0.star_age.iloc[0] = 1 # avoid log(0)
+                axs[a].plot(hdf0.star_age.apply(np.log10), hdf0.log_Teff, zorder=-3*mass+18, c=mcolor[im], alpha=0.4)
+                # mark leave MS
+                h0 = cut_HR_hdf(hdf0, cuts=['H-3'])
+                h0 = h0.loc[h0.star_age==h0.star_age.max(),:]
+                axs[a].scatter(h0.star_age.apply(np.log10), h0.log_Teff, marker=7, \
+                                        zorder=-3*mass+18, c=np.array([mcolor[im]]), alpha=0.4)
+                # h0 = cut_HR_hdf(hdf0, cuts=['TAMS'])
+                # h0 = h0.loc[h0.star_age==h0.star_age.max(),:]
+                # axs[a].scatter(h0.star_age.apply(np.log10), h0.log_Teff, marker="x", \
+                #                         zorder=-3*mass+18, c=np.array([mcolor[im]]), alpha=0.4)
+                # axs[a].axhline(descdf.set_index(['mass','cboost']).loc[idx[mass,0],'lAMS_Teff'],c='0.5',lw=1)
 
         # Title panels
         if cb==0:
             lbl = r'NoDM'
         else:
             lbl = r'$\Gamma_B = 10^{}$'.format(cb)
-        axs[a].annotate(lbl,(ann_rmarg,ann_tmarg), fontsize=20, xycoords='axes fraction', \
+        axs[a].annotate(lbl,(ann_rmarg,ann_tmarg), fontsize=14, xycoords='axes fraction', \
+                        horizontalalignment='right', verticalalignment='top')
+                        # (ann_rmarg,ann_tmarg-0.25*a)
+        lbl = r'NoDM'
+        axs[a].annotate(lbl,(ann_rmarg,0.87), xycoords='axes fraction',
+                        fontsize=10, alpha=0.4, fontname='sans-serif',
                         horizontalalignment='right', verticalalignment='top')
 
         # Axes labels and limits:
         axs[a].set_xlabel(r'log Stellar Age [yr]')
     teff = r'log $T_{\mathrm{eff}}$ [K]'
     axs[0].set_ylabel(teff)
-    plt.xlim(6.8, axs[0].get_xlim()[1]-0.4)
+    plt.xlim(7.5, axs[0].get_xlim()[1]-0.4)
+    # plt.ylim(3.4, axs[0].get_ylim()[1])
 
     # Colorbar
     f, eps = adjust_plot_readability(fig=f, fontOG=None, plot='teff')
@@ -1198,10 +1319,17 @@ def plot_Teff(mlist=None, cblist=None, from_file=False, descdf=None, save=None):
     add_axes_list = [cb_right-eps+0.005, cb_bot+epsb, 0.02, cb_top-cb_bot-epsb]
                             # (pushes right, pushes up, width, height)
     cmapdict = get_cmapdict(cmap_masses[mass],len([1]), which_cmap='mcmap')
-    ascat = axs[a].scatter(6,3.5, marker='+', s=0.01, **cmapdict)
+    ascat = axs[a].scatter(np.reshape(6,-1),np.reshape(3.5,-1), marker='+', s=0.01, **cmapdict)
     cb_ax = f.add_axes(add_axes_list)
     cbar = get_mcbar(sm=ascat, cax=cb_ax, f=f)
 
+    # Legend
+    legend_elements = [Line2D([0], [0], marker=7, color='w',
+                        markerfacecolor='0.5', markeredgecolor='0.5', label=r'$X_c = 10^{-3}$'),
+                        # Line2D([0], [0], marker="x", color='w',
+                        # markeredgecolor='0.5', label=r'$X_c = 10^{-12}$')
+                        ]
+    axs[0].legend(handles=legend_elements, fontsize=10, frameon=False, loc=3) #(9,4))
 
 #     plt.tight_layout() # makes colorbar overlap plot
     if save is not None: plt.savefig(save)
@@ -1213,8 +1341,7 @@ def plot_Teff(mlist=None, cblist=None, from_file=False, descdf=None, save=None):
 # fe Teff plot
 
 # fs HR tracks plot
-def plot_HR_tracks(mlist=None, cblist=None, from_file=False, cut_axes=True,
-                    descdf=None, save=None):
+def plot_HR_tracks(mlist=None, cblist=None, from_file=False, cut_axes=True, descdf=None, save=None):
     """ To load history.data from original MESA output dir r2tf_dir,
                                 use from_file = get_r2tf_LOGS_dirs()
     """
@@ -1256,12 +1383,12 @@ def plot_HR_tracks(mlist=None, cblist=None, from_file=False, cut_axes=True,
             # center H1 < 10^-3
             mbool = hdf.model_number== get_h1_modnums(frm='history_data', mass=mass, hdf=hdf, cb=cb)[cb][4]
             s = axs[a].scatter(hdf.loc[mbool,'log_Teff'], hdf.loc[mbool,'log_L'], \
-                        c=mcolor[im], edgecolors='k', linewidths=0.5, \
-                        s=20, marker='X', zorder=20)
+                        c=np.array([mcolor[im]]), edgecolors=np.array(['k']), linewidths=3, \
+                        s=20, marker=7, zorder=20)
 
             if cb != 0:
-                axs[a].plot(hdf0.log_Teff, hdf0.log_L, zorder=9, c='w', lw=1.5)
-                axs[a].plot(hdf0.log_Teff, hdf0.log_L, zorder=10, c=mcolor[im], lw=1)
+                # axs[a].plot(hdf0.log_Teff, hdf0.log_L, zorder=9, c='w', lw=1.5)
+                axs[a].plot(hdf0.log_Teff, hdf0.log_L, zorder=10, c=mcolor[im], alpha=0.4)
 
         # c0 ZAMS and H-3 lines
         ddf0 = descdf.sort_values('mass').groupby('cboost').get_group(0)
@@ -1274,14 +1401,19 @@ def plot_HR_tracks(mlist=None, cblist=None, from_file=False, cut_axes=True,
             lbl = r'NoDM'
         else:
             lbl = r'$\Gamma_B = 10^{}$'.format(cb)
-        axs[a].annotate(lbl,(0.6,ann_tmarg), fontsize=20, xycoords='axes fraction', \
-                        horizontalalignment='right', verticalalignment='top')
+        axs[a].annotate(lbl,(0.05,0.98), fontsize=14, xycoords='axes fraction', \
+                        horizontalalignment='left', verticalalignment='top')
+        lbl = r'NoDM'
+        axs[a].annotate(lbl,(0.05,0.90), xycoords='axes fraction',
+                        fontsize=10, alpha=0.4, fontname='sans-serif',
+                        horizontalalignment='left', verticalalignment='top')
+
 
         # Axes labels and limits:
         teff = r'log $T_{\mathrm{eff}}$ [K]'
         axs[a].set_xlabel(teff)
     axs[0].set_ylabel(r'log $L\ [\mathrm{L}_{\odot}]$', labelpad=-2)
-    axs[0].set_ylim((-0.7,3.7))
+    axs[0].set_ylim((-0.5,3.8))
     axs[a].invert_xaxis()
 
     # Colorbar
@@ -1290,12 +1422,15 @@ def plot_HR_tracks(mlist=None, cblist=None, from_file=False, cut_axes=True,
     add_axes_list = [cb_right-eps+0.005, cb_bot+epsb, 0.02, cb_top-cb_bot-epsb]
                             # (pushes right, pushes up, width, height)
     cmapdict = get_cmapdict(cmap_masses[mass],len([1]), which_cmap='mcmap')
-    ascat = axs[a].scatter(4,2.3, marker='+', s=0.01, **cmapdict)
+    ascat = axs[a].scatter(np.reshape(4,-1),np.reshape(2.3,-1), marker='+', s=0.01, **cmapdict)
     cb_ax = f.add_axes(add_axes_list)
     cbar = get_mcbar(sm=ascat, cax=cb_ax, f=f)
 
-    lgdlbls = [r'$X_c < 10^{-3}$',r'$X_{c,\, NoDM} < 10^{-3}$','ZAMS$_{NoDM}$']
-    axs[0].legend([s,l,z], lgdlbls, loc=3, fontsize=9, frameon=False)
+    # Legend
+    lgdlbls = ['ZAMS$_{\mathrm{NoDM}}$', r'$X_{c,\, \mathrm{NoDM}} = 10^{-3}$', r'$X_c = 10^{-3}$']
+    s = Line2D([0], [0], marker=7, color='w',
+                        markerfacecolor='0.5', markeredgecolor='0.5', label=r'$X_c < 10^{-3}$')
+    axs[0].legend([z,l,s], lgdlbls, loc=3, fontsize=10, frameon=False)
 
 #     plt.tight_layout() # makes colorbar overlap plot
     if save is not None: plt.savefig(save)
@@ -1303,7 +1438,6 @@ def plot_HR_tracks(mlist=None, cblist=None, from_file=False, cut_axes=True,
 
     adjust_plot_readability(fig=None, fontOG=fontOG)
     return None
-
 
 def plot_HR_tracks_stackvertical(mlist=None, cblist=None, from_file=False, cut_axes=True, save=None):
     """ To load history.data from original MESA output dir r2tf_dir,
@@ -1438,10 +1572,12 @@ def get_midx_dict(indf, mtarg=None, mtol=None):
 
     return midx_dict
 
-def plot_isos_ind(isodf, plot_times=None, cb=None, cut_axes=True, save=None):
+def plot_isos_ind(isodf, plot_times=None, cb=None, cut_axes='gb', save=None):
     """ Plots isochrone panels.
     """
     fontOG = adjust_plot_readability(fontAdj=True, plot='isos')
+    icolor = {pt: get_cmap_color(pt, cmap=isocmap, myvmin=isovmin, myvmax=isovmax) for pt in plot_times}
+
     if cb is None:
         cb = 4
 
@@ -1460,27 +1596,40 @@ def plot_isos_ind(isodf, plot_times=None, cb=None, cut_axes=True, save=None):
     # Separate isodf by cboost
     cbdfg = isodf.groupby('cboost')
     cbdf0 = cbdfg.get_group(0)
+    cbdf0.cboost = 0
     for a, c in enumerate([cb]):
         cbdf = cbdfg.get_group(c)
+        cbdf.cboost = c
         if plot_times is not None:
             cbdf = cbdf[cbdf.log10_isochrone_age_yr.isin(plot_times)]
             cbdf0 = cbdf0[cbdf0.log10_isochrone_age_yr.isin(plot_times)]
 
-            if cut_axes:
-                cbdf = cut_HR_hdf(cbdf, cuts=['ZAMS','TACHeB'], tahe='iso')
-                cbdf0 = cut_HR_hdf(cbdf0, cuts=['ZAMS','TACHeB'], tahe='iso')
+            if cut_axes == 'gb':
+                cbdf = cut_HR_hdf(cbdf, cuts=['ZAMS','GiantBranch'])
+                cbdf0 = cut_HR_hdf(cbdf0, cuts=['ZAMS','GiantBranch'])
                 print(f'cb {c}')
+            elif cut_axes=='TACHeB':
+                cbdf = cut_HR_hdf(cbdf, cuts=['ZAMS', 'TACHeB'], tahe='iso')
+                cbdf0 = cut_HR_hdf(cbdf0, cuts=['ZAMS','TACHeB'], tahe='iso')
                 # print(cbdf.log10_isochrone_age_yr.unique())
                 # print(cbdf0.log10_isochrone_age_yr.unique())
+
+        for pt in plot_times:
+            tmp = cbdf.loc[cbdf.log10_isochrone_age_yr==pt,:]
+            axs[a].plot(tmp.log_Teff, tmp.log_L, '-o', c=icolor[pt], lw=3, ms=5)
+            tmp = cbdf0.loc[cbdf0.log10_isochrone_age_yr==pt,:]
+            axs[a].plot(tmp.log_Teff, tmp.log_L, '-x', c=icolor[pt], lw=3, ms=9, alpha=0.4)
 
 
         p = axs[a].scatter(cbdf.log_Teff, cbdf.log_L, zorder=1,
                c=cbdf.log10_isochrone_age_yr, cmap=isocmap, vmin=isovmin, vmax=isovmax)
+        # axs[a].plot(cbdf.log_Teff, cbdf.log_L, c='0.6', lw=2)
 
-        if c != 0:
-            axs[a].scatter(cbdf0.log_Teff, cbdf0.log_L, zorder=2, s=1.25, c='w')
-            axs[a].scatter(cbdf0.log_Teff, cbdf0.log_L, zorder=3, s=0.75,
-                   c=cbdf0.log10_isochrone_age_yr, cmap=isocmap, vmin=isovmin, vmax=isovmax)
+        # if c != 0:
+        #     axs[a].scatter(cbdf0.log_Teff, cbdf0.log_L, zorder=2, s=1.25, c='w')
+        #     axs[a].scatter(cbdf0.log_Teff, cbdf0.log_L, zorder=3, s=0.75,
+        #            c=cbdf0.log10_isochrone_age_yr, cmap=isocmap, vmin=isovmin, vmax=isovmax)
+            # axs[a].plot(cbdf0.log_Teff, cbdf0.log_L, c='0.4', lw=0.5)
             # c = get_cmap_color(cbdf0.log10_isochrone_age_yr.iloc[0],
             #                     cmap=isocmap, myvmin=isovmin, myvmax=isovmax)
             # axs[a].plot(cbdf0.log_Teff, cbdf0.log_L, zorder=3, lw=1, c=c)
@@ -1489,6 +1638,7 @@ def plot_isos_ind(isodf, plot_times=None, cb=None, cut_axes=True, save=None):
 #             if cb not in [0,6]: continue # skip this part
         midx_dict = get_midx_dict(cbdf, mtol=1e-1)
         for mkey, midx in midx_dict.items():
+            continue
             if midx is None: continue
             mrkr = '^' if mkey == 3.5 else 'o'
 #             kwargs = {'marker':mrkr, 'facecolors':'none', 'edgecolors':'k', \
@@ -1502,24 +1652,37 @@ def plot_isos_ind(isodf, plot_times=None, cb=None, cut_axes=True, save=None):
                            c=rows.log10_isochrone_age_yr, cmap=isocmap, vmin=isovmin, vmax=isovmax,
                            **kwargs)
 
+        # axs[a].axvline(3.72)
+
+        # # plot hottest MS Teff
+        # hotT = pd.read_csv(hotTeff_csv)
+        # hotT = hotT.loc[hotT.cboost==cb,:]
+        # axs[a].plot(hotT.log_Teff, hotT.log_L, '-o', c='k', lw=3, ms=5)
+
         # Title panels
         if c==0:
             lbl = r'NoDM'
         else:
             lbl = r'$\Gamma_B = 10^{}$'.format(c)
-        axs[a].annotate(lbl,(ann_lmarg,ann_tmarg), fontsize=25, xycoords='axes fraction', \
+        axs[a].annotate(lbl,(0.05,0.1), fontsize=25, xycoords='axes fraction', \
                         horizontalalignment='left', verticalalignment='top')
+        lbl = r'NoDM'
+        axs[a].annotate(lbl,(0.05,0.05), xycoords='axes fraction',
+                        fontsize=18, alpha=0.4, fontname='sans-serif',
+                        horizontalalignment='left', verticalalignment='top')
+
         # Axes params
         axs[a].invert_xaxis()
+        axs[a].set_ylim(-0.4,3.0)
 #         axs[a].grid(linestyle='-', linewidth='0.5', color='0.7')
 
     # Axes labels
         teff = r'log ($T_{\mathrm{eff}}$ /K)'
-        axs[a].set_xlabel(teff)
-    axs[0].set_ylabel(r'log ($L / \mathrm{L}_{\odot}$)', labelpad=-10)
+        axs[a].set_xlabel(teff, labelpad=5)
+    axs[0].set_ylabel(r'log ($L / \mathrm{L}_{\odot}$)', labelpad=5)
 
     # Axes limits
-    axs[0].set_xlim(4.15,3.45)
+    axs[0].set_xlim(4.15,3.61)
     # axs[0].set_ylim(-0.5,3.5)
 
     # Colorbar
@@ -1534,9 +1697,49 @@ def plot_isos_ind(isodf, plot_times=None, cb=None, cut_axes=True, save=None):
 
 #     plt.tight_layout()
     if save is not None: plt.savefig(save)
-    plt.show()
+    plt.show(block=False)
 
     adjust_plot_readability(fig=None, fontOG=fontOG)
+    return None
+
+def plot_isos_Dotter(isodf, plot_times=None, cb=None, save=None):
+
+    plt.figure(figsize=(6,8))
+    for a, c in enumerate(cb):
+        cbdfg = isodf.groupby('cboost')
+
+        cbdf0 = cbdfg.get_group(0)
+        cbdf0 = cbdf0[cbdf0.log10_isochrone_age_yr.isin(plot_times)]
+        cbdf0 = cut_HR_hdf(cbdf0, cuts=['ZAMS','TACHeB'], tahe='iso')
+
+        cbdf = cbdfg.get_group(c)
+        cbdf = cbdf[cbdf.log10_isochrone_age_yr.isin(plot_times)]
+        cbdf = cut_HR_hdf(cbdf, cuts=['ZAMS','TACHeB'], tahe='iso')
+
+        for pt in plot_times:
+            tmp = cbdf0.loc[cbdf0.log10_isochrone_age_yr==pt,:]
+            plt.plot(tmp.log_Teff, tmp.log_L, '-o', c=get_cmap_color(0), lw=3, ms=5, label=r'NoDM')#, alpha=0.4)
+            tmp = cbdf.loc[cbdf.log10_isochrone_age_yr==pt,:]
+            plt.plot(tmp.log_Teff, tmp.log_L, '-o', c=get_cmap_color(c), lw=3, ms=5, label='$\Gamma_B=10^6$')#, alpha=0.4)
+
+    # Title panels
+    lbl = f'log Isochrone age /yr = {np.round(pt,2)}'
+        # plt.annotate(lbl,(ann_lmarg+.03,ann_bmarg), fontsize=20, xycoords='axes fraction', horizontalalignment='left', verticalalignment='top')
+    plt.legend(title=lbl, loc=2)
+    # Axes params
+    plt.gca().invert_xaxis()
+    # Axes labels
+    teff = r'log ($T_{\mathrm{eff}}$ /K)'
+    plt.xlabel(teff, labelpad=5)
+    plt.ylabel(r'log ($L / \mathrm{L}_{\odot}$)', labelpad=5)
+    plt.ylim(1.25,2.75)
+    plt.xlim(4.1,3.6)
+    # plt.ylim(1.25,3.25)
+    # plt.xlim(4.3,3.5)
+
+    plt.tight_layout()
+    if save is not None: plt.savefig(save)
+
     return None
 
 def plot_isos(isodf, plot_times=None, cblist=None, cut_axes=False, save=None):
@@ -1628,7 +1831,7 @@ def plot_isos(isodf, plot_times=None, cblist=None, cut_axes=False, save=None):
 # fe HR isochrones plot
 
 # fs Hottest MS Teff
-def get_hotT_data(data_dir=r2tf_dir+'/', age_range=(10**7.75,10**10.25), pdf=None):
+def get_hotT_data(data_dir=r2tf_dir+'/', descdf=None, age_range=(10**7.75,10**10.25), pdf=None, test_idx=None):
     """ Loads data from all history.data files in data_dir subdirectories matching c[0-6].
             if pdf arg given it uses this instead of loading from scratch.
         Interpolates log_Teff to plot_times.
@@ -1640,38 +1843,57 @@ def get_hotT_data(data_dir=r2tf_dir+'/', age_range=(10**7.75,10**10.25), pdf=Non
 
     plot_times = np.linspace(age_range[0],age_range[1],1000)
     plot_data = []
-    cols = ['star_age','log_Teff', 'center_h1']
+    cols = ['star_age','log_Teff', 'center_h1', 'log_L']
 
     # get df of [mass, cb, path_to_LOGS] for history files and itterate thru them
     pdf = get_profilesindex_df(profile_runs_dir=data_dir) if pdf is None else pdf
     hdf_dirs = pdf.groupby('path_to_LOGS').max() # .max() to get one row per star
     for i, (Ldir, row) in enumerate(hdf_dirs.iterrows()):
-
-        # if row.mass < 4.5: continue
-        # if row.cb > 1.0 and row.cb <5: continue
+        if test_idx not in [None,(int(row.cb),row.mass)]: continue
 
         print('Processing dir {}'.format(Ldir))
         # get the MS data from the history file
-        hpath = os.path.join(Ldir,'history.data')
+        hpath = os.path.join(Ldir,'history_pruned.data') if usepruned else os.path.join(Ldir,'history.data')
+        if not Path(hpath).is_file(): continue
         df = pd.read_csv(hpath, header=4, sep='\s+', usecols=cols)
-        df = cut_HR_hdf(df, cuts=['ZAMS','H-3']) # only use MS
+        # only use MS
+        df = cut_HR_hdf(df, cuts=['ZAMS','TAMS'])
+        # reset age to zams
+        df.loc[:,'star_age'] = df.loc[:,'star_age'] - df.loc[:,'star_age'].min()
+
+        # drop the convective hook from stars with convective cores
+        # (same def of cc as in tauMS plot)
+        cbgroup = descdf.sort_values('mass').groupby(('cboost'))
+        cctrans = cbgroup.apply(find_cc_trans_mass)
+        if row.mass >= cctrans.loc[int(row.cb),'cctrans_mass']:
+            dftmp = df.loc[df.center_h1<1e-1,:]
+            Tdiff = dftmp.log_Teff.diff(-1).apply(np.log10)
+            # 1st NaN will be the first row that is smaller than the next
+            # it is the last row we want to keep
+            # if Tdiff is monotonic, first NaN is last row, so no harm in slicing
+            dropidx = Tdiff.index[Tdiff.isnull()][0]
+            df = df.loc[:dropidx-1,:]
 
         # add Teff interpolated to ages in plot_times
         pt = np.ma.masked_outside(plot_times,df.star_age.min(),df.star_age.max())
-        pt = pt.data[pt.mask == False]
-        dftmp = pd.DataFrame({'star_age':pt, 'log_Teff':np.nan})
+        pt = pt.data[pt.mask == False].flatten()
+        dftmp = pd.DataFrame({'star_age':pt, 'log_Teff':np.nan, 'log_L':np.nan,
+                                'center_h1':np.nan})
         # set star_age as the index and concatenate the dfs
-        df = df.loc[:,['star_age','log_Teff']].set_index('star_age')
+        df = df.set_index('star_age')
         dftmp = dftmp.set_index('star_age')
         age_Teff = pd.concat([df,dftmp], axis=0).sort_index()
         # interpolate log_Teff
-        age_Teff = age_Teff.interpolate(method='values')
+        age_Teff = age_Teff.interpolate(method='index')
 
         # create df with the needed info
-        age_Teff = age_Teff.loc[pt,:].reset_index()
         age_Teff['mass'] = row.mass
         age_Teff['cboost'] = int(row.cb)
+        if test_idx == (int(row.cb),row.mass):
+            return age_Teff.reset_index(), plot_times
+        age_Teff = age_Teff.loc[pt,:].reset_index()
         plot_data.append(age_Teff)
+
 
     # concat the dfs and keep only the hottest star for a given age and cboost
     df = pd.concat(plot_data, axis=0, ignore_index=True)
@@ -1679,7 +1901,7 @@ def get_hotT_data(data_dir=r2tf_dir+'/', age_range=(10**7.75,10**10.25), pdf=Non
 
     return df
 
-def plot_hottest_Teff(save=None, pdf=None, plot_data=hotTeff_csv, resid=False):
+def plot_hottest_Teff(save=None, pdf=None, plot_data=hotTeff_csv, resid=False, plotL=False, plotMass=False, cblist=[i for i in range(7)]):
     """ Plots highest log_Teff of any mass in MS
         pdf arg is passed to get_hotT_data(pdf=pdf) if plot_data is None
         plot_data (None, df, or str):
@@ -1689,6 +1911,8 @@ def plot_hottest_Teff(save=None, pdf=None, plot_data=hotTeff_csv, resid=False):
 
         resid = True will plot residuals
     """
+    agecut = 1e8
+
     if save is None:
         plt.figure()
     else:
@@ -1700,25 +1924,31 @@ def plot_hottest_Teff(save=None, pdf=None, plot_data=hotTeff_csv, resid=False):
         plot_data = get_hotT_data(pdf=pdf)
     elif type(plot_data) == str:
         plot_data = pd.read_csv(plot_data)
+    plot_data = plot_data.loc[plot_data.star_age>agecut,:]
 
     cbgroup = plot_data.groupby(('cboost'))
     for i, (cb,dat) in enumerate(cbgroup):
+        if cb not in cblist: continue
         # # showing that the sudden drop in Teff happens around the
         # # noDM rad->conv core transition
         # if cb in [0,5,6]:
         #     datm = dat.loc[dat.mass<1,:]
         #     plt.scatter(datm.star_age.apply(np.log10), datm.log_Teff, c='k', s=2, zorder=10)
 
-        zord = cb #np.abs(cb-6)
+        zord = cb if cb !=0 else 10 #np.abs(cb-6)
         c = get_cmap_color(cb, cmap=cbcmap, myvmin=cbvmin, myvmax=cbvmax)
 
-        if not resid:
-            y = dat.log_Teff
-        else:
+        if resid:
             dat0 = cbgroup.get_group(0)
             d0 = dat0.set_index('star_age', drop=False)
             d = dat.set_index('star_age', drop=False)
             y = d.log_Teff - d0.loc[d.index,'log_Teff']
+        elif plotL:
+            y = dat.log_L
+        elif plotMass:
+            y = dat.mass
+        else:
+            y = dat.log_Teff
 
         plt.plot(dat.star_age.apply(np.log10), y, c=c, lw=1, zorder=zord)
 
@@ -1728,9 +1958,16 @@ def plot_hottest_Teff(save=None, pdf=None, plot_data=hotTeff_csv, resid=False):
 
     cbar = get_cbcbar()
 
-    ylbl = r'log ($T_{\mathrm{eff}}$ /K)' if not resid else \
-            r'log($T_{\mathrm{eff}}$ /K) - log($T_{\mathrm{eff,\, NoDM}}$ /K)'
-    plt.xlabel(r'log ($Isochrone\ Age$ /yr)')
+    if resid:
+        ylbl = r'log($T_{\mathrm{eff}}$ /K) - log($T_{\mathrm{eff,\, NoDM}}$ /K)'
+    elif plotL:
+        ylbl = r'log ($L/$ /L$_\odot$)'
+    elif plotMass:
+        ylbl = 'stellar mass'
+    else:
+        ylbl = r'log ($T_{\mathrm{eff}}$ /K)'
+
+    plt.xlabel(r'log (Isochrone Age /yr)')
     plt.ylabel(ylbl)
     plt.tight_layout()
     if save is not None: plt.savefig(save)
@@ -1894,23 +2131,24 @@ def plot_m3p5(peeps=None, h1_legend=True, talk_plot=False, save=None):
         if h1_legend:
             axc.legend()
         # Labels and Titles
-        axe.set_title(titles[peep], fontsize=12, pad=2)
+        axe.set_title(titles[peep], fontsize=12, pad=4)
         # axe.set_title(peep if (plt.rcParams["text.usetex"]==False) else r'$\textbf{'+peep+'}$')
         # SEE https://matplotlib.org/3.1.0/api/text_api.html#matplotlib.text.Text
         # FOR TEXT ADJUSTMENT OPTIONS (e.g. 'position' and 'rotation')
         # print(r'$\ \ \ \epsilon_{\rm{nuc}}\ [\frac{\rm{erg}}{\rm{g\, s}}]$')
         # axe.set_ylabel(r'$\ \ \ \epsilon_{\rm{nuc}}\ [\frac{\rm{erg}}{\rm{g\, s}}]$')
-        axe.set_ylabel(r'$\epsilon_{\rm{nuc}}$', rotation='horizontal', va='center', ha='right', labelpad=7)
+        args = {'rotation': 45, 'va': 'center', 'ha': 'right'}
+        axe.set_ylabel(r'$\epsilon_{\rm{nuc}}$', **args, labelpad=11)
         # axe.tick_params(labelrotation=-45)
         # axtwin.set_ylabel(r'$\ \ \ \epsilon_{\rm{DM}}\ [\frac{\rm{erg}}{\rm{g\, s}}]$')
-        axtwin.set_ylabel(r'$\ \ \ \epsilon_{\rm{DM}}$', rotation='horizontal', va='center', ha='right', labelpad=2)
+        axtwin.set_ylabel(r'$\ \ \ \epsilon_{\rm{DM}}$', **args, labelpad=7)
         # axtwin.tick_params(labelrotation=45)
         # print(r'log($D/ [\frac{\rm{cm}^2}{\rm{s}}]$)')
         # axc.set_ylabel(r'log($D/ [\frac{\rm{cm}^2}{\rm{s}}]$)')
-        axc.set_ylabel(r'log($D$)', rotation='horizontal', va='center', ha='right', labelpad=15)
+        axc.set_ylabel(r'log($D$)', **args, labelpad=11)
         # axc.tick_params(labelrotation=-45)
         axe.set_xticklabels([])
-    axc.set_xlabel(r'mass$(<r)/\mathrm{M}_{\odot}$', labelpad=10)
+    axc.set_xlabel(r'mass$(<r)/\mathrm{M}_{\odot}$', labelpad=6)
     # f.suptitle(r'3.5 M$_{\odot}$ Profiles', fontsize=20)
 
     f, eps = adjust_plot_readability(fig=f, fontOG=None, plot='m3p5')
@@ -2057,7 +2295,142 @@ def plot_m3p5_sidebyside(peeps=None, save=None):
 
 # fe 3.5 Msun profiles
 
-# fs 1.0 Msun c3 profiles
+# fs 1.0 Msun profiles
+def plot_m1p0(peeps=None, h1_legend=True, talk_plot=False, save=None):
+    """ peeps = list of h1cuts (names defined in get_h1cuts()) to plot
+    """
+
+    mass, cb = 1.00 ,6
+    cbmods = get_h1_modnums(mass=mass)
+    c0mods = cbmods[0]
+    c6mods = cbmods[cb]
+    xmax = 0.5 # max mass coord to plot
+
+    if peeps is None:
+        peeps = list(get_h1cuts()[0].keys())
+        print(peeps)
+
+    cbc = [get_cmap_color(0, cmap=cbcmap), get_cmap_color(cb, cmap=cbcmap)] # plot colors
+
+    # For annotations:
+     # placement for extra heat arrows in axes fraction corrds:
+    delth = 0.055; deltv = 0.15
+    l = 0.94; r = l + delth; b = 0.70; t = b + deltv
+    eps = 0.1
+    xarws = [[(r,b),(l,t)],
+             [(r,b),(l,t)],
+             [(r,b-eps),(l,t-eps)],
+             [(r,b-eps),(l,t-eps)],
+             [(r,b-eps),(l,t-eps)],
+             [(r,b-eps),(l,t-eps)],
+             [(r,b-eps),(l,t-eps)],
+             [(r,b-eps),(l,t-eps)],
+             ]
+
+    # Tick directions
+    # mpl.rcParams['xtick.direction'] = 'out'
+    # mpl.rcParams['ytick.direction'] = 'out'
+    fontOG = adjust_plot_readability(fontAdj=True, plot='m3p5')
+
+    ntimes = len(peeps)
+    nrows = 3
+    ncols = 1
+
+    # height = savefigh_vert*nrows**1.75 if not talk_plot else savefigh_vert*nrows
+    height = 8
+    f = plt.figure() if save is None else plt.figure(figsize=(savefigw_vert, height))
+    outer = gs.GridSpec(nrows=ntimes,ncols=ncols, figure=f, hspace=0.25, right=0.98)
+    inner = [gs.GridSpecFromSubplotSpec(nrows,ncols, subplot_spec=outer[o], hspace=0) \
+                    for o in range(ntimes)]
+
+    a = -1
+    h1c_names, titles = get_h1cuts()
+    for t, peep in enumerate(list(h1c_names.keys())):
+        c0mod = c0mods[t]
+        c6mod = c6mods[t]
+        if peep not in peeps:
+            continue
+        elif math.isnan(c0mod) or math.isnan(c6mod):
+            continue
+        else:
+            a = a+1 # iterate outer subplot
+
+        axe = f.add_subplot(inner[a][0])
+        # axtwin = axe.twinx()
+        axtwin = f.add_subplot(inner[a][1], sharex=axe)
+        if a != ntimes-1:
+            axc = f.add_subplot(inner[a][2], sharex=axe)
+        else:
+            axc = f.add_subplot(inner[a][2]) # need the xtick labels to show up correctly
+
+        df = [ get_pdf(0, c0mod, mass=mass), get_pdf(cb, c6mod, mass=mass) ] # list of dataframes
+        for i, dtmp in enumerate(df):
+            d = dtmp.loc[dtmp.mass<xmax,:]
+            # Plot nuclear energy (use arrays to avoid auto generating legend label):
+            lbl = r'$\Gamma_B = 0$' if i==0 else r'$\Gamma_B = 10^{}$'.format(cb)
+            axe.plot(np.array(d.mass), np.array(d.eps_nuc_plus_nuc_neu), c=cbc[i], label=lbl)
+            # Plot extra heat:
+            axtwin.plot(d.mass, d.extra_heat, ls='-.', c=cbc[i])
+
+            # Plot temperature:
+            xfrac_lbl = get_xfrac_lbl(d)
+            axc.plot(d.mass, d.logT, c=cbc[i], label=xfrac_lbl)
+
+        # Annotate with arrows:
+        # kwargs = {  'xycoords':"axes fraction", 'textcoords':"axes fraction",
+        #             'arrowprops':{  'arrowstyle':"->",
+        #                             'connectionstyle':"angle,angleA=90,angleB=0",
+        #                             'alpha':0.5 }
+        #         }
+        # axe.annotate('',xarws[a][0], xytext=xarws[a][1], **kwargs)
+
+        if a==0:
+            axe.legend(fontsize=9, frameon=False, borderaxespad=0.1)
+
+        # axes limits
+        # axc.set_ylim(-1,19.8)
+        axe.set_xlim(0,xmax)
+        margin = 0.25
+        axe.margins(y=margin)
+        axtwin.margins(y=margin)
+        axc.margins(y=margin)
+
+        if h1_legend:
+            axc.legend()
+        # Labels and Titles
+        axe.set_title(titles[peep], fontsize=12, pad=4)
+        # axe.set_title(peep if (plt.rcParams["text.usetex"]==False) else r'$\textbf{'+peep+'}$')
+        # SEE https://matplotlib.org/3.1.0/api/text_api.html#matplotlib.text.Text
+        # FOR TEXT ADJUSTMENT OPTIONS (e.g. 'position' and 'rotation')
+        # print(r'$\ \ \ \epsilon_{\rm{nuc}}\ [\frac{\rm{erg}}{\rm{g\, s}}]$')
+        # axe.set_ylabel(r'$\ \ \ \epsilon_{\rm{nuc}}\ [\frac{\rm{erg}}{\rm{g\, s}}]$')
+        args = {'rotation': 45, 'va': 'center', 'ha': 'right'}
+        axe.set_ylabel(r'$\epsilon_{\rm{nuc}}$', **args, labelpad=15)
+        # axe.tick_params(labelrotation=-45)
+        # axtwin.set_ylabel(r'$\ \ \ \epsilon_{\rm{DM}}\ [\frac{\rm{erg}}{\rm{g\, s}}]$')
+        axtwin.set_ylabel(r'$\ \ \ \epsilon_{\rm{DM}}$', **args, labelpad=10)
+        # axtwin.tick_params(labelrotation=45)
+        # print(r'log($D/ [\frac{\rm{cm}^2}{\rm{s}}]$)')
+        # axc.set_ylabel(r'log($D/ [\frac{\rm{cm}^2}{\rm{s}}]$)')
+        axc.set_ylabel(r'log($T/$K)', **args, labelpad=7)
+        # axc.tick_params(labelrotation=-45)
+        axe.set_xticklabels([])
+    axc.set_xlabel(r'mass$(<r)/\mathrm{M}_{\odot}$', labelpad=6)
+    # f.suptitle(r'3.5 M$_{\odot}$ Profiles', fontsize=20)
+
+    f, eps = adjust_plot_readability(fig=f, fontOG=None, plot='m3p5')
+
+    axc.set_xlim(0,xmax) # this axis is not connected to axe to avoid tick labels on axe
+
+    if save is not None: plt.savefig(save)
+    plt.show()
+
+    adjust_plot_readability(fig=None, fontOG=fontOG)
+    return None
+
+# fe 1.0 Msun profiles
+
+# fs OLD 1.0 Msun c3 profiles
 def plot_m1p0c3(peeps=None, h1_legend=True, fix_yscale=False, talk_plot=False, save=None):
     """ peeps = list of h1cuts (names defined in get_h1cuts()) to plot
     """
@@ -2322,9 +2695,9 @@ def plot_m1p0c3_sidebyside(peeps=None, save=None):
 
     if save is not None: plt.savefig(save)
     plt.show()
-# fe 1.0 Msun c3 profiles
+# fe OLD 1.0 Msun c3 profiles
 
-# fs 1.0 Msun c6 profiles
+# fs OLD 1.0 Msun c6 profiles
 def plot_m1p0c6_movie(pdfin=None, savedir=talkplotdir+'/m1c6_movie'):
     """ Profile plots of single time steps, for movie making.
     """
@@ -2779,9 +3152,9 @@ def plot_m1p0c6_sidebyside_old(plot_times=None, save=None):
 
     if save is not None: plt.savefig(save)
     plt.show()
-# fe 1.0 Msun c6 profiles
+# fe OLD 1.0 Msun c6 profiles
 
-# fs 1.0 Msun c6 Kippenhahn
+# fs OLD 1.0 Msun c6 Kippenhahn
 def plot_m1p0c6_kipp(plot_times=None, from_file=False, time_lines=True, save=None):
     """ Gets and plots the history.data file.
         from_file should be list [c0,c6] of specific dirs (parent of LOGS dir)
@@ -3027,4 +3400,4 @@ def get_burn_cols(hdf):
 #     'burn_type_1', 'burn_qtop_1'
     return df
 
-# fe 1.0 Msun c6 Kippenhahn⁄
+# fe OLD 1.0 Msun c6 Kippenhahn

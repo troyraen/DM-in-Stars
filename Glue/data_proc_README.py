@@ -32,7 +32,7 @@ stars = dp.make_dicts(root, [], load_prof=False) # 2nd arg = [] gets all availab
 # ---------------------------------- #
 stars1 = dp.sort_stars_dicts(stars)
 # dp.make_csv(stars1, othmap, list_Hcols,list_Pcols, clean='all', rt=root)
-dp.make_csv(stars1, othmap, list_Hcols,list_Pcols, clean=False, rt=root, write=['desc'])
+dp.make_csv(stars1, othmap, list_Hcols,list_Pcols, clean=False, rt=root+'/Glue', write=['desc'])
 
 # Rewritting desc.csv to include mass_conv_core info for deltaTau plot
 # masses without a c0 model need to be removed to create the description csv
@@ -51,11 +51,11 @@ for k,s in stars2.items():
 # stmp = { key: dic for key,dic in stars1.items() if dic['mass'] in [1.0, 1.03] }
 # dp.get_desc(stars1)
 root = '/home/tjr63/tmp/'
-dp.make_csv(stars2, othmap, list_Hcols,list_Pcols, clean='all', rt=root)
+dp.make_csv(stars2, othmap, list_Hcols,list_Pcols, clean='all', rt=root+'/Glue')
 
 for key, dic in stars3.items():
     del dic['descDF']
-dp.make_csv(stars3, othmap, list_Hcols,list_Pcols, clean=False, rt=root, write=['desc'])
+dp.make_csv(stars3, othmap, list_Hcols,list_Pcols, clean=False, rt=root+'/Glue', write=['desc'])
 
 # # Add column 'masscc_avg' to descDF:
 # stars3 = stars2.copy()

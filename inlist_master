@@ -41,6 +41,7 @@
 	  stop_at_TP = .TRUE.
       HB_limit = 1d-12 ! stop when central mass frac of He4 drops below this
                         ! (for models without a thermal pulse)
+      max_age = 13d9 ! for lowest mass models
 
 
 !   SAVE DATA
