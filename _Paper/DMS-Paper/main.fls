@@ -1,0 +1,6 @@
+PWD /Users/troyraen/Google_Drive/MESA/code/mesa_wimps/DMS-Paper
+INPUT /usr/local/texlive/2018basic/texmf.cnf
+INPUT /usr/local/texlive/2018basic/texmf-dist/web2c/texmf.cnf
+INPUT /usr/local/texlive/2018basic/texmf-var/web2c/pdftex/pdflatex.fmt
+INPUT main.tex
+OUTPUT main.log

@@ -25,7 +25,7 @@
       use star_lib
       use star_def
       use const_def
-      use wimp_module   ! necessary to point towards the other_energy hook
+      use DM_module   ! needed for the other_energy_implicit hook
 
       implicit none
 
@@ -52,7 +52,7 @@
          s% how_many_extra_profile_columns => how_many_extra_profile_columns
          s% data_for_extra_profile_columns => data_for_extra_profile_columns
 
-         s% other_energy_implicit => wimp_energy_transport ! subroutine where extra_heat is defined inside of module wimp_module
+         s% other_energy_implicit => DM_energy_transport ! subroutine where extra_heat is defined inside of module DM_module
       end subroutine extras_controls
 
 
@@ -109,7 +109,7 @@
          ierr = 0
          call star_ptr(id, s, ierr)
          if (ierr /= 0) return
-         how_many_extra_history_columns = 7
+         how_many_extra_history_columns = 5
       end function how_many_extra_history_columns
 
 
@@ -127,7 +127,7 @@
          ! the history_columns.list is only for the built-in log column options.
          ! it must not include the new column names you are adding here.
 
-         names(1) = 'wimp_temp'
+         names(1) = 'DM_temp'
          vals(1) = s% X_CTRL(2)
          names(2) = 'Nx_total'
          vals(2) = s% X_CTRL(3)
@@ -135,12 +135,8 @@
          vals(3) = s% X_CTRL(4)
          names(4) = 'center_np'
          vals(4) = s% X_CTRL(5)
-         names(5) = 'Tx_emoment'
-         vals(5) = s% X_CTRL(6)
-         names(6) = 'extra_energy'
-         vals(6) = calc_xenergy(id, id_extra) ! ergs
-         names(7) = 'xL/Lnuc'
-         vals(7) = s% xtra(6)
+         names(5) = 'extra_energy'
+         vals(5) = calc_xenergy(id, id_extra) ! ergs
 
       end subroutine data_for_extra_history_columns
 
@@ -172,7 +168,7 @@
          ierr = 0
          call star_ptr(id, s, ierr)
          if (ierr /= 0) return
-         how_many_extra_profile_columns = 4
+         how_many_extra_profile_columns = 3
       end function how_many_extra_profile_columns
 
 
@@ -191,14 +187,12 @@
 
          names(1) = 'nx'
          names(2) = 'np'
-         names(3) = 'Vk'
-         names(4) = 'wimp_temp'
+         names(3) = 'DM_temp'
 
          do k = 1, nz
             vals(k,1) = s% xtra1_array(k)
             vals(k,2) = s% xtra2_array(k)
-            vals(k,3) = s% xtra3_array(k)
-            vals(k,4) = s% X_CTRL(2)
+            vals(k,3) = s% X_CTRL(2)
          end do
 
       end subroutine data_for_extra_profile_columns
@@ -218,7 +212,7 @@
          extras_finish_step = keep_going
          call store_extra_info(s)
 
-         s% xtra(1) = s% xtra(2)  !! = Nx (so wimps are not collected when step is not accepted)
+         s% xtra(1) = s% xtra(2)  !! = Nx (so DM is not collected when step is not accepted)
 
          IF ( (.NOT. flg1) .AND. (s% center_h1 .LT. 0.71D0) ) THEN
            flg1 = .TRUE.

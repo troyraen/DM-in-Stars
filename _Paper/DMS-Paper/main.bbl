@@ -1,0 +1,71 @@
+\begin{thebibliography}{}
+\makeatletter
+\relax
+\def\mn@urlcharsother{\let\do\@makeother \do\$\do\&\do\#\do\^\do\_\do\%\do\~}
+\def\mn@doi{\begingroup\mn@urlcharsother \@ifnextchar [ {\mn@doi@}
+  {\mn@doi@[]}}
+\def\mn@doi@[#1]#2{\def\@tempa{#1}\ifx\@tempa\@empty \href
+  {http://dx.doi.org/#2} {doi:#2}\else \href {http://dx.doi.org/#2} {#1}\fi
+  \endgroup}
+\def\mn@eprint#1#2{\mn@eprint@#1:#2::\@nil}
+\def\mn@eprint@arXiv#1{\href {http://arxiv.org/abs/#1} {{\tt arXiv:#1}}}
+\def\mn@eprint@dblp#1{\href {http://dblp.uni-trier.de/rec/bibtex/#1.xml}
+  {dblp:#1}}
+\def\mn@eprint@#1:#2:#3:#4\@nil{\def\@tempa {#1}\def\@tempb {#2}\def\@tempc
+  {#3}\ifx \@tempc \@empty \let \@tempc \@tempb \let \@tempb \@tempa \fi \ifx
+  \@tempb \@empty \def\@tempb {arXiv}\fi \@ifundefined
+  {mn@eprint@\@tempb}{\@tempb:\@tempc}{\expandafter \expandafter \csname
+  mn@eprint@\@tempb\endcsname \expandafter{\@tempc}}}
+
+\bibitem[\protect\citeauthoryear{Choi, Dotter, Conroy, Cantiello, Paxton  \&
+  Johnson}{Choi et~al.}{2016}]{Choi2016mesaModels}
+Choi J.,  Dotter A.,  Conroy C.,  Cantiello M.,  Paxton B.,   Johnson B.~D.,
+  2016, \mn@doi [The Astrophysical Journal] {10.3847/0004-637X/823/2/102}, 823,
+  1
+
+\bibitem[\protect\citeauthoryear{Dotter}{Dotter}{2016}]{Dotter2016MesaIsochrones}
+Dotter A.,  2016, \mn@doi [The Astrophysical Journal Supplement Series]
+  {10.3847/0067-0049/222/1/8}, 222, 8
+
+\bibitem[\protect\citeauthoryear{Gould}{Gould}{1992}]{Gould1992CosmologicalAnnihilations}
+Gould A.,  1992, \mn@doi [The Astrophysical Journal] {10.1086/171156}, 388, 338
+
+\bibitem[\protect\citeauthoryear{Hurst, Zentner, Natarajan  \& Badenes}{Hurst
+  et~al.}{2015}]{Hurst2015}
+Hurst T.~J.,  Zentner A.~R.,  Natarajan A.,   Badenes C.,  2015, \mn@doi
+  [Physical Review D - Particles, Fields, Gravitation and Cosmology]
+  {10.1103/PhysRevD.91.103514}, 91
+
+\bibitem[\protect\citeauthoryear{Iocco, Taoso, Leclercq  \& Meynet}{Iocco
+  et~al.}{2012}]{Iocco2012}
+Iocco F.,  Taoso M.,  Leclercq F.,   Meynet G.,  2012, \mn@doi [Physical Review
+  Letters] {10.1103/PhysRevLett.108.061301}, 108, 1
+
+\bibitem[\protect\citeauthoryear{Paxton, Bildsten, Dotter, Herwig, Lesaffre  \&
+  Timmes}{Paxton et~al.}{2011}]{Paxton2011ModulesMESA}
+Paxton B.,  Bildsten L.,  Dotter A.,  Herwig F.,  Lesaffre P.,   Timmes F.,
+  2011, \mn@doi [Astrophysical Journal, Supplement Series]
+  {10.1088/0067-0049/192/1/3}, 192
+
+\bibitem[\protect\citeauthoryear{Pols}{Pols}{2011}]{Pols1990StellarEvolution}
+Pols O.,  2011, {Utrecht University, Lecture Notes: Stellar Structure and
+  Evolution}.
+No. September, \url
+  {http://www.astro.ru.nl/{~}onnop/education/stev{\_}utrecht{\_}notes/}
+
+\bibitem[\protect\citeauthoryear{Spergel \& Press}{Spergel \&
+  Press}{1985}]{Spergel1985EffectInterior}
+Spergel D.~N.,  Press W.~H.,  1985, \mn@doi [The Astrophysical Journal]
+  {10.1086/163336}, 294, 663
+
+\bibitem[\protect\citeauthoryear{Zentner}{Zentner}{2009}]{Zentner2009High-energySun}
+Zentner A.~R.,  2009, \mn@doi [Physical Review D - Particles, Fields,
+  Gravitation and Cosmology] {10.1103/PhysRevD.80.063501}, 80
+
+\bibitem[\protect\citeauthoryear{Zentner \& Hearin}{Zentner \&
+  Hearin}{2011}]{Zentner2011AsymmetricDwarfs}
+Zentner A.~R.,  Hearin A.~P.,  2011, \mn@doi [Physical Review D - Particles,
+  Fields, Gravitation and Cosmology] {10.1103/PhysRevD.84.101302}, 84, 3
+
+\makeatother
+\end{thebibliography}
