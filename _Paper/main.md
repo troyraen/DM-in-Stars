@@ -2,12 +2,17 @@
 
 All were submitted on 10/8/2020
 - Zenodo: [https://doi.org/10.5281/zenodo.4064115](https://doi.org/10.5281/zenodo.4064115)
+
 - arXiv:
     - temporary submission identifier is: submit/3394413
     - You may update your submission at: https://arxiv.org/submit/3394413
+    - permanent arXiv identifier 2010.04184 and is available at: http://arxiv.org/abs/2010.04184
+    - paper password in email https://mail.google.com/mail/u/0/#inbox/FMfcgxwKhqjGfxsQXDJcwGMnfHPJcqzr
+
 - Monthly Notices:
     - Manuscript ID: MN-20-4148-MJ
     - https://mc.manuscriptcentral.com/mnras
+    - email https://mail.google.com/mail/u/0/#inbox/FMfcgxwKhqddwPCWMJctRsxFRbHpCqKh
 
 
 # Prepare files for Zenodo
