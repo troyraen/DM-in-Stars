@@ -10,7 +10,7 @@
     - [`isos_myInterp.csv`](#isointerpcsv)
     - [`mdf.csv`](#mdfcsv)
     - [Do some checks](#checks)
-- [Check things that seem weird in plots below](#bugs)
+- [Check things that seem weird in plots above](#bugs)
     - [MS lifetimes vs Mass](#MStauVsMass)
     - [Xc as fnc of time](#XcVsTime)
     - [Look at 2.4c0 and 2.55c4 (which are the most obvious problems)](#probmod_profiles)
@@ -25,7 +25,9 @@
     - [Hottest MS Teff](#hotT)
     - [3.5 Msun profiles](#3p5)
     - [1.0 Msun profiles](#1p0)
-
+- [Plots addressing reviewer's comments](#revcomm)
+    - [Evaporation mass](#evaporation)
+    - [Central density](#centerrho)
 <!-- fe outline -->
 
 <a name="setup"></a>
@@ -495,8 +497,519 @@ Need to be aware of TACHeB.
 <!-- fe # Create derived data files -->
 
 
+<a name="makeplots"></a>
+# Create plots for Raen2020 paper
+<!-- fs plots -->
+
+- Osiris
+- `defDM` branch
+- `home/tjr63/DMS/mesaruns_analysis/_Paper/figures/` (Osiris) directory
+
+
+### setup and testing
+<!-- fs -->
+```python
+%run plot_fncs
+pidf = pidxdfOG # df of profiles.index files
+cb, mass = 0, 1.0
+modnum = pidf.loc[((pidf.mass==mass)&(pidf.cb==cb)&(pidf.priority==97)),'model_number'].iloc[0]
+# hdf = load_hist_from_file(0, mass=1.0, from_file=True, pidxdf=pidf) # 1p0c0 history df
+hdf = get_hdf(cb, mass=mass) # single history df
+pdf = get_pdf(cb, modnum, mass=mass, rtrn='df') # single profile df
+```
+
+Note that there is a problem in matplotlib version 3.1.3
+when trying to use a colormap with a scatter plot and data of length 1
+See https://github.com/matplotlib/matplotlib/issues/10365/
+I fixed this in `plot_delta_tau()` and other fncs below by doing
+`plt.scatter(np.reshape(x,-1), np.reshape(y,-1), c=np.reshape(c,-1))`
+<!-- fe -->
+
+
+<a name="mstau"></a>
+### delta MS Tau
+<!-- fs -->
+```python
+%run plot_fncs
+descdf = get_descdf(fin=fdesc)
+save = [None, plotdir + '/MStau.png', finalplotdir + '/MStau.png']
+# plt.rcParams["text.usetex"] = True
+plot_delta_tau(descdf, cctrans_frac='default', which='avg', save=save[2])
+```
+
+<img src="temp/MStau.png" alt="/MStau.png" width="400"/>
+
+#### Debug:
+[See above](#bugs) for exploration/explanation of the random deviations from the trends (due to rotational mixing -> injecting h1 into center)
+
+Check how much hydrogen is being burned, relative to c0 model of same mass.
+- [x]  Update `data_proc.py` to find Hburned = (c6hburn - c0hburn)/c0hburn and regenerate `descDF.csv`
+
+```python
+from matplotlib import pyplot as plt
+
+%run plot_fncs
+descdf = get_descdf(fin=fdesc)
+
+pvt = {'index':'mass','columns':'cboost','values':'Hburned'}
+dpiv = descdf.pivot(**pvt)
+plt.set_cmap(cbcmap)
+args = {'cmap':cbcmap}
+dpiv.plot(**args)
+plt.legend(loc=4)
+plt.ylabel('(Hburned - Hburned_c0)/Hburned_c0', fontsize=12)
+plt.tight_layout()
+save = plotdir + '/Hburned.png'
+plt.savefig(save)
+```
+
+<img src="temp/Hburned.png" alt="Hburned.png" width="400"/>
+
+<!-- fe -->
+
+
+<a name="teff"></a>
+### Teff v Age
+<!-- fs -->
+```python
+mlist = [1.0, 1.75, 2.5, 3.5, 5.0]
+cblist = [4, 6]
+from_file = [False, get_r2tf_LOGS_dirs(masses=mlist, cbs=cblist+[0])]
+                    # Only need to send this dict once.
+                    # It stores history dfs in dict hdfs (unless overwritten)
+save = [None, plotdir+'/Teff.png', finalplotdir+'/Teff.png']
+plot_Teff(mlist=mlist, cblist=cblist, from_file=from_file[0], descdf=descdf, save=save[2])
+```
+
+<img src="temp/Teff.png" alt="Teff.png" width="400"/>
+
+#### Debug:
+<!-- fs -->
+Differences in leaveMS markers and Teff drop are notable. See
+- [Does our definition of leaving MS qualitatively affect results?](#leaveMS_def).
+-
+
+- [x]  start ages = 0 at ZAMS (had to fix `start_center_h1` value in `get_h1cuts()`)
+- [x]  why does lifetime difference in 1Msun look bigger than in 2Msun (contradicting MStau plot)? (it is deceiving, see plots below... or __perhaps delta MS tau is deceiving?__)
+
+<img src="temp/Teff_2.0Msun.png" alt="temp/Teff_2.0Msun" width="400"/>
+<img src="temp/Teff_1.0Msun.png" alt="temp/Teff_1.0Msun" width="400"/>
+
+Grey lines mark Teff at leaveMS of NoDM models (thin line), blue lines mark same for c6 models (thick line). Difference in MS lifetime of 2.0Msun models is greater than for 1.0Msun models.
+
+Problems:
+- [ ]  In 2Msun models (top row), c6 model lives __longer__ than the NoDM model which is opposite of delta MS tau plot. Something is wrong here.
+- [ ]  Difference in MS lifetime between 2Msun models is more like 10% than 20%
+
+```python
+descdf = get_descdf(fin=fdesc)
+descdf.set_index(['mass','cboost'],inplace=True)
+mass, massstr, cb = 1.00, 'm1p00', 0
+hpath = Path(datadir) / f'c{cb}' / f'{massstr}' / 'LOGS' / 'history_pruned.data'
+hdf = dp.load_history(hpath)
+# h = cut_HR_hdf(hdf, cuts=['ZAMS','TACHeB'], tahe=[descdf,mass,cb])
+h = cut_HR_hdf(hdf, cuts=['ZAMS','H-3'])
+
+np.log10(h.star_age.max() - h.star_age.min())
+np.log10(descdf.loc[idx[mass,cb],'MStau_yrs'])
+```
+- [x]  __Note that the MS lifetimes I get from h (9.886) and descdf (9.897) above do not match.__ Need to track down why. (Fixed. I was not including the leaveMS model in the `cut_HR_hdf` for h.)
+<!-- fe #### Debug: -->
+<!-- fe -->
+
+
+<a name="tracks"></a>
+### HR Tracks
+<!-- fs -->
+```python
+mlist = [1.0, 1.75, 2.5, 3.5, 5.0]
+cblist = [4, 6]
+from_file = [False, True, get_r2tf_LOGS_dirs(masses=mlist, cbs=cblist+[0])]
+                        # Only need to send this dict once.
+                        # It stores history dfs in dict hdfs (unless overwritten)
+save = [None, plotdir+'/tracks.png', finalplotdir+'/tracks.png']
+plot_HR_tracks(mlist=mlist, cblist=cblist, from_file=from_file[0], descdf=descdf,
+                  save=save[1])
+```
+
+<img src="temp/tracks.png" alt="tracks.png" width="400"/>
+
+#### Debug:
+
+- [x]  remove pre-ZAMS portion
+- [ ]  why is the NoDM leave MS line not smooth?
+
+plot MStau - MStau of previous mass (should be negative)
+```python
+descdf = get_descdf(fin=fdesc).sort_values('mass').set_index(['mass','cboost'])
+d0 = descdf.loc[idx[:,0],:]
+dif = np.log10(d0.MStau_yrs).diff()#.dropna()
+plt.figure()
+plt.plot(d0.reset_index().mass, dif, '-o')
+plt.axhline(0,c='k')
+plt.xlabel('star mass')
+plt.ylabel('log10 MStau[mass[i]] - \nlog10 MStau[mass[i-1]]',fontsize=12)
+plt.tight_layout()
+plt.show(block=False)
+plt.savefig(plotdir+'/check_HR_MStau_c0.png')
+```
+
+<img src="temp/check_HR_MStau_c0.png" alt="/check_HR_MStau_c0" width="400"/>
+
+- Only 2.4Msun model lives longer than previous mass (identified in [delta MSTau](#mstau) debugging above.)
+- I think the bouncing around at the end is just due to the irregularly space masses (4.0, 4.03, 4.05, 4.08, ...). Lower masses at .03 and .08 aren't done yet.
+
+Plot T, L, MStau to look for high mass problem models
+```python
+d = d0.reset_index().set_index('mass')
+d['logMStau/max'] = np.log10(d.MStau_yrs)/np.log10(d.MStau_yrs.max())
+d['lAMS_logTeff/max'] = d.lAMS_Teff/d.lAMS_Teff.max()
+d['lAMS_logL/max'] = d.lAMS_L/d.lAMS_L.max()
+args = {'marker':'o', 'ms':3}
+d.loc[idx[3.4:],['lAMS_logTeff/max', 'lAMS_logL/max', 'logMStau/max']].plot(**args)
+plt.grid(which='both')
+plt.tight_layout()
+plt.show(block=False)
+plt.savefig(plotdir+'/check_HR_lAMS_c0.png')
+```
+
+<img src="temp/check_HR_lAMS_c0.png" alt="/check_HR_lAMS_c0" width="400"/>
+
+If I zoom in real close it looks like the spikes might be due to slightly increased MS lifetimes. Check timestep resolution for center_h1.
+
+```python
+import debug_fncs as dbg
+import data_proc as dp
+# get a center_h1 vs age df as a pivot table
+mass, cb = [4.93], 0 # 4.93 is the last spike
+hp = dbg.get_h1_v_age_pivot(mass,cb)
+# get the same for the unpruned history file
+hdf = dp.load_history(datadir+'/c0/m4p93/LOGS/history.data')
+hdf['mass'] = '4.93 unpruned'
+pvt = {'index':'star_age','columns':'mass','values':'center_h1'}
+hpup = hdf.pivot(**pvt)
+
+# plot them
+plt.figure()
+ax = plt.gca()
+args = {'marker':'o', 'ms':5, 'loglog':True, 'ax':ax}
+hp.plot(**args)
+args['ms'] = 3
+hpup.plot(**args)
+plt.axhline(1e-3, c='0.5', lw=0.5)
+plt.ylabel('center_h1')
+plt.title('c0 models')
+plt.tight_layout()
+plt.show(block=False)
+plt.savefig(plotdir+'/check_HR_centerh1_4p93.png')
+
+```
+
+<img src="temp/check_HR_centerh1_4p93.png" alt="check_HR_centerh1_4p93" width="400"/>
+
+The datapoint that intersects the 1e-3 line is actually slightly above it (I zoomed in to check). Therefore the leaveMS model is much closer to 1e-4. Since Teff changes so quickly during this time, it is conceivable that this causes the spike in the leaveMS line. Check plot (todo, below) to be sure. The issue is not caused by the pruned history file. I also checked 3.93Msun which has a similar issue.
+
+- [ ]  plot Teff v age and L v age for (4.90, 4.93, 4.95)Msun. star leaveMS model. see if using previous model for 4.93 would smooth the curve.
+- [ ]  consider smoothing this out by either interpolating using `hdf.interpolate` or just using the Teff of the previous model since it's closest to center_h1 condition
+
+<!-- fe -->
+
+
+<a name="isos"></a>
+### Isochrones
+<!-- fs -->
+```python
+%run plot_fncs
+fin = isomy_csv
+isodf = load_isos_from_file(fin=fin, cols=None)
+isoages = get_iso_ages(isodf)
+agemap = {np.round(age,2): age for age in isoages}
+# plot_times = [age for i,age in enumerate(isoages) if i%16==0][2:]
+plot_times_cb = {4: [8.29, 8.54, 8.81, 9.11, 9.55, 9.98],
+                 6: [8.1, 8.37, 8.81, 9.22, 9.65, 9.98]}
+ # chosen by hand to to get as good a sampling as possible around the MS turnoff and sub-giant branch
+ # see below for details
+
+cb = [4, 6]
+for c in cb:
+    plot_times = [agemap[rage] for rage in plot_times_cb[c]]
+    save = [None, plotdir+'/isos_cb'+str(c)+'_Dotter.png', finalplotdir+'/isos_cb'+str(c)+'.png']
+    plot_isos_ind(isodf, plot_times=plot_times, cb=c, save=save[1])
+```
+Using `fin = iso_csv` (Dotter's code):
+
+<img src="temp/isos_cb4_Dotter.png" alt="isos_cb4_Dotter.png" width="400"/> <img src="temp/isos_cb6_Dotter.png" alt="isos_cb6_Dotter.png" width="400"/>
+
+Using `fin = isomy_csv` (My interpolation code):
+
+<img src="temp/isos_cb4.png" alt="isos_cb4.png" width="400"/> <img src="temp/isos_cb6.png" alt="isos_cb6.png" width="400"/>
+
+To find the MS turnoff mass, alter `plot_hottest_Teff()` to plot the mass of this star rather than Teff.
+```python
+save = plotdir + '/iso_turnoffMass.png'
+cb = [0,4,6]
+plot_hottest_Teff(save=save, plot_data=hotTeff_csv, plotMass=True, cblist=cb)
+```
+
+I tried putting main sequence turnoff lines on here, but they don't look good (due to mass resolution effects on L).
+
+<img src="temp/isos_cb4_turnoff.png" alt="isos_cb4_turnoff" width="400"/>
+
+<img src="temp/isos_cb6_turnoff.png" alt="isos_cb6_turnoff" width="400"/>
+
+__Plot one of Dotter's lines__
+```python
+fin = iso_csv
+isodf = load_isos_from_file(fin=fin, cols=None)
+isoages = get_iso_ages(isodf)
+agemap = {np.round(age,2): age for age in isoages}
+save = [None, plotdir+'/iso_Dotter.png', finalplotdir+'/iso_Dotter.png']
+plot_times = [8.5408]
+cb = [6]
+plot_isos_Dotter(isodf, plot_times=plot_times, cb=cb, save=save[1])
+```
+<img src="temp/iso_Dotter.png" alt="iso_Dotter" width="400"/>
+
+```python
+# save other Dotter isos
+cb = 6
+for t in range(4):
+plot_times = [age for i,age in enumerate(isoages[t:]) if i%4==0]
+save = plotdir + f'/isoDotter/{t}.png'
+plot_isos_ind(isodf, plot_times=plot_times, cb=cb, cut_axes='TACHeB', save=save)
+```
+
+```python
+# check if luminosity is still going up.. (have we gotten to tip of rgb?)
+i = isodf.loc[isodf.log10_isochrone_age_yr==plot_times[0],:]
+ig = i.groupby('cboost')
+cb = [0,4,6]
+plt.figure()
+for c in cb:
+kwargs = {'ax':plt.gca(), 'label':f'cb{c}'}
+ic = ig.get_group(c)
+ic.plot('initial_mass', 'log_L', **kwargs)
+plt.legend()
+plt.ylabel('log_L')
+plt.tight_layout()
+plt.savefig(plotdir+'/iso_Dot_L.png')
+```
+<img src="temp/iso_Dot_L.png" alt="iso_Dot_L" width="400"/>
+
+
+#### Debug:
+<!-- fs -->
+- [ ]  `isochrone_c0.dat` only has masses between 2-3Msun and no isochrones older than 10^8.93. Wondering if I haven't run a fine enough mass grid. Previous results used [.0, .03, .05, .08].
+    - [ ]  ~Try running more c0s.~
+    - [ ]  ~take old data and down sample mass grid, re-generate isochrones and see if get the same problem.~
+    - [ ]  ~what is the oldest isochrone I want to show in c6 models, run finer mass grid only for c0,4,6 and stop them when reach age > oldest isochrone~
+
+Instead of doing the above, now trying to generate my own isochrones via simple interpolation of `history.data` files. See comparison above.
+
+__Finding iso ages with good sampling in sub-giant branch (my isos)__
+```python
+%run plot_fncs
+fin = isomy_csv
+isodf = load_isos_from_file(fin=fin, cols=None)
+isoages = get_iso_ages(isodf)
+dmod = 16
+cb = [4, 6]
+for dm in range(dmod):
+    plot_times = [age for i,age in enumerate(isoages[dm:]) if i%dmod==0]
+    for c in cb:
+        save = plotdir+ f'/isoAges_tests/isos_cb{c}_{dm}.png'
+        plot_isos_ind(isodf, plot_times=plot_times, cb=c, save=save)
+    plt.close('all')
+
+### begin c4 ###
+# Look at the plots generated above and pick out times that sample the sub-giant branch best. Then plot them again.
+possible_c4_mods = sorted([8.37, 8.81, 9.25, 8.54, 9.0, 9.44, 9.87,
+                    9.03, 9.05, 8.65, 9.11, 9.55, 9.98, 8.29,
+                    9.74, 8.05, 9.35, 8.51, 9.9, 9.49, 9.57,
+                    7.91 ])
+agemap = {np.round(age,2): age for age in isoages}
+c = 4
+dmod = 4
+for dm in range(dmod):
+    plot_times = [agemap[rage] for i,rage in enumerate(possible_c4_mods[dm:]) if i%dmod==0]
+    save = plotdir+ f'/isoAges_tests/refined/isos_cb{c}_{dm}.png'
+    plot_isos_ind(isodf, plot_times=plot_times, cb=c, save=save)
+plt.close('all')
+
+# Look at plots above, pick final times, and plot again.
+plot_times_cb = {}
+plot_times_cb[4] = [8.29, 8.54, 8.81, # 7.91,
+                 9.11, 9.55, 9.98]
+plot_times = [agemap[rage] for rage in plot_times_cb[c]]
+save = plotdir+ f'/isoAges_tests/refined/isos_cb{c}_final.png'
+plot_isos_ind(isodf, plot_times=plot_times, cb=c, save=save)
+### end c4 ###
+
+### begin c6 ###
+# Look at the plots generated above and pick out times that sample the sub-giant branch best. Then plot them again.
+possible_c6_mods = sorted([8.37, 8.81, 9.68, 7.96, 8.4, 9.27, 9.71,
+                            9.3, 9.74, 9.79, 8.51, 9.82, 9.0, 9.03,
+                            9.46, 8.62, 9.49, 8.65, 9.11, 9.6, 8.78,
+                            9.22, 9.65])
+c = 6
+dmod = 4
+for dm in range(dmod):
+    plot_times = [agemap[rage] for i,rage in enumerate(possible_c6_mods[dm:]) if i%dmod==0]
+    save = plotdir+ f'/isoAges_tests/refined/isos_cb{c}_{dm}.png'
+    plot_isos_ind(isodf, plot_times=plot_times, cb=c, save=save)
+plt.close('all')
+
+# Look at plots above, pick final times, and plot again.
+plot_times_cb[6] = [8.1, 8.37, 8.81, # 8.65,
+                    9.22, 9.65, 9.98] # 9.0,
+plot_times = [agemap[rage] for rage in plot_times_cb[c]]
+save = plotdir+ f'/isoAges_tests/refined/isos_cb{c}_final.png'
+plot_isos_ind(isodf, plot_times=plot_times, cb=c, save=save)
+### end c6 ###
+
+# plot finals
+for c in cb:
+    plot_times = [agemap[rage] for rage in plot_times_cb[c]]
+    save = plotdir+ f'/isos_cb{c}.png'
+    plot_isos_ind(isodf, plot_times=plot_times, cb=c, save=save)
+```
+<!-- fe #### Debug: -->
+<!-- fe -->
+
+
+<a name="hotT"></a>
+### Hottest MS Teff
+<!-- fs -->
+```python
+save = [None, plotdir+'/hotTeff.png', finalplotdir+'/hotTeff.png']
+cb = [i for i in range(7)] # [0,4,6] #
+plot_hottest_Teff(plot_data=hotTeff_csv, cblist=cb, save=save[2])
+```
+
+<img src="temp/hotTeff.png" alt="hotTeff.png" width="400"/>
+
+Plot log L of hottest MS star to see what it looks like:
+```python
+save = [None, plotdir+'/hotL.png', finalplotdir+'/hotL.png']
+plotL = True
+plot_hottest_Teff(save=save[1], plot_data=hotTeff_csv, cblist=cb, plotL=plotL)
+```
+<img src="temp/hotL.png" alt="hotL" width="400"/>
+
+
+<!-- fe -->
+
+
+<a name="3p5"></a>
+### 3.5 Msun profiles
+<!-- fs -->
+```python
+# cbmods = get_h1_modnums(mass=3.5)
+# print(cbmods)
+peeps = [ 'ZAMS', 'IAMS', 'H-3', 'H-4']
+save = [None, plotdir+'/m3p5.png', finalplotdir+'/m3p5.png']
+h1_legend = [False, True]
+plot_m3p5(peeps=peeps, h1_legend=h1_legend[1], save=plotdir+'/m3p5_legend.png')
+plot_m3p5(peeps=peeps, h1_legend=h1_legend[0], save=save[1])
+```
+
+<img src="temp/m3p5.png" alt="m3p5.png" height="400"/>
+<img src="temp/m3p5_legend.png" alt="m3p5_legend.png" height="400"/>
+
+#### Debug:
+
+- [x]  last two profiles are at the wrong times. the correct profiles did not get saved. run models again.
+    - profile for h1_center<1e-4 was not set to be saved in `run_star_extras.f`. Not sure why h1_center<1e-3 didn't save. can find the model numbers from `hdf` and save profiles that way.
+
+```python
+from pandas import IndexSlice as idx
+import debug_fncs as dbg
+
+h1cuts, __ = get_h1cuts()
+moddic = {}
+mass, cb = 3.5, [0,6]
+for c in cb:
+    print(c, hdf.model_number.max())
+    moddic[c] = {}
+    hdf = get_hdf(c, mass=mass).sort_values('model_number')
+    for name, cut in h1cuts.items():
+        m = hdf.loc[hdf.center_h1<cut,'model_number'].min()
+        moddic[c][name] = m
+```
+
+Update run_star_extras to save model numbers in moddic, then re-run these two models.
+```bash
+maindir="/home/tjr63/DMS/mesaruns"
+cd ${maindir}
+nano src/run_star_extras.f
+# Update run_star_extras to save model numbers in moddic
+./clean
+./mk
+RUNS="RUNS_FINAL_tmp"
+source ${maindir}/bash_scripts/do_mesa_run.sh
+# source ${maindir}/images_to_movie.sh # the call to this script fails
+mass=m3p50
+mval=3.50
+cb=0
+do_mesa_run "${maindir}" "${RUNS}/c${cb}/${mass}" "${mval}" "${cb}" 0 "master" 0
+
+RUNSfinal="RUNS_FINAL"
+RUNSdefDM="RUNS_defDM"
+mass=m3p50
+mv "${RUNSfinal}/c${cb}/${mass}" "${RUNSdefDM}/c${cb}/${mass}"
+mv "${RUNS}/c${cb}/${mass}" "${RUNSfinal}/c${cb}/${mass}"
+# repeat for cb=6
+
+cd
+cd DMS/mesaruns_analysis/_Paper/figures/
+dmsenv
+ipython
+```
+
+Prune the new history files
+```python
+from pathlib import Path
+import data_proc as dp
+import plot_fncs as pf
+rootPath = Path(pf.datadir)
+for cb in [0,6]:
+    LOGSdir = Path(pf.datadir + f'/c{cb}/m3p50/LOGS')
+    dp.prune_hist(LOGSdir, skip_exists=False, ow_exists=True)
+```
+Now the above plots should have the correct data.
+
+#### Check that temp profile is flattened
+```python
+# alter plot_fncs plot_m3p5() to show T instead of convection
+save = plotdir+'/m3p5_temp_profiles.png'
+plot_m3p5(peeps=peeps, h1_legend=False, save=save)
+```
+<img src="temp/m3p5_temp_profiles.png" alt="m3p5_temp_profiles.png" width="400"/>
+It is flattened.
+
+<!-- fe -->
+
+
+<a name="1p0"></a>
+### 1.0 Msun profiles
+<!-- fs -->
+The old plots for 1Msun models are no longer relevant. I think something like this would be better.
+
+```python
+peeps = [ 'ZAMS', 'IAMS', 'H-3', 'TAMS']
+save = [None, plotdir+'/m1p0.png', finalplotdir+'/m1p0.png']
+plot_m1p0(peeps=peeps, h1_legend=True, save=plotdir+'/m1p0_h1Legend.png')
+plot_m1p0(peeps=peeps, h1_legend=False, save=save[1])
+```
+<img src="temp/m1p0_h1Legend.png" alt="m1p0_h1Legend.png" height="400"/>
+<img src="temp/m1p0.png" alt="m1p0.png" height="400"/>
+<!-- fe -->
+
+<!-- fe plots -->
+
+
 <a name="bugs"></a>
-# Check things that seem weird in the plots below
+# Check things that seem weird in the plots above
 <!-- fs -->
 <!-- fs delta MS tau spikes and dips -->
 See `probmods.md` where I track models that seem to have problems. The `probmods [dict]` in this file (below) tracks the indices.
@@ -1032,515 +1545,38 @@ Note that I do not actually have profiles for `H-4` and `H-6`, these panels are 
 
 <!-- fe  -->
 
-<!-- fe # Check things that seem weird in plots below -->
+<!-- fe # Check things that seem weird in plots above -->
 
 
-<a name="makeplots"></a>
-# Create plots for Raen2020 paper
-<!-- fs plots -->
-
-- Osiris
-- `defDM` branch
-- `home/tjr63/DMS/mesaruns_analysis/_Paper/figures/` (Osiris) directory
-
-
-### setup and testing
+<a name="revcomm"></a>
+# Plots addressing reviewer's comments
 <!-- fs -->
-```python
-%run plot_fncs
-pidf = pidxdfOG # df of profiles.index files
-cb, mass = 0, 1.0
-modnum = pidf.loc[((pidf.mass==mass)&(pidf.cb==cb)&(pidf.priority==97)),'model_number'].iloc[0]
-# hdf = load_hist_from_file(0, mass=1.0, from_file=True, pidxdf=pidf) # 1p0c0 history df
-hdf = get_hdf(cb, mass=mass) # single history df
-pdf = get_pdf(cb, modnum, mass=mass, rtrn='df') # single profile df
-```
 
-Note that there is a problem in matplotlib version 3.1.3
-when trying to use a colormap with a scatter plot and data of length 1
-See https://github.com/matplotlib/matplotlib/issues/10365/
-I fixed this in `plot_delta_tau()` and other fncs below by doing
-`plt.scatter(np.reshape(x,-1), np.reshape(y,-1), c=np.reshape(c,-1))`
-<!-- fe -->
-
-
-<a name="mstau"></a>
-### delta MS Tau
+<a name="evaporation"></a>
+## Evaporation mass
 <!-- fs -->
-```python
-%run plot_fncs
-descdf = get_descdf(fin=fdesc)
-save = [None, plotdir + '/MStau.png', finalplotdir + '/MStau.png']
-# plt.rcParams["text.usetex"] = True
-plot_delta_tau(descdf, cctrans_frac='default', which='avg', save=save[2])
-```
-
-<img src="temp/MStau.png" alt="/MStau.png" width="400"/>
-
-#### Debug:
-[See above](#bugs) for exploration/explanation of the random deviations from the trends (due to rotational mixing -> injecting h1 into center)
-
-Check how much hydrogen is being burned, relative to c0 model of same mass.
-- [x]  Update `data_proc.py` to find Hburned = (c6hburn - c0hburn)/c0hburn and regenerate `descDF.csv`
 
 ```python
-from matplotlib import pyplot as plt
-
-%run plot_fncs
-descdf = get_descdf(fin=fdesc)
-
-pvt = {'index':'mass','columns':'cboost','values':'Hburned'}
-dpiv = descdf.pivot(**pvt)
-plt.set_cmap(cbcmap)
-args = {'cmap':cbcmap}
-dpiv.plot(**args)
-plt.legend(loc=4)
-plt.ylabel('(Hburned - Hburned_c0)/Hburned_c0', fontsize=12)
-plt.tight_layout()
-save = plotdir + '/Hburned.png'
-plt.savefig(save)
+import revcomm_plots as rcp
+cb, masses = 0, [round(0.9 + 0.05*i,3) for i in range(83)]
+save = 'temp/evapmass.png'
+rcp.plot_evaporation_mass(cb=cb, masses=masses, save=save)
 ```
+<img src="temp/evapmass.png" alt="evap mass" width="400"/>
+<!-- fe Evaporation mass -->
 
-<img src="temp/Hburned.png" alt="Hburned.png" width="400"/>
-
-<!-- fe -->
-
-
-<a name="teff"></a>
-### Teff v Age
+<a name="centerrho"></a>
+## Central density
 <!-- fs -->
-```python
-mlist = [1.0, 1.75, 2.5, 3.5, 5.0]
-cblist = [4, 6]
-from_file = [False, get_r2tf_LOGS_dirs(masses=mlist, cbs=cblist+[0])]
-                    # Only need to send this dict once.
-                    # It stores history dfs in dict hdfs (unless overwritten)
-save = [None, plotdir+'/Teff.png', finalplotdir+'/Teff.png']
-plot_Teff(mlist=mlist, cblist=cblist, from_file=from_file[0], descdf=descdf, save=save[2])
-```
-
-<img src="temp/Teff.png" alt="Teff.png" width="400"/>
-
-#### Debug:
-<!-- fs -->
-Differences in leaveMS markers and Teff drop are notable. See
-- [Does our definition of leaving MS qualitatively affect results?](#leaveMS_def).
--
-
-- [x]  start ages = 0 at ZAMS (had to fix `start_center_h1` value in `get_h1cuts()`)
-- [x]  why does lifetime difference in 1Msun look bigger than in 2Msun (contradicting MStau plot)? (it is deceiving, see plots below... or __perhaps delta MS tau is deceiving?__)
-
-<img src="temp/Teff_2.0Msun.png" alt="temp/Teff_2.0Msun" width="400"/>
-<img src="temp/Teff_1.0Msun.png" alt="temp/Teff_1.0Msun" width="400"/>
-
-Grey lines mark Teff at leaveMS of NoDM models (thin line), blue lines mark same for c6 models (thick line). Difference in MS lifetime of 2.0Msun models is greater than for 1.0Msun models.
-
-Problems:
-- [ ]  In 2Msun models (top row), c6 model lives __longer__ than the NoDM model which is opposite of delta MS tau plot. Something is wrong here.
-- [ ]  Difference in MS lifetime between 2Msun models is more like 10% than 20%
+Burning rate in center of low mass stars with large amounts of ADM is not lower than same star with no ADM, even though ADM flattens temperature profile. Showing that this is due to an increase in central density:
 
 ```python
-descdf = get_descdf(fin=fdesc)
-descdf.set_index(['mass','cboost'],inplace=True)
-mass, massstr, cb = 1.00, 'm1p00', 0
-hpath = Path(datadir) / f'c{cb}' / f'{massstr}' / 'LOGS' / 'history_pruned.data'
-hdf = dp.load_history(hpath)
-# h = cut_HR_hdf(hdf, cuts=['ZAMS','TACHeB'], tahe=[descdf,mass,cb])
-h = cut_HR_hdf(hdf, cuts=['ZAMS','H-3'])
-
-np.log10(h.star_age.max() - h.star_age.min())
-np.log10(descdf.loc[idx[mass,cb],'MStau_yrs'])
+import revcomm_plots as rcp
+cbs, mass = [i for i in range(7)], 1.0
+save = 'temp/center_density.png'
+rcp.plot_center_density(cbs=cbs, mass=mass, save=save)
 ```
-- [x]  __Note that the MS lifetimes I get from h (9.886) and descdf (9.897) above do not match.__ Need to track down why. (Fixed. I was not including the leaveMS model in the `cut_HR_hdf` for h.)
-<!-- fe #### Debug: -->
-<!-- fe -->
+<img src="temp/center_density.png" alt="center_density" width="400"/>
 
-
-<a name="tracks"></a>
-### HR Tracks
-<!-- fs -->
-```python
-mlist = [1.0, 1.75, 2.5, 3.5, 5.0]
-cblist = [4, 6]
-from_file = [False, True, get_r2tf_LOGS_dirs(masses=mlist, cbs=cblist+[0])]
-                        # Only need to send this dict once.
-                        # It stores history dfs in dict hdfs (unless overwritten)
-save = [None, plotdir+'/tracks.png', finalplotdir+'/tracks.png']
-plot_HR_tracks(mlist=mlist, cblist=cblist, from_file=from_file[0], descdf=descdf,
-                  save=save[1])
-```
-
-<img src="temp/tracks.png" alt="tracks.png" width="400"/>
-
-#### Debug:
-
-- [x]  remove pre-ZAMS portion
-- [ ]  why is the NoDM leave MS line not smooth?
-
-plot MStau - MStau of previous mass (should be negative)
-```python
-descdf = get_descdf(fin=fdesc).sort_values('mass').set_index(['mass','cboost'])
-d0 = descdf.loc[idx[:,0],:]
-dif = np.log10(d0.MStau_yrs).diff()#.dropna()
-plt.figure()
-plt.plot(d0.reset_index().mass, dif, '-o')
-plt.axhline(0,c='k')
-plt.xlabel('star mass')
-plt.ylabel('log10 MStau[mass[i]] - \nlog10 MStau[mass[i-1]]',fontsize=12)
-plt.tight_layout()
-plt.show(block=False)
-plt.savefig(plotdir+'/check_HR_MStau_c0.png')
-```
-
-<img src="temp/check_HR_MStau_c0.png" alt="/check_HR_MStau_c0" width="400"/>
-
-- Only 2.4Msun model lives longer than previous mass (identified in [delta MSTau](#mstau) debugging above.)
-- I think the bouncing around at the end is just due to the irregularly space masses (4.0, 4.03, 4.05, 4.08, ...). Lower masses at .03 and .08 aren't done yet.
-
-Plot T, L, MStau to look for high mass problem models
-```python
-d = d0.reset_index().set_index('mass')
-d['logMStau/max'] = np.log10(d.MStau_yrs)/np.log10(d.MStau_yrs.max())
-d['lAMS_logTeff/max'] = d.lAMS_Teff/d.lAMS_Teff.max()
-d['lAMS_logL/max'] = d.lAMS_L/d.lAMS_L.max()
-args = {'marker':'o', 'ms':3}
-d.loc[idx[3.4:],['lAMS_logTeff/max', 'lAMS_logL/max', 'logMStau/max']].plot(**args)
-plt.grid(which='both')
-plt.tight_layout()
-plt.show(block=False)
-plt.savefig(plotdir+'/check_HR_lAMS_c0.png')
-```
-
-<img src="temp/check_HR_lAMS_c0.png" alt="/check_HR_lAMS_c0" width="400"/>
-
-If I zoom in real close it looks like the spikes might be due to slightly increased MS lifetimes. Check timestep resolution for center_h1.
-
-```python
-import debug_fncs as dbg
-import data_proc as dp
-# get a center_h1 vs age df as a pivot table
-mass, cb = [4.93], 0 # 4.93 is the last spike
-hp = dbg.get_h1_v_age_pivot(mass,cb)
-# get the same for the unpruned history file
-hdf = dp.load_history(datadir+'/c0/m4p93/LOGS/history.data')
-hdf['mass'] = '4.93 unpruned'
-pvt = {'index':'star_age','columns':'mass','values':'center_h1'}
-hpup = hdf.pivot(**pvt)
-
-# plot them
-plt.figure()
-ax = plt.gca()
-args = {'marker':'o', 'ms':5, 'loglog':True, 'ax':ax}
-hp.plot(**args)
-args['ms'] = 3
-hpup.plot(**args)
-plt.axhline(1e-3, c='0.5', lw=0.5)
-plt.ylabel('center_h1')
-plt.title('c0 models')
-plt.tight_layout()
-plt.show(block=False)
-plt.savefig(plotdir+'/check_HR_centerh1_4p93.png')
-
-```
-
-<img src="temp/check_HR_centerh1_4p93.png" alt="check_HR_centerh1_4p93" width="400"/>
-
-The datapoint that intersects the 1e-3 line is actually slightly above it (I zoomed in to check). Therefore the leaveMS model is much closer to 1e-4. Since Teff changes so quickly during this time, it is conceivable that this causes the spike in the leaveMS line. Check plot (todo, below) to be sure. The issue is not caused by the pruned history file. I also checked 3.93Msun which has a similar issue.
-
-- [ ]  plot Teff v age and L v age for (4.90, 4.93, 4.95)Msun. star leaveMS model. see if using previous model for 4.93 would smooth the curve.
-- [ ]  consider smoothing this out by either interpolating using `hdf.interpolate` or just using the Teff of the previous model since it's closest to center_h1 condition
-
-<!-- fe -->
-
-
-<a name="isos"></a>
-### Isochrones
-<!-- fs -->
-```python
-%run plot_fncs
-fin = isomy_csv
-isodf = load_isos_from_file(fin=fin, cols=None)
-isoages = get_iso_ages(isodf)
-agemap = {np.round(age,2): age for age in isoages}
-# plot_times = [age for i,age in enumerate(isoages) if i%16==0][2:]
-plot_times_cb = {4: [8.29, 8.54, 8.81, 9.11, 9.55, 9.98],
-                 6: [8.1, 8.37, 8.81, 9.22, 9.65, 9.98]}
- # chosen by hand to to get as good a sampling as possible around the MS turnoff and sub-giant branch
- # see below for details
-
-cb = [4, 6]
-for c in cb:
-    plot_times = [agemap[rage] for rage in plot_times_cb[c]]
-    save = [None, plotdir+'/isos_cb'+str(c)+'_Dotter.png', finalplotdir+'/isos_cb'+str(c)+'.png']
-    plot_isos_ind(isodf, plot_times=plot_times, cb=c, save=save[1])
-```
-Using `fin = iso_csv` (Dotter's code):
-
-<img src="temp/isos_cb4_Dotter.png" alt="isos_cb4_Dotter.png" width="400"/> <img src="temp/isos_cb6_Dotter.png" alt="isos_cb6_Dotter.png" width="400"/>
-
-Using `fin = isomy_csv` (My interpolation code):
-
-<img src="temp/isos_cb4.png" alt="isos_cb4.png" width="400"/> <img src="temp/isos_cb6.png" alt="isos_cb6.png" width="400"/>
-
-To find the MS turnoff mass, alter `plot_hottest_Teff()` to plot the mass of this star rather than Teff.
-```python
-save = plotdir + '/iso_turnoffMass.png'
-cb = [0,4,6]
-plot_hottest_Teff(save=save, plot_data=hotTeff_csv, plotMass=True, cblist=cb)
-```
-
-I tried putting main sequence turnoff lines on here, but they don't look good (due to mass resolution effects on L).
-
-<img src="temp/isos_cb4_turnoff.png" alt="isos_cb4_turnoff" width="400"/>
-
-<img src="temp/isos_cb6_turnoff.png" alt="isos_cb6_turnoff" width="400"/>
-
-__Plot one of Dotter's lines__
-```python
-fin = iso_csv
-isodf = load_isos_from_file(fin=fin, cols=None)
-isoages = get_iso_ages(isodf)
-agemap = {np.round(age,2): age for age in isoages}
-save = [None, plotdir+'/iso_Dotter.png', finalplotdir+'/iso_Dotter.png']
-plot_times = [8.5408]
-cb = [6]
-plot_isos_Dotter(isodf, plot_times=plot_times, cb=cb, save=save[1])
-```
-<img src="temp/iso_Dotter.png" alt="iso_Dotter" width="400"/>
-
-```python
-# save other Dotter isos
-cb = 6
-for t in range(4):
-plot_times = [age for i,age in enumerate(isoages[t:]) if i%4==0]
-save = plotdir + f'/isoDotter/{t}.png'
-plot_isos_ind(isodf, plot_times=plot_times, cb=cb, cut_axes='TACHeB', save=save)
-```
-
-```python
-# check if luminosity is still going up.. (have we gotten to tip of rgb?)
-i = isodf.loc[isodf.log10_isochrone_age_yr==plot_times[0],:]
-ig = i.groupby('cboost')
-cb = [0,4,6]
-plt.figure()
-for c in cb:
-kwargs = {'ax':plt.gca(), 'label':f'cb{c}'}
-ic = ig.get_group(c)
-ic.plot('initial_mass', 'log_L', **kwargs)
-plt.legend()
-plt.ylabel('log_L')
-plt.tight_layout()
-plt.savefig(plotdir+'/iso_Dot_L.png')
-```
-<img src="temp/iso_Dot_L.png" alt="iso_Dot_L" width="400"/>
-
-
-#### Debug:
-<!-- fs -->
-- [ ]  `isochrone_c0.dat` only has masses between 2-3Msun and no isochrones older than 10^8.93. Wondering if I haven't run a fine enough mass grid. Previous results used [.0, .03, .05, .08].
-    - [ ]  ~Try running more c0s.~
-    - [ ]  ~take old data and down sample mass grid, re-generate isochrones and see if get the same problem.~
-    - [ ]  ~what is the oldest isochrone I want to show in c6 models, run finer mass grid only for c0,4,6 and stop them when reach age > oldest isochrone~
-
-Instead of doing the above, now trying to generate my own isochrones via simple interpolation of `history.data` files. See comparison above.
-
-__Finding iso ages with good sampling in sub-giant branch (my isos)__
-```python
-%run plot_fncs
-fin = isomy_csv
-isodf = load_isos_from_file(fin=fin, cols=None)
-isoages = get_iso_ages(isodf)
-dmod = 16
-cb = [4, 6]
-for dm in range(dmod):
-    plot_times = [age for i,age in enumerate(isoages[dm:]) if i%dmod==0]
-    for c in cb:
-        save = plotdir+ f'/isoAges_tests/isos_cb{c}_{dm}.png'
-        plot_isos_ind(isodf, plot_times=plot_times, cb=c, save=save)
-    plt.close('all')
-
-### begin c4 ###
-# Look at the plots generated above and pick out times that sample the sub-giant branch best. Then plot them again.
-possible_c4_mods = sorted([8.37, 8.81, 9.25, 8.54, 9.0, 9.44, 9.87,
-                    9.03, 9.05, 8.65, 9.11, 9.55, 9.98, 8.29,
-                    9.74, 8.05, 9.35, 8.51, 9.9, 9.49, 9.57,
-                    7.91 ])
-agemap = {np.round(age,2): age for age in isoages}
-c = 4
-dmod = 4
-for dm in range(dmod):
-    plot_times = [agemap[rage] for i,rage in enumerate(possible_c4_mods[dm:]) if i%dmod==0]
-    save = plotdir+ f'/isoAges_tests/refined/isos_cb{c}_{dm}.png'
-    plot_isos_ind(isodf, plot_times=plot_times, cb=c, save=save)
-plt.close('all')
-
-# Look at plots above, pick final times, and plot again.
-plot_times_cb = {}
-plot_times_cb[4] = [8.29, 8.54, 8.81, # 7.91,
-                 9.11, 9.55, 9.98]
-plot_times = [agemap[rage] for rage in plot_times_cb[c]]
-save = plotdir+ f'/isoAges_tests/refined/isos_cb{c}_final.png'
-plot_isos_ind(isodf, plot_times=plot_times, cb=c, save=save)
-### end c4 ###
-
-### begin c6 ###
-# Look at the plots generated above and pick out times that sample the sub-giant branch best. Then plot them again.
-possible_c6_mods = sorted([8.37, 8.81, 9.68, 7.96, 8.4, 9.27, 9.71,
-                            9.3, 9.74, 9.79, 8.51, 9.82, 9.0, 9.03,
-                            9.46, 8.62, 9.49, 8.65, 9.11, 9.6, 8.78,
-                            9.22, 9.65])
-c = 6
-dmod = 4
-for dm in range(dmod):
-    plot_times = [agemap[rage] for i,rage in enumerate(possible_c6_mods[dm:]) if i%dmod==0]
-    save = plotdir+ f'/isoAges_tests/refined/isos_cb{c}_{dm}.png'
-    plot_isos_ind(isodf, plot_times=plot_times, cb=c, save=save)
-plt.close('all')
-
-# Look at plots above, pick final times, and plot again.
-plot_times_cb[6] = [8.1, 8.37, 8.81, # 8.65,
-                    9.22, 9.65, 9.98] # 9.0,
-plot_times = [agemap[rage] for rage in plot_times_cb[c]]
-save = plotdir+ f'/isoAges_tests/refined/isos_cb{c}_final.png'
-plot_isos_ind(isodf, plot_times=plot_times, cb=c, save=save)
-### end c6 ###
-
-# plot finals
-for c in cb:
-    plot_times = [agemap[rage] for rage in plot_times_cb[c]]
-    save = plotdir+ f'/isos_cb{c}.png'
-    plot_isos_ind(isodf, plot_times=plot_times, cb=c, save=save)
-```
-<!-- fe #### Debug: -->
-<!-- fe -->
-
-
-<a name="hotT"></a>
-### Hottest MS Teff
-<!-- fs -->
-```python
-save = [None, plotdir+'/hotTeff.png', finalplotdir+'/hotTeff.png']
-cb = [i for i in range(7)] # [0,4,6] #
-plot_hottest_Teff(plot_data=hotTeff_csv, cblist=cb, save=save[2])
-```
-
-<img src="temp/hotTeff.png" alt="hotTeff.png" width="400"/>
-
-Plot log L of hottest MS star to see what it looks like:
-```python
-save = [None, plotdir+'/hotL.png', finalplotdir+'/hotL.png']
-plotL = True
-plot_hottest_Teff(save=save[1], plot_data=hotTeff_csv, cblist=cb, plotL=plotL)
-```
-<img src="temp/hotL.png" alt="hotL" width="400"/>
-
-
-<!-- fe -->
-
-
-<a name="3p5"></a>
-### 3.5 Msun profiles
-<!-- fs -->
-```python
-# cbmods = get_h1_modnums(mass=3.5)
-# print(cbmods)
-peeps = [ 'ZAMS', 'IAMS', 'H-3', 'H-4']
-save = [None, plotdir+'/m3p5.png', finalplotdir+'/m3p5.png']
-h1_legend = [False, True]
-plot_m3p5(peeps=peeps, h1_legend=h1_legend[1], save=plotdir+'/m3p5_legend.png')
-plot_m3p5(peeps=peeps, h1_legend=h1_legend[0], save=save[1])
-```
-
-<img src="temp/m3p5.png" alt="m3p5.png" height="400"/>
-<img src="temp/m3p5_legend.png" alt="m3p5_legend.png" height="400"/>
-
-#### Debug:
-
-- [x]  last two profiles are at the wrong times. the correct profiles did not get saved. run models again.
-    - profile for h1_center<1e-4 was not set to be saved in `run_star_extras.f`. Not sure why h1_center<1e-3 didn't save. can find the model numbers from `hdf` and save profiles that way.
-
-```python
-from pandas import IndexSlice as idx
-import debug_fncs as dbg
-
-h1cuts, __ = get_h1cuts()
-moddic = {}
-mass, cb = 3.5, [0,6]
-for c in cb:
-    print(c, hdf.model_number.max())
-    moddic[c] = {}
-    hdf = get_hdf(c, mass=mass).sort_values('model_number')
-    for name, cut in h1cuts.items():
-        m = hdf.loc[hdf.center_h1<cut,'model_number'].min()
-        moddic[c][name] = m
-```
-
-Update run_star_extras to save model numbers in moddic, then re-run these two models.
-```bash
-maindir="/home/tjr63/DMS/mesaruns"
-cd ${maindir}
-nano src/run_star_extras.f
-# Update run_star_extras to save model numbers in moddic
-./clean
-./mk
-RUNS="RUNS_FINAL_tmp"
-source ${maindir}/bash_scripts/do_mesa_run.sh
-# source ${maindir}/images_to_movie.sh # the call to this script fails
-mass=m3p50
-mval=3.50
-cb=0
-do_mesa_run "${maindir}" "${RUNS}/c${cb}/${mass}" "${mval}" "${cb}" 0 "master" 0
-
-RUNSfinal="RUNS_FINAL"
-RUNSdefDM="RUNS_defDM"
-mass=m3p50
-mv "${RUNSfinal}/c${cb}/${mass}" "${RUNSdefDM}/c${cb}/${mass}"
-mv "${RUNS}/c${cb}/${mass}" "${RUNSfinal}/c${cb}/${mass}"
-# repeat for cb=6
-
-cd
-cd DMS/mesaruns_analysis/_Paper/figures/
-dmsenv
-ipython
-```
-
-Prune the new history files
-```python
-from pathlib import Path
-import data_proc as dp
-import plot_fncs as pf
-rootPath = Path(pf.datadir)
-for cb in [0,6]:
-    LOGSdir = Path(pf.datadir + f'/c{cb}/m3p50/LOGS')
-    dp.prune_hist(LOGSdir, skip_exists=False, ow_exists=True)
-```
-Now the above plots should have the correct data.
-
-#### Check that temp profile is flattened
-```python
-# alter plot_fncs plot_m3p5() to show T instead of convection
-save = plotdir+'/m3p5_temp_profiles.png'
-plot_m3p5(peeps=peeps, h1_legend=False, save=save)
-```
-<img src="temp/m3p5_temp_profiles.png" alt="m3p5_temp_profiles.png" width="400"/>
-It is flattened.
-
-<!-- fe -->
-
-
-<a name="1p0"></a>
-### 1.0 Msun profiles
-<!-- fs -->
-The old plots for 1Msun models are no longer relevant. I think something like this would be better.
-
-```python
-peeps = [ 'ZAMS', 'IAMS', 'H-3', 'TAMS']
-save = [None, plotdir+'/m1p0.png', finalplotdir+'/m1p0.png']
-plot_m1p0(peeps=peeps, h1_legend=True, save=plotdir+'/m1p0_h1Legend.png')
-plot_m1p0(peeps=peeps, h1_legend=False, save=save[1])
-```
-<img src="temp/m1p0_h1Legend.png" alt="m1p0_h1Legend.png" height="400"/>
-<img src="temp/m1p0.png" alt="m1p0.png" height="400"/>
-<!-- fe -->
-
-<!-- fe plots -->
+<!-- fe Central density -->
+<!-- fe Plots addressing reviewer's comments -->
