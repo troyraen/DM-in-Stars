@@ -25,7 +25,7 @@ The following are accessed through `inlist_DM`:
 
 1.  DM mass (`mxGeV [GeV]`)
 2.  DM-proton cross section (`sigmaxp [cm^2]`)
-3.  Boost in DM capture rate relative to the solar environment (`cboost`, dimensionless). It encapsulates the environment's DM density and velocity dispersion. This variable is $\gamma_B$ in the Raen 2020 paper.
+3.  Boost in DM capture rate relative to the solar environment (`cboost`, dimensionless). It encapsulates the environment's DM density and velocity dispersion. This variable is $\Gamma_B$ in the Raen 2020 paper.
 4.  Spin dependent or independent scattering (`spindep`, Boolean). Currently, only the spin dependent option is fully functional.
 
 
