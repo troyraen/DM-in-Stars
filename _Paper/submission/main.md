@@ -6,20 +6,25 @@
 <a name="links"></a>
 # Publication links
 <!-- fs -->
-All were submitted on 10/8/2020
-- Zenodo: [https://doi.org/10.5281/zenodo.4064115](https://doi.org/10.5281/zenodo.4064115)
+Submissions:
+- 10/8/2020: Zenodo, arXiv, MNRAS
+- 2/25/2021: arXiv, MNRAS
 
-- arXiv:
-    - temporary submission identifier is: submit/3394413
-    - You may update your submission at: https://arxiv.org/submit/3394413
-    - permanent arXiv identifier 2010.04184 and is available at: http://arxiv.org/abs/2010.04184
-    - paper password in email https://mail.google.com/mail/u/0/#inbox/FMfcgxwKhqjGfxsQXDJcwGMnfHPJcqzr
+Zenodo: [https://doi.org/10.5281/zenodo.4064115](https://doi.org/10.5281/zenodo.4064115)
 
-- Monthly Notices:
-    - Manuscript ID: MN-20-4148-MJ
-    - https://mc.manuscriptcentral.com/mnras
-    - email https://mail.google.com/mail/u/0/#inbox/FMfcgxwKhqddwPCWMJctRsxFRbHpCqKh
-    - __[Editor/Reviewer comments](#revcomm)__
+arXiv:
+- Overleaf: [download the automatically generated files (.bbl)](https://www.overleaf.com/learn/how-to/How_do_I_download_the_automatically_generated_files_%28e.g._.bbl,_.aux,_.ind,_.gls%29_for_my_project%3F_My_publisher_asked_me_to_include_them_in_my_submission)
+- temporary submission identifier is: submit/3394413
+- You may update your submission at: https://arxiv.org/submit/3394413
+- permanent arXiv identifier 2010.04184 and is available at: http://arxiv.org/abs/2010.04184
+- https://mail.google.com/mail/u/0/#inbox/FMfcgxwKhqjGfxsQXDJcwGMnfHPJcqzr
+
+Monthly Notices:
+- Manuscript ID: MN-20-4148-MJ
+- https://mc.manuscriptcentral.com/mnras
+- email https://mail.google.com/mail/u/0/#inbox/FMfcgxwKhqddwPCWMJctRsxFRbHpCqKh
+- __[Editor/Reviewer comments](#revcomm)__
+    - reviewer email https://mail.google.com/mail/u/0/#search/monthly+notices/FMfcgxwKjKvblcRlpZRSzPcbLvFhMSnB
 
 <!-- fe # Publication links -->
 
@@ -125,3 +130,12 @@ scp tjr63@osiris-inode01.phyast.pitt.edu:/home/tjr63/DMS/mesaruns/zenodo_Raen202
 
 ```
 <!-- fe Prepare files for Zenodo -->
+
+
+# Collaborators
+
+- [x]  Andrew
+- [x]  Carlos
+- [x]  Travis
+- [x]  Hector
+- [x]  Rachel

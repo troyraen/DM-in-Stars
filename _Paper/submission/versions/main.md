@@ -1,14 +1,17 @@
-# Install `latexdiff`
-see instructions [here](https://www.overleaf.com/learn/latex/Articles/Using_Latexdiff_For_Marking_Changes_To_Tex_Documents).
+
 
 # `diff` two versions
+- [Install `latexdiff`](https://www.overleaf.com/learn/latex/Articles/Using_Latexdiff_For_Marking_Changes_To_Tex_Documents).
+- ~[Install `latexdiffcite`](https://latexdiffcite.readthedocs.io/en/latest/)~ Couldn't get latexdiffcite to compile the diff. Instead, separated long citations into multiple `\cite{}`s.
 
 ```bash
+cd ~/Osiris/DMS/mesaruns_analysis/_Paper/submission/versions
 # dmsenv
-cd Osiris/DMS/mesaruns_analysis/_Paper/versions/
-diffname='diff-sept10-sept25'
-draft='DM-in-Stars-sept10/main.tex'
-revisiondir='DM-in-Stars-sept25'
+diffname='diff-arXivoct8-arXivfeb8'
+draftdir='DM-in-Stars-arXiv-oct8'
+revisiondir='DM-in-Stars-arXiv-feb25'
+
+draft=${draftdir}'/main.tex'
 revision=${revisiondir}'/main.tex'
 mkdir ${diffname}
 
@@ -19,5 +22,5 @@ latexdiff ${draft} ${revision} > ${diffname}/diff.tex
 cp -r ${revisiondir}/plots ${diffname}/.
 cp ${revisiondir}/macros.sty ${revisiondir}/references.bib ${diffname}/.
 
-# now compile the diff in TexShop
+# now compile the diff in TexShop or Overleaf
 ```

@@ -916,6 +916,9 @@ def load_hist_from_file(cb, mass=1.0, from_file=True, pidxdf=None):
     except:
         print('No models matching m{mass} c{cb} dir {ff} in pidxdf'.format(mass=mass, cb=cb, ff=from_file))
         print('Specific dir requested: {ff}'.format(ff=from_file))
+        print('Returning `None`')
+        print()
+        return None
 
     # Load history.data
     hpath = Lpath+ '/history_pruned.data' if usepruned else Lpath+ '/history.data'

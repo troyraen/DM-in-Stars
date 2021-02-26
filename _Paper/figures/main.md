@@ -1555,14 +1555,41 @@ Note that I do not actually have profiles for `H-4` and `H-6`, these panels are 
 <a name="evaporation"></a>
 ## Evaporation mass
 <!-- fs -->
+The following were preliminary exploration.
+Andrew Zentner did the more complicated calculations that went into the numbers we cite in the paper.
 
 ```python
 import revcomm_plots as rcp
 cb, masses = 0, [round(0.9 + 0.05*i,3) for i in range(83)]
-save = 'temp/evapmass.png'
+save = 'temp/evapmass_xc05.png'
 rcp.plot_evaporation_mass(cb=cb, masses=masses, save=save)
 ```
 <img src="temp/evapmass.png" alt="evap mass" width="400"/>
+
+The calculation to produce the figure above was based solely on physics-101-style energy conservation. `k T_c = m_x v_c,esc^2 / 2 = m_x v_sfc,esc^2 / 2 + work done to get from center to surface (uniform density, etc.)`.
+The true evaporation mass is more complicated (e.g., a stellar-structure-dependent factor out front)
+
+See [Evaporation of WIMPs with Arbitrary Cross Sections](https://ui.adsabs.harvard.edu/abs/1990ApJ...356..302G/abstract)
+
+__Temperatures__
+```python
+import revcomm_plots as rcp
+masses = [round(0.9 + 0.05*i,3) for i in range(83)]
+for cb in [4,6]:
+    save = f'temp/temps_v_Mstar_xc05_cb{cb}.png'
+    rcp.plot_temps_v_Mstar(cb=cb, masses=masses, save=save)
+```
+
+Find the temperature of the c0 model at the DM radius of the c6 model of the same mass.
+Use the time step closest to Xc=0.3 (profiles saved with priority 98).
+
+| Mstar | T_DM (c6) | r_DM (c6) | T(c0 at r_DM of c6) |
+|---|---|---|---|
+|  | (look up in history file) | (look up in profile file, radius where wimp temp = star temp) |  |
+| 1 Msun | 1.3803602925755467E+007 K | -1.0183578724931217E+000 (logR=log10(radius/Rsun)) | 1.3563968059785854E+007 K |
+| 1.3 Msun | 1.6655653982505038E+007 K | -9.8672152517142164E-001 | 1.6415742271405471E+007 K |
+
+
 <!-- fe Evaporation mass -->
 
 <a name="centerrho"></a>
