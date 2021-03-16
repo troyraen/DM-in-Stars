@@ -26,6 +26,7 @@
     - [3.5 Msun profiles](#3p5)
     - [1.0 Msun profiles](#1p0)
 - [Plots addressing reviewer's comments](#revcomm)
+    - [1.0 Msun evolutionary ages](#m1p0-ages)
     - [Evaporation mass](#evaporation)
     - [Central density](#centerrho)
 <!-- fe outline -->
@@ -1551,6 +1552,39 @@ Note that I do not actually have profiles for `H-4` and `H-6`, these panels are 
 <a name="revcomm"></a>
 # Plots addressing reviewer's comments
 <!-- fs -->
+
+<a name="m1p0-ages"></a>
+## 1.0 Msun evolutionary ages
+```python
+%run plot_fncs
+mass, cb = 1.00 ,6
+cbmods = get_h1_modnums(mass=mass)
+c0mods, c6mods = cbmods[0], cbmods[cb]  # lists
+hdf0 = get_hdf(0, mass=mass, from_file=True)
+hdf6 = get_hdf(cb, mass=mass, from_file=True)
+cols = ['model_number', 'star_age','center_h1']
+
+h = hdf0.loc[hdf0.model_number.isin(c0mods),cols]
+h = h.append(hdf6.loc[hdf6.model_number.isin(c6mods),cols])
+h.reset_index().pivot(index='center_h1', columns='hidx', values='star_age')
+```
+Based on the pivot table created above, 1.0 Msun models have:
+
+|  PEEP  |  Center H1  |  Age, c0  |  Age, c6  |  c6 is (younger/older)  |
+|---|---|---|---|---|
+| ZAMS | 0.71 | 1.177e8 | 1.029e8 | younger |
+| X_c = 0.3 | 0.30 | 4.625e9 | 4.729e9 | older |
+| X_c = 1e-3 | 9.1e-4 (c0), 1.0e-3 (c6) | 7.944e9 | 7.814e9 | younger |
+| X_c = 1e-12 | 1.5e-13 (c0), 5.5e-13 (c6) | 9.7e9 | 8.2e9 | younger |
+
+__Checking 3.5 Msun evolutionary ages__ (just change the mass in the code above).
+
+|  PEEP  |  Center H1  |  Age, c0  |  Age, c6  |  c6 is (younger/older)  |
+|---|---|---|---|---|
+| ZAMS | 0.71 | 4.892e6 | 4.608e6 | younger |
+| X_c = 0.3 | 0.29 (c0), 0.30 (c6) | 1.500e8 | 6.966e7 | younger |
+| X_c = 1e-3 | 6.5e-4 (c0), 9.7e-4 (c6) | 1.966e8 | 1.177e8 | younger |
+| X_c = 1e-12 | 0.0 (c0), 3.2e-13 (c6) | 2.003e8 | 1.823e8 | younger |
 
 <a name="evaporation"></a>
 ## Evaporation mass

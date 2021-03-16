@@ -1,5 +1,6 @@
 - [Publication links](#links)
-- [Reviewer Comments](#revcomm)
+- [Reviewer Comments - Round 2](#revcomm2)
+- [Reviewer Comments - Round 1](#revcomm1)
 - [Prepare files for Zenodo](#zen)
 ---
 
@@ -27,9 +28,21 @@ Monthly Notices:
     - reviewer email https://mail.google.com/mail/u/0/#search/monthly+notices/FMfcgxwKjKvblcRlpZRSzPcbLvFhMSnB
 
 <!-- fe # Publication links -->
+---
 
-<a name="revcomm"></a>
-# Reviewer Comments
+<a name="revcomm2"></a>
+# Reviewer Comments - Round 2
+<!-- fs -->
+- - The interpretation of the statement in section 4.1, “The result is that the increase in MS lifetimes peaks at Gamma_B ∼ 10^3 after which MS lifetimes decrease with increasing environmental factor” is not straightforward. The wording is correct, and I leave it to the authors to decide if they want to keep it in the final version as it is now. However, I note that this sentence could still be interpreted as if for gamma_B>10**3 the MS lifetimes decrease compared to the no-DM scenario, which is not what the authors want to state. The correct interpretation is much clearer to the reader when looking at Figure 3.
+    - __We have updated this statement to better characterize the decreasing MS lifetimes.__
+
+- I interpret the statement in the caption of Figure 1, “The gamma_B=10^6 model reaches the Xc evolutionary markers at older ages, relative to the NoDM model…”, as saying that 1 Msun stars in Gamma_B=10^6 have their MS lifetimes increased compared to no DM. However, Figure 3 shows that 1 Msun stars in Gamma_B=10**6 have their MS lifetimes decreased by about 5% compared to no DM. The authors should either investigate if these are contradictory results or clarify why my interpretation of the statement in Figure 1 caption and Figure 3 is wrong and improve the clarity of how they present the results accordingly.
+    - __This statement was incorrect and we have removed it__. See the ["1.0 Msun evolutionary ages" section of figures/main.md](../Paper/figures/main.md#m1p0-ages). The Gamma_B = 10**6 model generally reaches each evolutionary marker at a younger age (except for the X_c = 0.3 marker), however the difference in ages is generally small and the timesteps (and therefore the exact X_c values) are not exactly aligned. Therefore we simply removed the statement.
+<!-- fe Reviewer Comments - Round 2 -->
+---
+
+<a name="revcomm1"></a>
+# Reviewer Comments - Round 1
 <!-- fs -->
 - [ ]  Evaporation of DM particles outside the star:
     - The study concentrates on a hypothetical ADM particle with a mass of 5 GeV, which is just marginally above the lower limit for evaporation in the Sun as found by Gould [1] (see also more modern detailed studies of evaporation of DM in the Sun in Refs [2] and [3]). Considering that this limit is very sensitive to stellar parameters and that __evaporation could potentially invalidate the results presented in this paper, the authors should take evaporation into account__. That could be done by implementing the full treatment of evaporation in the code (which is fairly similar to the energy transport by scattering) or __by justifying in the text why evaporation can be neglected for the DM particles and stellar masses that they study__.
@@ -106,7 +119,7 @@ Additional minor points that the authors may consider addressing if they find it
 
 <!-- fe Reviewer Comments -->
 
-
+---
 <a name="zen"></a>
 # Prepare files for Zenodo
 <!-- fs -->

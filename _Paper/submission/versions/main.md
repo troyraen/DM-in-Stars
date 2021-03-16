@@ -7,9 +7,9 @@
 ```bash
 cd ~/Osiris/DMS/mesaruns_analysis/_Paper/submission/versions
 # dmsenv
-diffname='diff-arXivoct8-arXivfeb8'
-draftdir='DM-in-Stars-arXiv-oct8'
-revisiondir='DM-in-Stars-arXiv-feb25'
+diffname='diff-arXivfeb8-arXivmar16'
+draftdir='DM-in-Stars-arXiv-feb25'
+revisiondir='DM-in-Stars-arXiv-mar16'
 
 draft=${draftdir}'/main.tex'
 revision=${revisiondir}'/main.tex'
