@@ -6,11 +6,11 @@
 ######
 #   This function takes a directory as input
 #   generates a new file dir/history_reduc.data from dir/history.data
-#   keeping only:
+#   keeping only entries matching any of the following:
 #       model_number == 1
 #       model has profile saved
-#       model_number % 5 == 0 from MS
-#       num_keep total models from post-MS
+#       model_number % 5 == 0 during MS
+#       num_keep total models after MS
 #
 #   for loop at bottom runs function on list of LOGS dirs
 #

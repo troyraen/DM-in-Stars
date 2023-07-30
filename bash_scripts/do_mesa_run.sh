@@ -9,7 +9,7 @@ function do_mesa_run () {
     pgstar=${5:-0} # = 1 generates a movie, default 0
     inlist_master=${6:-"master"} # inlist_$6 will be used as base inlist
     stop_TAMS=${7:-0} # = 1 stops the run when h1 frac < 1.e-12
-    skip_existing=${8:-0} # = 1 exits the run if ${RUN}/LOGS/history.data exists
+    skip_existing=${8:-0} # = 1 skips the run if ${RUN}/LOGS/history.data exists
 
     ### PREP
     source ${maindir}/bash_scripts/write_inlists.sh

@@ -1,9 +1,23 @@
 #!/bin/bash
 
 ####
-# this script does a run for every __3rd__ element in a reversed mord array,
-# starting with index i
-    # where i is an argument passed to this script
+# This script does a run for every __3rd__ element in a reversed mord array,
+# starting with index i, where i is an argument passed to this script.
+#
+# Example call that does the runs in a background thread and writes the output
+# to a file:
+# 
+# i=1
+# nohup nice ./bash_scripts/run_osiris.sh $i &>> run_osiris.out &
+#
+# To run all masses in mord, call this script three times, with
+# i = 1, 2, and 3.
+#
+# Be sure to look at the arguments to to the do_mesa_run command below.
+# They determine many of the run parameters.
+#
+# We reverse the mord array because the higher mass models run a lot faster,
+# so might as well do them first so we can look at them sooner.
 ####
 
 ### runs mesa models with specified params
